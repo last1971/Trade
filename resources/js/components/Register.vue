@@ -77,7 +77,7 @@
         methods: {
             register() {
                 this.$store.dispatch('USER/REGISTER', this.user)
-                    .then(() => this.$router.push({name: 'home'}))
+                    .then(() => this.$router.push({name: 'help'}))
                     .catch((error) => {
                         this.error = error.response.data.errors;
                     });

@@ -72,6 +72,7 @@ const actions = {
                 .then(resp => {
                     commit('SET_USER', resp.data.user);
                     commit('SET_ROLES', resp.data.roles);
+                    resolve(resp);
                 })
                 .catch(err => {
                     reject(err);

@@ -43,6 +43,9 @@ const app = new Vue({
         if (this.$store.getters['USER/IS_LOGGEDIN']) {
             window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
             this.$store.dispatch('USER/REFRESH')
+                .then(() => {
+                    if (this.$store.getters['USER/IS_GUEST']) this.$router.push({name: 'help'});
+                })
                 .catch(() => {
                     this.$router.push({name: 'login'});
                 });
