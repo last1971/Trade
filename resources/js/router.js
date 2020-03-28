@@ -39,7 +39,6 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    debugger
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (store.getters['USER/IS_LOGGEDIN']) {
             if (store.getters['USER/IS_GUEST']) {
