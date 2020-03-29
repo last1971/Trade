@@ -35,6 +35,16 @@ return [
 
     'connections' => [
 
+        'firebird' => [
+            'driver' => 'firebird',
+            'host' => env('FDB_HOST', 'localhost'),
+            'database' => env('FDB_DATABASE', '/path_to/database.fdb'),
+            'username' => env('FDB_USERNAME', 'sysdba'),
+            'password' => env('FDB_PASSWORD', 'masterkey'),
+            'charset' => env('FDB_CHARSET', 'UTF8'),
+            'role' => null,
+        ],
+
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DATABASE_URL'),
