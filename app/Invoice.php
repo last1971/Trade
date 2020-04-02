@@ -9,6 +9,7 @@ class Invoice extends Model
     //
     public $timestamps = false;
     protected $connection = 'firebird';
+    protected $dates = ['DATA'];
     protected $table = 'S';
 
     public function buyer()
@@ -31,4 +32,8 @@ class Invoice extends Model
         return $this->hasMany('App\InvoiceLine', 'SCODE', 'SCODE');
     }
 
+    public function invoiceLinesSum()
+    {
+        return $this;
+    }
 }

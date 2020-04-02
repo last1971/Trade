@@ -18,12 +18,15 @@ use Illuminate\Support\Facades\Route;
 //});
 
 Route::middleware('auth:api')->group(function () {
-    Route::get('/logout', 'Api\AuthController@logout')->name('logout');
+    Route::get('logout', 'Api\AuthController@logout')->name('logout');
     Route::get('refresh-user', 'Api\AuthController@refresh')->name('refresh');
     Route::apiResources([
-        'user' => 'UserController'
+        'user' => 'Api\UserController'
     ]);
 });
 
-Route::post('/login', 'Api\AuthController@login')->name('login');
-Route::post('/register', 'Api\AuthController@register')->name('register');
+Route::get('invoice', 'Api\InvoiceController@index');
+
+
+Route::post('login', 'Api\AuthController@login')->name('login');
+Route::post('register', 'Api\AuthController@register')->name('register');
