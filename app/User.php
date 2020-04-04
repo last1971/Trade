@@ -43,4 +43,9 @@ class User extends Authenticatable
     {
         return $this->hasOne('App\Employee', 'ID', 'employeeId');
     }
+
+    public function options()
+    {
+        return $this->hasMany('App\UserOption');
+    }
 }

@@ -4,52 +4,75 @@
 namespace App\Services;
 
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class ModelService
 {
-    protected $agregateAttributes = [];
+    /**
+     * @var array
+     */
+    protected $aggregateAttributes = [];
 
+    /**
+     * @var array
+     */
     protected $dateAttributes = [];
+
+    /**
+     * @var array
+     */
+    protected $aliases = [];
 
     /**
      * @var Model
      */
     private $modelClass;
 
+    /**
+     * ModelService constructor.
+     * @param Model|string $modelClass
+     */
     public function __construct($modelClass)
     {
         $this->modelClass = $modelClass;
     }
 
-    public function index($request = null)
+    /**
+     * @param null $request
+     * @return Builder|mixed
+     */
+    public function index($request)
     {
-        return $this->modelClass::query()
+        $query = $this->modelClass::query();
+        // add joins
+        foreach (
+            array_unique(
+                array_merge($request->get('filterAttributes') ?? [], $request->get('sortBy') ?? [])
+            ) as $attribute
+        ) {
+            if (isset($this->aliases[$attribute])) {
+                $this->aliases[$attribute]($query);
+            }
+        }
+        return $query
             // relations
             ->when($request->get('with'), function (Builder $query, array $with) {
                 $query->with($with);
             })
             // select only attributes
-            ->when($request->get('selectAttributes'), function (Builder $query, array $selectAttributes) {
-                $query->select($selectAttributes);
-            })
+            ->select($request->get('selectAttributes') ?? (new $this->modelClass)->getTable() . '.*')
             // additional agregate attributes
-            ->when($request->get('agregateAttributes'), function (Builder $query, array $agregateAttributes) {
-                $withCount = [];
-                foreach ($agregateAttributes as $agregateAttribute) {
-                    $data = $this->agregateAttributes[$agregateAttribute];
-                    $withCount[key($data) . ' as ' . $agregateAttribute] = current($data);
-                }
-                $query->withCount($withCount);
-            })
+            ->aggregateAttributes($request->get('aggregateAttributes'), $this->aggregateAttributes)
             // filter
             ->when(
                 $request->get('filterAttributes'),
                 function (Builder $query, array $filterAttributes) use ($request) {
                     foreach ($filterAttributes as $index => $filterAttribute) {
-                        $data = array_key_exists($filterAttribute, $this->agregateAttributes)
-                            ? $this->agregateAttributes[$filterAttribute] : false;
+                        $data = array_key_exists($filterAttribute, $this->aggregateAttributes)
+                            ? $this->aggregateAttributes[$filterAttribute] : false;
+                        // aggregate where
                         if ($data) {
                             $query->whereHas(
                                 key($data),
@@ -57,11 +80,13 @@ class ModelService
                                 $request->get('filterOperators')[$index],
                                 $request->get('filterValues')[$index]
                             );
+                            // date where
                         } else if (array_search($filterAttribute, $this->dateAttributes) !== false) {
                             $query->whereRaw(
                                 '"' . $filterAttribute . '" ' . $request->get('filterOperators')[$index]
-                                . '\'' . $request->get('filterValues')[$index] . '\''
+                                . '\'' . Carbon::parse($request->get('filterValues')[$index]) . '\''
                             );
+                            // where
                         } else {
                             $query->where(
                                 $filterAttribute,
@@ -75,8 +100,9 @@ class ModelService
             // ordering
             ->when($request->get('sortBy'), function (Builder $query, array $sortBy) use ($request) {
                 foreach ($sortBy as $index => $orderBy) {
-                    $query->orderBy($orderBy, $request->get('sortDesc')[$index]);
+                    $query->orderBy($orderBy, $request->get('sortDesc')[$index] ? 'desc' : 'asc');
                 }
             });
     }
+
 }

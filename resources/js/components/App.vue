@@ -31,12 +31,7 @@
         </v-app-bar>
 
         <v-content>
-            <v-container
-                class="fill-height"
-                fluid
-            >
-                <router-view></router-view>
-            </v-container>
+            <router-view></router-view>
         </v-content>
         <v-footer
             app
@@ -44,6 +39,22 @@
         >
             <span class="white--text">&copy; 2020</span>
         </v-footer>
+        <v-snackbar
+            :color="snackbar.color"
+            :multi-line="snackbar.multi"
+            :timeout="snackbar.timeout"
+            @input="$store.commit('SNACKBAR/SHIFT')"
+            v-model="snackbar.status"
+        >
+            {{ snackbar.text }}
+            <v-btn
+                @click="closeSnackbar"
+                dark
+                text
+            >
+                Закрыть
+            </v-btn>
+        </v-snackbar>
     </v-app>
 </template>
 
@@ -59,18 +70,24 @@
             drawer: null,
             menus: [
                 {id: 1, text: 'Домой', to: {name: 'home'}, icon: 'mdi-home'},
-                {id: 2, text: 'Помощь', to: {name: 'help', icon: 'mdi-help'}}
+                {id: 2, text: 'Счета', to: {name: 'invoices'}, icon: 'md-tex-box'},
+                {id: 3, text: 'Помощь', to: {name: 'help', icon: 'mdi-help'}}
             ]
         }),
         computed: {
             ...mapGetters({
                 user: 'USER/GET',
+                snackbar: 'SNACKBAR/GET',
             })
         },
         methods: {
             logout() {
                 this.$store.dispatch('USER/LOGOUT')
                     .then(() => this.$router.push({name: 'login'}))
+            },
+            closeSnackbar() {
+                this.$store.commit('SNACKBAR/STATUS', false);
+                this.$store.commit('SNACKBAR/SHIFT');
             }
         }
     }

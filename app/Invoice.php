@@ -7,9 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Invoice extends Model
 {
     //
+
     public $timestamps = false;
+
     protected $connection = 'firebird';
+
     protected $dates = ['DATA'];
+
+    protected $primaryKey = 'SCODE';
+
     protected $table = 'S';
 
     public function buyer()

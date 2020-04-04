@@ -70,7 +70,7 @@
                         this.error = error.response.data.errors;
                     });
             }
-        }
+        },
     }
 </script>
 

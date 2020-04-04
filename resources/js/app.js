@@ -4,7 +4,13 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
+import moment from 'moment';
+import vuetify from "./vuetify";
+import router from "./router";
+import store from "./store/index";
+
 require('./bootstrap');
+require('moment/locale/ru');
 
 window.Vue = require('vue');
 
@@ -16,14 +22,14 @@ window.Vue = require('vue');
  * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
  */
 
-import vuetify from "./vuetify";
-import router from "./router";
-import store from "./store/index";
-
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
 
 Vue.component('app', require('./components/App.vue').default);
+
+Vue.filter('formatDate', function (d) {
+    return moment(d).format('DD.MM.Y');
+});
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -50,5 +56,6 @@ const app = new Vue({
                     this.$router.push({name: 'login'});
                 });
         }
-    },
+    }
 });
+

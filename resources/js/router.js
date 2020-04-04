@@ -5,6 +5,7 @@ import ExampleComponent from "./components/ExampleComponent";
 import Help from "./components/Help";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Invoices from "./components/Invoices";
 
 Vue.use(VueRouter);
 
@@ -19,6 +20,12 @@ const routes = [
         path: '/',
         component: ExampleComponent,
         meta: {requiresAuth: true},
+    },
+    {
+        name: 'invoices',
+        path: '/invoice',
+        component: Invoices,
+        meta: {requiresAuth: true, model: 'INVOICE'},
     },
     {
         name: 'login',

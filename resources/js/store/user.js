@@ -14,11 +14,12 @@ const state = {
     token: localStorage.getItem('token') || document.head.querySelector('meta[name="token"]'),
     user: null,
     roles: [],
+    options: {},
 };
 
 const getters = {
     AUTH_STATUS: state => state.status,
-    IS_GUEST: state => state.roles.indexOf('guest') >= 0,
+    IS_GUEST: state => state.roles.indexOf('guest') >= 0 && state.roles.length === 1,
     IS_LOGGEDIN: state => !!state.token,
     GET: state => state.user,
 };
@@ -48,6 +49,9 @@ const mutations = {
     SET_ROLES(state, roles) {
         state.roles = roles;
     },
+    SET_OPTION(state, option) {
+        Object.assign(state.options, option)
+    }
 };
 
 const actions = {
@@ -62,6 +66,7 @@ const actions = {
                 .catch(err => {
                     commit('AUTH_ERROR');
                     localStorage.removeItem('token');
+                    commit('SNACKBAR/ERROR', err.response.data.message, {root: true});
                     reject(err);
                 })
         })
@@ -108,6 +113,32 @@ const actions = {
                 })
         })
     },
+    OPTION({state, commit}, payload) {
+        return new Promise((resolve, reject) => {
+            const option = state.options[payload.option];
+            if (option && _.isEqual(option, payload.option)) return resolve(option);
+            axios.put('/api/user-option/' + payload.option, payload.value)
+                .then((response) => {
+                    commit('SET_OPTION', {[payload.option]: payload.value});
+                    resolve(response.data);
+                })
+                .catch(err => {
+                    reject(err);
+                })
+        })
+    },
+    OPTIONS({state, commit}, option) {
+        return new Promise((resolve, reject) => {
+            axios.get('/api/user-option/' + option)
+                .then((response) => {
+                    commit('SET_OPTION', {[option]: response.data});
+                    resolve(response.data);
+                })
+                .catch(err => {
+                    reject(err);
+                })
+        })
+    }
 };
 
 export default {

@@ -4,22 +4,22 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexRequest;
-use App\Services\InvoiceService;
+use App\UserOption;
+use Error;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class InvoiceController extends Controller
+class UserOptionController extends Controller
 {
     /**
      * Display a listing of the resource.
-     * @param IndexRequest $request
-     * @param InvoiceService $service
+     *
      * @return Response
      */
-    public function index(IndexRequest $request, InvoiceService $service)
+    public function index()
     {
-        return $service->index($request)->paginate($request->itemsPerPage);
         //
+        throw new Error('Method impossible');
     }
 
     /**
@@ -42,6 +42,8 @@ class InvoiceController extends Controller
     public function show($id)
     {
         //
+        $option = UserOption::query()->whereOption($id)->whereUserId(request()->user()->id)->first();
+        return $option ? $option->value : [];
     }
 
     /**
@@ -51,9 +53,13 @@ class InvoiceController extends Controller
      * @param int $id
      * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(IndexRequest $request, $id)
     {
         //
+        return UserOption::query()->updateOrCreate(
+            ['option' => $id, 'user_id' => request()->user()->id],
+            ['value' => $request->all()]
+        )->value;
     }
 
     /**

@@ -17,5 +17,6 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'Full']);
 
         Role::query()->firstOrCreate(['name' => 'guest']);
+        Role::query()->firstOrCreate(['name' => 'admin']);
     }
 }

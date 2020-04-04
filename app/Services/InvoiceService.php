@@ -12,7 +12,7 @@ class InvoiceService extends ModelService
     public function __construct()
     {
         parent::__construct(Invoice::class);
-        $this->agregateAttributes = [
+        $this->aggregateAttributes = [
             'invoiceLinesCount' => ['invoiceLines' => function (Builder $query) {
                 $query->invoiceLinesCount();
             }],
@@ -21,5 +21,8 @@ class InvoiceService extends ModelService
             }],
         ];
         $this->dateAttributes = ['DATA'];
+        $this->aliases['buyer.SHORTNAME'] = function (Builder $query) {
+            $query->join('POKUPAT as buyer', 'buyer.POKUPATCODE', '=', 'S.POKUPATCODE');
+        };
     }
 }

@@ -21,7 +21,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('logout', 'Api\AuthController@logout')->name('logout');
     Route::get('refresh-user', 'Api\AuthController@refresh')->name('refresh');
     Route::apiResources([
-        'user' => 'Api\UserController'
+        'user' => 'Api\UserController',
+        'user-option' => 'Api\UserOptionController'
     ]);
 });
 

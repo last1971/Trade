@@ -38,7 +38,19 @@ class IndexRequest extends FormRequest
             'sortBy' => 'array',
             'sortBy.*' => 'string',
             'sortDesc' => 'required_with:sortBy|array',
-            'sortDesc.*' => 'required_with:sortBy|in:asc,desc',
+            'sortDesc.*' => 'required_with:sortBy|boolean',
         ];
+    }
+
+    /**
+     *  Mutate request before validation
+     */
+    protected function prepareForValidation()
+    {
+        if (is_array($this->sortDesc)) {
+            $this->merge(['sortDesc' => array_map(function ($v) {
+                return $v === 'true';
+            }, $this->sortDesc)]);
+        }
     }
 }
