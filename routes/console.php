@@ -20,6 +20,12 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
+
+    //$pdo = new \PDO('firebird:dbname=192.168.14.200:/home/db/base.fdb;charset=utf-8;dialect=3', 'SYSDBA', '641767');
+    //$s1 = $pdo->prepare('SELECT * FROM REALPRICE ROWS 1');
+    //$s1->execute();
+    //$r = $s1->fetch();
+    //dd($r);
     $s = new InvoiceService();
     $q = collect([
         'with' => ['employee', 'buyer'],
@@ -31,6 +37,6 @@ Artisan::command('test', function () {
         //'sortBy' => ['DATA', 'invoiceLinesSum'],
         //'sortDesc' => ['desc', 'asc'],
     ]);
-    dd($s->index($q)->find(57192));
+    dd($s->index($q)->first());
 
 })->describe('Display an inspiring quote');

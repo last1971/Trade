@@ -44,7 +44,9 @@
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :rules="[rules.isInteger]" label="Номер" v-model="options.filterValues[1]"/>
                 </td>
-                <td v-if="!isMobile"></td>
+                <td class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field label="Покупатель" v-model="options.filterValues[4]"/>
+                </td>
                 <td v-if="!isMobile"></td>
                 <td class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :rules="[rules.required, rules.isNumber]"
@@ -79,11 +81,11 @@
         data() {
             return {
                 options: {
-                    with: ['buyer'],
+                    with: ['buyer', 'employee'],
                     aggregateAttributes: ['invoiceLinesCount', 'invoiceLinesSum'],
-                    filterAttributes: ['DATA', 'NS', 'invoiceLinesSum', 'STATUS'],
-                    filterOperators: ['>', 'LIKE', '>', 'IN'],
-                    filterValues: [moment().format('Y-MM-DD'), '', 0, '0,1,2,3,4'],
+                    filterAttributes: ['DATA', 'NS', 'invoiceLinesSum', 'STATUS', 'buyer.SHORTNAME'],
+                    filterOperators: ['>', 'LIKE', '>', 'IN', 'CONTAIN'],
+                    filterValues: [moment().format('Y-MM-DD'), '', 0, '0,1,2,3,4', ''],
                 },
                 loading: false,
                 total: 0,
@@ -98,7 +100,7 @@
                 rules: {
                     isInteger: n => _.isInteger(_.toNumber(n)) || 'Введите целое число',
                     isNumber: n => !_.isNaN(_.toNumber(n)) || 'Введите число',
-                    required: v => !!v || 'Обязателный'
+                    required: v => (v === 0 || !!v) || 'Обязателный'
                 }
             }
         },

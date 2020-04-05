@@ -5,8 +5,8 @@
             v-if="user"
             v-model="drawer"
         >
-            <v-list dense>
-                <v-list-item :key="menu.id" :to="menu.to" link v-for="menu in menus">
+            <v-list dense nav>
+                <v-list-item :key="menu.id" :to="menu.to" link link v-for="menu in menus">
                     <v-list-item-action>
                         <v-icon>{{ menu.icon }}</v-icon>
                     </v-list-item-action>
@@ -74,8 +74,8 @@
             drawer: null,
             menus: [
                 {id: 1, text: 'Домой', to: {name: 'home'}, icon: 'mdi-home'},
-                {id: 2, text: 'Счета', to: {name: 'invoices'}, icon: 'md-tex-box'},
-                {id: 3, text: 'Помощь', to: {name: 'help', icon: 'mdi-help'}}
+                {id: 2, text: 'Счета', to: {name: 'invoices'}, icon: 'mdi-text-box'},
+                {id: 3, text: 'Помощь', to: {name: 'help'}, icon: 'mdi-help'},
             ]
         }),
         computed: {
