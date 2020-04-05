@@ -7,14 +7,17 @@
         :options.sync="options"
         :server-items-length="total"
         loading-text="Loading... Please wait"
+        :footer-props="{
+            showFirstLastPage: true,
+        }"
     >
         <template v-slot:top>
 
         </template>
-        <template v-if="this.$vuetify.breakpoint.mdAndUp" v-slot:body.prepend>
-            <tr>
-                <td></td>
-                <td>
+        <template v-slot:body.prepend="{ isMobile }">
+            <tr :class="{ 'v-data-table__mobile-table-row' : isMobile }">
+                <td v-if="!isMobile"></td>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-menu
                         :close-on-content-click="false"
                         :nudge-right="40"
@@ -32,16 +35,26 @@
                                 v-on="on"
                             />
                         </template>
-                        <v-date-picker @input="datePicker = false" v-model="options.filterValues[0]"/>
+                        <v-date-picker @input="datePicker = false"
+                                       first-day-of-week="1"
+                                       v-model="options.filterValues[0]"
+                        />
                     </v-menu>
                 </td>
-                <td>
-                    <v-text-field label="Номер" v-model="options.filterValues[1]"/>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field :rules="[rules.isInteger]" label="Номер" v-model="options.filterValues[1]"/>
                 </td>
-                <td></td>
-                <td></td>
-                <td>
-                    <v-text-field label="Больше" reverse v-model="options.filterValues[2]"/>
+                <td v-if="!isMobile"></td>
+                <td v-if="!isMobile"></td>
+                <td class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field :rules="[rules.required, rules.isNumber]"
+                                  label="Больше"
+                                  reverse
+                                  v-model="options.filterValues[2]"
+                    />
+                </td>
+                <td class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-select :items="statuses" v-model="options.filterValues[3]"/>
                 </td>
             </tr>
         </template>
@@ -68,15 +81,25 @@
                 options: {
                     with: ['buyer'],
                     aggregateAttributes: ['invoiceLinesCount', 'invoiceLinesSum'],
-                    filterAttributes: ['DATA', 'NS', 'invoiceLinesSum'],
-                    filterOperators: ['>', 'LIKE', '>'],
-                    filterValues: [moment().format('Y-MM-DD'), '', 0],
+                    filterAttributes: ['DATA', 'NS', 'invoiceLinesSum', 'STATUS'],
+                    filterOperators: ['>', 'LIKE', '>', 'IN'],
+                    filterValues: [moment().format('Y-MM-DD'), '', 0, '0,1,2,3,4'],
                 },
                 loading: false,
                 total: 0,
                 items: [],
                 dependent: false,
                 datePicker: false,
+                statuses: [
+                    {text: 'В работе', value: '0,1,2,3,4'},
+                    {text: 'Без корзины', value: '0,1,2,3,4,5'},
+                    {text: 'Все', value: '0,1,2,3,4,5,6'},
+                ],
+                rules: {
+                    isInteger: n => _.isInteger(_.toNumber(n)) || 'Введите целое число',
+                    isNumber: n => !_.isNaN(_.toNumber(n)) || 'Введите число',
+                    required: v => !!v || 'Обязателный'
+                }
             }
         },
         computed: {
@@ -89,6 +112,11 @@
             ...mapGetters({
                 invoiceStatus: 'INVOICESTATUS/GET'
             }),
+            checkFilters() {
+                return this.rules.isInteger(this.options.filterValues[1]) === true
+                    && this.rules.isNumber(this.options.filterValues[2]) === true
+                    && this.rules.required(this.options.filterValues[2]) === true;
+            }
         },
         watch: {
             options: {
@@ -99,20 +127,21 @@
             }
         },
         created() {
-            this.$store.dispatch('USER/OPTIONS', this.model)
+            /*this.$store.dispatch('USER/OPTIONS', this.model)
                 .then((response) => {
                     if (!_.isEmpty(response)) {
                         const convert = response;
                         convert.filterValues = convert.filterValues.map((v) => v === null ? '' : v);
                         this.options = convert;
                     }
-                })
+                })*/
         },
         methods: {
             updateItems() {
+                if (!this.checkFilters) return;
                 this.loading = true;
                 // if (this.$route.query.page === this.options.page && !this.dependent) this.options.page = 1;
-                this.$store.dispatch('USER/OPTION', {option: this.model, value: this.options});
+                // this.$store.dispatch('USER/OPTION', {option: this.model, value: this.options});
                 this.$store.dispatch(this.model + '/ALL', this.requestParams())
                     .then((response) => {
                         this.total = response.data.total;
@@ -132,6 +161,30 @@
                 return this.options;
             }
         },
+        beforeRouteEnter(to, from, next) {
+            next(vm => {
+                let options = vm.options;
+                if (!_.isEmpty(to.query)) {
+                    options = to.query;
+                } else {
+                    const localOptions = vm.$store.getters['USER/LOCAL_OPTION'](to.meta.model);
+                    if (localOptions) options = localOptions;
+                }
+                options.itemsPerPage = parseInt(options.itemsPerPage);
+                if (options.with) {
+                    options.with = typeof options.with === 'string' ? [options.with] : options.with;
+                }
+                if (options.sortBy) {
+                    options.sortBy = typeof options.sortBy === 'string' ? [options.sortBy] : options.sortBy;
+                    options.sortDesc = typeof options.sortDesc === 'string' ? [options.sortDesc] : options.sortDesc;
+                }
+                vm.options = options;
+            });
+        },
+        beforeRouteLeave(to, from, next) {
+            this.$store.commit('USER/SET_LOCAL_OPTION', {[this.model]: this.options});
+            next();
+        }
     }
 </script>
 

@@ -80,11 +80,16 @@ class ModelService
                                 $request->get('filterOperators')[$index],
                                 $request->get('filterValues')[$index]
                             );
-                            // date where
+                        // date where
                         } else if (array_search($filterAttribute, $this->dateAttributes) !== false) {
                             $query->whereRaw(
                                 '"' . $filterAttribute . '" ' . $request->get('filterOperators')[$index]
                                 . '\'' . Carbon::parse($request->get('filterValues')[$index]) . '\''
+                            );
+                            // in where
+                        } else if ($request->get('filterOperators')[$index] === 'IN') {
+                            $query->whereRaw(
+                                '"' . $filterAttribute . '" IN (' . $request->get('filterValues')[$index] . ')'
                             );
                             // where
                         } else {

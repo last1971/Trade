@@ -15,6 +15,7 @@ const state = {
     user: null,
     roles: [],
     options: {},
+    localOptions: JSON.parse(localStorage.getItem('options')) || {},
 };
 
 const getters = {
@@ -22,6 +23,7 @@ const getters = {
     IS_GUEST: state => state.roles.indexOf('guest') >= 0 && state.roles.length === 1,
     IS_LOGGEDIN: state => !!state.token,
     GET: state => state.user,
+    LOCAL_OPTION: state => key => state.localOptions[key],
 };
 
 const mutations = {
@@ -51,6 +53,10 @@ const mutations = {
     },
     SET_OPTION(state, option) {
         Object.assign(state.options, option)
+    },
+    SET_LOCAL_OPTION(state, option) {
+        Object.assign(state.localOptions, option);
+        localStorage.setItem('options', JSON.stringify(state.localOptions));
     }
 };
 

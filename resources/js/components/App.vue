@@ -31,7 +31,11 @@
         </v-app-bar>
 
         <v-content>
-            <router-view></router-view>
+            <transition>
+                <keep-alive>
+                    <router-view></router-view>
+                </keep-alive>
+            </transition>
         </v-content>
         <v-footer
             app
