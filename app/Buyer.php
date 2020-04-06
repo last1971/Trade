@@ -8,7 +8,11 @@ class Buyer extends Model
 {
     //
     public $timestamps = false;
+
     protected $connection = 'firebird';
+
+    protected $primaryKey = 'POKUPATCODE';
+
     protected $table = 'POKUPAT';
 
     public function invoices()

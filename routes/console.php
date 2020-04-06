@@ -29,8 +29,8 @@ Artisan::command('test', function () {
     $s = new InvoiceService();
     $q = collect([
         'with' => ['employee', 'buyer'],
-        'selectAttributes' => ['SCODE', 'NS', 'POKUPATCODE', 'STAFF_ID'],
-        'aggregateAttributes' => ['invoiceLinesCount', 'invoiceLinesSum'],
+        // 'selectAttributes' => ['SCODE', 'NS', 'POKUPATCODE', 'STAFF_ID'],
+        'aggregateAttributes' => ['invoiceLinesCount', 'invoiceLinesSum', 'transferOutLinesSum', 'cashFlowsSum'],
         //'filterAttributes' => ['DATA'],
         //'filterOperators' => ['>'],
         //'filterValues' => ['01.01.2018'],
@@ -38,5 +38,9 @@ Artisan::command('test', function () {
         //'sortDesc' => ['desc', 'asc'],
     ]);
     dd($s->index($q)->first());
+    //dd($s->index($q)->select('S.*', \Illuminate\Support\Facades\DB::raw('
+    //    (SELECT sum(REALPRICEF.SUMMAP) as otgr from REALPRICEF, REALPRICE WHERE REALPRICEF.REALPRICECODE=REALPRICE.REALPRICECODE
+    //    AND REALPRICE.SCODE=S.SCODE)
+    //'))->first());
 
 })->describe('Display an inspiring quote');

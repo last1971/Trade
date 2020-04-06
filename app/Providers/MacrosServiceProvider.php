@@ -37,12 +37,22 @@ class MacrosServiceProvider extends ServiceProvider
             });
         });
 
-        // For Invoice
+        // For CashFlow
+        Builder::macro('cashFlowsSum', function () {
+            $this->select(DB::raw('COALESCE(sum(MONEYSCHET), 0)'));
+        });
+
+        // For InvoiceLines
         Builder::macro('invoiceLinesSum', function () {
-            $this->select(DB::raw('sum(SUMMAP)'));
+            $this->select(DB::raw('COALESCE(sum(REALPRICE.SUMMAP), 0)'));
         });
         Builder::macro('invoiceLinesCount', function () {
             $this->select(DB::raw('count(SCODE)'));
+        });
+
+        // For TransferLines
+        Builder::macro('transferOutLinesSum', function () {
+            $this->select(DB::raw('COALESCE(sum(REALPRICEF.SUMMAP), 0)'));
         });
     }
 }

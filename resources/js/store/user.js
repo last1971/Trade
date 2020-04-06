@@ -37,6 +37,11 @@ const mutations = {
     AUTH_ERROR(state) {
         state.status = 'error';
     },
+    CLEAR_LOCAL_OPTION(state) {
+        localStorage.removeItem('options');
+        state.localOptions = {};
+
+    },
     LOGOUT(state) {
         state.status = '';
         state.token = '';
@@ -95,6 +100,7 @@ const actions = {
             axios.get('/api/logout')
                 .then(() => {
                     commit('LOGOUT');
+                    commit('CLEAR_LOCAL_OPTION');
                     localStorage.removeItem('token');
                     delete axios.defaults.headers.common['Authorization'];
                     resolve();

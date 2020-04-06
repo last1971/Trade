@@ -23,6 +23,11 @@ class Invoice extends Model
         return $this->belongsTo('App\Buyer', 'POKUPATCODE', 'POKUPATCODE');
     }
 
+    public function cashFlows()
+    {
+        return $this->hasMany('App\CashFlow', 'SCODE', 'SCODE');
+    }
+
     public function employee()
     {
         return $this->belongsTo('App\Employee', 'STAFF_ID', 'ID');
@@ -38,8 +43,15 @@ class Invoice extends Model
         return $this->hasMany('App\InvoiceLine', 'SCODE', 'SCODE');
     }
 
-    public function invoiceLinesSum()
+    public function transferOutLines()
     {
-        return $this;
+        return $this->hasManyThrough(
+            'App\TransferOutLine',
+            'App\InvoiceLine',
+            'SCODE',
+            'REALPRICECODE',
+            'SCODE',
+            'REALPRICECODE'
+        );
     }
 }

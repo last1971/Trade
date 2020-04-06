@@ -8,7 +8,11 @@ class Employee extends Model
 {
     //
     public $timestamps = false;
+
     protected $connection = 'firebird';
+
+    protected $primaryKey = 'ID';
+
     protected $table = 'STAFF';
 
     public function invoices()

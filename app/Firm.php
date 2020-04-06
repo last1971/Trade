@@ -8,7 +8,11 @@ class Firm extends Model
 {
     //
     public $timestamps = false;
+
     protected $connection = 'firebird';
+
+    protected $primaryKey = 'FIRM_ID';
+
     protected $table = 'FIRMS';
 
     public function invoices()

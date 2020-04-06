@@ -27,13 +27,31 @@ state.headers = [
         align: 'right',
     },
     {
-        text: 'Сумма с НДС',
+        text: 'Сумма',
         value: 'invoiceLinesSum',
+        align: 'right',
+    },
+    {
+        text: 'Оплачено',
+        value: 'cashFlowsSum',
+        align: 'right',
+    },
+    {
+        text: 'Отгружено',
+        value: 'transferOutLinesSum',
         align: 'right',
     },
     {
         text: 'Статус',
         value: 'STATUS'
+    },
+    {
+        text: 'Фирма',
+        value: 'firm.FIRMNAME'
+    },
+    {
+        text: 'Манагер',
+        value: 'employee.FULLNAME'
     },
 ];
 

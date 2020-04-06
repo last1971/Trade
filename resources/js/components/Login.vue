@@ -65,7 +65,11 @@
         methods: {
             login() {
                 this.$store.dispatch('USER/LOGIN', this.user)
-                    .then(() => this.$router.back())
+                    .then(() => {
+                        this.user.login = '';
+                        this.user.password = '';
+                        this.$router.back()
+                    })
                     .catch((error) => {
                         this.error = error.response.data.errors;
                     });

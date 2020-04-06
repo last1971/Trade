@@ -42,10 +42,10 @@
                     </v-menu>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-text-field :rules="[rules.isInteger]" label="Номер" v-model="options.filterValues[1]"/>
+                    <v-text-field :rules="[rules.isInteger]" label="Равен" v-model="options.filterValues[1]"/>
                 </td>
                 <td class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-text-field label="Покупатель" v-model="options.filterValues[4]"/>
+                    <v-text-field label="Начинается с" v-model="options.filterValues[4]"/>
                 </td>
                 <td v-if="!isMobile"></td>
                 <td class="{ 'v-data-table__mobile-row' : isMobile }">
@@ -56,7 +56,27 @@
                     />
                 </td>
                 <td class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-select :items="statuses" v-model="options.filterValues[3]"/>
+                    <v-text-field :rules="[rules.required, rules.isNumber]"
+                                  label="Больше"
+                                  reverse
+                                  v-model="options.filterValues[7]"
+                    />
+                </td>
+                <td class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field :rules="[rules.required, rules.isNumber]"
+                                  label="Больше"
+                                  reverse
+                                  v-model="options.filterValues[8]"
+                    />
+                </td>
+                <td class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-select :items="statuses" label="Равен" v-model="options.filterValues[3]"/>
+                </td>
+                <td class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field label="Начинается с" v-model="options.filterValues[6]"/>
+                </td>
+                <td class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field label="Начинается с" v-model="options.filterValues[5]"/>
                 </td>
             </tr>
         </template>
@@ -65,6 +85,16 @@
         </template>
         <template v-slot:item.DATA="{ item }">
             {{ item.DATA | formatDate }}
+        </template>
+        <template v-slot:item.cashFlowsSum="{ item }">
+            <div :class="compareToColorText(item.invoiceLinesSum, item.cashFlowsSum)">
+                {{ item.cashFlowsSum }}
+            </div>
+        </template>
+        <template v-slot:item.transferOutLinesSum="{ item }">
+            <div :class="compareToColorText(item.invoiceLinesSum, item.transferOutLinesSum)">
+                {{ item.transferOutLinesSum }}
+            </div>
         </template>
         <template v-slot:item.STATUS="{ item }">
             {{ invoiceStatus(item.STATUS) }}
@@ -81,11 +111,23 @@
         data() {
             return {
                 options: {
-                    with: ['buyer', 'employee'],
-                    aggregateAttributes: ['invoiceLinesCount', 'invoiceLinesSum'],
-                    filterAttributes: ['DATA', 'NS', 'invoiceLinesSum', 'STATUS', 'buyer.SHORTNAME'],
-                    filterOperators: ['>', 'LIKE', '>', 'IN', 'CONTAIN'],
-                    filterValues: [moment().format('Y-MM-DD'), '', 0, '0,1,2,3,4', ''],
+                    with: ['buyer', 'employee', 'firm'],
+                    aggregateAttributes: [
+                        'invoiceLinesCount', 'invoiceLinesSum', 'cashFlowsSum', 'transferOutLinesSum'
+                    ],
+                    filterAttributes: [
+                        'DATA',
+                        'NS',
+                        'invoiceLinesSum',
+                        'STATUS',
+                        'buyer.SHORTNAME',
+                        'employee.FULLNAME',
+                        'firm.FIRMNAME',
+                        'cashFlowsSum',
+                        'transferOutLinesSum',
+                    ],
+                    filterOperators: ['>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>='],
+                    filterValues: [moment().format('Y-MM-DD'), '', 0, '0,1,2,3,4', '', '', '', 0, 0],
                 },
                 loading: false,
                 total: 0,
@@ -139,6 +181,14 @@
                 })*/
         },
         methods: {
+            compareToColorText(a, b) {
+                if (parseFloat(a) > parseFloat(b) && parseFloat(b) === 0) return 'red--text';
+                if (parseFloat(a) === parseFloat(b)) return 'green--text';
+                return 'primary--text';
+            },
+            requestParams() {
+                return this.options;
+            },
             updateItems() {
                 if (!this.checkFilters) return;
                 this.loading = true;
@@ -159,9 +209,6 @@
                     })
                     .then(() => this.loading = false)
             },
-            requestParams() {
-                return this.options;
-            }
         },
         beforeRouteEnter(to, from, next) {
             next(vm => {
@@ -184,7 +231,9 @@
             });
         },
         beforeRouteLeave(to, from, next) {
-            this.$store.commit('USER/SET_LOCAL_OPTION', {[this.model]: this.options});
+            if (to.name !== 'login') {
+                this.$store.commit('USER/SET_LOCAL_OPTION', {[this.model]: this.options});
+            }
             next();
         }
     }
