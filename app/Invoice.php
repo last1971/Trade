@@ -35,7 +35,7 @@ class Invoice extends Model
 
     public function firm()
     {
-        return $this->belongsTo('App\FIRM', 'FIRM_ID', 'FIRM_ID');
+        return $this->belongsTo('App\Firm', 'FIRM_ID', 'FIRM_ID');
     }
 
     public function invoiceLines()
