@@ -1,5 +1,6 @@
 <?php
 
+use App\Good;
 use App\Services\InvoiceService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -21,11 +22,8 @@ Artisan::command('inspire', function () {
 
 Artisan::command('test', function () {
 
-    //$pdo = new \PDO('firebird:dbname=192.168.14.200:/home/db/base.fdb;charset=utf-8;dialect=3', 'SYSDBA', '641767');
-    //$s1 = $pdo->prepare('SELECT * FROM REALPRICE ROWS 1');
-    //$s1->execute();
-    //$r = $s1->fetch();
-    //dd($r);
+    $s = Good::with('name', 'category')->find(326635);
+    dd($s);
     $s = new InvoiceService();
     $q = collect([
         'with' => ['employee', 'buyer'],

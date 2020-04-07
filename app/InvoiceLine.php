@@ -20,8 +20,23 @@ class InvoiceLine extends Model
         return $this->belongsTo('App\Invoice', 'SCODE', 'SCODE');
     }
 
+    public function good()
+    {
+        return $this->belongsTo('App\Good', 'GOODSCODE', 'GOODSCODE');
+    }
+
     public function transferOutLines()
     {
         return $this->hasMany('App\TransferOutLine', 'REALPRICECODE', 'REALPRICECODE');
+    }
+
+    public function reserves()
+    {
+        return $this->hasMany('App\Reserve', 'REALPRICECODE', 'REALPRICECODE');
+    }
+
+    public function pickUps()
+    {
+        return $this->hasMany('App\PickUp', 'REALPRICECODE', 'REALPRICECODE');
     }
 }
