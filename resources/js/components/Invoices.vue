@@ -11,11 +11,10 @@
             showFirstLastPage: true,
         }"
     >
-        <template v-slot:top>
-
-        </template>
         <template v-slot:body.prepend="{ isMobile }">
-            <tr :class="{ 'v-data-table__mobile-table-row' : isMobile }">
+            <tr :class="{ 'v-data-table__mobile-table-row' : isMobile }"
+                v-if="!isMobile || mobileFiltersVisible"
+            >
                 <td v-if="!isMobile"></td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-menu
@@ -29,7 +28,7 @@
                         <template v-slot:activator="{ on }">
                             <v-text-field
                                 :value="options.filterValues[0] | formatDate"
-                                label="Позже"
+                                :label="'Позже' + (isMobile ?  ' указанной Даты' : '')"
                                 prepend-icon="mdi-calendar-edit"
                                 readonly
                                 v-on="on"
@@ -42,41 +41,60 @@
                     </v-menu>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-text-field :rules="[rules.isInteger]" label="Равен" v-model="options.filterValues[1]"/>
+                    <v-text-field :label="isMobile ? 'Номер' : 'Равен'"
+                                  :rules="[rules.isInteger]"
+                                  v-model="options.filterValues[1]"
+                    />
                 </td>
-                <td class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-text-field label="Начинается с" v-model="options.filterValues[4]"/>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field :label="isMobile ? 'Название покупателя' : 'Начинается с'"
+                                  v-model="options.filterValues[4]"
+                    />
                 </td>
                 <td v-if="!isMobile"></td>
-                <td class="{ 'v-data-table__mobile-row' : isMobile }">
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :rules="[rules.required, rules.isNumber]"
-                                  label="Больше"
+                                  :label="isMobile ? 'Сумма больше' : 'Больше'"
                                   reverse
                                   v-model="options.filterValues[2]"
                     />
                 </td>
-                <td class="{ 'v-data-table__mobile-row' : isMobile }">
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :rules="[rules.required, rules.isNumber]"
-                                  label="Больше"
+                                  :label="isMobile ? 'Оплата больше' : 'Больше'"
                                   reverse
                                   v-model="options.filterValues[7]"
                     />
                 </td>
-                <td class="{ 'v-data-table__mobile-row' : isMobile }">
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :rules="[rules.required, rules.isNumber]"
-                                  label="Больше"
+                                  :label="isMobile ? 'Отгрузка больше' : 'Больше'"
                                   reverse
                                   v-model="options.filterValues[8]"
                     />
                 </td>
-                <td class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-select :items="statuses" label="Равен" v-model="options.filterValues[3]"/>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-select :items="statuses"
+                              :label="isMobile ? 'Статус' : 'Равен'"
+                              v-model="options.filterValues[3]"
+                    />
                 </td>
-                <td class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-text-field label="Начинается с" v-model="options.filterValues[6]"/>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field :label="isMobile ? 'Название фирмы' : 'Начинается с'"
+                                  v-model="options.filterValues[6]"
+                    />
                 </td>
-                <td class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-text-field label="Начинается с" v-model="options.filterValues[5]"/>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field :label="isMobile ? 'Фамилия манагера' : 'Начинается с'"
+                                  v-model="options.filterValues[5]"
+                    />
+                </td>
+            </tr>
+            <tr v-if="isMobile">
+                <td>
+                    <v-btn @click="mobileFiltersVisible=true" block v-if="!mobileFiltersVisible">Показать фильтры
+                    </v-btn>
+                    <v-btn @click="mobileFiltersVisible=false" block v-else>Скрыть фильтры</v-btn>
                 </td>
             </tr>
         </template>
@@ -86,14 +104,17 @@
         <template v-slot:item.DATA="{ item }">
             {{ item.DATA | formatDate }}
         </template>
+        <template v-slot:item.invoiceLinesSum="{ item }">
+            {{ item.invoiceLinesSum | formatRub }}
+        </template>
         <template v-slot:item.cashFlowsSum="{ item }">
             <div :class="compareToColorText(item.invoiceLinesSum, item.cashFlowsSum)">
-                {{ item.cashFlowsSum }}
+                {{ item.cashFlowsSum | formatRub }}
             </div>
         </template>
         <template v-slot:item.transferOutLinesSum="{ item }">
             <div :class="compareToColorText(item.invoiceLinesSum, item.transferOutLinesSum)">
-                {{ item.transferOutLinesSum }}
+                {{ item.transferOutLinesSum | formatRub }}
             </div>
         </template>
         <template v-slot:item.STATUS="{ item }">
@@ -105,9 +126,11 @@
 <script>
     import moment from 'moment';
     import {mapGetters} from 'vuex';
+    import tableMixin from "../mixins/tableMixin";
 
     export default {
         name: "Invoices",
+        mixins: [tableMixin],
         data() {
             return {
                 options: {
@@ -129,10 +152,6 @@
                     filterOperators: ['>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>='],
                     filterValues: [moment().format('Y-MM-DD'), '', 0, '0,1,2,3,4', '', '', '', 0, 0],
                 },
-                loading: false,
-                total: 0,
-                items: [],
-                dependent: false,
                 datePicker: false,
                 statuses: [
                     {text: 'В работе', value: '0,1,2,3,4'},
@@ -143,16 +162,11 @@
                     isInteger: n => _.isInteger(_.toNumber(n)) || 'Введите целое число',
                     isNumber: n => !_.isNaN(_.toNumber(n)) || 'Введите число',
                     required: v => (v === 0 || !!v) || 'Обязателный'
-                }
+                },
+                mobileFiltersVisible: false,
             }
         },
         computed: {
-            headers() {
-                return this.$store.getters[this.model + '/HEADERS'];
-            },
-            model() {
-                return this.$route.meta.model;
-            },
             ...mapGetters({
                 invoiceStatus: 'INVOICESTATUS/GET'
             }),
@@ -162,52 +176,11 @@
                     && this.rules.required(this.options.filterValues[2]) === true;
             }
         },
-        watch: {
-            options: {
-                handler: _.debounce(function () {
-                    this.updateItems();
-                }, 500),
-                deep: true
-            }
-        },
-        created() {
-            /*this.$store.dispatch('USER/OPTIONS', this.model)
-                .then((response) => {
-                    if (!_.isEmpty(response)) {
-                        const convert = response;
-                        convert.filterValues = convert.filterValues.map((v) => v === null ? '' : v);
-                        this.options = convert;
-                    }
-                })*/
-        },
         methods: {
             compareToColorText(a, b) {
                 if (parseFloat(a) > parseFloat(b) && parseFloat(b) === 0) return 'red--text';
                 if (parseFloat(a) === parseFloat(b)) return 'green--text';
                 return 'primary--text';
-            },
-            requestParams() {
-                return this.options;
-            },
-            updateItems() {
-                if (!this.checkFilters) return;
-                this.loading = true;
-                // if (this.$route.query.page === this.options.page && !this.dependent) this.options.page = 1;
-                // this.$store.dispatch('USER/OPTION', {option: this.model, value: this.options});
-                this.$store.dispatch(this.model + '/ALL', this.requestParams())
-                    .then((response) => {
-                        this.total = response.data.total;
-                        this.items = response.data.data;
-                        const newQuery = _.cloneDeep(this.options);
-                        if (!this.dependent && !_.isEqual(this.$route.query, newQuery)) {
-                            this.$router.replace(
-                                {name: this.$route.name, params: this.$route.params, query: newQuery}
-                            );
-                        }
-                    })
-                    .catch(() => {
-                    })
-                    .then(() => this.loading = false)
             },
         },
         beforeRouteEnter(to, from, next) {
@@ -226,6 +199,12 @@
                 if (options.sortBy) {
                     options.sortBy = typeof options.sortBy === 'string' ? [options.sortBy] : options.sortBy;
                     options.sortDesc = typeof options.sortDesc === 'string' ? [options.sortDesc] : options.sortDesc;
+                }
+                if (options.multiSort) {
+                    options.multiSort = options.multiSort === "true" || options.multiSort === true;
+                }
+                if (options.mustSort) {
+                    options.mustSort = options.mustSort === "true" || options.multiSort === true;
                 }
                 vm.options = options;
             });
