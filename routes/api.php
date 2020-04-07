@@ -21,13 +21,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('logout', 'Api\AuthController@logout')->name('logout');
     Route::get('refresh-user', 'Api\AuthController@refresh')->name('refresh');
     Route::apiResources([
+        'invoice' => 'Api\InvoiceController',
         'user' => 'Api\UserController',
         'user-option' => 'Api\UserOptionController'
     ]);
 });
-
-Route::get('invoice', 'Api\InvoiceController@index');
-
 
 Route::post('login', 'Api\AuthController@login')->name('login');
 Route::post('register', 'Api\AuthController@register')->name('register');

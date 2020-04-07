@@ -101,6 +101,11 @@
         <template v-slot:item.actions>
 
         </template>
+        <template v-slot:item.NS="{ item }">
+            <router-link :to="{ name: 'invoice', params: { id: item.SCODE } }">
+                {{ item.NS }}
+            </router-link>
+        </template>
         <template v-slot:item.DATA="{ item }">
             {{ item.DATA | formatDate }}
         </template>

@@ -39,9 +39,10 @@ class InvoiceController extends Controller
      * @param int $id
      * @return Response
      */
-    public function show($id)
+    public function show($id, IndexRequest $request, InvoiceService $service)
     {
         //
+        return $service->index($request)->find($id);
     }
 
     /**

@@ -5,6 +5,7 @@ import ExampleComponent from "./components/ExampleComponent";
 import Help from "./components/Help";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import Invoice from "./components/Invoice";
 import Invoices from "./components/Invoices";
 
 Vue.use(VueRouter);
@@ -20,6 +21,12 @@ const routes = [
         path: '/',
         component: ExampleComponent,
         meta: {requiresAuth: true},
+    },
+    {
+        name: 'invoice',
+        path: '/invoice/:id',
+        component: Invoice,
+        meta: {requiresAuth: true, model: 'INVOICELINE'},
     },
     {
         name: 'invoices',

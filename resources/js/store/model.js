@@ -12,10 +12,10 @@ const getters = {
     KEY: state => state.key,
     KEYTYPE: state => state.keyType,
     URL: state => `/api/${state.name}`,
-    ITEM: state => (id) => {
-        return _.cloneDeep(_.find(state.items, {[state.key]: id}));
+    GET: state => (id) => {
+        return _.cloneDeep(_.find(state.items, {[state.key]: state.keyType === Number ? parseInt(id) : id}))
     },
-    ITEMS: state => _.cloneDeep(state.items),
+    ALL: state => _.cloneDeep(state.items),
     HEADERS: state => state.headers,
 };
 
@@ -33,13 +33,14 @@ const mutations = {
         state.items = _.cloneDeep(newData);
     },
 
-    MERGE(sate, mergeData) {
+    MERGE(state, mergeData) {
         if (!_.isArray(mergeData)) {
             const error = 'Data must be an array but ' + typeof newData + ' given.';
             this.commit('SNACKBAR/ERROR', error);
             throw new Error(error);
         }
-        _.unionBy(mergeData, state.items, state.key)
+        const update = _.cloneDeep(mergeData);
+        state.items = _.unionBy(update, state.items, state.key);
     },
 
     CREATE(state, newDataRow) {
@@ -81,10 +82,19 @@ const mutations = {
 };
 
 let actions = {
-    GET({getters, commit}, id) {
+    CACHE({getters, commit, dispatch}, payload) {
+        let id = typeof payload === 'object' ? payload.id : payload;
+        const res = getters.GET(id);
+        if (res) return Promise.resolve(res);
+        return dispatch('GET', payload);
+
+    },
+    GET({getters, commit}, payload) {
+        let id = typeof payload === 'object' ? payload.id : payload;
+        let query = typeof payload === 'object' ? payload.query : {};
         return new Promise((resolve, reject) => {
             axios
-                .get(getters.URL + '/' + id)
+                .get(getters.URL + '/' + id, {params: query})
                 .then(response => {
                     commit('MERGE', [response.data]);
                     resolve(response.data)
@@ -100,7 +110,7 @@ let actions = {
             axios
                 .get(getters.URL, {params: payload})
                 .then((response) => {
-                    if (response.data.rows && response.data.data.length > 0) {
+                    if (response.data.data && response.data.data.length > 0) {
                         commit('MERGE', response.data.data);
                     }
                     resolve(response);
