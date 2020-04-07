@@ -15,7 +15,7 @@ state.headers = [
     },
     {
         text: 'Название',
-        value: 'good.name.NAME'
+        value: 'name.NAME'
     },
     {
         text: 'Корпус',
@@ -32,17 +32,17 @@ state.headers = [
     },
     {
         text: 'Резерв',
-        value: 'reservesSum',
+        value: 'reservesQuantity',
         align: 'right',
     },
     {
         text: 'Подобрано',
-        value: 'pickUpsSum',
+        value: 'pickUpsQuantity',
         align: 'right',
     },
     {
         text: 'В УПД',
-        value: 'transferOutLinesSum',
+        value: 'transferOutLinesQuantity',
         align: 'right',
     },
     {

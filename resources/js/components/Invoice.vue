@@ -1,12 +1,15 @@
 <template>
-    <div>
-        {{ invoice }}
+    <div v-if="invoice">
+        <invoice-line :invoice="invoice"/>
     </div>
 </template>
 
 <script>
+    import InvoiceLine from "./InvoiceLine";
+
     export default {
         name: "Invoice",
+        components: {InvoiceLine},
         computed: {
             invoice() {
                 const document =

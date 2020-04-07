@@ -22,6 +22,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('refresh-user', 'Api\AuthController@refresh')->name('refresh');
     Route::apiResources([
         'invoice' => 'Api\InvoiceController',
+        'invoice-line' => 'Api\InvoiceLineController',
         'user' => 'Api\UserController',
         'user-option' => 'Api\UserOptionController'
     ]);

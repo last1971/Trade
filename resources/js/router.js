@@ -26,7 +26,7 @@ const routes = [
         name: 'invoice',
         path: '/invoice/:id',
         component: Invoice,
-        meta: {requiresAuth: true, model: 'INVOICELINE'},
+        meta: {requiresAuth: true, model: 'INVOICE-LINE'},
     },
     {
         name: 'invoices',

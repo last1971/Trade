@@ -25,6 +25,18 @@ class InvoiceLine extends Model
         return $this->belongsTo('App\Good', 'GOODSCODE', 'GOODSCODE');
     }
 
+    public function name()
+    {
+        return $this->hasOneThrough(
+            'App\Name',
+            'App\Good',
+            'GOODSCODE',
+            'NAMECODE',
+            'GOODSCODE',
+            'NAMECODE'
+        );
+    }
+
     public function transferOutLines()
     {
         return $this->hasMany('App\TransferOutLine', 'REALPRICECODE', 'REALPRICECODE');

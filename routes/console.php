@@ -1,6 +1,6 @@
 <?php
 
-use App\Good;
+use App\Services\InvoiceLineService;
 use App\Services\InvoiceService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -22,7 +22,14 @@ Artisan::command('inspire', function () {
 
 Artisan::command('test', function () {
 
-    $s = Good::with('name', 'category')->find(326635);
+    $s = new InvoiceLineService();
+    $q = collect([
+        'with' => ['good', 'name'],
+        'filterAttributes' => ['name.NAME'],
+        'filterOperators' => ['CONTAIN'],
+        'filterValues' => ['MAX'],
+    ]);
+    dd($s->index($q)->first());
     dd($s);
     $s = new InvoiceService();
     $q = collect([

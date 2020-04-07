@@ -188,38 +188,6 @@
                 return 'primary--text';
             },
         },
-        beforeRouteEnter(to, from, next) {
-            next(vm => {
-                let options = vm.options;
-                if (!_.isEmpty(to.query)) {
-                    options = to.query;
-                } else {
-                    const localOptions = vm.$store.getters['USER/LOCAL_OPTION'](to.meta.model);
-                    if (localOptions) options = localOptions;
-                }
-                options.itemsPerPage = parseInt(options.itemsPerPage);
-                if (options.with) {
-                    options.with = typeof options.with === 'string' ? [options.with] : options.with;
-                }
-                if (options.sortBy) {
-                    options.sortBy = typeof options.sortBy === 'string' ? [options.sortBy] : options.sortBy;
-                    options.sortDesc = typeof options.sortDesc === 'string' ? [options.sortDesc] : options.sortDesc;
-                }
-                if (options.multiSort) {
-                    options.multiSort = options.multiSort === "true" || options.multiSort === true;
-                }
-                if (options.mustSort) {
-                    options.mustSort = options.mustSort === "true" || options.multiSort === true;
-                }
-                vm.options = options;
-            });
-        },
-        beforeRouteLeave(to, from, next) {
-            if (to.name !== 'login') {
-                this.$store.commit('USER/SET_LOCAL_OPTION', {[this.model]: this.options});
-            }
-            next();
-        }
     }
 </script>
 
