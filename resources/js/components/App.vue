@@ -41,7 +41,7 @@
             app
             color="primary"
         >
-            <span class="white--text">&copy; 2020</span>
+            <span class="white--text">ООО "ЭлкоПро" &copy; 2020</span>
         </v-footer>
         <v-snackbar
             :color="snackbar.color"
@@ -75,7 +75,7 @@
             menus: [
                 {id: 1, text: 'Домой', to: {name: 'home'}, icon: 'mdi-home'},
                 {id: 2, text: 'Счета', to: {name: 'invoices'}, icon: 'mdi-text-box'},
-                {id: 3, text: 'Помощь', to: {name: 'help'}, icon: 'mdi-help'},
+                // {id: 3, text: 'Помощь', to: {name: 'help'}, icon: 'mdi-help'},
             ]
         }),
         computed: {

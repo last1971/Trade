@@ -6,7 +6,10 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Request;
 
 class ModelService
 {
@@ -31,21 +34,26 @@ class ModelService
     private $modelClass;
 
     /**
+     * @var Builder
+     */
+    protected $query;
+
+    /**
      * ModelService constructor.
      * @param Model|string $modelClass
      */
     public function __construct($modelClass)
     {
         $this->modelClass = $modelClass;
+        $this->query = $this->modelClass::query();
     }
 
     /**
-     * @param null $request
+     * @param FormRequest|Request|Collection $request
      * @return Builder|mixed
      */
     public function index($request)
     {
-        $query = $this->modelClass::query();
         // add joins
         foreach (
             array_unique(
@@ -53,10 +61,10 @@ class ModelService
             ) as $attribute
         ) {
             if (isset($this->aliases[$attribute])) {
-                $this->aliases[$attribute]($query);
+                $this->aliases[$attribute]($this->query);
             }
         }
-        return $query
+        return $this->query
             // relations
             ->when($request->get('with'), function (Builder $query, array $with) {
                 $query->with($with);

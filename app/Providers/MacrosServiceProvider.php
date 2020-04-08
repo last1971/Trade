@@ -67,5 +67,8 @@ class MacrosServiceProvider extends ServiceProvider
         Builder::macro('transferOutLinesQuantity', function () {
             $this->select(DB::raw('COALESCE(sum(REALPRICEF.QUAN), 0)'));
         });
+        Builder::macro('transferOutLinesCount', function () {
+            $this->select(DB::raw('count(REALPRICEFCODE)'));
+        });
     }
 }

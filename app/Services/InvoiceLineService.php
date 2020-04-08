@@ -12,6 +12,9 @@ class InvoiceLineService extends ModelService
     public function __construct()
     {
         parent::__construct(InvoiceLine::class);
+
+        $this->query->join('GOODS as good', 'good.GOODSCODE', '=', 'REALPRICE.GOODSCODE');
+
         $this->aggregateAttributes = [
             'reservesQuantity' => ['reserves' => function (Builder $query) {
                 $query->reservesQuantity();
@@ -23,9 +26,15 @@ class InvoiceLineService extends ModelService
                 $query->transferOutLinesQuantity();
             }],
         ];
+
+        $this->aliases['category.CATEGORY'] = function (Builder $query) {
+            $query
+                ->join(
+                    'CATEGORY as category', 'category.CATEGORYCODE', '=', 'good.CATEGORYCODE'
+                );
+        };
         $this->aliases['name.NAME'] = function (Builder $query) {
             $query
-                ->join('GOODS as good', 'good.GOODSCODE', '=', 'REALPRICE.GOODSCODE')
                 ->join('NAME as name', 'name.NAMECODE', '=', 'good.NAMECODE');
         };
     }

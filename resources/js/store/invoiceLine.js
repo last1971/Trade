@@ -8,10 +8,10 @@ state.name = 'invoice-line';
 state.key = 'REALPRICECODE';
 
 state.headers = [
-    {text: '', value: 'actions', width: 10, sortable: false},
+    // {text: '', value: 'actions', width: 10, sortable: false},
     {
         text: 'Категория',
-        value: 'good.category.CATEGORY',
+        value: 'category.CATEGORY',
     },
     {
         text: 'Название',

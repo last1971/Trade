@@ -23,6 +23,8 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResources([
         'invoice' => 'Api\InvoiceController',
         'invoice-line' => 'Api\InvoiceLineController',
+        'transfer-out' => 'Api\TransferOutController',
+        'transfer-out-line' => 'Api\TransferOutLineController',
         'user' => 'Api\UserController',
         'user-option' => 'Api\UserOptionController'
     ]);

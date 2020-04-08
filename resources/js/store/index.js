@@ -5,6 +5,8 @@ import snackbar from "./snackbar";
 import invoice from "./invoice";
 import invoiceStatus from "./invoiceStatus";
 import invoiceLine from "./invoiceLine";
+import transferOutLine from "./transferOutLine";
+import transferOut from "./transferOut";
 
 Vue.use(Vuex);
 
@@ -18,6 +20,8 @@ export default new Vuex.Store({
         'INVOICE-LINE': invoiceLine,
         INVOICESTATUS: invoiceStatus,
         SNACKBAR: snackbar,
+        'TRANSFER-OUT': transferOut,
+        'TRANSFER-OUT-LINE': transferOutLine,
         USER: user,
     }
 })

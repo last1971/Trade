@@ -15,6 +15,18 @@ class InvoiceLine extends Model
 
     protected $table = 'REALPRICE';
 
+    public function category()
+    {
+        return $this->hasOneThrough(
+            'App\Category',
+            'App\Good',
+            'GOODSCODE',
+            'CATEGORYCODE',
+            'GOODSCODE',
+            'CATEGORYCODE'
+        );
+    }
+
     public function invoice()
     {
         return $this->belongsTo('App\Invoice', 'SCODE', 'SCODE');

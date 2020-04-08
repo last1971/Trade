@@ -10,6 +10,9 @@
         :options.sync="options"
         :server-items-length="total"
         loading-text="Loading... Please wait"
+        :single-expand="false"
+        item-key="REALPRICECODE"
+        show-expand
     >
         <template v-slot:item.PRICE="{ item }">
             {{ item.PRICE | formatRub }}
@@ -17,14 +20,25 @@
         <template v-slot:item.SUMMAP="{ item }">
             {{ item.SUMMAP | formatRub }}
         </template>
+        <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length">
+                <expand-transfer-out-lines :invoice-line="item" class="my-2"/>
+            </td>
+        </template>
+        <template v-slot:footer>
+            <transfer-out-list :invoice="invoice"/>
+        </template>
     </v-data-table>
 </template>
 
 <script>
     import tableMixin from "../mixins/tableMixin";
+    import ExpandTransferOutLines from "./ExpandTransferOutLines";
+    import TransferOutList from "./TransferOutList";
 
     export default {
-        name: "InvoiceLine",
+        name: "InvoiceLines",
+        components: {TransferOutList, ExpandTransferOutLines},
         props: {
             invoice: {
                 type: Object,
@@ -35,16 +49,15 @@
         data() {
             return {
                 options: {
-                    with: ['good.category', 'name'],
+                    with: ['category', 'good', 'name'],
                     aggregateAttributes: [
                         'reservesQuantity', 'pickUpsQuantity', 'transferOutLinesQuantity'
                     ],
                     filterAttributes: [
                         'SCODE',
-                        'name.NAME',
                     ],
-                    filterOperators: ['=', 'CONTAIN',],
-                    filterValues: [this.invoice.SCODE, ''],
+                    filterOperators: ['='],
+                    filterValues: [this.invoice.SCODE],
                 },
                 rules: {
                     isInteger: n => _.isInteger(_.toNumber(n)) || 'Введите целое число',

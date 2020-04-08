@@ -1,15 +1,15 @@
 <template>
     <div v-if="invoice">
-        <invoice-line :invoice="invoice"/>
+        <invoice-lines :invoice="invoice"/>
     </div>
 </template>
 
 <script>
-    import InvoiceLine from "./InvoiceLine";
+    import InvoiceLines from "./InvoiceLines";
 
     export default {
         name: "Invoice",
-        components: {InvoiceLine},
+        components: {InvoiceLines},
         computed: {
             invoice() {
                 const document =

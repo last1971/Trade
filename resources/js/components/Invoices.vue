@@ -10,6 +10,7 @@
         :footer-props="{
             showFirstLastPage: true,
         }"
+        item-key="SCODE"
     >
         <template v-slot:body.prepend="{ isMobile }">
             <tr :class="{ 'v-data-table__mobile-table-row' : isMobile }"
