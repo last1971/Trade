@@ -2,69 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\IndexRequest;
 use App\Services\InvoiceService;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
-class InvoiceController extends Controller
+
+class InvoiceController extends ModelController
 {
-    /**
-     * Display a listing of the resource.
-     * @param IndexRequest $request
-     * @param InvoiceService $service
-     * @return Response
-     */
-    public function index(IndexRequest $request, InvoiceService $service)
+    public function __construct()
     {
-        return $service->index($request)->paginate($request->itemsPerPage);
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param Request $request
-     * @return Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function show($id, IndexRequest $request, InvoiceService $service)
-    {
-        //
-        return $service->index($request)->find($id);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param int $id
-     * @return Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function destroy($id)
-    {
-        //
+        parent::__construct(InvoiceService::class);
     }
 }

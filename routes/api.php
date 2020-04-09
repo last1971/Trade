@@ -21,6 +21,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('logout', 'Api\AuthController@logout')->name('logout');
     Route::get('refresh-user', 'Api\AuthController@refresh')->name('refresh');
     Route::apiResources([
+        'buyer' => 'Api\BuyerController',
         'invoice' => 'Api\InvoiceController',
         'invoice-line' => 'Api\InvoiceLineController',
         'transfer-out' => 'Api\TransferOutController',

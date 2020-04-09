@@ -99,12 +99,12 @@ class ModelService
                             $query->whereRaw(
                                 '"' . $filterAttribute . '" IN (' . $request->get('filterValues')[$index] . ')'
                             );
-                            // contain where
+                            // containing where
                         } else if ($request->get('filterOperators')[$index] === 'CONTAIN') {
                             $query->where(
                                 $filterAttribute,
-                                'LIKE',
-                                '%' . $request->get('filterValues')[$index] . '%'
+                                'CONTAINING',
+                                $request->get('filterValues')[$index]
                             );
                             // where
                         } else {

@@ -14,6 +14,9 @@
         item-key="REALPRICECODE"
         show-expand
     >
+        <template v-slot:top>
+            <invoice-edit :value="invoice"/>
+        </template>
         <template v-slot:item.PRICE="{ item }">
             {{ item.PRICE | formatRub }}
         </template>
@@ -35,10 +38,11 @@
     import tableMixin from "../mixins/tableMixin";
     import ExpandTransferOutLines from "./ExpandTransferOutLines";
     import TransferOutList from "./TransferOutList";
+    import InvoiceEdit from "./InvoiceEdit";
 
     export default {
         name: "InvoiceLines",
-        components: {TransferOutList, ExpandTransferOutLines},
+        components: {InvoiceEdit, TransferOutList, ExpandTransferOutLines},
         props: {
             invoice: {
                 type: Object,
