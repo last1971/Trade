@@ -17,7 +17,7 @@
         :search-input.sync="search"
         hide-no-data
         hide-selected
-        placeholder="набери что-то для поиска"
+        placeholder="поиска"
         v-model="proxy"
     >
         <template v-slot:prepend>
@@ -38,12 +38,12 @@
             itemText: {type: String, default: 'name'},
             itemValue: {type: String, default: 'id'},
             model: {type: String, required: true},
-            options: {
-                type: Object,
-                default: () => {
-                    10
-                }
-            },
+            itemsPerPage: {type: Number, default: 10},
+            filterAttributes: {type: Array, default: () => []},
+            filterOperators: {type: Array, default: () => []},
+            filterValues: {type: Array, default: () => []},
+            sortBy: {type: Array, default: () => []},
+            sortDesc: {type: Array, default: () => [false]},
             disabled: {type: Boolean, default: false},
             dense: {type: Boolean, default: false},
         },
@@ -55,7 +55,7 @@
             }
         },
         created() {
-            if (this.options.itemsPerPage < 0) {
+            if (this.itemsPerPage < 0) {
                 this.getItems();
             }
             if (this.value) {
@@ -88,8 +88,9 @@
             search: _.debounce(function (val) {
                 // case when not need update data from server
                 if (!val || this.isLoading || this.itemsPerPage < 0) return;
-                // const proxy = this.$store.getters[this.MODEL + '/CACHE'](this.value);
-                // if (this.value && val === _.property(this.itemText)(proxy)) return;
+                // error for multiple possible will
+                const proxy = this.$store.getters[this.MODEL + '/GET'](this.value);
+                if (this.value && val === _.property(this.itemText)(proxy)) return;
                 this.getItems(val);
             }, 500),
             value() {
@@ -99,20 +100,20 @@
         methods: {
             getItems(val = '') {
                 const options = {
-                    page: 1,
                     itemsPerPage: this.itemsPerPage,
-                    filters: _.assign({}, this.filters, {[this.itemText]: val}),
-                    filterActions: _.assign({}, this.filterActions, {[this.itemText]: 'substring'}),
-                    sortBy: [this.itemText],
-                    sortDesc: ['false'],
+                    filterAttributes: _.concat(this.filterAttributes, this.itemText),
+                    filterOperators: _.concat(this.filterOperators, 'CONTAIN'),
+                    filterValues: _.concat(this.filterValues, val),
+                    sortBy: _.isEmpty(this.sortBy) ? [this.itemText] : this.sortBy,
+                    sortDesc: this.sortDesc
                 };
                 this.isLoading = true;
-                this.$store.dispatch(this.MODEL + '/GET_ITEMS', options)
+                this.$store.dispatch(this.MODEL + '/ALL', options)
                     .then((response) => {
                         const filtred = _.isArray(this.value)
-                            ? this.items.filter((item) => this.value.indexOf(item.id) >= 0)
+                            ? this.items.filter((item) => this.value.indexOf(item[this.itemValue]) >= 0)
                             : [];
-                        this.items = _.union(response.data.rows, filtred);
+                        this.items = _.union(response.data.data, filtred);
                     })
                     .then(() => this.isLoading = false);
             },
@@ -121,7 +122,7 @@
                     this.isLoading = true;
                     this.$store.dispatch(this.MODEL + '/CACHE', this.value)
                         .then((model) => {
-                            if (!_.find(this.items, {id: model.id}))
+                            if (!_.find(this.items, {[this.itemValue]: model[this.itemValue]}))
                                 this.items.push(model)
                         })
                         .then(() => this.isLoading = false);

@@ -133,10 +133,11 @@
     import moment from 'moment';
     import {mapGetters} from 'vuex';
     import tableMixin from "../mixins/tableMixin";
+    import utilsMixin from "../mixins/utilsMixin";
 
     export default {
         name: "Invoices",
-        mixins: [tableMixin],
+        mixins: [tableMixin, utilsMixin],
         data() {
             return {
                 options: {
@@ -164,11 +165,6 @@
                     {text: 'Без корзины', value: '0,1,2,3,4,5'},
                     {text: 'Все', value: '0,1,2,3,4,5,6'},
                 ],
-                rules: {
-                    isInteger: n => _.isInteger(_.toNumber(n)) || 'Введите целое число',
-                    isNumber: n => !_.isNaN(_.toNumber(n)) || 'Введите число',
-                    required: v => (v === 0 || !!v) || 'Обязателный'
-                },
                 mobileFiltersVisible: false,
             }
         },

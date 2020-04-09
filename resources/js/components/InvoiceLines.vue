@@ -39,6 +39,7 @@
     import ExpandTransferOutLines from "./ExpandTransferOutLines";
     import TransferOutList from "./TransferOutList";
     import InvoiceEdit from "./InvoiceEdit";
+    import utilsMixin from "../mixins/utilsMixin";
 
     export default {
         name: "InvoiceLines",
@@ -49,7 +50,7 @@
                 required: true,
             }
         },
-        mixins: [tableMixin],
+        mixins: [tableMixin, utilsMixin],
         data() {
             return {
                 options: {
@@ -62,11 +63,6 @@
                     ],
                     filterOperators: ['='],
                     filterValues: [this.invoice.SCODE],
-                },
-                rules: {
-                    isInteger: n => _.isInteger(_.toNumber(n)) || 'Введите целое число',
-                    isNumber: n => !_.isNaN(_.toNumber(n)) || 'Введите число',
-                    required: v => (v === 0 || !!v) || 'Обязателный'
                 },
                 mobileFiltersVisible: false,
                 dependent: true,

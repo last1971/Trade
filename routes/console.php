@@ -21,7 +21,8 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-
+    $s = '13334.9';
+    dd(is_numeric($s) ? intval($s) == $s : false);
     $s = TransferOutLine::with(['transferOut'])->first();
     dd($s);
     $s = new InvoiceService();

@@ -51,7 +51,7 @@ class ModelController extends Controller
     public function show($id, IndexRequest $request)
     {
         //
-        return $this->service->index($request)->find($id);
+        return $this->service->index($request)->find(intval($id));
     }
 
     /**

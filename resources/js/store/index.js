@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import user from './user';
 import snackbar from "./snackbar";
+import buyer from "./buyer";
 import invoice from "./invoice";
 import invoiceStatus from "./invoiceStatus";
 import invoiceLine from "./invoiceLine";
@@ -16,6 +17,7 @@ export default new Vuex.Store({
     mutations: {},
     actions: {},
     modules: {
+        BUYER: buyer,
         INVOICE: invoice,
         'INVOICE-LINE': invoiceLine,
         INVOICESTATUS: invoiceStatus,

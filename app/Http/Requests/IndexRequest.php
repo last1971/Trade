@@ -52,5 +52,14 @@ class IndexRequest extends FormRequest
                 return $v === 'true';
             }, $this->sortDesc)]);
         }
+        if (is_array($this->filterValues)) {
+            $this->merge(['filterValues' => array_map(function ($v) {
+                if (is_numeric($v) && intval($v) == $v) {
+                    return intval($v);
+                } else {
+                    return $v;
+                }
+            }, $this->filterValues)]);
+        }
     }
 }

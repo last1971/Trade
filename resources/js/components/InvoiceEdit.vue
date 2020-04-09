@@ -24,15 +24,27 @@
                 </v-menu>
             </v-col>
             <v-col>
-                <v-text-field :disabled="invoiceNotEditable" label="Номер" v-model="invoice.NS"/>
+                <v-text-field :disabled="invoiceNotEditable"
+                              :rules="[rules.required, rules.isInteger]"
+                              label="Номер"
+                              v-model="invoice.NS"
+                />
+            </v-col>
+            <v-col>
+                <buyer-select v-model="invoice.POKUPATCODE"/>
             </v-col>
         </v-row>
     </v-form>
 </template>
 
 <script>
+    import BuyerSelect from "./BuyerSelect";
+    import utilsMixin from "../mixins/utilsMixin";
+
     export default {
         name: "InvoiceEdit",
+        components: {BuyerSelect},
+        mixins: [utilsMixin],
         props: {
             value: {
                 type: Object,

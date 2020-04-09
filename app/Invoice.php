@@ -12,11 +12,14 @@ class Invoice extends Model
 
     protected $connection = 'firebird';
 
-    protected $dates = ['DATA'];
-
     protected $primaryKey = 'SCODE';
 
     protected $table = 'S';
+
+    protected $casts = [
+        'SCODE' => 'integer',
+        'DATA' => 'date'
+    ];
 
     public function buyer()
     {
