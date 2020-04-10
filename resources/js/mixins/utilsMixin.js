@@ -7,5 +7,15 @@ export default {
                 required: v => (v === 0 || !!v) || 'Обязателный'
             },
         }
-    }
+    },
+    computed: {
+        proxy: {
+            get() {
+                return this.value
+            },
+            set(val) {
+                this.$emit('input', val)
+            }
+        }
+    },
 }

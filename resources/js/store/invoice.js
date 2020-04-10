@@ -7,6 +7,8 @@ state.name = 'invoice';
 
 state.key = 'SCODE';
 
+state.fillable = ['DATA', 'NS', 'FIRM_ID', 'POKUPATCODE', 'PRIM', 'STATUS'];
+
 state.headers = [
     {text: '', value: 'actions', width: 10, sortable: false},
     {

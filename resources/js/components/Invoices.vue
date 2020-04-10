@@ -93,7 +93,8 @@
             </tr>
             <tr v-if="isMobile">
                 <td>
-                    <v-btn @click="mobileFiltersVisible=true" block v-if="!mobileFiltersVisible">Показать фильтры
+                    <v-btn @click="mobileFiltersVisible=true" block v-if="!mobileFiltersVisible">
+                        Показать фильтры
                     </v-btn>
                     <v-btn @click="mobileFiltersVisible=false" block v-else>Скрыть фильтры</v-btn>
                 </td>
@@ -104,7 +105,12 @@
         </template>
         <template v-slot:item.NS="{ item }">
             <router-link :to="{ name: 'invoice', params: { id: item.SCODE } }">
-                {{ item.NS }}
+                <v-tooltip top>
+                    <template v-slot:activator="{ on }">
+                        <span v-on="on">{{ item.NS }}</span>
+                    </template>
+                    <span>{{ item.PRIM }}</span>
+                </v-tooltip>
             </router-link>
         </template>
         <template v-slot:item.DATA="{ item }">

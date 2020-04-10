@@ -12,13 +12,15 @@ class Invoice extends Model
 
     protected $connection = 'firebird';
 
+    protected $fillable = ['DATA', 'NS', 'FIRM_ID', 'POKUPATCODE', 'PRIM', 'STATUS'];
+
     protected $primaryKey = 'SCODE';
 
     protected $table = 'S';
 
     protected $casts = [
         'SCODE' => 'integer',
-        'DATA' => 'date'
+        'DATA' => 'date',
     ];
 
     public function buyer()

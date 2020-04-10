@@ -8,6 +8,7 @@ import invoiceStatus from "./invoiceStatus";
 import invoiceLine from "./invoiceLine";
 import transferOutLine from "./transferOutLine";
 import transferOut from "./transferOut";
+import firm from "./firm";
 
 Vue.use(Vuex);
 
@@ -18,6 +19,7 @@ export default new Vuex.Store({
     actions: {},
     modules: {
         BUYER: buyer,
+        FIRM: firm,
         INVOICE: invoice,
         'INVOICE-LINE': invoiceLine,
         INVOICESTATUS: invoiceStatus,

@@ -1,7 +1,6 @@
 <?php
 
 use App\Services\InvoiceService;
-use App\TransferOutLine;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -21,10 +20,8 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-    $s = '13334.9';
-    dd(is_numeric($s) ? intval($s) == $s : false);
-    $s = TransferOutLine::with(['transferOut'])->first();
-    dd($s);
+    $a = collect(null);
+    dd($a);
     $s = new InvoiceService();
     $q = collect([
         'with' => ['employee', 'buyer'],

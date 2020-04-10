@@ -125,4 +125,17 @@ class ModelService
             });
     }
 
+    /**
+     * @param $request
+     * @param $id
+     * @return Builder|Builder[]|Collection|Model|null
+     */
+    public function update($request, $id)
+    {
+        $model = $this->query->find(intval($id));
+        $model->fill($request->item);
+        $model->save();
+        return $this->index(collect($request->options))->find(intval($id));
+    }
+
 }

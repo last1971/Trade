@@ -5,6 +5,7 @@ const state = {
     items: [],
     headers: [],
     aggregateAttributes: [],
+    fillable: [],
 };
 
 const getters = {
@@ -17,6 +18,7 @@ const getters = {
     },
     ALL: state => _.cloneDeep(state.items),
     HEADERS: state => state.headers,
+    FILLABLE: state => state.fillable,
 };
 
 const mutations = {
@@ -53,9 +55,9 @@ const mutations = {
     },
 
     UPDATE(state, newDataRow) {
-        let row = _.find(state.items, {[state.key]: newDataRow[state.key]});
-        if (row) {
-            row = _.cloneDeep(newDataRow);
+        let index = _.findIndex(state.items, {[state.key]: newDataRow[state.key]});
+        if (index >= 0) {
+            state.items.splice(index, 1, newDataRow);
         } else {
             const error = 'Imposible update ' + state.name + ' with key ' + newDataRow[state.key];
             this.commit('SNACKBAR/ERROR', error);
@@ -130,7 +132,7 @@ let actions = {
                         {
                             text: getters.NAME + ' with id ' + id + ' was deleted.',
                             color: 'success',
-                            snackbar: true,
+                            status: true,
                             timeout: 3000
                         },
                         {root: true}
@@ -155,7 +157,7 @@ let actions = {
                         {
                             text: getters.NAME + ' with id ' + response.data[getters.KEY] + ' was created.',
                             color: 'success',
-                            snackbar: true,
+                            status: true,
                             timeout: 3000
                         },
                         {root: true}
@@ -169,17 +171,19 @@ let actions = {
         });
     },
     UPDATE({getters, commit}, payload) {
-        const {item} = payload;
+        const update = _.cloneDeep(payload);
+        update.item = _.pick(update.item, getters.FILLABLE);
+        update.options = _.pick(update.options, ['with']);
         return new Promise((resolve, reject) => {
-            axios.put(getters.URL + '/' + item[getters.KEY], item)
+            axios.put(getters.URL + '/' + payload.item[getters.KEY], update)
                 .then(response => {
                     commit('UPDATE', response.data);
                     commit(
                         'SNACKBAR/SET',
                         {
-                            text: getters.NAME + ' with id ' + item[getters.KEY] + ' was saved.',
+                            text: getters.NAME + ' with id ' + payload.item[getters.KEY] + ' was saved.',
                             color: 'success',
-                            snackbar: true,
+                            status: true,
                             timeout: 3000
                         },
                         {root: true}

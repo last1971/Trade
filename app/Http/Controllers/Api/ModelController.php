@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexRequest;
+use App\Http\Requests\ModelRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -61,9 +62,10 @@ class ModelController extends Controller
      * @param int $id
      * @return Response
      */
-    public function update(Request $request, $id)
+    public function update(ModelRequest $request, $id)
     {
         //
+        return $this->service->update($request, $id);
     }
 
     /**
