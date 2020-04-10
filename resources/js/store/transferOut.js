@@ -8,8 +8,41 @@ state.name = 'transfer-out';
 state.key = 'SFCODE';
 
 state.headers = [
-    // {text: '', value: 'actions', width: 10, sortable: false},
-
+    {text: '', value: 'actions', width: 10, sortable: false},
+    {
+        text: 'Дата',
+        value: 'DATA',
+    },
+    {
+        text: 'Номер',
+        value: 'NSF'
+    },
+    {
+        text: 'Счет',
+        value: 'invoice',
+    },
+    {
+        text: 'Покупатель',
+        value: 'buyer.SHORTNAME'
+    },
+    {
+        text: 'Строк',
+        value: 'transferOutLinesCount',
+        align: 'right',
+    },
+    {
+        text: 'Сумма',
+        value: 'transferOutLinesSum',
+        align: 'right',
+    },
+    {
+        text: 'Фирма',
+        value: 'firm.FIRMNAME'
+    },
+    {
+        text: 'Манагер',
+        value: 'employee.FULLNAME'
+    },
 ];
 
 export default {

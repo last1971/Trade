@@ -20,6 +20,11 @@ class Employee extends Model
         return $this->hasMany('App\Invoice', 'STAFF_ID', 'ID');
     }
 
+    public function transferOuts()
+    {
+        return $this->hasMany('App\TransferOut', 'STAFF_ID', 'ID');
+    }
+
     public function user()
     {
         return $this->hasOne('App\User', 'employeeId', 'ID');

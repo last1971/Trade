@@ -48,6 +48,11 @@ class Invoice extends Model
         return $this->hasMany('App\InvoiceLine', 'SCODE', 'SCODE');
     }
 
+    public function transferOuts()
+    {
+        return $this->hasMany('App\TransferOut', 'SCODE', 'SCODE');
+    }
+
     public function transferOutLines()
     {
         return $this->hasManyThrough(

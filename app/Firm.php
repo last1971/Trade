@@ -20,4 +20,9 @@ class Firm extends Model
         return $this->hasMany('App\Invoice', 'FIRM_ID', 'FIRM_ID');
     }
 
+    public function transferOuts()
+    {
+        return $this->hasMany('App\TransferOut', 'FIRM_ID', 'FIRM_ID');
+    }
+
 }
