@@ -191,6 +191,24 @@
                 return 'primary--text';
             },
         },
+        beforeRouteEnter(to, from, next) {
+            next(vm => {
+                vm.$store.commit('BREADCRUMBS/SET', [
+                    {
+                        text: 'Торговля',
+                        to: {name: 'home'},
+                        exact: true,
+                        disabled: false,
+                    },
+                    {
+                        text: 'Счета',
+                        to: {name: 'invoices'},
+                        exact: true,
+                        disabled: true,
+                    }
+                ]);
+            });
+        }
     }
 </script>
 

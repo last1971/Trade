@@ -14,7 +14,16 @@
             invoice() {
                 const document =
                     this.$route.params.id ? this.$store.getters['INVOICE/GET'](this.$route.params.id) : null;
-                if (!document) this.getInvoice();
+                if (!document) {
+                    this.getInvoice();
+                } else {
+                    this.$store.commit('BREADCRUMBS/PUT', {
+                        text: `Счет № ${document.NS} от ${this.$options.filters.formatDate(document.DATA)}`,
+                        to: {name: 'invoices'},
+                        link: true,
+                        disabled: true,
+                    });
+                }
                 return document;
             }
         },
@@ -35,11 +44,6 @@
                     );
             }
         },
-        beforeRouteEnter(to, from, next) {
-            next(vm => {
-                // vm.getInvoice();
-            })
-        }
     }
 </script>
 

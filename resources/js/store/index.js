@@ -9,6 +9,7 @@ import invoiceLine from "./invoiceLine";
 import transferOutLine from "./transferOutLine";
 import transferOut from "./transferOut";
 import firm from "./firm";
+import breadcrumbs from "./breadcrumbs";
 
 Vue.use(Vuex);
 
@@ -18,6 +19,7 @@ export default new Vuex.Store({
     mutations: {},
     actions: {},
     modules: {
+        BREADCRUMBS: breadcrumbs,
         BUYER: buyer,
         FIRM: firm,
         INVOICE: invoice,

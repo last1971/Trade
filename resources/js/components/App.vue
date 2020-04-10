@@ -6,7 +6,7 @@
             v-model="drawer"
         >
             <v-list dense nav>
-                <v-list-item :key="menu.id" :to="menu.to" link link v-for="menu in menus">
+                <v-list-item :key="menu.id" :to="menu.to" link v-for="menu in menus">
                     <v-list-item-action>
                         <v-icon>{{ menu.icon }}</v-icon>
                     </v-list-item-action>
@@ -23,11 +23,37 @@
             dark
         >
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"/>
-            <v-toolbar-title>Trade</v-toolbar-title>
+            <v-toolbar-title>
+                <v-breadcrumbs :items="breadcrumbs" large>
+                    <template v-slot:item="{ item }">
+                        <v-breadcrumbs-item :to="item.to" v-if="item.disabled">
+                            {{ item.text }}
+                        </v-breadcrumbs-item>
+                        <v-breadcrumbs-item v-else>
+                            <router-link :disabled="item.disabled" :to="item.to" class="white--text">
+                                {{ item.text }}
+                            </router-link>
+                        </v-breadcrumbs-item>
+                    </template>
+                </v-breadcrumbs>
+            </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-btn @click="logout" icon v-if="user">
-                <v-icon>mdi-logout</v-icon>
-            </v-btn>
+            <v-tooltip bottom v-if="user">
+                <template v-slot:activator="{ on }">
+                    <v-btn @click="$router.back()" icon v-on="on">
+                        <v-icon>mdi-arrow-left-circle</v-icon>
+                    </v-btn>
+                </template>
+                <span>Вернуться</span>
+            </v-tooltip>
+            <v-tooltip bottom v-if="user">
+                <template v-slot:activator="{ on }">
+                    <v-btn @click="logout" icon v-on="on">
+                        <v-icon>mdi-exit-to-app</v-icon>
+                    </v-btn>
+                </template>
+                <span>Выход</span>
+            </v-tooltip>
         </v-app-bar>
 
         <v-content>
@@ -82,6 +108,7 @@
             ...mapGetters({
                 user: 'USER/GET',
                 snackbar: 'SNACKBAR/GET',
+                breadcrumbs: 'BREADCRUMBS/ALL',
             })
         },
         methods: {
