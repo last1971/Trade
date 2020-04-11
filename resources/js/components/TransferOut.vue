@@ -1,32 +1,29 @@
 <template>
-    <div v-if="invoice">
-        <invoice-lines :invoice="invoice"/>
+    <div>
+        {{ transferOut }}
     </div>
 </template>
 
 <script>
-    import InvoiceLines from "./InvoiceLines";
-
     export default {
-        name: "Invoice",
-        components: {InvoiceLines},
+        name: "TransferOut",
         data() {
             return {
                 previousValue: null
             }
         },
         computed: {
-            invoice() {
-                if (this.$route.name !== 'invoice') return this.previousValue;
+            transferOut() {
+                if (this.$route.name !== 'transfer-out') return this.previousValue;
                 this.previousValue =
-                    this.$route.params.id ? this.$store.getters['INVOICE/GET'](this.$route.params.id) : null;
+                    this.$route.params.id ? this.$store.getters['TRANSFER-OUT/GET'](this.$route.params.id) : null;
                 if (!this.previousValue) {
-                    this.getInvoice();
+                    this.getTransferOut();
                 } else {
                     this.$store.commit('BREADCRUMBS/PUT', {
-                        text: `Счет № ${this.previousValue.NS} от
+                        text: `Исх.УПД № ${this.previousValue.NSF} от
                             ${this.$options.filters.formatDate(this.previousValue.DATA)}`,
-                        to: {name: 'invoice', params: {id: this.previousValue.SCODE}},
+                        to: {name: 'transfer-out', params: {id: this.previousValue.SFCODE}},
                         disabled: true,
                     });
                 }
@@ -34,16 +31,16 @@
             }
         },
         methods: {
-            getInvoice() {
+            getTransferOut() {
                 if (this.$route.params.id)
                     this.$store.dispatch(
-                        'INVOICE/CACHE',
+                        'TRANSFER-OUT/CACHE',
                         {
                             id: this.$route.params.id,
                             query: {
-                                with: ['buyer', 'employee', 'firm'],
+                                with: ['buyer', 'employee', 'firm', 'invoice'],
                                 aggregateAttributes: [
-                                    'invoiceLinesCount', 'invoiceLinesSum', 'cashFlowsSum', 'transferOutLinesSum'
+                                    'transferOutLinesCount', 'transferOutLinesSum'
                                 ],
                             }
                         }

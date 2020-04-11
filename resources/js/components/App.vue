@@ -108,8 +108,14 @@
             ...mapGetters({
                 user: 'USER/GET',
                 snackbar: 'SNACKBAR/GET',
-                breadcrumbs: 'BREADCRUMBS/ALL',
-            })
+            }),
+            breadcrumbs() {
+                const breadcrumbs = this.$store.getters['BREADCRUMBS/ALL'];
+                if (this.$vuetify.breakpoint.xsOnly) {
+                    return [_.last(breadcrumbs)];
+                }
+                return breadcrumbs;
+            }
         },
         methods: {
             logout() {

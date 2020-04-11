@@ -85,7 +85,7 @@
 
         </template>
         <template v-slot:item.NSF="{ item }">
-            <router-link :to="{ name: 'invoice', params: { id: item.SFCODE } }">
+            <router-link :to="{ name: 'transfer-out', params: { id: item.SFCODE } }">
                 <v-tooltip top>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">{{ item.NSF }}</span>
