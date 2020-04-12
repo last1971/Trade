@@ -20,24 +20,34 @@ class Good extends Model
         return $this->belongsTo('App\Category', 'CATEGORYCODE', 'CATEGORYCODE');
     }
 
-    public function name()
-    {
-        return $this->belongsTo('App\Name', 'NAMECODE', 'NAMECODE');
-    }
-
     public function invoiceLines()
     {
         return $this->hasMany('App\InvoiceLine', 'GOODSCODE', 'GOODSCODE');
     }
 
-    public function transferOutLines()
+    public function name()
     {
-        return $this->hasMany('App\TransferOutLine', 'GOODSCODE', 'GOODSCODE');
+        return $this->belongsTo('App\Name', 'NAMECODE', 'NAMECODE');
+    }
+
+    public function orderLines()
+    {
+        return $this->hasMany('App\OrderLine', 'GOODSCODE', 'GOODSCODE');
     }
 
     public function reserves()
     {
         return $this->hasMany('App\Reserve', 'GOODSCODE', 'GOODSCODE');
+    }
+
+    public function storeLines()
+    {
+        return $this->hasMany('App\StoreLine', 'GOODSCODE', 'GOODSCODE');
+    }
+
+    public function transferOutLines()
+    {
+        return $this->hasMany('App\TransferOutLine', 'GOODSCODE', 'GOODSCODE');
     }
 
     public function pickUps()
