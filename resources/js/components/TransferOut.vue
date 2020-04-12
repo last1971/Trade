@@ -1,25 +1,30 @@
 <template>
     <div>
-        {{ transferOut }}
+        <transfer-out-lines :transfer-out="transferOut" v-if="transferOut"/>
     </div>
 </template>
 
 <script>
+    import TransferOutLines from "./TransferOutLines";
+
     export default {
         name: "TransferOut",
+        components: {TransferOutLines},
         data() {
             return {
-                previousValue: null
+                previousValue: null,
+                with: ['buyer', 'employee', 'firm', 'invoice'],
             }
         },
         computed: {
             transferOut() {
                 if (this.$route.name !== 'transfer-out') return this.previousValue;
-                this.previousValue =
+                const transferOut =
                     this.$route.params.id ? this.$store.getters['TRANSFER-OUT/GET'](this.$route.params.id) : null;
-                if (!this.previousValue) {
+                if (!transferOut || !this.with.reduce((sum, v) => sum && transferOut[v], true)) {
                     this.getTransferOut();
                 } else {
+                    this.previousValue = transferOut;
                     this.$store.commit('BREADCRUMBS/PUT', {
                         text: `Исх.УПД № ${this.previousValue.NSF} от
                             ${this.$options.filters.formatDate(this.previousValue.DATA)}`,
@@ -34,11 +39,11 @@
             getTransferOut() {
                 if (this.$route.params.id)
                     this.$store.dispatch(
-                        'TRANSFER-OUT/CACHE',
+                        'TRANSFER-OUT/GET',
                         {
                             id: this.$route.params.id,
                             query: {
-                                with: ['buyer', 'employee', 'firm', 'invoice'],
+                                with: this.with,
                                 aggregateAttributes: [
                                     'transferOutLinesCount', 'transferOutLinesSum'
                                 ],

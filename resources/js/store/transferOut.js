@@ -7,6 +7,8 @@ state.name = 'transfer-out';
 
 state.key = 'SFCODE';
 
+state.fillable = ['DATA', 'NSF', 'PRIM'];
+
 state.headers = [
     {text: '', value: 'actions', width: 10, sortable: false},
     {

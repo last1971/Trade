@@ -17,9 +17,38 @@ class TransferOutLine extends Model
 
     protected $table = 'REALPRICEF';
 
+    public function category()
+    {
+        return $this->hasOneThrough(
+            'App\Category',
+            'App\Good',
+            'GOODSCODE',
+            'CATEGORYCODE',
+            'GOODSCODE',
+            'CATEGORYCODE'
+        );
+    }
+
+    public function good()
+    {
+        return $this->belongsTo('App\Good', 'GOODSCODE', 'GOODSCODE');
+    }
+
     public function invoiceLine()
     {
         return $this->belongsTo('App\InvoiceLine', 'REALPRICECODE', 'REALPRICECODE');
+    }
+
+    public function name()
+    {
+        return $this->hasOneThrough(
+            'App\Name',
+            'App\Good',
+            'GOODSCODE',
+            'NAMECODE',
+            'GOODSCODE',
+            'NAMECODE'
+        );
     }
 
     public function transferOut()

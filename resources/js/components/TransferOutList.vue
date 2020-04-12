@@ -39,18 +39,24 @@
         },
         watch: {
             invoice() {
-                if (this.invoice.SCODE !== this.SCODE) {
-                    this.SCODE = this.invoice.SCODE;
-                    this.$store.dispatch('TRANSFER-OUT/ALL', {
-                        aggregateAttributes: ['transferOutLinesSum', 'transferOutLinesCount'],
-                        filterAttributes: [
-                            'SCODE',
-                        ],
-                        filterOperators: ['='],
-                        filterValues: [this.invoice.SCODE],
-                        itemsPerPage: -1,
-                    })
-                }
+                if (this.invoice.SCODE !== this.SCODE) this.getTransferOuts();
+            }
+        },
+        created() {
+            this.getTransferOuts();
+        },
+        methods: {
+            getTransferOuts() {
+                this.SCODE = this.invoice.SCODE;
+                this.$store.dispatch('TRANSFER-OUT/ALL', {
+                    aggregateAttributes: ['transferOutLinesSum', 'transferOutLinesCount'],
+                    filterAttributes: [
+                        'SCODE',
+                    ],
+                    filterOperators: ['='],
+                    filterValues: [this.invoice.SCODE],
+                    itemsPerPage: -1,
+                })
             }
         }
     }
