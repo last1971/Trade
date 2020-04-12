@@ -60,6 +60,16 @@ class MacrosServiceProvider extends ServiceProvider
             $this->select(DB::raw('COALESCE(sum(RESERVEDPOS.QUANSHOP + RESERVEDPOS.QUANSKLAD), 0)'));
         });
 
+        // For ShopLines
+        Builder::macro('shopLinesQuantity', function () {
+            $this->select(DB::raw('COALESCE(sum(SHOPIN.QUAN), 0)'));
+        });
+
+        // For StoreLines
+        Builder::macro('storeLinesQuantity', function () {
+            $this->select(DB::raw('COALESCE(sum(SKLADIN.QUAN), 0)'));
+        });
+
         // For TransferLines
         Builder::macro('transferOutLinesSum', function () {
             $this->select(DB::raw('COALESCE(sum(REALPRICEF.SUMMAP), 0)'));

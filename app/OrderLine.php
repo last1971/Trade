@@ -25,9 +25,26 @@ class OrderLine extends Model
         return $this->belongsTo('App\Order', 'MASTER_ID', 'ID');
     }
 
+    public function seller()
+    {
+        return $this->hasOneThrough(
+            'App\Seller',
+            'App\Order',
+            'ID',
+            'WHEREISPOSTCODE',
+            'MASTER_ID',
+            'WHEREISPOSTCODE'
+        );
+    }
+
+    public function shopLines()
+    {
+        return $this->hasMany('App\ShopLine', 'ZAKAZ_DETAIL_ID', 'ID');
+    }
+
     public function storeLines()
     {
-        return $this->hasMany('App\OrderLine', 'ZAKAZ_DETAIL_ID', 'ID');
+        return $this->hasMany('App\StoreLine', 'ZAKAZ_DETAIL_ID', 'ID');
     }
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\InvoiceService;
+use App\Services\OrderLineService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -20,20 +20,20 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-    $a = collect(null);
-    dd($a);
-    $s = new InvoiceService();
+    $s = new OrderLineService();
     $q = collect([
-        'with' => ['employee', 'buyer'],
+        // with' => ['employee', 'buyer'],
         // 'selectAttributes' => ['SCODE', 'NS', 'POKUPATCODE', 'STAFF_ID'],
-        'aggregateAttributes' => ['invoiceLinesCount', 'invoiceLinesSum', 'transferOutLinesSum', 'cashFlowsSum'],
-        //'filterAttributes' => ['DATA'],
-        //'filterOperators' => ['>'],
-        //'filterValues' => ['01.01.2018'],
+        'aggregateAttributes' => ['storeLinesQuantity', 'shopLinesQuantity'],
+        'filterAttributes' => ['inWay'],
+        'filterOperators' => [null],
+        'filterValues' => [null],
         //'sortBy' => ['DATA', 'invoiceLinesSum'],
         //'sortDesc' => ['desc', 'asc'],
     ]);
-    dd($s->index($q)->first());
+    dd($s->index($q)
+        // ->whereRaw('(select COALESCE(sum(SKLADIN.QUAN), 0) from SKLADIN where ZAKAZ_DETAIL.ID = SKLADIN.ZAKAZ_DETAIL_ID) + (select COALESCE(sum(SHOPIN.QUAN), 0) from SHOPIN where ZAKAZ_DETAIL.ID = SHOPIN.ZAKAZ_DETAIL_ID) < ZAKAZ_DETAIL.QUAN')
+        ->first());
     //dd($s->index($q)->select('S.*', \Illuminate\Support\Facades\DB::raw('
     //    (SELECT sum(REALPRICEF.SUMMAP) as otgr from REALPRICEF, REALPRICE WHERE REALPRICEF.REALPRICECODE=REALPRICE.REALPRICECODE
     //    AND REALPRICE.SCODE=S.SCODE)

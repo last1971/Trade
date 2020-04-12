@@ -13,20 +13,36 @@ use Illuminate\Support\Facades\Request;
 
 class ModelService
 {
+
     /**
+     * Attributes like SUM, COUNT e.t.c from related models
      * @var array
      */
     protected $aggregateAttributes = [];
 
     /**
+     * It need for join related tables when use in in wher eand orderBy clauses
+     * @var array
+     */
+    protected $aliases = [];
+
+    /**
+     * Additional select atribbutes like some RAW attributes
+     * @var array
+     */
+    protected $addSelect = [];
+
+    /**
+     * Firebird2.0 has ploblem with date attributes
      * @var array
      */
     protected $dateAttributes = [];
 
     /**
+     * Additional RAW where
      * @var array
      */
-    protected $aliases = [];
+    protected $whereAttributes = [];
 
     /**
      * @var Model
@@ -64,15 +80,20 @@ class ModelService
                 $this->aliases[$attribute]($this->query);
             }
         }
+
         return $this->query
             // relations
             ->when($request->get('with'), function (Builder $query, array $with) {
                 $query->with($with);
             })
+
             // select only attributes
             ->select($request->get('selectAttributes') ?? (new $this->modelClass)->getTable() . '.*')
+            ->addSelect($this->addSelect)
+
             // additional agregate attributes
             ->aggregateAttributes($request->get('aggregateAttributes'), $this->aggregateAttributes)
+
             // filter
             ->when(
                 $request->get('filterAttributes'),
@@ -106,6 +127,9 @@ class ModelService
                                 'CONTAINING',
                                 $request->get('filterValues')[$index]
                             );
+                            // whereRaw
+                        } else if (array_key_exists($filterAttribute, $this->whereAttributes)) {
+                            $query->whereRaw($this->whereAttributes[$filterAttribute]);
                             // where
                         } else {
                             $query->where(
@@ -117,6 +141,7 @@ class ModelService
                     }
                 }
             )
+
             // ordering
             ->when($request->get('sortBy'), function (Builder $query, array $sortBy) use ($request) {
                 foreach ($sortBy as $index => $orderBy) {

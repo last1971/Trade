@@ -5,6 +5,7 @@ export default {
             total: 0,
             items: [],
             dependent: false,
+            parent: null,
         }
     },
     computed: {
@@ -24,14 +25,17 @@ export default {
                 this.updateItems();
             }, 500),
             deep: true
-        }
+        },
+    },
+    created() {
+        this.updateItems();
     },
     methods: {
         requestParams() {
             return this.options;
         },
         updateItems() {
-            if (!this.checkFilters) return;
+            if (!this.checkFilters || this.loading) return;
             this.loading = true;
             // if (this.$route.query.page === this.options.page && !this.dependent) this.options.page = 1;
             this.$store.dispatch(this.model + '/ALL', this.requestParams())

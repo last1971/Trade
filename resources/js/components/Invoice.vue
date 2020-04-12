@@ -1,6 +1,6 @@
 <template>
     <div v-if="invoice">
-        <invoice-lines :invoice="invoice"/>
+        <invoice-lines :key="invoice.SCODE" :value="invoice"/>
     </div>
 </template>
 

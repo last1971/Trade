@@ -40,6 +40,11 @@ class Good extends Model
         return $this->hasMany('App\Reserve', 'GOODSCODE', 'GOODSCODE');
     }
 
+    public function shopLines()
+    {
+        return $this->hasMany('App\ShopLine', 'GOODSCODE', 'GOODSCODE');
+    }
+
     public function storeLines()
     {
         return $this->hasMany('App\StoreLine', 'GOODSCODE', 'GOODSCODE');

@@ -10,12 +10,12 @@
         :options.sync="options"
         :server-items-length="total"
         loading-text="Loading... Please wait"
-        :single-expand="false"
+        :single-expand="true"
         item-key="REALPRICECODE"
         show-expand
     >
         <template v-slot:top>
-            <invoice-edit :value="invoice"/>
+            <invoice-edit :value="value"/>
         </template>
         <template v-slot:item.PRICE="{ item }">
             {{ item.PRICE | formatRub }}
@@ -24,12 +24,13 @@
             {{ item.SUMMAP | formatRub }}
         </template>
         <template v-slot:expanded-item="{ headers, item }">
-            <td :colspan="headers.length">
+            <td :colspan="headers.length" :key="item.REALPRICECODE">
                 <expand-transfer-out-lines :invoice-line="item" class="my-2"/>
+                <order-line-in-way :invoice-line="item" class="my-2"/>
             </td>
         </template>
         <template v-slot:footer>
-            <transfer-out-list :invoice="invoice"/>
+            <transfer-out-list :invoice="value"/>
         </template>
     </v-data-table>
 </template>
@@ -40,17 +41,18 @@
     import TransferOutList from "./TransferOutList";
     import InvoiceEdit from "./InvoiceEdit";
     import utilsMixin from "../mixins/utilsMixin";
+    import OrderLineInWay from "./OrderLineInWay";
 
     export default {
         name: "InvoiceLines",
-        components: {InvoiceEdit, TransferOutList, ExpandTransferOutLines},
+        mixins: [tableMixin, utilsMixin],
+        components: {OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},
         props: {
-            invoice: {
+            value: {
                 type: Object,
                 required: true,
             }
         },
-        mixins: [tableMixin, utilsMixin],
         data() {
             return {
                 options: {
@@ -62,7 +64,7 @@
                         'SCODE',
                     ],
                     filterOperators: ['='],
-                    filterValues: [this.invoice.SCODE],
+                    filterValues: [this.value.SCODE],
                 },
                 mobileFiltersVisible: false,
                 dependent: true,

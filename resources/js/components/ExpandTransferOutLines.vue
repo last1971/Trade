@@ -8,9 +8,18 @@
         hide-default-footer
         item-key="REALPRICEFCODE"
         loading-text="Loading... Please wait"
+        class="elevation-1"
     >
+        <template v-slot:top>
+            <div class="title ml-2">В отгрузках(УПД)</div>
+        </template>
         <template v-slot:item.transferOut.DATA="{ item }">
             {{ item.transferOut.DATA | formatDate }}
+        </template>
+        <template v-slot:item.transferOut.NSF="{ item }">
+            <router-link :to="{ name: 'transfer-out', params: { id: item.transferOut.SFCODE } }">
+                {{ item.transferOut.NSF }}
+            </router-link>
         </template>
     </v-data-table>
 </template>
@@ -47,7 +56,7 @@
                 return [
                     {text: 'Дата', value: 'transferOut.DATA'},
                     {text: 'Номер', value: 'transferOut.NSF'},
-                    {text: 'Кол.-во', value: 'QUAN'},
+                    {text: 'Кол.-во', value: 'QUAN', align: 'right'},
                     {text: 'Страна', value: 'STRANA'},
                     {text: 'ГТД', value: 'GTD'},
                 ];

@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <transfer-out-lines :transfer-out="transferOut" v-if="transferOut"/>
+    <div v-if="transferOut">
+        <transfer-out-lines :key="transferOut.SFCODE" :transfer-out="transferOut"/>
     </div>
 </template>
 

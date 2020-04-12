@@ -19,4 +19,9 @@ class Order extends Model
     {
         return $this->hasMany('App\Order', 'MASTER_ID', 'ID');
     }
+
+    public function seller()
+    {
+        return $this->hasMany('App\Seller', 'WHEREISPOSTCODE', 'WHEREISPOSTCODE');
+    }
 }
