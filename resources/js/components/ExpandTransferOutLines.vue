@@ -46,6 +46,7 @@
                     filterOperators: ['='],
                     filterValues: [this.invoiceLine.REALPRICECODE],
                     itemsPerPage: -1,
+                    page: 1,
                 },
                 mobileFiltersVisible: false,
                 dependent: true,
@@ -64,7 +65,7 @@
             model() {
                 return 'TRANSFER-OUT-LINE';
             },
-        }
+        },
     }
 </script>
 

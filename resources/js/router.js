@@ -9,6 +9,7 @@ import Invoice from "./components/Invoice";
 import Invoices from "./components/Invoices";
 import TransferOuts from "./components/TransferOuts";
 import TransferOut from "./components/TransferOut";
+import Orders from "./components/Orders";
 
 Vue.use(VueRouter);
 
@@ -40,6 +41,12 @@ const routes = [
         name: 'login',
         path: '/login',
         component: Login,
+    },
+    {
+        name: 'orders',
+        path: '/order',
+        component: Orders,
+        meta: {requiresAuth: true, model: 'ORDER'},
     },
     {
         name: 'register',

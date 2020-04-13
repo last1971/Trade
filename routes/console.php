@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\OrderLineService;
+use App\Services\OrderService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -20,16 +20,16 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-    $s = new OrderLineService();
+    $s = new OrderService();
     $q = collect([
-        // with' => ['employee', 'buyer'],
+        'with' => ['employee', 'seller'],
         // 'selectAttributes' => ['SCODE', 'NS', 'POKUPATCODE', 'STAFF_ID'],
-        'aggregateAttributes' => ['storeLinesQuantity', 'shopLinesQuantity'],
-        'filterAttributes' => ['inWay'],
-        'filterOperators' => [null],
-        'filterValues' => [null],
-        //'sortBy' => ['DATA', 'invoiceLinesSum'],
-        //'sortDesc' => ['desc', 'asc'],
+        'aggregateAttributes' => ['orderLinesCount'],
+        //'filterAttributes' => ['inWay'],
+        //'filterOperators' => [null],
+        //'filterValues' => [null],
+        'sortBy' => ['ID'],
+        'sortDesc' => [true],
     ]);
     dd($s->index($q)
         // ->whereRaw('(select COALESCE(sum(SKLADIN.QUAN), 0) from SKLADIN where ZAKAZ_DETAIL.ID = SKLADIN.ZAKAZ_DETAIL_ID) + (select COALESCE(sum(SHOPIN.QUAN), 0) from SHOPIN where ZAKAZ_DETAIL.ID = SHOPIN.ZAKAZ_DETAIL_ID) < ZAKAZ_DETAIL.QUAN')

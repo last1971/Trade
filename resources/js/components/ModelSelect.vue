@@ -56,7 +56,12 @@
         },
         created() {
             if (this.itemsPerPage < 0) {
-                this.getItems();
+                const items = this.$store.getters[this.MODEL + '/ALL'];
+                if (_.isEmpty(items)) {
+                    this.getItems();
+                } else {
+                    this.items = items;
+                }
             }
             if (this.value) {
                 if (_.isArray(this.value) && this.value.length > 0) {

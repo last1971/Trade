@@ -1,57 +1,26 @@
 <template>
-    <div v-if="transferOut">
-        <transfer-out-lines :key="transferOut.SFCODE" :transfer-out="transferOut"/>
-    </div>
+    <model :aggregate-attributes="['transferOutLinesCount', 'transferOutLinesSum']"
+           :lines="TransferOutLines"
+           :with="['buyer', 'employee', 'firm', 'invoice']"
+           date="DATA"
+           name="Исх.УПД"
+           number="NSF"
+           value="transfer-out"
+    />
 </template>
 
 <script>
+    import Model from './Model';
     import TransferOutLines from "./TransferOutLines";
 
     export default {
         name: "TransferOut",
-        components: {TransferOutLines},
-        data() {
-            return {
-                previousValue: null,
-                with: ['buyer', 'employee', 'firm', 'invoice'],
-            }
-        },
+        components: {Model},
         computed: {
-            transferOut() {
-                if (this.$route.name !== 'transfer-out') return this.previousValue;
-                const transferOut =
-                    this.$route.params.id ? this.$store.getters['TRANSFER-OUT/GET'](this.$route.params.id) : null;
-                if (!transferOut || !this.with.reduce((sum, v) => sum && transferOut[v], true)) {
-                    this.getTransferOut();
-                } else {
-                    this.previousValue = transferOut;
-                    this.$store.commit('BREADCRUMBS/PUT', {
-                        text: `Исх.УПД № ${this.previousValue.NSF} от
-                            ${this.$options.filters.formatDate(this.previousValue.DATA)}`,
-                        to: {name: 'transfer-out', params: {id: this.previousValue.SFCODE}},
-                        disabled: true,
-                    });
-                }
-                return this.previousValue;
+            TransferOutLines() {
+                return TransferOutLines;
             }
-        },
-        methods: {
-            getTransferOut() {
-                if (this.$route.params.id)
-                    this.$store.dispatch(
-                        'TRANSFER-OUT/GET',
-                        {
-                            id: this.$route.params.id,
-                            query: {
-                                with: this.with,
-                                aggregateAttributes: [
-                                    'transferOutLinesCount', 'transferOutLinesSum'
-                                ],
-                            }
-                        }
-                    );
-            }
-        },
+        }
     }
 </script>
 

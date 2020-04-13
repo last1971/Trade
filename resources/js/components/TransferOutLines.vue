@@ -13,7 +13,7 @@
         loading-text="Loading... Please wait"
     >
         <template v-slot:top>
-            <transfer-out-edit v-model="transferOut"/>
+            <transfer-out-edit v-model="value"/>
         </template>
         <template v-slot:item.PRICE="{ item }">
             {{ item.PRICE | formatRub }}
@@ -33,7 +33,7 @@
         name: "TransferOutLines",
         components: {TransferOutEdit},
         props: {
-            transferOut: {
+            value: {
                 type: Object,
                 required: true,
             }
@@ -47,7 +47,7 @@
                         'SFCODE',
                     ],
                     filterOperators: ['='],
-                    filterValues: [this.transferOut.SFCODE],
+                    filterValues: [this.value.SFCODE],
                 },
                 mobileFiltersVisible: false,
                 dependent: true,

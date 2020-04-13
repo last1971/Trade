@@ -11,6 +11,8 @@ import transferOut from "./transferOut";
 import firm from "./firm";
 import breadcrumbs from "./breadcrumbs";
 import orderLine from "./orderLine";
+import order from "./order";
+import orderStatus from "./orderStatus";
 
 Vue.use(Vuex);
 
@@ -26,7 +28,9 @@ export default new Vuex.Store({
         INVOICE: invoice,
         'INVOICE-LINE': invoiceLine,
         INVOICESTATUS: invoiceStatus,
+        'ORDER': order,
         'ORDER-LINE': orderLine,
+        ORDERSTATUS: orderStatus,
         SNACKBAR: snackbar,
         'TRANSFER-OUT': transferOut,
         'TRANSFER-OUT-LINE': transferOutLine,

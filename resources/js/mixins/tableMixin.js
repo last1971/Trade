@@ -35,7 +35,7 @@ export default {
             return this.options;
         },
         updateItems() {
-            if (!this.checkFilters || this.loading) return;
+            if (!this.checkFilters || !this.options.page) return;
             this.loading = true;
             // if (this.$route.query.page === this.options.page && !this.dependent) this.options.page = 1;
             this.$store.dispatch(this.model + '/ALL', this.requestParams())

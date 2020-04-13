@@ -24,4 +24,9 @@ class ShopLine extends Model
     {
         return $this->belongsTo('App\OrderLine', 'ZAKAZ_DETAIL_ID', 'ID');
     }
+
+    public function entry()
+    {
+        return $this->hasOne('App\Entry', 'SHOPINCODE', 'SHOPINCODE');
+    }
 }

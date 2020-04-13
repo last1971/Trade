@@ -55,6 +55,14 @@ state.headers = [
         value: 'SUMMAP',
         align: 'right',
     },
+    {
+        text: 'Срок',
+        value: 'PRIM',
+    },
+    {
+        text: 'Откуда',
+        value: 'WHERE_ORDERED',
+    },
 ];
 
 export default {

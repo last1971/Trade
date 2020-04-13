@@ -102,6 +102,7 @@
                 {id: 1, text: 'Домой', to: {name: 'home'}, icon: 'mdi-home'},
                 {id: 2, text: 'Счета', to: {name: 'invoices'}, icon: 'mdi-text-box'},
                 {id: 3, text: 'Исх.УПД', to: {name: 'transfer-outs'}, icon: 'mdi-clipboard-text-play'},
+                {id: 4, text: 'Заказы', to: {name: 'orders'}, icon: 'mdi-clipboard-arrow-left'},
             ]
         }),
         computed: {

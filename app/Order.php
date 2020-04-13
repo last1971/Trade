@@ -11,17 +11,30 @@ class Order extends Model
 
     protected $connection = 'firebird';
 
+    protected $fillable = ['WHEREISPOSTCODE', 'INVOICE_NUM', 'INVOICE_DATA', 'DATA_PRIH', 'PRIM', 'STATUS', 'NZAKAZ'];
+
     protected $primaryKey = 'ID';
 
     protected $table = 'ZAKAZ_MASTER';
 
+    public function cashFlows()
+    {
+        return $this->hasMany('App\CashFlow', 'ZAKAZ_MASTER_ID', 'ID');
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo('App\Employee', 'STAFF_ID', 'ID');
+    }
+
     public function orderLines()
     {
-        return $this->hasMany('App\Order', 'MASTER_ID', 'ID');
+        return $this->hasMany('App\OrderLine', 'MASTER_ID', 'ID');
     }
 
     public function seller()
     {
-        return $this->hasMany('App\Seller', 'WHEREISPOSTCODE', 'WHEREISPOSTCODE');
+        return $this->belongsTo('App\Seller', 'WHEREISPOSTCODE', 'WHEREISPOSTCODE');
     }
+
 }

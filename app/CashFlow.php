@@ -19,4 +19,9 @@ class CashFlow extends Model
     {
         return $this->belongsTo('App\Invoice', 'SCODE', 'SCODE');
     }
+
+    public function order()
+    {
+        return $this->belongsTo('App\Order', 'ZAKAZ_MASTER_ID', 'ID');
+    }
 }

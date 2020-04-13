@@ -50,6 +50,14 @@ class MacrosServiceProvider extends ServiceProvider
             $this->select(DB::raw('count(SCODE)'));
         });
 
+        // For OrderLines
+        Builder::macro('orderLinesSum', function () {
+            $this->select(DB::raw('COALESCE(sum(ZAKAZ_DETAIL.SUMMAP), 0)'));
+        });
+        Builder::macro('orderLinesCount', function () {
+            $this->select(DB::raw('count(ZAKAZ_DETAIL.ID)'));
+        });
+
         // For PickUps
         Builder::macro('pickUpsQuantity', function () {
             $this->select(DB::raw('COALESCE(sum(PODBPOS.QUANSHOP + PODBPOS.QUANSKLAD), 0)'));
