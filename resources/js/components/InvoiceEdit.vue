@@ -13,31 +13,31 @@
                     <template v-slot:activator="{ on }">
                         <v-text-field
                             :disabled="notEditable"
-                            :value="invoice.DATA | formatDate"
+                            :value="model.DATA | formatDate"
                             label="Дата"
                             prepend-icon="mdi-calendar-edit"
                             readonly
                             v-on="on"
                         />
                     </template>
-                    <v-date-picker @input="datePicker = false" v-model="invoice.DATA"></v-date-picker>
+                    <v-date-picker @input="datePicker = false" v-model="model.DATA"></v-date-picker>
                 </v-menu>
             </v-col>
             <v-col cols="12" sm="auto">
                 <v-text-field :disabled="notEditable"
                               :rules="[rules.required, rules.isInteger]"
                               label="Номер"
-                              v-model="invoice.NS"
+                              v-model="model.NS"
                 />
             </v-col>
             <v-col cols="12" sm="auto">
-                <buyer-select :disabled="notEditable" v-model="invoice.POKUPATCODE"/>
+                <buyer-select :disabled="notEditable" v-model="model.POKUPATCODE"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <firm-select :disabled="notEditable" v-model="invoice.FIRM_ID"/>
+                <firm-select :disabled="notEditable" v-model="model.FIRM_ID"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <invoice-status-select v-model="invoice.STATUS"/>
+                <invoice-status-select v-model="model.STATUS"/>
             </v-col>
             <v-col cols="12" sm="auto">
                 <v-btn :block="!$vuetify.breakpoint.smAndUp"
@@ -54,7 +54,7 @@
         </v-row>
         <v-row>
             <v-col cols="12" sm="8">
-                <v-text-field label="Примечание" v-model="invoice.PRIM"/>
+                <v-text-field label="Примечание" v-model="model.PRIM"/>
             </v-col>
         </v-row>
     </v-form>
@@ -65,70 +65,28 @@
     import utilsMixin from "../mixins/utilsMixin";
     import InvoiceStatusSelect from "./InvoiceStatusSelect";
     import FirmSelect from "./FirmSelect";
+    import editMixin from "../mixins/editMixin";
 
     export default {
         name: "InvoiceEdit",
         components: {FirmSelect, InvoiceStatusSelect, BuyerSelect},
-        mixins: [utilsMixin],
-        props: {
-            value: {
-                type: Object,
-                required: true,
-            }
-        },
+        mixins: [editMixin, utilsMixin],
         data() {
             return {
-                invoice: {},
-                datePicker: false,
-                loading: false,
+                MODEL: 'INVOICE'
             }
         },
         computed: {
             notEditable() {
-                return this.invoice.transferOutLinesSum > 0;
+                return this.model.transferOutLinesSum > 0;
             },
             savePossible() {
                 const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
-                const b = _.pick(_.omit(this.invoice, ['DATA']), this.fillable);
+                const b = _.pick(_.omit(this.model, ['DATA']), this.fillable);
                 const d = this.value.DATA ? this.value.DATA.substr(0, 10) : undefined;
-                return _.isEqual(a, b) && this.invoice.DATA === d;
+                return _.isEqual(a, b) && this.model.DATA === d;
             },
-            options() {
-                return this.$store.getters['USER/LOCAL_OPTION']('INVOICE');
-            },
-            fillable() {
-                return this.$store.getters['INVOICE/FILLABLE'];
-            }
         },
-        created() {
-            this.initialInvoice();
-        },
-        watch: {
-            value(v) {
-                this.initialInvoice();
-            }
-        },
-        methods: {
-            initialInvoice() {
-                this.invoice = _.cloneDeep(this.value);
-                this.invoice.DATA = this.invoice.DATA.substr(0, 10);
-            },
-            save() {
-                this.loading = true;
-                this.$store.dispatch(
-                    'INVOICE/UPDATE',
-                    {item: this.invoice, options: this.options}
-                )
-                    .then(() => {
-                    })
-                    .catch(() => {
-                    })
-                    .then(() => {
-                        this.loading = false;
-                        this.initialInvoice();
-                    });
-            }
-        }
     }
 </script>
 

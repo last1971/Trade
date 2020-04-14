@@ -2,6 +2,12 @@
     <v-form class="mx-2">
         <v-row>
             <v-col cols="12" sm="auto">
+                <v-text-field :disabled="true"
+                              label="Наш номер"
+                              v-model="model.NZAKAZ"
+                />
+            </v-col>
+            <v-col cols="12" sm="auto">
                 <v-menu
                     :close-on-content-click="false"
                     :nudge-right="40"
@@ -13,21 +19,21 @@
                     <template v-slot:activator="{ on }">
                         <v-text-field
                             :disabled="notEditable"
-                            :value="model.DATA | formatDate"
+                            :value="model.INVOICE_DATA | formatDate"
                             label="Дата"
                             prepend-icon="mdi-calendar-edit"
                             readonly
                             v-on="on"
                         />
                     </template>
-                    <v-date-picker @input="datePicker = false" v-model="model.DATA"></v-date-picker>
+                    <v-date-picker @input="datePicker = false" v-model="model.INVOICE_DATA"></v-date-picker>
                 </v-menu>
             </v-col>
             <v-col cols="12" sm="auto">
                 <v-text-field :disabled="notEditable"
-                              :rules="[rules.required, rules.isInteger]"
+                              :rules="[rules.required]"
                               label="Номер"
-                              v-model="model.NSF"
+                              v-model="model.INVOICE_NUM"
                 />
             </v-col>
             <v-col cols="12" sm="auto">
@@ -37,14 +43,7 @@
                 <firm-select :disabled="notEditable" v-model="model.FIRM_ID"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <v-text-field :disabled="notEditable" label="Примечание" v-model="model.PRIM"/>
-            </v-col>
-            <v-col class="d-flex justify-center align-center" cols="12" sm="auto">
-                <router-link :to="{ name: 'invoice', params: { id: model.SCODE } }"
-                             class="title"
-                >
-                    Счет № {{ model.invoice.NS }} от {{ model.invoice.DATA | formatDate }}
-                </router-link>
+                <invoice-status-select v-model="model.STATUS"/>
             </v-col>
             <v-col cols="12" sm="auto">
                 <v-btn :block="!$vuetify.breakpoint.smAndUp"
@@ -59,32 +58,48 @@
                 </v-btn>
             </v-col>
         </v-row>
+        <v-row>
+            <v-col cols="12" sm="8">
+                <v-text-field label="Примечание" v-model="model.PRIM"/>
+            </v-col>
+        </v-row>
     </v-form>
 </template>
 
 <script>
-    import utilsMixin from "../mixins/utilsMixin";
-    import BuyerSelect from "./BuyerSelect";
-    import FirmSelect from "./FirmSelect";
+    import SellerSelect from "./SellerSelect";
     import editMixin from "../mixins/editMixin";
+    import utilsMixin from "../mixins/utilsMixin";
 
     export default {
-        name: "TransferOutEdit",
+        name: "OrderEdit",
+        components: {SellerSelect},
         mixins: [editMixin, utilsMixin],
-        components: {BuyerSelect, FirmSelect},
         data() {
             return {
-                MODEL: 'TRANSFER-OUT',
+                MODEL: 'ORDER'
             }
         },
         computed: {
+            notEditable() {
+                return this.model.INSUM > 0;
+            },
             savePossible() {
-                const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
+                /*const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
                 const b = _.pick(_.omit(this.model, ['DATA']), this.fillable);
                 const d = this.value.DATA ? this.value.DATA.substr(0, 10) : undefined;
                 return _.isEqual(a, b) && this.model.DATA === d;
+
+                 */
+                return true;
             },
         },
+        methods: {
+            initialModel() {
+                this.model = _.cloneDeep(this.value);
+                this.model.INVOICE_DATA = this.model.INVOICE_DATA.substr(0, 10);
+            },
+        }
     }
 </script>
 

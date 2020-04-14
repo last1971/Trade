@@ -8,7 +8,7 @@ return [
         'item.NS' => 'integer',
         'item.FIRM_ID' => 'integer',
         'item.POKUPATCODE' => 'integer',
-        'item.PRIM' => 'string',
+        'item.PRIM' => 'nullable|string',
         'options.with' => 'array',
         'options.with.*' => 'string',
     ]

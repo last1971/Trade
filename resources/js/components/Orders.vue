@@ -94,7 +94,7 @@
 
         </template>
         <template v-slot:item.INVOICE_NUM="{ item }">
-            <router-link :to="{ name: 'home' }">
+            <router-link :to="{ name: 'order', params: { id: item.ID } }">
                 <v-tooltip top>
                     <template v-slot:activator="{ on }">
                         <span v-on="on">{{ item.INVOICE_NUM }}</span>

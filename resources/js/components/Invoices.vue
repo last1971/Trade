@@ -181,7 +181,11 @@
             checkFilters() {
                 return this.rules.isInteger(this.options.filterValues[1]) === true
                     && this.rules.isNumber(this.options.filterValues[2]) === true
-                    && this.rules.required(this.options.filterValues[2]) === true;
+                    && this.rules.required(this.options.filterValues[2]) === true
+                    && this.rules.isNumber(this.options.filterValues[7]) === true
+                    && this.rules.required(this.options.filterValues[7]) === true
+                    && this.rules.isNumber(this.options.filterValues[8]) === true
+                    && this.rules.required(this.options.filterValues[8]) === true;
             }
         },
         methods: {

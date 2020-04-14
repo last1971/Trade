@@ -21,7 +21,10 @@ export default {
     },
     watch: {
         options: {
-            handler: _.debounce(function () {
+            handler: _.debounce(function (newVal, oldVal) {
+                if (oldVal.page && newVal.page === oldVal.page && oldVal.filterValues !== newVal.filterValues) {
+                    this.options.page = 1;
+                }
                 this.updateItems();
             }, 500),
             deep: true
