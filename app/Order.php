@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $connection = 'firebird';
 
-    protected $fillable = ['WHEREISPOSTCODE', 'INVOICE_NUM', 'INVOICE_DATA', 'DATA_PRIH', 'PRIM', 'STATUS', 'NZAKAZ'];
+    protected $fillable = ['WHEREISPOSTCODE', 'INVOICE_NUM', 'INVOICE_DATA', 'DATA_PRIH', 'PRIM', 'STATUS'];
 
     protected $primaryKey = 'ID';
 

@@ -6,7 +6,7 @@
     import utilsMixin from "../mixins/utilsMixin";
 
     export default {
-        name: "InvoiceStatusSelect",
+        name: "OrderStatusSelect",
         mixins: [utilsMixin],
         props: {
             value: {
@@ -17,7 +17,7 @@
         },
         computed: {
             statuses() {
-                return this.$store.getters['INVOICESTATUS/ALL'].map((text, value) => {
+                return this.$store.getters['ORDERSTATUS/ALL'].map((text, value) => {
                     return {text, value}
                 })
             },

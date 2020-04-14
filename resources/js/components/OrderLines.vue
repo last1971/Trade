@@ -13,7 +13,7 @@
         loading-text="Loading... Please wait"
     >
         <template v-slot:top>
-
+            <order-edit :value="value"/>
         </template>
         <template v-slot:item.DATA_PRIH="{ item }">
             {{ (item.DATA_PRIH || value.DATA_PRIH) | formatDate }}
@@ -35,11 +35,12 @@
 <script>
     import tableMixin from "../mixins/tableMixin";
     import utilsMixin from "../mixins/utilsMixin";
+    import OrderEdit from "./OrderEdit";
 
     export default {
         name: "OrderLines",
         mixins: [tableMixin, utilsMixin],
-        components: {},
+        components: {OrderEdit},
         props: {
             value: {
                 type: Object,

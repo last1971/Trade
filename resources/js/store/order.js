@@ -7,7 +7,7 @@ state.name = 'order';
 
 state.key = 'ID';
 
-state.fillable = ['WHEREISPOSTCODE', 'INVOICE_NUM', 'INVOICE_DATA', 'DATA_PRIH', 'PRIM', 'STATUS', 'NZAKAZ'];
+state.fillable = ['WHEREISPOSTCODE', 'INVOICE_NUM', 'INVOICE_DATA', 'DATA_PRIH', 'PRIM', 'STATUS'];
 
 state.headers = [
     //text: '', value: 'actions', width: 10, sortable: false},

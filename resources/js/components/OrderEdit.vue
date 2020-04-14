@@ -37,13 +37,35 @@
                 />
             </v-col>
             <v-col cols="12" sm="auto">
-                <buyer-select :disabled="notEditable" v-model="model.POKUPATCODE"/>
+                <seller-select :disabled="notEditable" v-model="model.WHEREISPOSTCODE"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <firm-select :disabled="notEditable" v-model="model.FIRM_ID"/>
+                <v-menu
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    min-width="290px"
+                    offset-y
+                    transition="scale-transition"
+                    v-model="datePickerCome"
+                >
+                    <template v-slot:activator="{ on }">
+                        <v-text-field
+                            :disabled="notEditable"
+                            :value="model.DATA_PRIH | formatDate"
+                            label="Приходит"
+                            prepend-icon="mdi-calendar-edit"
+                            readonly
+                            v-on="on"
+                        />
+                    </template>
+                    <v-date-picker @input="datePickerCome = false" v-model="model.DATA_PRIH"></v-date-picker>
+                </v-menu>
             </v-col>
             <v-col cols="12" sm="auto">
-                <invoice-status-select v-model="model.STATUS"/>
+                <v-text-field label="Примечание" v-model="model.PRIM"/>
+            </v-col>
+            <v-col cols="12" sm="auto">
+                <order-status-select v-model="model.STATUS"/>
             </v-col>
             <v-col cols="12" sm="auto">
                 <v-btn :block="!$vuetify.breakpoint.smAndUp"
@@ -58,11 +80,6 @@
                 </v-btn>
             </v-col>
         </v-row>
-        <v-row>
-            <v-col cols="12" sm="8">
-                <v-text-field label="Примечание" v-model="model.PRIM"/>
-            </v-col>
-        </v-row>
     </v-form>
 </template>
 
@@ -70,14 +87,16 @@
     import SellerSelect from "./SellerSelect";
     import editMixin from "../mixins/editMixin";
     import utilsMixin from "../mixins/utilsMixin";
+    import OrderStatusSelect from "./OrderStatusSelect";
 
     export default {
         name: "OrderEdit",
-        components: {SellerSelect},
+        components: {OrderStatusSelect, SellerSelect},
         mixins: [editMixin, utilsMixin],
         data() {
             return {
-                MODEL: 'ORDER'
+                MODEL: 'ORDER',
+                datePickerCome: false,
             }
         },
         computed: {
@@ -85,19 +104,18 @@
                 return this.model.INSUM > 0;
             },
             savePossible() {
-                /*const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
-                const b = _.pick(_.omit(this.model, ['DATA']), this.fillable);
-                const d = this.value.DATA ? this.value.DATA.substr(0, 10) : undefined;
-                return _.isEqual(a, b) && this.model.DATA === d;
-
-                 */
-                return true;
+                const a = _.pick(_.omit(this.value, ['INVOICE_DATA', 'DATA_PRIH']), this.fillable);
+                const b = _.pick(_.omit(this.model, ['INVOICE_DATA', 'DATA_PRIH']), this.fillable);
+                const d1 = this.value.INVOICE_DATA ? this.value.INVOICE_DATA.substr(0, 10) : undefined
+                const d2 = this.value.DATA_PRIH ? this.value.DATA_PRIH.substr(0, 10) : undefined;
+                return _.isEqual(a, b) && this.model.INVOICE_DATA === d1 && this.model.DATA_PRIH === d2;
             },
         },
         methods: {
             initialModel() {
                 this.model = _.cloneDeep(this.value);
                 this.model.INVOICE_DATA = this.model.INVOICE_DATA.substr(0, 10);
+                this.model.DATA_PRIH = this.model.DATA_PRIH.substr(0, 10);
             },
         }
     }
