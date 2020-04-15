@@ -63,7 +63,7 @@ export default {
             if (!_.isEmpty(to.query) && !vm.dependent) {
                 options = to.query;
             } else {
-                const localOptions = vm.$store.getters['USER/LOCAL_OPTION'](to.meta.model);
+                const localOptions = vm.$store.getters['AUTH/LOCAL_OPTION'](to.meta.model);
                 if (localOptions) options = localOptions;
             }
             options.itemsPerPage = parseInt(options.itemsPerPage);
@@ -85,7 +85,7 @@ export default {
     },
     beforeRouteLeave(to, from, next) {
         if (to.name !== 'login') {
-            this.$store.commit('USER/SET_LOCAL_OPTION', {[this.model]: this.options});
+            this.$store.commit('AUTH/SET_LOCAL_OPTION', {[this.model]: this.options});
         }
         next();
     }

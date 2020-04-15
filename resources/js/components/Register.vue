@@ -76,7 +76,7 @@
         computed: {},
         methods: {
             register() {
-                this.$store.dispatch('USER/REGISTER', this.user)
+                this.$store.dispatch('AUTH/REGISTER', this.user)
                     .then(() => this.$router.push({name: 'help'}))
                     .catch((error) => {
                         this.error = error.response.data.errors;

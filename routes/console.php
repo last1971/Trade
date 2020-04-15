@@ -3,6 +3,7 @@
 use App\Services\OrderService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Spatie\Permission\Models\Role;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +21,8 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
+    $s = Role::all();
+    dd($s);
     $s = new OrderService();
     $q = collect([
         'with' => ['employee', 'seller'],

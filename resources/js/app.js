@@ -49,11 +49,11 @@ const app = new Vue({
         if (document.head.querySelector('meta[name="token"]')) {
             localStorage.setItem('token', document.head.querySelector('meta[name="token"]').content)
         }
-        if (this.$store.getters['USER/IS_LOGGEDIN']) {
+        if (this.$store.getters['AUTH/IS_LOGGEDIN']) {
             window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
-            this.$store.dispatch('USER/REFRESH')
+            this.$store.dispatch('AUTH/REFRESH')
                 .then(() => {
-                    if (this.$store.getters['USER/IS_GUEST']) this.$router.push({name: 'help'});
+                    if (this.$store.getters['AUTH/IS_GUEST']) this.$router.push({name: 'help'});
                 })
                 .catch(() => {
                     this.$router.push({name: 'login'});

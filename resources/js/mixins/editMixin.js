@@ -20,7 +20,7 @@ export default {
             return true;
         },
         options() {
-            return this.$store.getters['USER/LOCAL_OPTION'](this.MODEL);
+            return this.$store.getters['AUTH/LOCAL_OPTION'](this.MODEL);
         },
         fillable() {
             return this.$store.getters[this.MODEL + '/FILLABLE'];

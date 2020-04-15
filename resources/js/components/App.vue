@@ -107,7 +107,7 @@
         }),
         computed: {
             ...mapGetters({
-                user: 'USER/GET',
+                user: 'AUTH/GET',
                 snackbar: 'SNACKBAR/GET',
             }),
             breadcrumbs() {
@@ -120,7 +120,7 @@
         },
         methods: {
             logout() {
-                this.$store.dispatch('USER/LOGOUT')
+                this.$store.dispatch('AUTH/LOGOUT')
                     .then(() => this.$router.push({name: 'login'}))
             },
             closeSnackbar() {

@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import user from './user';
+import auth from './auth';
 import snackbar from "./snackbar";
 import buyer from "./buyer";
 import invoice from "./invoice";
@@ -23,6 +23,7 @@ export default new Vuex.Store({
     mutations: {},
     actions: {},
     modules: {
+        AUTH: auth,
         BREADCRUMBS: breadcrumbs,
         BUYER: buyer,
         FIRM: firm,
@@ -36,6 +37,6 @@ export default new Vuex.Store({
         SNACKBAR: snackbar,
         'TRANSFER-OUT': transferOut,
         'TRANSFER-OUT-LINE': transferOutLine,
-        USER: user,
+        //USER: user,
     }
 })

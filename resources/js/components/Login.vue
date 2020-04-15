@@ -64,7 +64,7 @@
         computed: {},
         methods: {
             login() {
-                this.$store.dispatch('USER/LOGIN', this.user)
+                this.$store.dispatch('AUTH/LOGIN', this.user)
                     .then(() => {
                         this.user.login = '';
                         this.user.password = '';
