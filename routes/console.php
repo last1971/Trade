@@ -21,7 +21,7 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-    $s = Role::all();
+    $s = Role::select(['id', 'name'])->paginate(10);
     dd($s);
     $s = new OrderService();
     $q = collect([

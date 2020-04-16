@@ -65,12 +65,12 @@
             }
             if (this.value) {
                 if (_.isArray(this.value) && this.value.length > 0) {
-                    this.isLoading = true;
-                    this.$store.dispatch(this.MODEL + '/ALL', this.options)
-                        .then((response) => this.items = response.data.data)
-                        .catch(() => {
-                        })
-                        .then(() => this.isLoading = false);
+                    //this.isLoading = true;
+                    //this.$store.dispatch(this.MODEL + '/ALL', this.options)
+                    //    .then((response) => this.items = response.data.data)
+                    //    .catch(() => {
+                    //    })
+                    //    .then(() => this.isLoading = false);
                 } else {
                     this.getItem();
                 }

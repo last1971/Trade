@@ -7,13 +7,15 @@ const success = (commit, resp) => {
     commit('SET_TOKEN', token);
     commit('SET_USER', user);
     commit('SET_ROLES', resp.data.roles);
+    commit('SET_PERMISSIONS', resp.data.permissions)
 };
 
 const state = {
     status: '',
     token: localStorage.getItem('token') || document.head.querySelector('meta[name="token"]'),
     user: null,
-    roles: [],
+    roles: localStorage.getItem('roles') ? JSON.parse(localStorage.getItem('roles')) : [],
+    permissions: localStorage.getItem('permissions') ? JSON.parse(localStorage.getItem('permissions')) : [],
     options: {},
     localOptions: JSON.parse(localStorage.getItem('options')) || {},
 };
@@ -24,6 +26,20 @@ const getters = {
     IS_LOGGEDIN: state => !!state.token,
     GET: state => state.user,
     LOCAL_OPTION: state => key => state.localOptions[key],
+    PERMISSIONS: state => state.permissions,
+    ROLES: state => state.roles,
+    HAS_PERMISSION: state => key => {
+        const keys = key.split('.');
+        for (const permission of state.permissions) {
+            const permissions = permission.split('.');
+            permissions.length = keys.length;
+            const res = permissions.reduce(
+                (sum, p, i) => (p === '*' || keys[i] === p) && sum, true
+            )
+            if (res) return true;
+        }
+        return false;
+    }
 };
 
 const mutations = {
@@ -55,6 +71,11 @@ const mutations = {
     },
     SET_ROLES(state, roles) {
         state.roles = roles;
+        localStorage.setItem('roles', JSON.stringify(roles));
+    },
+    SET_PERMISSIONS(state, permissions) {
+        state.permissions = permissions;
+        localStorage.setItem('permissions', JSON.stringify(permissions));
     },
     SET_OPTION(state, option) {
         Object.assign(state.options, option)
@@ -88,6 +109,7 @@ const actions = {
                 .then(resp => {
                     commit('SET_USER', resp.data.user);
                     commit('SET_ROLES', resp.data.roles);
+                    commit('SET_PERMISSIONS', resp.data.permissions)
                     resolve(resp);
                 })
                 .catch(err => {

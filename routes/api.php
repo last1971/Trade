@@ -27,6 +27,7 @@ Route::middleware('auth:api')->group(function () {
         'invoice-line' => 'Api\InvoiceLineController',
         'order' => 'Api\OrderController',
         'order-line' => 'Api\OrderLineController',
+        'role' => 'Api\RoleController',
         'seller' => 'Api\SellerController',
         'transfer-out' => 'Api\TransferOutController',
         'transfer-out-line' => 'Api\TransferOutLineController',

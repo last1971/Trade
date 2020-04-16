@@ -107,7 +107,7 @@ let actions = {
                 });
         });
     },
-    ALL({getters, commit}, payload) {
+    ALL({state, getters, commit}, payload) {
         return new Promise((resolve, reject) => {
             axios
                 .get(getters.URL, {params: payload})

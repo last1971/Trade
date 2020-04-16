@@ -13,7 +13,9 @@ import breadcrumbs from "./breadcrumbs";
 import orderLine from "./orderLine";
 import order from "./order";
 import orderStatus from "./orderStatus";
+import role from "./role";
 import seller from "./seller";
+import user from "./user";
 
 Vue.use(Vuex);
 
@@ -33,10 +35,11 @@ export default new Vuex.Store({
         'ORDER': order,
         'ORDER-LINE': orderLine,
         ORDERSTATUS: orderStatus,
+        ROLE: role,
         SELLER: seller,
         SNACKBAR: snackbar,
         'TRANSFER-OUT': transferOut,
         'TRANSFER-OUT-LINE': transferOutLine,
-        //USER: user,
+        USER: user,
     }
 })

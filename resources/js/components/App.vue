@@ -2,11 +2,16 @@
     <v-app>
         <v-navigation-drawer
             app
-            v-if="user"
+            v-if="user && hasPermission('nav')"
             v-model="drawer"
         >
             <v-list dense nav>
-                <v-list-item :key="menu.id" :to="menu.to" link v-for="menu in menus">
+                <v-list-item
+                    :key="menu.id"
+                    :to="menu.to"
+                    link
+                    v-for="menu in menus" v-if="hasPermission('nav.' + menu.to.name)"
+                >
                     <v-list-item-action>
                         <v-icon>{{ menu.icon }}</v-icon>
                     </v-list-item-action>
@@ -103,11 +108,13 @@
                 {id: 2, text: 'Счета', to: {name: 'invoices'}, icon: 'mdi-text-box'},
                 {id: 3, text: 'Исх.УПД', to: {name: 'transfer-outs'}, icon: 'mdi-clipboard-text-play'},
                 {id: 4, text: 'Заказы', to: {name: 'orders'}, icon: 'mdi-clipboard-arrow-left'},
+                {id: 5, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
             ]
         }),
         computed: {
             ...mapGetters({
                 user: 'AUTH/GET',
+                hasPermission: 'AUTH/HAS_PERMISSION',
                 snackbar: 'SNACKBAR/GET',
             }),
             breadcrumbs() {

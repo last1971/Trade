@@ -11,6 +11,7 @@ import TransferOuts from "./components/TransferOuts";
 import TransferOut from "./components/TransferOut";
 import Orders from "./components/Orders";
 import Order from "./components/Order";
+import Users from "./components/Users";
 
 Vue.use(VueRouter);
 
@@ -30,13 +31,13 @@ const routes = [
         name: 'invoice',
         path: '/invoice/:id',
         component: Invoice,
-        meta: {requiresAuth: true, model: 'INVOICE-LINE'},
+        meta: {requiresAuth: true, model: 'INVOICE-LINE', permission: 'invoice.show'},
     },
     {
         name: 'invoices',
         path: '/invoice',
         component: Invoices,
-        meta: {requiresAuth: true, model: 'INVOICE'},
+        meta: {requiresAuth: true, model: 'INVOICE', permission: 'invoice.index'},
     },
     {
         name: 'login',
@@ -47,13 +48,13 @@ const routes = [
         name: 'order',
         path: '/order/:id',
         component: Order,
-        meta: {requiresAuth: true, model: 'ORDER-LINE'},
+        meta: {requiresAuth: true, model: 'ORDER-LINE', permission: 'order.show'},
     },
     {
         name: 'orders',
         path: '/order',
         component: Orders,
-        meta: {requiresAuth: true, model: 'ORDER'},
+        meta: {requiresAuth: true, model: 'ORDER', permission: 'order.index'},
     },
     {
         name: 'register',
@@ -64,13 +65,19 @@ const routes = [
         name: 'transfer-out',
         path: '/transfer-out/:id',
         component: TransferOut,
-        meta: {requiresAuth: true, model: 'TRANSFER-OUT-LINE'},
+        meta: {requiresAuth: true, model: 'TRANSFER-OUT-LINE', permission: 'transfer-out.show'},
     },
     {
         name: 'transfer-outs',
         path: '/transfer-out',
         component: TransferOuts,
-        meta: {requiresAuth: true, model: 'TRANSFER-OUT'},
+        meta: {requiresAuth: true, model: 'TRANSFER-OUT', permission: 'transfer-out.index'},
+    },
+    {
+        name: 'users',
+        path: '/user',
+        component: Users,
+        meta: {requiresAuth: true, model: 'USER', permission: 'user.index'},
     },
     {path: '*', component: Help},
 ];
@@ -83,11 +90,8 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (store.getters['AUTH/IS_LOGGEDIN']) {
-            if (store.getters['AUTH/IS_GUEST']) {
-                next({name: 'help'});
-            } else {
-                next();
-            }
+            if (!to.meta.permission || store.getters['AUTH/HAS_PERMISSION'](to.meta.permission)) next();
+            else next({name: 'help'});
             return;
         }
         next({name: 'login'});

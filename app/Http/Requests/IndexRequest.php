@@ -13,7 +13,9 @@ class IndexRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        $name = $this->route()->getName();
+        $user = $this->user();
+        return $user->can($name);
     }
 
     /**

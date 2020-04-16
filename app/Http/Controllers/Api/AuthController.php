@@ -29,7 +29,12 @@ class AuthController extends Controller
         if ($user) {
             if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('Personal')->accessToken;
-                $response = ['token' => $token, 'user' => $user, 'roles' => $user->getRoleNames()];
+                $response = [
+                    'token' => $token,
+                    'user' => $user->only(['name', 'email']),
+                    'roles' => $user->getRoleNames(),
+                    'permissions' => $user->getAllPermissions()->pluck('name'),
+                ];
             } else {
                 $response = [
                     'message' => 'The given data was invalid.',
@@ -56,7 +61,12 @@ class AuthController extends Controller
         $user = User::query()->create($request->all());
         $user->assignRole('guest');
         $token = $user->createToken('Personal')->accessToken;
-        $response = ['token' => $token, 'user' => $user, 'roles' => $user->getRoleNames()];
+        $response = [
+            'token' => $token,
+            'user' => $user->only(['name', 'email']),
+            'roles' => $user->getRoleNames(),
+            'permissions' => $user->getAllPermissions()->pluck('name'),
+        ];
 
         return response($response, 200);
     }
@@ -79,8 +89,9 @@ class AuthController extends Controller
     public function refresh()
     {
         return response()->json([
-            'user' => request()->user(),
+            'user' => request()->user()->only(['name', 'email']),
             'roles' => request()->user()->getRoleNames(),
+            'permissions' => request()->user()->getAllPermissions()->pluck('name'),
         ]);
     }
 }
