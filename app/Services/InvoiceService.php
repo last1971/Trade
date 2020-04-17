@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Invoice;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class InvoiceService extends ModelService
 {
@@ -36,5 +37,23 @@ class InvoiceService extends ModelService
         $this->aliases['firm.FIRMNAME'] = function (Builder $query) {
             $query->join('FIRMS as firm', 'firm.FIRM_ID', '=', 'S.FIRM_ID');
         };
+    }
+
+    public function index($request)
+    {
+        $res = parent::index($request);
+        if ($request->user() && !$request->user()->userBuyers->isEmpty()) {
+            $userBuyers = Str::replaceLast(
+                ',', '',
+                $request->user()->userBuyers->reduce(
+                    function ($carry, $buyer) {
+                        return $carry . $buyer->buyer_id . ',';
+                    },
+                    ''
+                )
+            );
+            $res->whereRaw('S.POKUPATCODE IN (' . $userBuyers . ')');
+        }
+        return $res;
     }
 }

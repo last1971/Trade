@@ -1,9 +1,9 @@
 <?php
 
 use App\Services\OrderService;
+use App\User;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
-use Spatie\Permission\Models\Role;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +21,7 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-    $s = Role::select(['id', 'name'])->paginate(10);
+    $s = User::with('userBuyers.buyer')->find(7);
     dd($s);
     $s = new OrderService();
     $q = collect([

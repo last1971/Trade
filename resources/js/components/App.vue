@@ -127,8 +127,17 @@
         },
         methods: {
             logout() {
-                this.$store.dispatch('AUTH/LOGOUT')
-                    .then(() => this.$router.push({name: 'login'}))
+                this.$router.replace({name: 'home'})
+                    .catch(() => {
+                    })
+                    .then(() => this.$store.dispatch('AUTH/LOGOUT')
+                        .then(() => {
+                            this.$destroy();
+                            this.$store.commit('BREADCRUMBS/SET', []);
+                            this.$router.push({name: 'login'});
+                            window.location.reload();
+                        })
+                    )
             },
             closeSnackbar() {
                 this.$store.commit('SNACKBAR/STATUS', false);

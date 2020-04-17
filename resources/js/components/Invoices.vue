@@ -176,7 +176,8 @@
         },
         computed: {
             ...mapGetters({
-                invoiceStatus: 'INVOICESTATUS/GET'
+                invoiceStatus: 'INVOICESTATUS/GET',
+                user: 'AUTH/GET',
             }),
             checkFilters() {
                 return this.rules.isInteger(this.options.filterValues[1]) === true

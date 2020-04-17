@@ -1,5 +1,5 @@
 <template>
-    <v-select :items="statuses" label="Статус" v-model="proxy"/>
+    <v-select :disabled="disabled" :items="statuses" label="Статус" v-model="proxy"/>
 </template>
 
 <script>
@@ -13,6 +13,10 @@
                 type: Number,
                 required: true,
                 default: 0
+            },
+            disabled: {
+                type: Boolean,
+                default: false,
             }
         },
         computed: {

@@ -16,6 +16,7 @@ import orderStatus from "./orderStatus";
 import role from "./role";
 import seller from "./seller";
 import user from "./user";
+import employee from "./employee";
 
 Vue.use(Vuex);
 
@@ -28,6 +29,7 @@ export default new Vuex.Store({
         AUTH: auth,
         BREADCRUMBS: breadcrumbs,
         BUYER: buyer,
+        EMPLOYEE: employee,
         FIRM: firm,
         INVOICE: invoice,
         'INVOICE-LINE': invoiceLine,

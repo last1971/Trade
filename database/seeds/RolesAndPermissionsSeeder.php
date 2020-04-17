@@ -8,6 +8,7 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     private $models = [
         'buyer',
+        'employee',
         'firm',
         'invoice',
         'invoice-line',
@@ -31,6 +32,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::query()->firstOrCreate(['name' => $model . '.*']);
             Permission::query()->firstOrCreate(['name' => $model . '.index']);
             Permission::query()->firstOrCreate(['name' => $model . '.show']);
+            Permission::query()->firstOrCreate(['name' => $model . '.update']);
             Permission::query()->firstOrCreate(['name' => $model . '.full']);
             Permission::query()->firstOrCreate(['name' => $model . '.partitial']);
         }
@@ -48,6 +50,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin->givePermissionTo([
             'nav.*',
             'buyer.*',
+            'employee.*',
             'firm.*',
             'invoice.*',
             'invoice-line.*',

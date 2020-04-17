@@ -12,7 +12,7 @@
                 >
                     <template v-slot:activator="{ on }">
                         <v-text-field
-                            :disabled="notEditable"
+                            :disabled="notEditable || notCan"
                             :value="model.DATA | formatDate"
                             label="Дата"
                             prepend-icon="mdi-calendar-edit"
@@ -24,22 +24,22 @@
                 </v-menu>
             </v-col>
             <v-col cols="12" sm="auto">
-                <v-text-field :disabled="notEditable"
+                <v-text-field :disabled="notEditable || notCan"
                               :rules="[rules.required, rules.isInteger]"
                               label="Номер"
                               v-model="model.NS"
                 />
             </v-col>
             <v-col cols="12" sm="auto">
-                <buyer-select :disabled="notEditable" v-model="model.POKUPATCODE"/>
+                <buyer-select :disabled="notEditable || notCan" v-model="model.POKUPATCODE"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <firm-select :disabled="notEditable" v-model="model.FIRM_ID"/>
+                <firm-select :disabled="notEditable || notCan" v-model="model.FIRM_ID"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <invoice-status-select v-model="model.STATUS"/>
+                <invoice-status-select :disabled="notCan" v-model="model.STATUS"/>
             </v-col>
-            <v-col cols="12" sm="auto">
+            <v-col cols="12" sm="auto" v-if="!notCan">
                 <v-btn :block="!$vuetify.breakpoint.smAndUp"
                        :disabled="savePossible"
                        :fab="$vuetify.breakpoint.smAndUp"
@@ -86,6 +86,9 @@
                 const d = this.value.DATA ? this.value.DATA.substr(0, 10) : undefined;
                 return _.isEqual(a, b) && this.model.DATA === d;
             },
+            notCan() {
+                return !this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
+            }
         },
     }
 </script>

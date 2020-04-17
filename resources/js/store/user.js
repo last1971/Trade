@@ -7,6 +7,8 @@ state.name = 'user';
 
 state.key = 'id';
 
+state.fillable = ['name', 'employeeId', 'roles', 'user_buyers'];
+
 state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},
     {
@@ -25,6 +27,11 @@ state.headers = [
     {
         text: 'Роли',
         value: 'roles',
+        sortable: false,
+    },
+    {
+        text: 'Покупатели',
+        value: 'userBuyers',
         sortable: false,
     }
 

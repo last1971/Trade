@@ -84,7 +84,7 @@ export default {
         });
     },
     beforeRouteLeave(to, from, next) {
-        if (to.name !== 'login') {
+        if (to.name !== 'login' && to.name !== 'home') {
             this.$store.commit('AUTH/SET_LOCAL_OPTION', {[this.model]: this.options});
         }
         next();

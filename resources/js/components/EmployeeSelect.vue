@@ -1,21 +1,22 @@
 <template>
     <model-select
         :disabled="disabled"
-        :multiple="multiple"
-        item-text="SHORTNAME"
-        item-value="POKUPATCODE"
-        label="Покупатель"
-        model="buyer"
+        :items-per-page="-1"
+        :multipe="multiple"
+        item-text="FULLNAME"
+        item-value="ID"
+        label="Сотрудник"
+        model="employee"
         v-model="proxy"
     ></model-select>
 </template>
 
 <script>
-    import ModelSelect from "./ModelSelect";
     import utilsMixin from "../mixins/utilsMixin";
+    import ModelSelect from "./ModelSelect";
 
     export default {
-        name: "BuyerSelect",
+        name: "EmployeeSelect",
         mixins: [utilsMixin],
         components: {ModelSelect},
         props: {

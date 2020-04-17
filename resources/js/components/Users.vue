@@ -10,10 +10,15 @@
                   :server-items-length="total"
                   item-key="ID"
                   loading-text="Loading... Please wait"
-                  v-if="onRoles"
     >
+        <template v-slot:item.employeeId="{ item }">
+            <employee-select @input="save(item)" v-model="item.employeeId"/>
+        </template>
         <template v-slot:item.roles="{ item }">
-            <role-select :multiple="true" :value="roles(item)"></role-select>
+            <role-select :multiple="true" @input="save(item)" v-model="item.roles"></role-select>
+        </template>
+        <template v-slot:item.userBuyers="{ item }">
+            <user-buyers @input="save(item)" v-model="item.user_buyers"/>
         </template>
     </v-data-table>
 </template>
@@ -23,32 +28,41 @@
     import utilsMixin from "../mixins/utilsMixin";
     import RoleSelect from "./RoleSelect";
     import _ from "lodash";
+    import EmployeeSelect from "./EmployeeSelect";
+    import UserBuyers from "./UserBuyers";
 
     export default {
         name: "Users",
-        components: {RoleSelect},
+        components: {UserBuyers, EmployeeSelect, RoleSelect},
         mixins: [tableMixin, utilsMixin],
         data() {
             return {
                 options: {
-                    with: ['roles', 'employee'],
+                    with: ['roles', 'employee', 'userBuyers.buyer'],
                 },
                 mobileFiltersVisible: false,
-                onRoles: false,
             }
         },
         created() {
             const items = this.$store.getters['ROLE/ALL'];
             if (_.isEmpty(items)) {
                 this.$store.dispatch('ROLE/ALL')
-                    .then(() => this.onRoles = true)
-            } else {
-                this.onRoles = true;
+            }
+            const employees = this.$store.getters['EMPLOYEE/ALL'];
+            if (_.isEmpty(employees)) {
+                this.$store.dispatch('EMPLOYEE/ALL')
             }
         },
         methods: {
-            roles(item) {
-                return item.roles.map((v) => v.id);
+            save(item) {
+                this.$store.dispatch('USER/UPDATE', {item, options: this.options})
+                    .then(() => {
+                    })
+                    .catch(() => {
+                        const index = _.indexOf(this.items, {id: item.id});
+                        const oldValue = this.$store.getters['USER/GET'](item.id);
+                        this.items.splice(index, 1, oldValue);
+                    })
             }
         },
         beforeRouteEnter(to, from, next) {

@@ -124,6 +124,8 @@ const actions = {
                     commit('LOGOUT');
                     commit('CLEAR_LOCAL_OPTION');
                     localStorage.removeItem('token');
+                    localStorage.removeItem('roles');
+                    localStorage.removeItem('permissions');
                     delete axios.defaults.headers.common['Authorization'];
                     resolve();
                 })

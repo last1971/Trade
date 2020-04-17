@@ -5,7 +5,7 @@ const state = {
     items: [],
     headers: [],
     aggregateAttributes: [],
-    fillable: [],
+    fillable: ['name', 'employeeId', 'roles'],
 };
 
 const getters = {

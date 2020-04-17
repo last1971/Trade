@@ -22,4 +22,12 @@ return [
         'options.with' => 'array',
         'options.with.*' => 'string',
     ],
+    'user.update' => [
+        'item' => 'array|required',
+        'item.name' => 'string|required',
+        'item.employeeId' => 'integer',
+        'item.rules' => 'array',
+        'options.with' => 'array',
+        'options.with.*' => 'string',
+    ],
 ];
