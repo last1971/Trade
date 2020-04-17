@@ -66,7 +66,18 @@
             if (this.value) {
                 if (_.isArray(this.value) && this.value.length > 0 && this.itemsPerPage > 0) {
                     this.isLoading = true;
-                    this.$store.dispatch(this.MODEL + '/ALL', this.options)
+                    const options = {
+                        itemsPerPage: this.itemsPerPage,
+                        filterAttributes: _.concat(this.filterAttributes, this.itemValue),
+                        filterOperators: _.concat(this.filterOperators, 'IN'),
+                        filterValues: _.concat(
+                            this.filterValues,
+                            this.value.reduce((s, v) => v + ',' + s, '').slice(0, -1)
+                        ),
+                        sortBy: _.isEmpty(this.sortBy) ? [this.itemText] : this.sortBy,
+                        sortDesc: this.sortDesc
+                    };
+                    this.$store.dispatch(this.MODEL + '/ALL', options)
                         .then((response) => this.items = response.data.data)
                         .catch(() => {
                         })
