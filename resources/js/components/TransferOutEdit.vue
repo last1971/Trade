@@ -36,8 +36,8 @@
             <v-col cols="12" sm="auto">
                 <firm-select :disabled="notEditable || notCan" v-model="model.FIRM_ID"/>
             </v-col>
-            <v-col cols="12" sm="auto">
-                <v-text-field :disabled="notEditable || notCan" label="Примечание" v-model="model.PRIM"/>
+            <v-col cols="12" sm="auto" v-if="!notCan">
+                <v-text-field label="Примечание" v-model="model.PRIM"/>
             </v-col>
             <v-col class="d-flex justify-center align-center" cols="12" sm="auto">
                 <router-link :to="{ name: 'invoice', params: { id: model.SCODE } }"

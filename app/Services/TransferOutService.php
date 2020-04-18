@@ -6,7 +6,6 @@ namespace App\Services;
 
 use App\TransferOut;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 
 class TransferOutService extends ModelService
 {
@@ -38,19 +37,9 @@ class TransferOutService extends ModelService
 
     public function index($request)
     {
-        $res = parent::index($request);
-        if ($request->user() && !$request->user()->userBuyers->isEmpty()) {
-            $userBuyers = Str::replaceLast(
-                ',', '',
-                $request->user()->userBuyers->reduce(
-                    function ($carry, $buyer) {
-                        return $carry . $buyer->buyer_id . ',';
-                    },
-                    ''
-                )
-            );
-            $res->whereRaw('SF.POKUPATCODE IN (' . $userBuyers . ')');
-        }
-        return $res;
+        $query = parent::index($request);
+        $this->checkUserBuyers($query);
+        $this->checkUserFirms($query);
+        return $query;
     }
 }

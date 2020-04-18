@@ -11,6 +11,9 @@
                   item-key="ID"
                   loading-text="Loading... Please wait"
     >
+        <template v-slot:item.name="{ item }">
+            <v-text-field @change="save(item)" v-model="item.name"/>
+        </template>
         <template v-slot:item.employeeId="{ item }">
             <employee-select @input="save(item)" v-model="item.employeeId"/>
         </template>
@@ -19,6 +22,9 @@
         </template>
         <template v-slot:item.userBuyers="{ item }">
             <user-buyers @input="save(item)" v-model="item.user_buyers"/>
+        </template>
+        <template v-slot:item.userFirms="{ item }">
+            <user-firms @input="save(item)" v-model="item.user_firms"/>
         </template>
     </v-data-table>
 </template>
@@ -30,15 +36,16 @@
     import _ from "lodash";
     import EmployeeSelect from "./EmployeeSelect";
     import UserBuyers from "./UserBuyers";
+    import UserFirms from "./UserFirms";
 
     export default {
         name: "Users",
-        components: {UserBuyers, EmployeeSelect, RoleSelect},
+        components: {UserFirms, UserBuyers, EmployeeSelect, RoleSelect},
         mixins: [tableMixin, utilsMixin],
         data() {
             return {
                 options: {
-                    with: ['roles', 'employee', 'userBuyers.buyer'],
+                    with: ['roles', 'employee', 'userBuyers.buyer', 'userFirms.firm'],
                 },
                 mobileFiltersVisible: false,
             }

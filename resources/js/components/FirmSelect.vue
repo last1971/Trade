@@ -2,7 +2,7 @@
     <model-select
         :disabled="disabled"
         :items-per-page="-1"
-        :multipe="multiple"
+        :multiple="multiple"
         item-text="FIRMNAME"
         item-value="FIRM_ID"
         label="Фирма"

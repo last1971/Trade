@@ -51,6 +51,9 @@
                 </template>
                 <span>Вернуться</span>
             </v-tooltip>
+            <v-chip outlined v-if="user && !$vuetify.breakpoint.xsOnly">
+                {{ user.name }}
+            </v-chip>
             <v-tooltip bottom v-if="user">
                 <template v-slot:activator="{ on }">
                     <v-btn @click="logout" icon v-on="on">
@@ -130,14 +133,15 @@
                 this.$router.replace({name: 'home'})
                     .catch(() => {
                     })
-                    .then(() => this.$store.dispatch('AUTH/LOGOUT')
-                        .then(() => {
-                            this.$destroy();
-                            this.$store.commit('BREADCRUMBS/SET', []);
-                            this.$router.push({name: 'login'});
-                            window.location.reload();
-                        })
-                    )
+                    .then(() => {
+                        this.$store.dispatch('AUTH/LOGOUT')
+                            .then(() => {
+                                this.$store.commit('BREADCRUMBS/SET', []);
+                                this.$router.push({name: 'login'});
+                                this.$destroy();
+                                window.location.reload();
+                            })
+                    })
             },
             closeSnackbar() {
                 this.$store.commit('SNACKBAR/STATUS', false);

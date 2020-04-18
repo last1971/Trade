@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Str;
 
 class ModelService
 {
@@ -161,6 +162,38 @@ class ModelService
         $model->fill($request->item);
         $model->save();
         return $this->index(collect($request->options))->find(intval($id));
+    }
+
+    protected function checkUserBuyers(Builder $query)
+    {
+        if (auth()->user() && !auth()->user()->userBuyers->isEmpty()) {
+            $userBuyers = Str::replaceLast(
+                ',', '',
+                auth()->user()->userBuyers->reduce(
+                    function ($carry, $buyer) {
+                        return $carry . $buyer->buyer_id . ',';
+                    },
+                    ''
+                )
+            );
+            $query->whereRaw($query->getModel()->getTable() . '.POKUPATCODE IN (' . $userBuyers . ')');
+        }
+    }
+
+    protected function checkUserFirms(Builder $query)
+    {
+        if (auth()->user() && !auth()->user()->userFirms->isEmpty()) {
+            $userFirms = Str::replaceLast(
+                ',', '',
+                auth()->user()->userFirms->reduce(
+                    function ($carry, $firm) {
+                        return $carry . $firm->firm_id . ',';
+                    },
+                    ''
+                )
+            );
+            $query->whereRaw($query->getModel()->getTable() . '.FIRM_ID IN (' . $userFirms . ')');
+        }
     }
 
 }

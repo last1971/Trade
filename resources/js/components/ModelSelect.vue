@@ -17,7 +17,7 @@
         :search-input.sync="search"
         hide-no-data
         hide-selected
-        placeholder="поиска"
+        placeholder="поиск"
         v-model="proxy"
     >
         <template v-slot:prepend>

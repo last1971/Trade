@@ -45,8 +45,8 @@
             <v-col cols="12" sm="auto">
                 <v-text-field :disabled="true" :value="model.transferOutLinesSum" label="Отгружено"/>
             </v-col>
-            <v-col cols="12" sm="auto">
-                <v-text-field :disabled="notCan" label="Примечание" v-model="model.PRIM"/>
+            <v-col cols="12" sm="auto" v-if="!notCan">
+                <v-text-field label="Примечание" v-model="model.PRIM"/>
             </v-col>
             <v-col cols="12" sm="auto">
                 <invoice-status-select :disabled="notCan" v-model="model.STATUS"/>

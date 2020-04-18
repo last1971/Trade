@@ -17,6 +17,14 @@
         <template v-slot:top>
             <invoice-edit :value="value"/>
         </template>
+        <template v-slot:item.name.NAME="{ item }">
+            <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                    <span v-on="on">{{ item.name.NAME }}</span>
+                </template>
+                <span>{{ item.good.PRIM.trim() || 'описания нет' }}</span>
+            </v-tooltip>
+        </template>
         <template v-slot:item.reservesQuantity="{ item }">
             <div :class="reserveClass(item)">
                 {{ item.reservesQuantity }}

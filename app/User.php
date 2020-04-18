@@ -92,11 +92,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function userBuyers()
-    {
-        return $this->hasMany('App\UserBuyer');
-    }
-
     /**
      * @return HasOne
      */
@@ -111,5 +106,15 @@ class User extends Authenticatable
     public function options()
     {
         return $this->hasMany('App\UserOption');
+    }
+
+    public function userBuyers()
+    {
+        return $this->hasMany('App\UserBuyer');
+    }
+
+    public function userFirms()
+    {
+        return $this->hasMany('App\UserFirm');
     }
 }

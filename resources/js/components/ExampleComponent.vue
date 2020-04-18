@@ -16,6 +16,7 @@
     export default {
         beforeRouteEnter(to, from, next) {
             next(vm => {
+                if (vm.$store.getters['AUTH/ROLES'].indexOf('buyer') >= 0) vm.$router.push({name: 'invoices'});
                 vm.$store.commit('BREADCRUMBS/SET', [
                     {
                         text: 'Торговля',

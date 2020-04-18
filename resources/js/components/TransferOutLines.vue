@@ -15,6 +15,14 @@
         <template v-slot:top>
             <transfer-out-edit v-model="value"/>
         </template>
+        <template v-slot:item.name.NAME="{ item }">
+            <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                    <span v-on="on">{{ item.name.NAME }}</span>
+                </template>
+                <span>{{ item.good.PRIM.trim() || 'описания нет' }}</span>
+            </v-tooltip>
+        </template>
         <template v-slot:item.PRICE="{ item }">
             {{ item.PRICE | formatRub }}
         </template>

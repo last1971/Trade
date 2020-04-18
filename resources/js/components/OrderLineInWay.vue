@@ -68,15 +68,21 @@
         },
         computed: {
             headers() {
-                return [
-                    {text: 'Дата', value: 'order.INVOICE_DATA'},
-                    {text: 'Номер', value: 'order.INVOICE_NUM'},
-                    {text: 'Поставщик', value: 'seller.NAMEPOST'},
-                    {text: 'В пути', value: 'QUAN', align: 'right'},
-                    {text: 'Цена', value: 'PRICE', align: 'right'},
-                    {text: 'Сумма', value: 'SUMMAP', align: 'right'},
-                    {text: 'Ожидаем', value: 'DATA_PRIH'},
-                ];
+                return this.$store.getters['AUTH/HAS_PERMISSION']('order-line.full') ?
+                    [
+                        {text: 'Дата', value: 'order.INVOICE_DATA'},
+                        {text: 'Номер', value: 'order.INVOICE_NUM'},
+                        {text: 'Поставщик', value: 'seller.NAMEPOST'},
+                        {text: 'В пути', value: 'QUAN', align: 'right'},
+                        {text: 'Цена', value: 'PRICE', align: 'right'},
+                        {text: 'Сумма', value: 'SUMMAP', align: 'right'},
+                        {text: 'Ожидаем', value: 'DATA_PRIH'},
+                    ] :
+                    [
+                        {text: 'В пути', value: 'QUAN', align: 'right'},
+                        {text: 'Ожидаем', value: 'DATA_PRIH'},
+                    ]
+
             },
             model() {
                 return 'ORDER-LINE';

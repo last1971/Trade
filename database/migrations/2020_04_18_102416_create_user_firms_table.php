@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class BuyerUserTable extends Migration
+class CreateUserFirmsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,10 @@ class BuyerUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_buyers ', function (Blueprint $table) {
-            //
+        Schema::create('user_firms', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('user_id');
-            $table->integer('buyer_id');
+            $table->integer('firm_id');
         });
     }
 
@@ -28,8 +27,6 @@ class BuyerUserTable extends Migration
      */
     public function down()
     {
-        Schema::table('buyer_user', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('user_firms');
     }
 }

@@ -33,6 +33,7 @@
                                 prepend-icon="mdi-lock"
                                 type="password"
                                 v-model="user.password"
+                                @keypress.enter="login"
                             />
                         </v-form>
                     </v-card-text>

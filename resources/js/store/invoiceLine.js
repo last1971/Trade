@@ -62,6 +62,7 @@ state.headers = [
     {
         text: 'Откуда',
         value: 'WHERE_ORDERED',
+        full: true,
     },
 ];
 
