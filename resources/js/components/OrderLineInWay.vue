@@ -17,7 +17,7 @@
             {{ item.order.INVOICE_DATA | formatDate }}
         </template>
         <template v-slot:item.order.INVOICE_NUM="{ item }">
-            <router-link :to="{ name: 'order', params: { id: item.ID } }">
+            <router-link :to="{ name: 'order', params: { id: item.MASTER_ID } }">
                 {{ item.order.INVOICE_NUM }}
             </router-link>
         </template>

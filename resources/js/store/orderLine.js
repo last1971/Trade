@@ -34,6 +34,7 @@ state.headers = [
         text: 'Поступило',
         value: 'inQuantity',
         align: 'right',
+        sortable: false,
     },
     {
         text: 'Цена',

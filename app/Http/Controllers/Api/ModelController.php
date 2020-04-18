@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexRequest;
 use App\Http\Requests\ModelRequest;
+use Error;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
@@ -63,6 +64,7 @@ class ModelController extends Controller
         //
         $permission = Str::before($request->route()->getName(), '.') . '.full';
         $res = $this->service->index($request)->find(intval($id));
+        throw_if(!$res, new Error('Запись отуствует в аналах'));
         if ($request->user()->can($permission) || !$this->resource) {
             return $res;
         }
