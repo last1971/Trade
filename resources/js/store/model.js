@@ -98,8 +98,8 @@ let actions = {
             axios
                 .get(getters.URL + '/' + id, {params: query})
                 .then(response => {
-                    commit('MERGE', [response.data]);
-                    resolve(response.data)
+                    commit('MERGE', [response.data.data || response.data]);
+                    resolve(response.data.data || response.data)
                 })
                 .catch((error) => {
                     commit('SNACKBAR/ERROR', error.response.data.message, {root: true});

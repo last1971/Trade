@@ -34,7 +34,6 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::query()->firstOrCreate(['name' => $model . '.show']);
             Permission::query()->firstOrCreate(['name' => $model . '.update']);
             Permission::query()->firstOrCreate(['name' => $model . '.full']);
-            Permission::query()->firstOrCreate(['name' => $model . '.partitial']);
         }
 
         Permission::query()->firstOrCreate(['name' => 'role.index']);
@@ -63,28 +62,40 @@ class RolesAndPermissionsSeeder extends Seeder
             'user.*'
         ]);
 
+        $manager = Role::query()->firstOrCreate(['name' => 'manager']);
+        $manager->givePermissionTo([
+            'nav.invoices',
+            'nav.orders',
+            'nav.transfer-outs',
+            'buyer.*',
+            'employee.index',
+            'firm.index',
+            'invoice.*',
+            'invoice-line.*',
+            'order.*',
+            'order-line.*',
+            'seller.*',
+            'transfer-out.*',
+            'transfer-out-line.*',
+        ]);
+
         $buyer = Role::query()->firstOrCreate(['name' => 'buyer']);
         $buyer->givePermissionTo([
             'nav.invoices',
             'nav.transfer-outs',
             'buyer.index',
             'buyer.show',
-            'buyer.partitial',
             'firm.index',
             'firm.show',
-            'firm.partitial',
             'invoice.index',
             'invoice.show',
-            'invoice.partitial',
             'invoice-line.index',
             'invoice-line.show',
-            'invoice-line.partitial',
+            'order-line.index',
             'transfer-out.index',
             'transfer-out.show',
-            'transfer-out.partitial',
             'transfer-out-line.index',
             'transfer-out-line.show',
-            'transfer-out-line.partitial',
         ]);
     }
 }

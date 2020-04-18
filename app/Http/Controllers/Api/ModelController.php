@@ -7,18 +7,22 @@ use App\Http\Requests\IndexRequest;
 use App\Http\Requests\ModelRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 
 class ModelController extends Controller
 {
     protected $service;
 
+    protected $resource;
+
     /**
      * ModelController constructor.
      * @param $service
      */
-    public function __construct($service)
+    public function __construct($service, $resource = null)
     {
         $this->service = new $service;
+        $this->resource = $resource;
     }
 
     /**
@@ -29,7 +33,12 @@ class ModelController extends Controller
     public function index(IndexRequest $request)
     {
         //
-        return $this->service->index($request)->paginate($request->itemsPerPage);
+        $permission = Str::before($request->route()->getName(), '.') . '.full';
+        $res = $this->service->index($request)->paginate($request->itemsPerPage);
+        if ($request->user()->can($permission) || !$this->resource) {
+            return $res;
+        }
+        return $this->resource::collection($res);
     }
 
     /**
@@ -52,7 +61,12 @@ class ModelController extends Controller
     public function show($id, IndexRequest $request)
     {
         //
-        return $this->service->index($request)->find(intval($id));
+        $permission = Str::before($request->route()->getName(), '.') . '.full';
+        $res = $this->service->index($request)->find(intval($id));
+        if ($request->user()->can($permission) || !$this->resource) {
+            return $res;
+        }
+        return new $this->resource($res);
     }
 
     /**

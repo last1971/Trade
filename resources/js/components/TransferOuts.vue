@@ -153,7 +153,7 @@
             checkFilters() {
                 return this.rules.isNumber(this.options.filterValues[3]) === true
                     && this.rules.required(this.options.filterValues[3]) === true;
-            }
+            },
         },
         beforeRouteEnter(to, from, next) {
             next(vm => {

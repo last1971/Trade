@@ -37,6 +37,18 @@
                 <firm-select :disabled="notEditable || notCan" v-model="model.FIRM_ID"/>
             </v-col>
             <v-col cols="12" sm="auto">
+                <v-text-field :disabled="true" :value="model.invoiceLinesSum" label="Сумма"/>
+            </v-col>
+            <v-col cols="12" sm="auto">
+                <v-text-field :disabled="true" :value="model.cashFlowsSum" label="Оплачено"/>
+            </v-col>
+            <v-col cols="12" sm="auto">
+                <v-text-field :disabled="true" :value="model.transferOutLinesSum" label="Отгружено"/>
+            </v-col>
+            <v-col cols="12" sm="auto">
+                <v-text-field :disabled="notCan" label="Примечание" v-model="model.PRIM"/>
+            </v-col>
+            <v-col cols="12" sm="auto">
                 <invoice-status-select :disabled="notCan" v-model="model.STATUS"/>
             </v-col>
             <v-col cols="12" sm="auto" v-if="!notCan">
@@ -50,11 +62,6 @@
                     <v-icon v-if="$vuetify.breakpoint.smAndUp">mdi-content-save</v-icon>
                     <span v-else>Сохранить</span>
                 </v-btn>
-            </v-col>
-        </v-row>
-        <v-row>
-            <v-col cols="12" sm="8">
-                <v-text-field label="Примечание" v-model="model.PRIM"/>
             </v-col>
         </v-row>
     </v-form>

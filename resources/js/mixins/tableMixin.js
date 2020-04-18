@@ -43,7 +43,7 @@ export default {
             // if (this.$route.query.page === this.options.page && !this.dependent) this.options.page = 1;
             this.$store.dispatch(this.model + '/ALL', this.requestParams())
                 .then((response) => {
-                    this.total = response.data.total;
+                    this.total = response.data.total || response.data.meta.total;
                     this.items = response.data.data;
                     const newQuery = _.cloneDeep(this.options);
                     if (!this.dependent && !_.isEqual(this.$route.query, newQuery)) {
@@ -67,6 +67,7 @@ export default {
                 if (localOptions) options = localOptions;
             }
             options.itemsPerPage = parseInt(options.itemsPerPage);
+            options.page = parseInt(options.page);
             if (options.with) {
                 options.with = typeof options.with === 'string' ? [options.with] : options.with;
             }
