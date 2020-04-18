@@ -20,6 +20,6 @@ class UserFirm extends Model
 
     public function firm()
     {
-        return $this->belongsTo('App\FIRM', 'firm_id', 'FIRM_ID');
+        return $this->belongsTo('App\Firm', 'firm_id', 'FIRM_ID');
     }
 }
