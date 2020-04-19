@@ -41,6 +41,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'nav.*']);
         Permission::query()->firstOrCreate(['name' => 'nav.home']);
         Permission::query()->firstOrCreate(['name' => 'nav.invoices']);
+        Permission::query()->firstOrCreate(['name' => 'nav.invoice-lines']);
         Permission::query()->firstOrCreate(['name' => 'nav.orders']);
         Permission::query()->firstOrCreate(['name' => 'nav.transfer-outs']);
 
@@ -67,6 +68,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $manager->givePermissionTo([
             'nav.home',
             'nav.invoices',
+            'nav.invoice-lines',
             'nav.orders',
             'nav.transfer-outs',
             'buyer.*',
@@ -84,6 +86,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $buyer = Role::query()->firstOrCreate(['name' => 'buyer']);
         $buyer->givePermissionTo([
             'nav.invoices',
+            'nav.invoice-lines',
             'nav.transfer-outs',
             'buyer.index',
             'buyer.show',

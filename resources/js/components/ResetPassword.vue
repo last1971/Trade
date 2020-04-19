@@ -51,7 +51,7 @@
                     </v-card-text>
                     <v-card-actions class="px-4 pb-4" v-if="notAlarm">
                         <v-spacer/>
-                        <v-btn @click="register" color="primary">
+                        <v-btn :loading="loading" @click="register" color="primary">
                             <v-icon left>mdi-key-change</v-icon>
                             Изменить
                         </v-btn>
@@ -78,6 +78,7 @@
                 },
                 error: {},
                 notAlarm: true,
+                loading: false,
             }
         },
         mounted() {
@@ -90,11 +91,13 @@
         },
         methods: {
             register() {
+                this.loading = true;
                 this.$store.dispatch('AUTH/RESET', this.user)
                     .then(() => this.$router.push({name: 'home'}))
                     .catch((error) => {
                         this.error = error.response.data.errors;
-                    });
+                    })
+                    .then(() => this.loading = false)
             }
         }
     }

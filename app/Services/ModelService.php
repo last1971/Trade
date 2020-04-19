@@ -66,6 +66,23 @@ class ModelService
     }
 
     /**
+     * @param string $attribute
+     * @return string
+     */
+    private function rawAttribute(string $attribute)
+    {
+        $parts = explode('.', $attribute);
+        return Str::replaceFirst(
+            '.',
+            '',
+            array_reduce($parts, function ($s, $v) {
+                $s .= '.' . '"' . $v . '"';
+                return $s;
+            }, '')
+        );
+    }
+
+    /**
      * @param FormRequest|Request|Collection $request
      * @return Builder|mixed
      */
@@ -113,13 +130,16 @@ class ModelService
                         // date where
                         } else if (array_search($filterAttribute, $this->dateAttributes) !== false) {
                             $query->whereRaw(
-                                '"' . $filterAttribute . '" ' . $request->get('filterOperators')[$index]
+                                $this->rawAttribute($filterAttribute) . ' '
+                                . $request->get('filterOperators')[$index]
                                 . '\'' . Carbon::parse($request->get('filterValues')[$index]) . '\''
                             );
                             // in where
                         } else if ($request->get('filterOperators')[$index] === 'IN') {
+                            // $query->whereIn($filterAttribute, $request->get('filterValues')[$index]);
                             $query->whereRaw(
-                                '"' . $filterAttribute . '" IN (' . $request->get('filterValues')[$index] . ')'
+                                $this->rawAttribute($filterAttribute)
+                                . ' IN (' . $request->get('filterValues')[$index] . ')'
                             );
                             // containing where
                         } else if ($request->get('filterOperators')[$index] === 'CONTAIN') {
@@ -196,4 +216,45 @@ class ModelService
         }
     }
 
+    protected function addUserBuyers($request, $table = null)
+    {
+        $table = $table ?? $this->query->getModel()->getTable();
+        if (auth()->user() && !auth()->user()->userBuyers->isEmpty()) {
+            $restrictions = auth()->user()->userBuyers->map(function ($v) {
+                return $v->buyer_id;
+            })->all();
+            $this->addUserRestriction($request, $table . '.POKUPATCODE', $restrictions);
+        }
+    }
+
+    protected function addUserFirms($request, $table = null)
+    {
+        $table = $table ?? $this->query->getModel()->getTable();
+        if (auth()->user() && !auth()->user()->userFirms->isEmpty()) {
+            $restrictions = auth()->user()->userFirms->map(function ($v) {
+                return $v->firm_id;
+            })->all();
+            $this->addUserRestriction($request, $table . '.FIRM_ID', $restrictions);
+        }
+    }
+
+    private function addUserRestriction($request, $attribute, $restrictions)
+    {
+        $filterAttributes = $request->get('filterAttributes') ?? [];
+        $filterValues = $request->get('filterValues') ?? [];
+        $filterOperators = $request->get('filterOperators') ?? [];
+        if (($index = array_search($attribute, $filterAttributes)) !== FALSE) {
+            $filterValues[$index] = implode(',', array_filter(
+                explode(',', $filterValues[$index]),
+                function ($v) use ($restrictions) {
+                    return in_array($v, $restrictions);
+                }
+            ));
+        } else {
+            $filterValues[] = implode(',', $restrictions);
+            $filterOperators[] = 'IN';
+            $filterAttributes[] = $attribute;
+        }
+        $request->merge(compact('filterValues', 'filterOperators', 'filterAttributes'));
+    }
 }

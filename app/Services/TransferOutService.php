@@ -37,9 +37,8 @@ class TransferOutService extends ModelService
 
     public function index($request)
     {
-        $query = parent::index($request);
-        $this->checkUserBuyers($query);
-        $this->checkUserFirms($query);
-        return $query;
+        $this->addUserBuyers($request);
+        $this->addUserFirms($request);
+        return parent::index($request);
     }
 }

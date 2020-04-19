@@ -13,6 +13,7 @@ import Orders from "./components/Orders";
 import Order from "./components/Order";
 import Users from "./components/Users";
 import ResetPassword from "./components/ResetPassword";
+import InvoiceLinesSearch from "./components/InvoiceLinesSearch";
 
 Vue.use(VueRouter);
 
@@ -39,6 +40,12 @@ const routes = [
         path: '/invoice',
         component: Invoices,
         meta: {requiresAuth: true, model: 'INVOICE', permission: 'invoice.index'},
+    },
+    {
+        name: 'invoice-lines',
+        path: '/invoice-line',
+        component: InvoiceLinesSearch,
+        meta: {requiresAuth: true, model: 'INVOICE-LINE', permission: 'invoice-line.index'},
     },
     {
         name: 'login',

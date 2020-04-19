@@ -28,6 +28,7 @@ class TransferOutLineResource extends JsonResource
             'category' => new CategoryResource($this->category),
             'good' => new GoodResource($this->good),
             'name' => new NameResource($this->name),
+            'transferOut' => new TransferOutResource($this->transferOut),
         ];
     }
 }

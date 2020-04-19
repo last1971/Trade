@@ -14,6 +14,7 @@ class InvoiceLineService extends ModelService
         parent::__construct(InvoiceLine::class);
 
         $this->query->join('GOODS as good', 'good.GOODSCODE', '=', 'REALPRICE.GOODSCODE');
+        $this->query->join('S as invoice', 'invoice.SCODE', '=', 'REALPRICE.SCODE');
 
         $this->aggregateAttributes = [
             'reservesQuantity' => ['reserves' => function (Builder $query) {
@@ -37,5 +38,12 @@ class InvoiceLineService extends ModelService
             $query
                 ->join('NAME as name', 'name.NAMECODE', '=', 'good.NAMECODE');
         };
+    }
+
+    public function index($request)
+    {
+        $this->addUserBuyers($request, 'invoice');
+        $this->addUserFirms($request, 'invoice');
+        return parent::index($request);
     }
 }

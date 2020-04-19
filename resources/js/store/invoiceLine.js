@@ -10,6 +10,10 @@ state.key = 'REALPRICECODE';
 state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},
     {
+        text: 'Счет',
+        value: 'invoice'
+    },
+    {
         text: 'Категория',
         value: 'category.CATEGORY',
     },

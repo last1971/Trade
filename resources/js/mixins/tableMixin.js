@@ -44,7 +44,6 @@ export default {
         updateItems() {
             if (!this.checkFilters || !this.options.page) return;
             this.loading = true;
-            // if (this.$route.query.page === this.options.page && !this.dependent) this.options.page = 1;
             this.$store.dispatch(this.model + '/ALL', this.requestParams())
                 .then((response) => {
                     this.total = response.data.total || response.data.meta.total;
@@ -66,7 +65,7 @@ export default {
             let options = vm.options;
             if (!_.isEmpty(to.query) && !vm.dependent) {
                 options = to.query;
-            } else {
+            } else if (!vm.dependent) {
                 const localOptions = vm.$store.getters['AUTH/LOCAL_OPTION'](to.meta.model);
                 if (localOptions) options = localOptions;
             }

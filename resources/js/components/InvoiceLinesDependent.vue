@@ -3,19 +3,19 @@
         :footer-props="{
             showFirstLastPage: true,
         }"
-        :headers="headers2"
+        :headers="headers"
         :items="items"
         :loading="loading"
         :multi-sort="true"
         :options.sync="options"
         :server-items-length="total"
-        loading-text="Loading... Please wait"
         :single-expand="true"
         item-key="REALPRICECODE"
+        loading-text="Loading... Please wait"
         show-expand
     >
         <template v-slot:top>
-            <invoice-edit :value="value"/>
+            <slot name="top"/>
         </template>
         <template v-slot:item.name.NAME="{ item }">
             <v-tooltip top>
@@ -24,6 +24,11 @@
                 </template>
                 <span>{{ item.good.PRIM.trim() || 'описания нет' }}</span>
             </v-tooltip>
+        </template>
+        <template v-slot:item.invoice="{ item }">
+            <router-link :to="{ name: 'invoice', params: { id: item.invoice.SCODE } }">
+                № {{ item.invoice.NS }} от {{ item.invoice.DATA | formatDate }}
+            </router-link>
         </template>
         <template v-slot:item.reservesQuantity="{ item }">
             <div :class="reserveClass(item)">
@@ -52,24 +57,19 @@
                 <order-line-in-way :invoice-line="item" class="my-2"/>
             </td>
         </template>
-        <template v-slot:footer>
-            <transfer-out-list :invoice="value"/>
-        </template>
     </v-data-table>
 </template>
 
 <script>
     import tableMixin from "../mixins/tableMixin";
-    import ExpandTransferOutLines from "./ExpandTransferOutLines";
-    import TransferOutList from "./TransferOutList";
-    import InvoiceEdit from "./InvoiceEdit";
     import utilsMixin from "../mixins/utilsMixin";
     import OrderLineInWay from "./OrderLineInWay";
+    import ExpandTransferOutLines from "./ExpandTransferOutLines";
 
     export default {
-        name: "InvoiceLines",
+        name: "InvoiceLinesDependent",
         mixins: [tableMixin, utilsMixin],
-        components: {OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},
+        components: {OrderLineInWay, ExpandTransferOutLines},
         props: {
             value: {
                 type: Object,
@@ -78,24 +78,17 @@
         },
         data() {
             return {
-                options: {
-                    with: ['category', 'good', 'name'],
-                    aggregateAttributes: [
-                        'reservesQuantity', 'pickUpsQuantity', 'transferOutLinesQuantity'
-                    ],
-                    filterAttributes: [
-                        'invoice.SCODE',
-                    ],
-                    filterOperators: ['='],
-                    filterValues: [this.value.SCODE],
-                },
                 mobileFiltersVisible: false,
-                dependent: true,
             }
         },
         computed: {
-            headers2() {
-                return _.tail(this.headers);
+            options: {
+                get() {
+                    return this.value;
+                },
+                set(val) {
+                    this.$emit('input', val);
+                }
             }
         },
         methods: {
