@@ -16,7 +16,7 @@
                         <v-toolbar-title>Вход</v-toolbar-title>
                     </v-toolbar>
                     <v-card-text class="px-4">
-                        <v-form @submit="login">
+                        <v-form @submit="login" v-if="notForgot">
                             <v-text-field
                                 :error-messages="error.email"
                                 label="E-mail"
@@ -36,11 +36,25 @@
                                 @keypress.enter="login"
                             />
                         </v-form>
+                        <div class="headline" v-else>
+                            Сcылка на восстановление пароля отправлена на Вашу электронную почту
+                        </div>
                     </v-card-text>
-                    <v-card-actions class="px-4 pb-4">
+                    <v-card-actions class="px-4 pb-4" v-if="notForgot">
                         <v-spacer/>
-                        <v-btn @click="login" color="primary" type="submit">Войти</v-btn>
-                        <v-btn :to="{ name: 'register' }">Регистрация</v-btn>
+                        <v-btn :loading="loginLoading" @click="login" color="primary" type="submit">
+                            <v-icon left>mdi-login-variant</v-icon>
+                            Войти
+                        </v-btn>
+                        <v-spacer/>
+                        <v-btn :loading="forgotLoading" @click="forgot" color="secondary">
+                            <v-icon left>mdi-lock-question</v-icon>
+                            Воccтановить
+                        </v-btn>
+                        <v-btn :to="{ name: 'register' }">
+                            <v-icon left>mdi-account-plus</v-icon>
+                            Регистрация
+                        </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-col>
@@ -51,8 +65,11 @@
 </template>
 
 <script>
+    import authMixin from "../mixins/authMixin";
+
     export default {
         name: "Login",
+        mixins: [authMixin],
         data() {
             return {
                 user: {
@@ -60,11 +77,15 @@
                     password: '',
                 },
                 error: {},
+                notForgot: true,
+                loginLoading: false,
+                forgotLoading: false,
             }
         },
         computed: {},
         methods: {
             login() {
+                this.loginLoading = true;
                 this.$store.dispatch('AUTH/LOGIN', this.user)
                     .then(() => {
                         this.user.login = '';
@@ -73,7 +94,19 @@
                     })
                     .catch((error) => {
                         this.error = error.response.data.errors;
-                    });
+                    })
+                    .then(() => this.loginLoading = false);
+            },
+            forgot() {
+                this.forgotLoading = true;
+                this.$store.dispatch('AUTH/FORGOT', this.user)
+                    .then(() => {
+                        this.notForgot = false;
+                    })
+                    .catch((error) => {
+                        this.error = error.response.data.errors;
+                    })
+                    .then(() => this.forgotLoading = false);
             }
         },
     }

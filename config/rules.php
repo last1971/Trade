@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'checkToken' => [
+        'token' => 'required|string',
+    ],
+    'forgot' => [
+        'email' => 'required|string|email'
+    ],
     'invoice.update' => [
         'item' => 'array|required',
         'item.STATUS' => 'integer',
@@ -12,6 +18,10 @@ return [
         'options.with' => 'array',
         'options.with.*' => 'string',
     ],
+    'login' => [
+        'email' => 'required|string|email|max:255',
+        'password' => 'required|string|min:6',
+    ],
     'order.update' => [
         'item' => 'array|required',
         'item.STATUS' => 'integer',
@@ -21,6 +31,16 @@ return [
         'item.WHEREISPOSTCODE' => 'integer',
         'options.with' => 'array',
         'options.with.*' => 'string',
+    ],
+    'register' => [
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:6|confirmed',
+    ],
+    'resetPassword' => [
+        'email' => 'required|string|email',
+        'password' => 'required|string|min:6|confirmed',
+        'token' => 'required|string'
     ],
     'user.update' => [
         'item' => 'array|required',

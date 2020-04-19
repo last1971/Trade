@@ -103,6 +103,55 @@ const actions = {
                 })
         })
     },
+    FORGOT({commit}, user) {
+        return new Promise((resolve, reject) => {
+            commit('AUTH_REQUEST');
+            axios.post('/api/forgot', user)
+                .then(resp => {
+                    commit(
+                        'SNACKBAR/SET',
+                        {
+                            text: resp.data.message,
+                            status: true,
+                            color: 'info',
+                            timeout: 3000,
+                            multi: true,
+                        },
+                        {
+                            root: true
+                        }
+                    );
+                    resolve(resp);
+                })
+                .catch(err => {
+                    commit('AUTH_ERROR');
+                    localStorage.removeItem('token');
+                    commit('SNACKBAR/ERROR', err.response.data.message, {root: true});
+                    reject(err);
+                })
+        })
+    },
+    CHECK({commit}, token) {
+        return new Promise((resolve, reject) => {
+            commit('AUTH_REQUEST');
+            axios.post('/api/check-token', {token})
+                .then(resp => {
+                    commit('SNACKBAR/SET', {
+                        text: 'Вы успели во время',
+                        status: true,
+                        color: 'info',
+                        timeout: 3000,
+                    }, {root: true});
+                    resolve(resp);
+                })
+                .catch(err => {
+                    commit('AUTH_ERROR');
+                    localStorage.removeItem('token');
+                    commit('SNACKBAR/ERROR', err.response.data.message, {root: true});
+                    reject(err);
+                })
+        })
+    },
     REFRESH({commit}) {
         return new Promise((resolve, reject) => {
             axios.get('/api/refresh-user')
@@ -132,6 +181,21 @@ const actions = {
                 .catch(err => {
                     reject(err);
                 });
+        })
+    },
+    RESET({commit}, user) {
+        return new Promise((resolve, reject) => {
+            commit('AUTH_REQUEST');
+            axios.post('/api/reset-password', user)
+                .then(resp => {
+                    success(commit, resp);
+                    resolve(resp);
+                })
+                .catch(err => {
+                    commit('AUTH_ERROR');
+                    localStorage.removeItem('token');
+                    reject(err);
+                })
         })
     },
     REGISTER({commit}, user) {

@@ -37,13 +37,13 @@
                 <firm-select :disabled="notEditable || notCan" v-model="model.FIRM_ID"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <v-text-field :disabled="true" :value="model.invoiceLinesSum" label="Сумма"/>
+                <v-text-field :disabled="true" :value="model.invoiceLinesSum | formatRub" label="Сумма"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <v-text-field :disabled="true" :value="model.cashFlowsSum" label="Оплачено"/>
+                <v-text-field :disabled="true" :value="model.cashFlowsSum | formatRub" label="Оплачено"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <v-text-field :disabled="true" :value="model.transferOutLinesSum" label="Отгружено"/>
+                <v-text-field :disabled="true" :value="model.transferOutLinesSum | formatRub" label="Отгружено"/>
             </v-col>
             <v-col cols="12" sm="auto" v-if="!notCan">
                 <v-text-field label="Примечание" v-model="model.PRIM"/>

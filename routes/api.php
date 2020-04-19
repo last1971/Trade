@@ -39,3 +39,6 @@ Route::middleware('auth:api')->group(function () {
 
 Route::post('login', 'Api\AuthController@login')->name('login');
 Route::post('register', 'Api\AuthController@register')->name('register');
+Route::post('forgot', 'Api\AuthController@forgot')->name('forgot');
+Route::post('check-token', 'Api\AuthController@checkToken')->name('checkToken');
+Route::post('reset-password', 'Api\AuthController@reset')->name('resetPassword');

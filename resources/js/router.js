@@ -12,6 +12,7 @@ import TransferOut from "./components/TransferOut";
 import Orders from "./components/Orders";
 import Order from "./components/Order";
 import Users from "./components/Users";
+import ResetPassword from "./components/ResetPassword";
 
 Vue.use(VueRouter);
 
@@ -55,6 +56,11 @@ const routes = [
         path: '/order',
         component: Orders,
         meta: {requiresAuth: true, model: 'ORDER', permission: 'order.index'},
+    },
+    {
+        name: 'passwordReset',
+        path: '/password-reset/:token',
+        component: ResetPassword,
     },
     {
         name: 'register',

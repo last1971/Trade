@@ -9,20 +9,14 @@
             >
                 <v-card class="elevation-12">
                     <v-toolbar
-                        color="primary"
+                        :color="notAlarm ? 'primary' : 'red'"
                         dark
                     >
-                        <v-toolbar-title>Регистрация</v-toolbar-title>
+                        <v-toolbar-title v-if="notAlarm">Измените пароль</v-toolbar-title>
+                        <v-toolbar-title v-else>Что-то пошло не так</v-toolbar-title>
                     </v-toolbar>
                     <v-card-text class="px-4">
-                        <v-form>
-                            <v-text-field
-                                :error-messages="error.name"
-                                label="Имя"
-                                prepend-icon="mdi-account"
-                                type="text"
-                                v-model="user.name"
-                            />
+                        <v-form v-if="notAlarm">
                             <v-text-field
                                 :error-messages="error.email"
                                 label="E-mail"
@@ -48,10 +42,19 @@
                                 v-model="user.password_confirmation"
                             />
                         </v-form>
+                        <div align="center" class="headline" v-else>
+                            {{ error.token[0] }}
+                            <v-btn :to="{ name: 'home'}" icon>
+                                <v-icon>mdi-arrow-left-circle</v-icon>
+                            </v-btn>
+                        </div>
                     </v-card-text>
-                    <v-card-actions class="px-4 pb-4">
+                    <v-card-actions class="px-4 pb-4" v-if="notAlarm">
                         <v-spacer/>
-                        <v-btn @click="register" color="primary">Зарегистрироваться</v-btn>
+                        <v-btn @click="register" color="primary">
+                            <v-icon left>mdi-key-change</v-icon>
+                            Изменить
+                        </v-btn>
                     </v-card-actions>
                 </v-card>
             </v-col>
@@ -63,23 +66,32 @@
     import authMixin from "../mixins/authMixin";
 
     export default {
-        name: "Register",
+        name: "ResetPassword",
         mixins: [authMixin],
         data() {
             return {
                 user: {
-                    name: '',
                     email: '',
                     password: '',
                     password_confirmation: '',
+                    token: '',
                 },
                 error: {},
+                notAlarm: true,
             }
+        },
+        mounted() {
+            this.$store.dispatch('AUTH/CHECK', this.$route.params.token)
+                .then((response) => this.user = response.data)
+                .catch((error) => {
+                    this.error = error.response.data.errors;
+                    this.notAlarm = false;
+                })
         },
         methods: {
             register() {
-                this.$store.dispatch('AUTH/REGISTER', this.user)
-                    .then(() => this.$router.push({name: 'help'}))
+                this.$store.dispatch('AUTH/RESET', this.user)
+                    .then(() => this.$router.push({name: 'home'}))
                     .catch((error) => {
                         this.error = error.response.data.errors;
                     });
