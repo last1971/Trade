@@ -27,7 +27,7 @@ class InvoiceLineService extends ModelService
                 $query->transferOutLinesQuantity();
             }],
         ];
-
+        $this->dateAttributes = ['invoice.DATA'];
         $this->aliases['category.CATEGORY'] = function (Builder $query) {
             $query
                 ->join(

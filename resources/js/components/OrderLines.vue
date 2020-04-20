@@ -62,6 +62,7 @@
                 },
                 mobileFiltersVisible: false,
                 dependent: true,
+                model: 'ORDER-LINE',
             }
         },
         methods: {

@@ -6,6 +6,7 @@ export default {
             items: [],
             dependent: false,
             parent: null,
+            filterValues: null,
         }
     },
     computed: {
@@ -16,19 +17,22 @@ export default {
                     || this.$store.getters['AUTH/HAS_PERMISSION'](_.toLower(this.model) + '.full');
             }) : [];
         },
-        model() {
-            return this.$route.meta.model;
-        },
         checkFilters() {
             return true;
-        }
+        },
     },
     watch: {
         options: {
             handler: _.debounce(function (newVal, oldVal) {
-                if (oldVal.page && newVal.page === oldVal.page && oldVal.filterValues !== newVal.filterValues) {
+                if (
+                    oldVal.page &&
+                    newVal.page === oldVal.page &&
+                    this.filterValues &&
+                    !_.isEqual(this.filterValues, newVal.filterValues)
+                ) {
                     this.options.page = 1;
                 }
+                this.filterValues = _.cloneDeep(newVal.filterValues);
                 this.updateItems();
             }, 500),
             deep: true
@@ -46,7 +50,7 @@ export default {
             this.loading = true;
             this.$store.dispatch(this.model + '/ALL', this.requestParams())
                 .then((response) => {
-                    this.total = response.data.total || response.data.meta.total;
+                    this.total = response.data.total !== undefined ? response.data.total : response.data.meta.total;
                     this.items = response.data.data;
                     const newQuery = _.cloneDeep(this.options);
                     if (!this.dependent && !_.isEqual(this.$route.query, newQuery)) {
@@ -60,37 +64,4 @@ export default {
                 .then(() => this.loading = false)
         },
     },
-    beforeRouteEnter(to, from, next) {
-        next(vm => {
-            let options = vm.options;
-            if (!_.isEmpty(to.query) && !vm.dependent) {
-                options = to.query;
-            } else if (!vm.dependent) {
-                const localOptions = vm.$store.getters['AUTH/LOCAL_OPTION'](to.meta.model);
-                if (localOptions) options = localOptions;
-            }
-            options.itemsPerPage = parseInt(options.itemsPerPage);
-            options.page = parseInt(options.page);
-            if (options.with) {
-                options.with = typeof options.with === 'string' ? [options.with] : options.with;
-            }
-            if (options.sortBy) {
-                options.sortBy = typeof options.sortBy === 'string' ? [options.sortBy] : options.sortBy;
-                options.sortDesc = typeof options.sortDesc === 'string' ? [options.sortDesc] : options.sortDesc;
-            }
-            if (options.multiSort) {
-                options.multiSort = options.multiSort === "true" || options.multiSort === true;
-            }
-            if (options.mustSort) {
-                options.mustSort = options.mustSort === "true" || options.multiSort === true;
-            }
-            vm.options = options;
-        });
-    },
-    beforeRouteLeave(to, from, next) {
-        if (to.name !== 'login' && to.name !== 'home') {
-            this.$store.commit('AUTH/SET_LOCAL_OPTION', {[this.model]: this.options});
-        }
-        next();
-    }
 }

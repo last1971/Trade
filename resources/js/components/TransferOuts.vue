@@ -144,6 +144,7 @@
                 },
                 datePicker: false,
                 mobileFiltersVisible: false,
+                model: 'TRANSFER-OUT',
             }
         },
         computed: {

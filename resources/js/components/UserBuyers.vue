@@ -1,5 +1,5 @@
 <template>
-    <buyer-select :multiple="true" v-model="proxy"/>
+    <buyer-select :dense="dense" :multiple="true" v-model="proxy"/>
 </template>
 
 <script>
@@ -17,6 +17,10 @@
                 default: false
             },
             disabled: {
+                type: Boolean,
+                default: false,
+            },
+            dense: {
                 type: Boolean,
                 default: false,
             },

@@ -11,7 +11,13 @@ state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},
     {
         text: 'Счет',
-        value: 'invoice'
+        value: 'invoice',
+        sortable: false,
+    },
+    {
+        text: 'Покупатель',
+        value: 'invoice.buyer.SHORTNAME',
+        sortable: false,
     },
     {
         text: 'Категория',

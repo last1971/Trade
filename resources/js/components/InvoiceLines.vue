@@ -91,11 +91,12 @@
                 },
                 mobileFiltersVisible: false,
                 dependent: true,
+                model: 'INVOICE-LINE',
             }
         },
         computed: {
             headers2() {
-                return _.tail(this.headers);
+                return _.tail(_.tail(this.headers));
             }
         },
         methods: {

@@ -59,6 +59,7 @@
                 },
                 mobileFiltersVisible: false,
                 dependent: true,
+                model: 'TRANSFER-OUT-LINE',
             }
         },
     }

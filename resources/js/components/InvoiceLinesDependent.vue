@@ -79,6 +79,7 @@
         data() {
             return {
                 mobileFiltersVisible: false,
+                model: 'INVOICE-LINE',
             }
         },
         computed: {

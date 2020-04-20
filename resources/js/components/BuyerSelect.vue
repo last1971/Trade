@@ -7,6 +7,7 @@
         label="Покупатель"
         model="buyer"
         v-model="proxy"
+        :dense="dense"
     ></model-select>
 </template>
 
@@ -27,6 +28,10 @@
                 default: false
             },
             disabled: {
+                type: Boolean,
+                default: false,
+            },
+            dense: {
                 type: Boolean,
                 default: false,
             },

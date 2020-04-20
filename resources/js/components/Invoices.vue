@@ -140,10 +140,11 @@
     import {mapGetters} from 'vuex';
     import tableMixin from "../mixins/tableMixin";
     import utilsMixin from "../mixins/utilsMixin";
+    import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
 
     export default {
         name: "Invoices",
-        mixins: [tableMixin, utilsMixin],
+        mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
         data() {
             return {
                 options: {
@@ -165,6 +166,7 @@
                     filterOperators: ['>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>='],
                     filterValues: [moment().format('Y-MM-DD'), '', 0, '0,1,2,3,4', '', '', '', 0, 0],
                 },
+                model: 'INVOICE',
                 datePicker: false,
                 statuses: [
                     {text: 'В работе', value: '0,1,2,3,4'},

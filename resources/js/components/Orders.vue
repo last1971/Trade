@@ -160,6 +160,7 @@
                     {text: 'Все', value: '0,1,2,3,4,5,6'},
                 ],
                 mobileFiltersVisible: false,
+                model: 'ORDER',
             }
         },
         computed: {

@@ -48,6 +48,7 @@
                     with: ['roles', 'employee', 'userBuyers.buyer', 'userFirms.firm'],
                 },
                 mobileFiltersVisible: false,
+                model: 'USER',
             }
         },
         created() {
