@@ -15,6 +15,7 @@ class InvoiceLineService extends ModelService
 
         $this->query->join('GOODS as good', 'good.GOODSCODE', '=', 'REALPRICE.GOODSCODE');
         $this->query->join('S as invoice', 'invoice.SCODE', '=', 'REALPRICE.SCODE');
+        $this->query->join('CATEGORY as category', 'category.CATEGORYCODE', '=', 'good.CATEGORYCODE');
 
         $this->aggregateAttributes = [
             'reservesQuantity' => ['reserves' => function (Builder $query) {
@@ -28,12 +29,6 @@ class InvoiceLineService extends ModelService
             }],
         ];
         $this->dateAttributes = ['invoice.DATA'];
-        $this->aliases['category.CATEGORY'] = function (Builder $query) {
-            $query
-                ->join(
-                    'CATEGORY as category', 'category.CATEGORYCODE', '=', 'good.CATEGORYCODE'
-                );
-        };
         $this->aliases['name.NAME'] = function (Builder $query) {
             $query
                 ->join('NAME as name', 'name.NAMECODE', '=', 'good.NAMECODE');

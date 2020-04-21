@@ -6,11 +6,13 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
+
+//use Illuminate\Database\Eloquent\Collection;
 
 class ModelService
 {
@@ -136,11 +138,13 @@ class ModelService
                             );
                             // in where
                         } else if ($request->get('filterOperators')[$index] === 'IN') {
-                            // $query->whereIn($filterAttribute, $request->get('filterValues')[$index]);
-                            $query->whereRaw(
-                                $this->rawAttribute($filterAttribute)
-                                . ' IN (' . $request->get('filterValues')[$index] . ')'
-                            );
+                            $filterValue = is_array($request->get('filterValues')[$index]) ?
+                                $request->get('filterValues')[$index] : json_decode($request->get('filterValues')[$index]);
+                            $query->whereIn($filterAttribute, $filterValue);
+                            // $query->whereRaw(
+                            //    $this->rawAttribute($filterAttribute)
+                            //    . ' IN (' . $request->get('filterValues')[$index] . ')'
+                            // );
                             // containing where
                         } else if ($request->get('filterOperators')[$index] === 'CONTAIN') {
                             $query->where(
@@ -244,14 +248,15 @@ class ModelService
         $filterValues = $request->get('filterValues') ?? [];
         $filterOperators = $request->get('filterOperators') ?? [];
         if (($index = array_search($attribute, $filterAttributes)) !== FALSE) {
-            $filterValues[$index] = implode(',', array_filter(
-                explode(',', $filterValues[$index]),
-                function ($v) use ($restrictions) {
-                    return in_array($v, $restrictions);
-                }
-            ));
+            $filterValues[$index] = $restrictions;
+            /*                implode(',', array_filter(
+                            explode(',', $filterValues[$index]),
+                            function ($v) use ($restrictions) {
+                                return in_array($v, $restrictions);
+                            }
+                        ));*/
         } else {
-            $filterValues[] = implode(',', $restrictions);
+            $filterValues[] = $restrictions;// implode(',', $restrictions);
             $filterOperators[] = 'IN';
             $filterAttributes[] = $attribute;
         }

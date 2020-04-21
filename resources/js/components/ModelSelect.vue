@@ -63,29 +63,7 @@
                     this.items = items;
                 }
             }
-            if (this.value) {
-                if (_.isArray(this.value) && this.value.length > 0 && this.itemsPerPage > 0) {
-                    this.isLoading = true;
-                    const options = {
-                        itemsPerPage: this.itemsPerPage,
-                        filterAttributes: _.concat(this.filterAttributes, this.itemValue),
-                        filterOperators: _.concat(this.filterOperators, 'IN'),
-                        filterValues: _.concat(
-                            this.filterValues,
-                            this.value.reduce((s, v) => v + ',' + s, '').slice(0, -1)
-                        ),
-                        sortBy: _.isEmpty(this.sortBy) ? [this.itemText] : this.sortBy,
-                        sortDesc: this.sortDesc
-                    };
-                    this.$store.dispatch(this.MODEL + '/ALL', options)
-                        .then((response) => this.items = response.data.data)
-                        .catch(() => {
-                        })
-                        .then(() => this.isLoading = false);
-                } else {
-                    this.getItem();
-                }
-            }
+            this.loadValue();
         },
         computed: {
             proxy: {
@@ -110,7 +88,7 @@
                 this.getItems(val);
             }, 500),
             value() {
-                this.getItem();
+                this.loadValue();
             },
         },
         methods: {
@@ -142,6 +120,28 @@
                                 this.items.push(model)
                         })
                         .then(() => this.isLoading = false);
+                }
+            },
+            loadValue() {
+                if (this.value) {
+                    if (_.isArray(this.value) && this.value.length > 0 && this.itemsPerPage > 0) {
+                        this.isLoading = true;
+                        const options = {
+                            itemsPerPage: this.itemsPerPage,
+                            filterAttributes: _.concat(this.filterAttributes, this.itemValue),
+                            filterOperators: _.concat(this.filterOperators, 'IN'),
+                            filterValues: _.concat(this.filterValues, [this.value]),
+                            sortBy: _.isEmpty(this.sortBy) ? [this.itemText] : this.sortBy,
+                            sortDesc: this.sortDesc
+                        };
+                        this.$store.dispatch(this.MODEL + '/ALL', options)
+                            .then((response) => this.items = response.data.data)
+                            .catch(() => {
+                            })
+                            .then(() => this.isLoading = false);
+                    } else {
+                        this.getItem();
+                    }
                 }
             }
         }

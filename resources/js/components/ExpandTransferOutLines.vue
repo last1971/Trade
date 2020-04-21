@@ -55,8 +55,8 @@
         computed: {
             headers() {
                 return [
-                    {text: 'Дата', value: 'transferOut.DATA'},
-                    {text: 'Номер', value: 'transferOut.NSF'},
+                    {text: 'Дата', value: 'transferOut.DATA', sortable: false},
+                    {text: 'Номер', value: 'transferOut.NSF', sortable: false},
                     {text: 'Кол.-во', value: 'QUAN', align: 'right'},
                     {text: 'Страна', value: 'STRANA'},
                     {text: 'ГТД', value: 'GTD'},

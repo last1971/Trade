@@ -164,14 +164,14 @@
                         'transferOutLinesSum',
                     ],
                     filterOperators: ['>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>='],
-                    filterValues: [moment().format('Y-MM-DD'), '', 0, '0,1,2,3,4', '', '', '', 0, 0],
+                    filterValues: [moment().format('Y-MM-DD'), '', 0, [], '', '', '', 0, 0],
                 },
                 model: 'INVOICE',
                 datePicker: false,
                 statuses: [
-                    {text: 'В работе', value: '0,1,2,3,4'},
-                    {text: 'Без корзины', value: '0,1,2,3,4,5'},
-                    {text: 'Все', value: '0,1,2,3,4,5,6'},
+                    {text: 'В работе', value: [0, 1, 2, 3, 4]},
+                    {text: 'Без корзины', value: [0, 1, 2, 3, 4, 5]},
+                    {text: 'Все', value: []},
                 ],
                 mobileFiltersVisible: false,
             }

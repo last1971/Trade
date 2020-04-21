@@ -109,8 +109,23 @@ let actions = {
     },
     ALL({state, getters, commit}, payload) {
         return new Promise((resolve, reject) => {
+            const query = _.cloneDeep(payload);
+            if (query.filterAttributes) {
+                const filtreAttributes = [];
+                const filterOperators = [];
+                query.filterValues = query.filterValues.filter((v, i) => {
+                    const res = !_.isEmpty(v) || _.isNumber(v);
+                    if (res) {
+                        filtreAttributes.push(query.filterAttributes[i]);
+                        filterOperators.push(query.filterOperators[i]);
+                    }
+                    return res;
+                });
+                query.filterAttributes = filtreAttributes;
+                query.filterOperators = filterOperators;
+            }
             axios
-                .get(getters.URL, {params: payload})
+                .get(getters.URL, {params: query})
                 .then((response) => {
                     if (response.data.data && response.data.data.length > 0) {
                         commit('MERGE', response.data.data);

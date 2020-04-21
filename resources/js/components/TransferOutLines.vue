@@ -36,6 +36,7 @@
     import tableMixin from "../mixins/tableMixin";
     import utilsMixin from "../mixins/utilsMixin";
     import TransferOutEdit from "./TransferOutEdit";
+    import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
 
     export default {
         name: "TransferOutLines",
@@ -46,7 +47,7 @@
                 required: true,
             }
         },
-        mixins: [tableMixin, utilsMixin],
+        mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
         data() {
             return {
                 options: {

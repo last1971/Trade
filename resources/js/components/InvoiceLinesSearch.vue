@@ -3,15 +3,20 @@
         <template v-slot:top>
             <v-form class="mx-2 mt-2">
                 <v-row>
-                    <v-text-field class="mx-2" label="Назвние" v-model="name"/>
+                    <category-select :dense="true"
+                                     :multiple="true"
+                                     class="mx-2 mt-2"
+                                     v-model="options.filterValues[4]"
+                    />
+                    <v-text-field class="mx-2" label="Назвние" v-model="options.filterValues[0]"/>
                     <v-select :items="statuses"
                               label="Статус счета"
-                              v-model="status"
+                              class="mx-2"
+                              v-model="options.filterValues[1]"
                     />
                     <v-menu
                         :close-on-content-click="false"
                         :nudge-right="40"
-                        class="mx-2"
                         min-width="290px"
                         offset-y
                         transition="scale-transition"
@@ -19,19 +24,20 @@
                     >
                         <template v-slot:activator="{ on }">
                             <v-text-field
-                                :value="date | formatDate"
+                                :value="options.filterValues[2] | formatDate"
                                 label="Счет позже"
                                 prepend-icon="mdi-calendar-edit"
                                 readonly
                                 v-on="on"
+                                class="mx-2"
                             />
                         </template>
                         <v-date-picker @input="datePicker = false"
                                        first-day-of-week="1"
-                                       v-model="date"
+                                       v-model="options.filterValues[2]"
                         />
                     </v-menu>
-                    <buyer-select :dense="true" :multiple="true" class="mx-2 mt-2" v-model="buyers"/>
+                    <buyer-select :dense="true" :multiple="true" class="mx-2 mt-2" v-model="options.filterValues[3]"/>
                 </v-row>
             </v-form>
         </template>
@@ -45,11 +51,12 @@
     import UserBuyers from "./UserBuyers";
     import BuyerSelect from "./BuyerSelect";
     import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
+    import CategorySelect from "./CategorySelect";
 
     export default {
         name: "InvoiceLinesSearch",
         mixins: [tableOptionsRouteMixin],
-        components: {BuyerSelect, InvoiceStatusSelect, InvoiceLinesDependent, UserBuyers},
+        components: {CategorySelect, BuyerSelect, InvoiceStatusSelect, InvoiceLinesDependent, UserBuyers},
         data() {
             return {
                 options: {
@@ -57,63 +64,39 @@
                     aggregateAttributes: [
                         'reservesQuantity', 'pickUpsQuantity', 'transferOutLinesQuantity'
                     ],
-                    filterAttributes: [],
-                    filterOperators: [],
-                    filterValues: [],
+                    filterAttributes: [
+                        'name.NAME', 'invoice.STATUS', 'invoice.DATA', 'invoice.POKUPATCODE', 'category.CATEGORYCODE'
+                    ],
+                    filterOperators: ['CONTAIN', 'IN', '>=', 'IN', 'IN'],
+                    filterValues: ['', [], moment().format('Y-MM-DD'), [], []],
                 },
-                name: '',
-                status: '',
-                date: moment().format('Y-MM-DD'),
-                buyers: [],
                 statuses: [
-                    {text: 'Все', value: ''},
-                    {text: 'В работе', value: '0,1,2,3,4'},
-                    {text: 'Закрыт', value: '5'},
-                    {text: 'Без корзины', value: '0,1,2,3,4,5'},
+                    {text: 'Все', value: []},
+                    {text: 'В работе', value: [0, 1, 2, 3, 4]},
+                    {text: 'Закрыт', value: [5]},
+                    {text: 'Без корзины', value: [0, 1, 2, 3, 4, 5]},
                 ],
                 datePicker: false,
                 model: 'INVOICE-LINE',
             }
         },
-        watch: {
-            name: _.debounce(function () {
-                this.search('name.NAME', 'CONTAIN', this.name);
-            }, 500),
-            status: _.debounce(function () {
-                this.search('invoice.STATUS', 'IN', this.status);
-            }, 500),
-            date: _.debounce(function () {
-                this.search('invoice.DATA', '>', this.date);
-            }, 500),
-            buyers: _.debounce(function () {
-                this.search('invoice.POKUPATCODE', 'IN', _.join(this.buyers));
-            }, 500),
-        },
-        methods: {
-            search(attr, oper, val) {
-                let index = _.indexOf(this.options.filterAttributes, attr);
-                if (index < 0) {
-                    if (!_.isEmpty(val)) {
-                        this.options.filterAttributes.push(attr);
-                        this.options.filterOperators.push(oper);
-                        this.options.filterValues.push(val);
-                    }
-                } else {
-                    if (_.isEmpty(val)) {
-                        this.options.filterAttributes.splice(index, 1)
-                        this.options.filterOperators.splice(index, 1);
-                        this.options.filterValues.splice(index, 1);
-                    } else {
-                        this.options.filterOperators.splice(index, 1, oper);
-                        this.options.filterValues.splice(index, 1, val);
-                    }
-                }
-            }
-        },
-        beforeRouteEnter(from, to, next) {
+        beforeRouteEnter(to, from, next) {
             next(vm => {
-
-            })
+                vm.$store.commit('BREADCRUMBS/SET', [
+                    {
+                        text: 'Торговля',
+                        to: {name: 'home'},
+                        exact: true,
+                        disabled: false,
+                    },
+                    {
+                        text: 'Поиск в Счетах',
+                        to: {name: 'invoice-lines'},
+                        exact: true,
+                        disabled: true,
+                    }
+                ]);
+            });
         }
     }
 </script>

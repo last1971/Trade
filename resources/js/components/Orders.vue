@@ -131,10 +131,11 @@
     import utilsMixin from "../mixins/utilsMixin";
     import moment from "moment";
     import {mapGetters} from "vuex";
+    import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
 
     export default {
         name: "Orders",
-        mixins: [tableMixin, utilsMixin],
+        mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
         data() {
             return {
                 options: {
@@ -152,12 +153,13 @@
                         'employee.FULLNAME',
                     ],
                     filterOperators: ['>=', 'CONTAIN', 'CONTAIN', '>=', '>=', 'IN', 'CONTAIN'],
-                    filterValues: [moment().format('Y-MM-DD'), '', '', 0, 0, '0,1,2,3', ''],
+                    filterValues: [moment().format('Y-MM-DD'), '', '', 0, 0, [0, 1, 2, 3], ''],
                 },
                 datePicker: false,
                 statuses: [
-                    {text: 'В работе', value: '0,1,2,3'},
-                    {text: 'Все', value: '0,1,2,3,4,5,6'},
+                    {text: 'В работе', value: [0, 1, 2, 3]},
+                    {text: 'В пути', value: [2, 3]},
+                    {text: 'Все', value: []},
                 ],
                 mobileFiltersVisible: false,
                 model: 'ORDER',

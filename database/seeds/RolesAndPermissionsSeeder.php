@@ -8,6 +8,7 @@ class RolesAndPermissionsSeeder extends Seeder
 {
     private $models = [
         'buyer',
+        'category',
         'employee',
         'firm',
         'invoice',
@@ -51,6 +52,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin->givePermissionTo([
             'nav.*',
             'buyer.*',
+            'category.*',
             'employee.*',
             'firm.*',
             'invoice.*',
@@ -72,6 +74,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.orders',
             'nav.transfer-outs',
             'buyer.*',
+            'category.index',
             'employee.index',
             'firm.index',
             'invoice.*',
@@ -90,6 +93,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.transfer-outs',
             'buyer.index',
             'buyer.show',
+            'category.index',
             'firm.index',
             'firm.show',
             'invoice.index',

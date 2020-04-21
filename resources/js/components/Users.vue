@@ -10,6 +10,7 @@
                   :server-items-length="total"
                   item-key="ID"
                   loading-text="Loading... Please wait"
+                  v-if="go"
     >
         <template v-slot:item.name="{ item }">
             <v-text-field @change="save(item)" v-model="item.name"/>
@@ -49,17 +50,16 @@
                 },
                 mobileFiltersVisible: false,
                 model: 'USER',
+                go: false,
             }
         },
         created() {
-            const items = this.$store.getters['ROLE/ALL'];
-            if (_.isEmpty(items)) {
-                this.$store.dispatch('ROLE/ALL')
-            }
-            const employees = this.$store.getters['EMPLOYEE/ALL'];
-            if (_.isEmpty(employees)) {
-                this.$store.dispatch('EMPLOYEE/ALL')
-            }
+            Promise.all(
+                ['ROLE', 'FIRM', 'EMPLOYEE'].map((v) => _.isEmpty(this.$store.getters[v + '/ALL']) ?
+                    this.$store.dispatch(v + '/ALL', {}) :
+                    Promise.resolve()
+                )
+            ).then(() => this.go = true);
         },
         methods: {
             save(item) {
