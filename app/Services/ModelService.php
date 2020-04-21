@@ -138,13 +138,7 @@ class ModelService
                             );
                             // in where
                         } else if ($request->get('filterOperators')[$index] === 'IN') {
-                            $filterValue = is_array($request->get('filterValues')[$index]) ?
-                                $request->get('filterValues')[$index] : json_decode($request->get('filterValues')[$index]);
-                            $query->whereIn($filterAttribute, $filterValue);
-                            // $query->whereRaw(
-                            //    $this->rawAttribute($filterAttribute)
-                            //    . ' IN (' . $request->get('filterValues')[$index] . ')'
-                            // );
+                            $query->whereIn($filterAttribute, $request->get('filterValues')[$index]);
                             // containing where
                         } else if ($request->get('filterOperators')[$index] === 'CONTAIN') {
                             $query->where(
@@ -248,13 +242,9 @@ class ModelService
         $filterValues = $request->get('filterValues') ?? [];
         $filterOperators = $request->get('filterOperators') ?? [];
         if (($index = array_search($attribute, $filterAttributes)) !== FALSE) {
-            $filterValues[$index] = $restrictions;
-            /*                implode(',', array_filter(
-                            explode(',', $filterValues[$index]),
-                            function ($v) use ($restrictions) {
-                                return in_array($v, $restrictions);
-                            }
-                        ));*/
+            $filterValues[$index] = array_filter($filterValues[$index], function ($v) use ($restrictions) {
+                return in_array($v, $restrictions);
+            });
         } else {
             $filterValues[] = $restrictions;// implode(',', $restrictions);
             $filterOperators[] = 'IN';

@@ -40,14 +40,14 @@ class IndexRequest extends FormRequest
             'sortBy' => 'array',
             'sortBy.*' => 'string',
             'sortDesc' => 'required_with:sortBy|array',
-            'sortDesc.*' => 'required_with:sortBy|boolean',
+            'sortDesc.*' => 'required_with:sortBy|in:true,false',
         ];
     }
 
     /**
-     *  Mutate request before validation
+     *  Mutate request after validation
      */
-    protected function prepareForValidation()
+    protected function passedValidation()
     {
         if (is_array($this->sortDesc)) {
             $this->merge(['sortDesc' => array_map(function ($v) {
@@ -55,13 +55,15 @@ class IndexRequest extends FormRequest
             }, $this->sortDesc)]);
         }
         if (is_array($this->filterValues)) {
-            $this->merge(['filterValues' => array_map(function ($v) {
+            $filterValues = $this->filterValues;
+            array_walk($filterValues, function (&$v, $i) {
                 if (is_numeric($v) && intval($v) == $v) {
-                    return intval($v);
-                } else {
-                    return $v;
+                    $v = intval($v);
+                } else if ($this->filterOperators[$i] === 'IN') {
+                    $v = json_decode($v);
                 }
-            }, $this->filterValues)]);
+            });
+            $this->merge(compact('filterValues'));
         }
     }
 }

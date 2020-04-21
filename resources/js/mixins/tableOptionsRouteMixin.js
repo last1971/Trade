@@ -32,8 +32,12 @@ export default {
                     [options.filterValues] : options.filterValues;
                 options.filterOperators.forEach((operator, index) => {
                     if (operator === 'IN' && typeof options.filterValues[index] === 'string') {
-                        options.filterValues[index] = _.split(options.filterValues[index], ',');
-                        options.filterValues[index] = options.filterValues[index].map((v) => _.toInteger(v));
+                        if (_.isEmpty(options.filterValues[index])) {
+                            options.filterValues[index] = [];
+                        } else {
+                            options.filterValues[index] = _.split(options.filterValues[index], ',');
+                            options.filterValues[index] = options.filterValues[index].map((v) => _.toInteger(v));
+                        }
                     }
                 })
             }
