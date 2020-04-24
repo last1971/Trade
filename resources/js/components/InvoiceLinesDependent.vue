@@ -25,9 +25,12 @@
                 <span>{{ item.good.PRIM.trim() || 'описания нет' }}</span>
             </v-tooltip>
         </template>
-        <template v-slot:item.invoice="{ item }">
+        <template v-slot:item.invoice.DATA="{ item }">
+            {{ item.invoice.DATA | formatDate }}
+        </template>
+        <template v-slot:item.invoice.NS="{ item }">
             <router-link :to="{ name: 'invoice', params: { id: item.invoice.SCODE } }">
-                № {{ item.invoice.NS }} от {{ item.invoice.DATA | formatDate }}
+                {{ item.invoice.NS }}
             </router-link>
         </template>
         <template v-slot:item.reservesQuantity="{ item }">

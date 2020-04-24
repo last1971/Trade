@@ -1,3 +1,23 @@
+import FileSaver from 'file-saver';
+
+function queryClear(query) {
+    if (query.filterAttributes) {
+        const filtreAttributes = [];
+        const filterOperators = [];
+        query.filterValues = query.filterValues.filter((v, i) => {
+            const res = !_.isEmpty(v) || _.isNumber(v);
+            if (res) {
+                filtreAttributes.push(query.filterAttributes[i]);
+                filterOperators.push(query.filterOperators[i]);
+            }
+            return res;
+        });
+        query.filterAttributes = filtreAttributes;
+        query.filterOperators = filterOperators;
+    }
+}
+
+
 const state = {
     name: '',
     keyType: Number,
@@ -94,6 +114,7 @@ let actions = {
     GET({getters, commit}, payload) {
         let id = typeof payload === 'object' ? payload.id : payload;
         let query = typeof payload === 'object' ? payload.query : {};
+        queryClear(query);
         return new Promise((resolve, reject) => {
             axios
                 .get(getters.URL + '/' + id, {params: query})
@@ -107,23 +128,26 @@ let actions = {
                 });
         });
     },
+    SAVE({state, getters, commit}, payload) {
+        return new Promise((resolve, reject) => {
+            const query = _.cloneDeep(payload);
+            queryClear(query);
+            axios
+                .get(getters.URL + '/export/xlsx', {params: query, responseType: 'blob'})
+                .then((response) => {
+                    FileSaver.saveAs(response.data, state.name + '.xlsx');
+                    resolve(response);
+                })
+                .catch((error) => {
+                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                    reject(error);
+                });
+        });
+    },
     ALL({state, getters, commit}, payload) {
         return new Promise((resolve, reject) => {
             const query = _.cloneDeep(payload);
-            if (query.filterAttributes) {
-                const filtreAttributes = [];
-                const filterOperators = [];
-                query.filterValues = query.filterValues.filter((v, i) => {
-                    const res = !_.isEmpty(v) || _.isNumber(v);
-                    if (res) {
-                        filtreAttributes.push(query.filterAttributes[i]);
-                        filterOperators.push(query.filterOperators[i]);
-                    }
-                    return res;
-                });
-                query.filterAttributes = filtreAttributes;
-                query.filterOperators = filterOperators;
-            }
+            queryClear(query);
             axios
                 .get(getters.URL, {params: query})
                 .then((response) => {

@@ -38,6 +38,9 @@
                         />
                     </v-menu>
                     <buyer-select :dense="true" :multiple="true" class="mx-2 mt-2" v-model="options.filterValues[3]"/>
+                    <v-btn :loading="saving" @click="save" class="mx-2" fab>
+                        <v-icon>mdi-content-save</v-icon>
+                    </v-btn>
                 </v-row>
             </v-form>
         </template>
@@ -78,6 +81,18 @@
                 ],
                 datePicker: false,
                 model: 'INVOICE-LINE',
+                saving: false,
+            }
+        },
+        methods: {
+            save() {
+                this.saving = true;
+                this.$store.dispatch('INVOICE-LINE/SAVE', this.options)
+                    .then(() => {
+                    })
+                    .catch(() => {
+                    })
+                    .then(() => this.saving = false);
             }
         },
         beforeRouteEnter(to, from, next) {

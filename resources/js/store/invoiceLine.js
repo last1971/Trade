@@ -10,14 +10,20 @@ state.key = 'REALPRICECODE';
 state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},
     {
+        text: 'Дата',
+        value: 'invoice.DATA',
+        notInvoiceLines: true,
+    },
+    {
         text: 'Счет',
-        value: 'invoice',
-        sortable: false,
+        value: 'invoice.NS',
+        notInvoiceLines: true,
     },
     {
         text: 'Покупатель',
         value: 'invoice.buyer.SHORTNAME',
         sortable: false,
+        notInvoiceLines: true,
     },
     {
         text: 'Категория',

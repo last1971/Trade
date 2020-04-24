@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('/test1/{test1}', 'TestController@test')->name('test1.t');
+Route::get('/test2/{test2}', 'TestController@test');
 
 Route::get('/{path?}', function () {
     return view('app');

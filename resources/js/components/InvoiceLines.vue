@@ -96,7 +96,7 @@
         },
         computed: {
             headers2() {
-                return _.tail(_.tail(this.headers));
+                return _.filter(this.headers, (v) => !v.notInvoiceLines);
             }
         },
         methods: {

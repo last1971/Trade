@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->group(function () {
     Route::get('logout', 'Api\AuthController@logout')->name('logout');
     Route::get('refresh-user', 'Api\AuthController@refresh')->name('refresh');
+    Route::get('invoice/export/{extension}', 'Api\InvoiceController@export')->name('invoice.export');
+    Route::get('invoice-line/export/{extension}', 'Api\InvoiceLineController@export')->name('invoice-line.export');
     Route::apiResources([
         'buyer' => 'Api\BuyerController',
         'category' => 'Api\CategoryController',

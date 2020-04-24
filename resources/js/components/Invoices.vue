@@ -16,7 +16,11 @@
             <tr :class="{ 'v-data-table__mobile-table-row' : isMobile }"
                 v-if="!isMobile || mobileFiltersVisible"
             >
-                <td v-if="!isMobile"></td>
+                <td v-if="!isMobile">
+                    <v-btn :loading="saving" @click="save" icon>
+                        <v-icon>mdi-content-save</v-icon>
+                    </v-btn>
+                </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-menu
                         :close-on-content-click="false"
@@ -174,6 +178,7 @@
                     {text: 'Все', value: []},
                 ],
                 mobileFiltersVisible: false,
+                saving: false,
             }
         },
         computed: {
@@ -197,6 +202,15 @@
                 if (parseFloat(a) === parseFloat(b)) return 'green--text';
                 return 'primary--text';
             },
+            save() {
+                this.saving = true;
+                this.$store.dispatch('INVOICE/SAVE', this.options)
+                    .then(() => {
+                    })
+                    .catch(() => {
+                    })
+                    .then(() => this.saving = false);
+            }
         },
         beforeRouteEnter(to, from, next) {
             next(vm => {

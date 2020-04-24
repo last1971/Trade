@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\InvoiceLineService;
+use App\Services\InvoiceService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -20,11 +20,11 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-    $s = new InvoiceLineService();
+    $s = new InvoiceService();
     $a = collect([
-        'filterAttributes' => ['invoice.STATUS'],
-        'filterOperators' => ['IN'],
-        'filterValues' => [[1, 2]]
+        'filterAttributes' => ['STATUS', 'DATA'],
+        'filterOperators' => ['IN', '>'],
+        'filterValues' => [[1, 2], '2017-01-01']
     ]);
     dd($s->index($a)
         //->join('S as invoice', 'invoice.SCODE', '=', 'REALPRICE.SCODE')
