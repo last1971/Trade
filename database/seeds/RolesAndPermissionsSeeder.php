@@ -35,6 +35,8 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::query()->firstOrCreate(['name' => $model . '.show']);
             Permission::query()->firstOrCreate(['name' => $model . '.update']);
             Permission::query()->firstOrCreate(['name' => $model . '.full']);
+            Permission::query()->firstOrCreate(['name' => $model . '.xlsx']);
+            Permission::query()->firstOrCreate(['name' => $model . '.pdf']);
         }
 
         Permission::query()->firstOrCreate(['name' => 'role.index']);
@@ -98,8 +100,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'firm.show',
             'invoice.index',
             'invoice.show',
+            'invoice.pdf',
             'invoice-line.index',
             'invoice-line.show',
+            'invoice-line.xlsx',
             'order-line.index',
             'transfer-out.index',
             'transfer-out.show',

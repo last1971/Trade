@@ -16,7 +16,7 @@
             <tr :class="{ 'v-data-table__mobile-table-row' : isMobile }"
                 v-if="!isMobile || mobileFiltersVisible"
             >
-                <td v-if="!isMobile">
+                <td v-if="!isMobile && $store.getters['AUTH/HAS_PERMISSION']('invoice.xlsx')">
                     <v-btn :loading="saving" @click="save" icon>
                         <v-icon>mdi-download</v-icon>
                     </v-btn>
