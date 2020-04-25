@@ -88,6 +88,8 @@
                     ],
                     filterOperators: ['='],
                     filterValues: [this.value.SCODE],
+                    sortBy: ['category.CATEGORY', 'name.NAME'],
+                    sortDesc: [false, false],
                 },
                 mobileFiltersVisible: false,
                 dependent: true,

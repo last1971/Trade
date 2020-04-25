@@ -39,7 +39,7 @@
                     </v-menu>
                     <buyer-select :dense="true" :multiple="true" class="mx-2 mt-2" v-model="options.filterValues[3]"/>
                     <v-btn :loading="saving" @click="save" class="mx-2" fab>
-                        <v-icon>mdi-content-save</v-icon>
+                        <v-icon>mdi-download</v-icon>
                     </v-btn>
                 </v-row>
             </v-form>

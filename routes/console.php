@@ -20,15 +20,16 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
+    //dd( Storage::path('storage/fonts/stamp.png'));
     $s = new InvoiceService();
     $a = collect([
-        'filterAttributes' => ['STATUS', 'DATA'],
-        'filterOperators' => ['IN', '>'],
-        'filterValues' => [[1, 2], '2017-01-01']
+        'with' => ['invoiceLines.name', 'firm', 'buyer', 'invoiceLines.good'],
     ]);
-    dd($s->index($a)
-        //->join('S as invoice', 'invoice.SCODE', '=', 'REALPRICE.SCODE')
-        //->whereIn('invoice.STATUS', [1])
-        ->first()
-    );
+    $invoice = $s->index($a)->orderBy('SCODE', 'desc')->first();
+    //dd($invoice->firm);
+    $pdf = PDF::loadView('invoice-pdf', compact('invoice'));
+    $pdf->save('test.pdf');
+    //->join('S as invoice', 'invoice.SCODE', '=', 'REALPRICE.SCODE')
+    //->whereIn('invoice.STATUS', [1])
+
 })->describe('Display an inspiring quote');

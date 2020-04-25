@@ -18,7 +18,7 @@
             >
                 <td v-if="!isMobile">
                     <v-btn :loading="saving" @click="save" icon>
-                        <v-icon>mdi-content-save</v-icon>
+                        <v-icon>mdi-download</v-icon>
                     </v-btn>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">

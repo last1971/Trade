@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Jenssegers\Date\Date;
 use URL;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,10 +27,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // For MariaDB
         Schema::defaultStringLength(191);
+        // hhtps on prod
         if (!env('APP_DEBUG')) {
             URL::forceScheme('https');
         }
+        // locale
+        setlocale(LC_ALL, 'ru_RU.utf8');
+        Carbon::setLocale(config('app.locale'));
+        Date::setLocale('ru');
     }
 }

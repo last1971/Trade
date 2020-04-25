@@ -128,12 +128,29 @@ let actions = {
                 });
         });
     },
+    PDF({getters, commit}, payload) {
+        let id = typeof payload === 'object' ? payload.id : payload;
+        let query = typeof payload === 'object' ? payload.query : {};
+        queryClear(query);
+        return new Promise((resolve, reject) => {
+            axios
+                .get(getters.URL + '/export/' + id, {params: query, responseType: 'blob'})
+                .then(response => {
+                    FileSaver.saveAs(response.data, state.name + id + '.pdf');
+                    resolve(response);
+                })
+                .catch((error) => {
+                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                    reject(error);
+                });
+        });
+    },
     SAVE({state, getters, commit}, payload) {
         return new Promise((resolve, reject) => {
             const query = _.cloneDeep(payload);
             queryClear(query);
             axios
-                .get(getters.URL + '/export/xlsx', {params: query, responseType: 'blob'})
+                .get(getters.URL + '/export', {params: query, responseType: 'blob'})
                 .then((response) => {
                     FileSaver.saveAs(response.data, state.name + '.xlsx');
                     resolve(response);

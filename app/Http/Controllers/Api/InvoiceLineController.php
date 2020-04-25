@@ -15,7 +15,7 @@ class InvoiceLineController extends ModelController
         parent::__construct(InvoiceLineService::class, InvoiceLineResource::class);
     }
 
-    public function export(Excel $excel, InvoiceLineExport $export, $extension)
+    public function export(Excel $excel, InvoiceLineExport $export)
     {
         return $excel->download($export, 'invoice-lines.xlsx');
     }
