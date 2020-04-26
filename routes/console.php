@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\InvoiceService;
+use App\InvoiceLine;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -20,16 +20,7 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-    //dd( Storage::path('storage/fonts/stamp.png'));
-    $s = new InvoiceService();
-    $a = collect([
-        'with' => ['invoiceLines.name', 'firm', 'buyer', 'invoiceLines.good'],
-    ]);
-    $invoice = $s->index($a)->orderBy('SCODE', 'desc')->first();
-    //dd($invoice->firm);
-    $pdf = PDF::loadView('invoice-pdf', compact('invoice'));
-    $pdf->save('test.pdf');
-    //->join('S as invoice', 'invoice.SCODE', '=', 'REALPRICE.SCODE')
-    //->whereIn('invoice.STATUS', [1])
-
+    //DB::connection('firebird')->raw('update "REALPRICE" set "PRICE" = 2.45 where "REALPRICECODE" = 480705');
+    $inv = InvoiceLine::find(480705);
+    $inv->update(['PRICE' => DB::raw('2.45')]);
 })->describe('Display an inspiring quote');

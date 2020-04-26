@@ -20,7 +20,9 @@
                             v-on="on"
                         />
                     </template>
-                    <v-date-picker @input="datePicker = false" v-model="model.DATA"></v-date-picker>
+                    <v-date-picker @input="datePicker = false" first-day-of-week="1" v-model="model.DATA">
+
+                    </v-date-picker>
                 </v-menu>
             </v-col>
             <v-col cols="12" sm="auto">
