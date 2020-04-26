@@ -9,10 +9,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
-use Log;
 
 //use Illuminate\Database\Eloquent\Collection;
 
@@ -178,11 +176,11 @@ class ModelService
      */
     public function update($request, $id)
     {
-        DB::connection('firebird')->enableQueryLog();
+        // DB::connection('firebird')->enableQueryLog();
         $model = $this->query->find(intval($id));
         $model->fill($request->item);
         $model->save();
-        Log::debug('update', DB::connection('firebird')->getQueryLog());
+        // Log::debug('update', DB::connection('firebird')->getQueryLog());
         return $this->index(collect($request->options))->find(intval($id));
     }
 
