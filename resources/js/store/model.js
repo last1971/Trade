@@ -77,7 +77,7 @@ const mutations = {
     UPDATE(state, newDataRow) {
         let index = _.findIndex(state.items, {[state.key]: newDataRow[state.key]});
         if (index >= 0) {
-            state.items.splice(index, 1, newDataRow);
+            state.items.splice(index, 1, _.cloneDeep(newDataRow));
         } else {
             const error = 'Imposible update ' + state.name + ' with key ' + newDataRow[state.key];
             this.commit('SNACKBAR/ERROR', error);
@@ -229,7 +229,7 @@ let actions = {
     UPDATE({getters, commit}, payload) {
         const update = _.cloneDeep(payload);
         update.item = _.pick(update.item, getters.FILLABLE);
-        update.options = _.pick(update.options, ['with']);
+        update.options = _.pick(update.options, ['with', 'aggregateAttributes']);
         return new Promise((resolve, reject) => {
             axios.put(getters.URL + '/' + payload.item[getters.KEY], update)
                 .then(response => {

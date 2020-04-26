@@ -7,6 +7,8 @@ state.name = 'invoice-line';
 
 state.key = 'REALPRICECODE';
 
+state.fillable = ['QUAN', 'PRICE', 'SUMMAP', 'PRIM'];
+
 state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},
     {
@@ -62,8 +64,18 @@ state.headers = [
         align: 'right',
     },
     {
+        text: 'Цена без НДС',
+        value: 'priceWithoutVat',
+        align: 'right',
+    },
+    {
         text: 'Цена',
         value: 'PRICE',
+        align: 'right',
+    },
+    {
+        text: 'Сумма без НДС',
+        value: 'sumWithoutVat',
         align: 'right',
     },
     {

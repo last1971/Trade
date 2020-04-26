@@ -18,6 +18,14 @@ return [
         'options.with' => 'array',
         'options.with.*' => 'string',
     ],
+    'invoice-line.update' => [
+        'item' => 'array|required',
+        'item.QUAN' => 'integer',
+        'item.PRICE' => 'numeric',
+        'item.SUMMAP' => 'numeric',
+        'options.with' => 'array',
+        'options.with.*' => 'string',
+    ],
     'login' => [
         'email' => 'required|string|email|max:255',
         'password' => 'required|string|min:6',

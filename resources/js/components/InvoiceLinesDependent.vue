@@ -48,8 +48,14 @@
                 {{ item.transferOutLinesQuantity }}
             </div>
         </template>
+        <template v-slot:item.priceWithoutVat="{ item }">
+            {{ item.SUMMAP / (100 + vat) * 100 / item.QUAN | formatRub }}
+        </template>
         <template v-slot:item.PRICE="{ item }">
             {{ item.PRICE | formatRub }}
+        </template>
+        <template v-slot:item.sumWithoutVat="{ item }">
+            {{ item.SUMMAP / (100 + vat) * 100 | formatRub }}
         </template>
         <template v-slot:item.SUMMAP="{ item }">
             {{ item.SUMMAP | formatRub }}
@@ -68,6 +74,7 @@
     import utilsMixin from "../mixins/utilsMixin";
     import OrderLineInWay from "./OrderLineInWay";
     import ExpandTransferOutLines from "./ExpandTransferOutLines";
+    import {mapGetters} from 'vuex';
 
     export default {
         name: "InvoiceLinesDependent",
@@ -93,7 +100,8 @@
                 set(val) {
                     this.$emit('input', val);
                 }
-            }
+            },
+            ...mapGetters({vat: 'VAT'}),
         },
         methods: {
             reserveClass({QUAN, reservesQuantity, pickUpsQuantity, transferOutLinesQuantity}) {

@@ -122,18 +122,6 @@
             font-size: 12px;
         }
 
-        .sign-1 {
-            position: absolute;
-            left: 149px;
-            top: -44px;
-        }
-
-        .sign-2 {
-            position: absolute;
-            left: 149px;
-            top: 0;
-        }
-
         .printing {
             position: absolute;
             left: 130px;
@@ -273,7 +261,14 @@
     </tr>
     <tr>
         <th colspan="5" align="right">В том числе НДС:</th>
-        <th align="right">{{ number_format($invoice->invoiceLines->sum('SUMMAP') / 120 * 20, 2) }}</th>
+        <th align="right">
+            {{
+                number_format(
+                    $invoice->invoiceLines->sum('SUMMAP') / (100 + VAT::get($invoice->DATA)) * VAT::get($invoice->DATA),
+                    2
+                )
+            }}
+        </th>
         <th align="left">руб.</th>
     </tr>
     </tfoot>

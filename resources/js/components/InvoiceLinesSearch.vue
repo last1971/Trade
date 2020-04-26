@@ -38,8 +38,8 @@
                         />
                     </v-menu>
                     <buyer-select :dense="true" :multiple="true" class="mx-2 mt-2" v-model="options.filterValues[3]"/>
-                    <v-btn :loading="saving" @click="save" class="mx-2" fab>
-                        <v-icon>mdi-download</v-icon>
+                    <v-btn :loading="saving" @click="save" class="mx-2" fab icon>
+                        <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>
                 </v-row>
             </v-form>

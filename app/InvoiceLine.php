@@ -11,6 +11,8 @@ class InvoiceLine extends Model
 
     protected $connection = 'firebird';
 
+    protected $fillable = ['QUAN', 'PRICE', 'SUMMAP', 'PRIM'];
+
     protected $primaryKey = 'REALPRICECODE';
 
     protected $table = 'REALPRICE';
