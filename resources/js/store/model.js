@@ -25,7 +25,7 @@ const state = {
     items: [],
     headers: [],
     aggregateAttributes: [],
-    fillable: ['name', 'employeeId', 'roles'],
+    fillable: [],
 };
 
 const getters = {
@@ -71,7 +71,7 @@ const mutations = {
             this.commit('SNACKBAR/ERROR', error);
             throw new Error(error);
         }
-        state.items.push(newDataRow);
+        state.items.push(_.cloneDeep(newDataRow));
     },
 
     UPDATE(state, newDataRow) {
@@ -203,9 +203,11 @@ let actions = {
         });
     },
     CREATE({getters, commit}, payload) {
-        const {item} = payload;
+        const create = _.cloneDeep(payload);
+        create.item = _.pick(create.item, getters.FILLABLE);
+        create.options = _.pick(create.options, ['with', 'aggregateAttributes']);
         return new Promise((resolve, reject) => {
-            axios.post(getters.URL, item)
+            axios.post(getters.URL, create)
                 .then(response => {
                     commit('CREATE', response.data);
                     commit(

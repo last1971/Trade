@@ -58,6 +58,21 @@
                     <span v-else>Сохранить</span>
                 </v-btn>
             </v-col>
+            <v-col cols="12" sm="auto" v-if="$vuetify.breakpoint.smAndUp">
+                <v-speed-dial :open-on-hover="true" direction="bottom">
+                    <template v-slot:activator>
+                        <v-btn :loading="downloading" class="mt-2" fab icon>
+                            <v-icon>mdi-download</v-icon>
+                        </v-btn>
+                    </template>
+                    <v-btn @click="download('pdf')" fab>
+                        <v-icon color="red">mdi-adobe-acrobat</v-icon>
+                    </v-btn>
+                    <v-btn @click="download('xlsx')" fab>
+                        <v-icon color="green">mdi-microsoft-excel</v-icon>
+                    </v-btn>
+                </v-speed-dial>
+            </v-col>
         </v-row>
     </v-form>
 </template>
@@ -75,6 +90,7 @@
         data() {
             return {
                 MODEL: 'TRANSFER-OUT',
+                downloading: false,
             }
         },
         computed: {
@@ -87,6 +103,29 @@
             notCan() {
                 return !this.$store.getters['AUTH/HAS_PERMISSION']('transfer-out.update');
             }
+        },
+        methods: {
+            download(type) {
+                this.downloading = true;
+                const download = type === 'pdf'
+                    ? this.$store.dispatch('TRANSFER-OUT/PDF', this.value.SFCODE)
+                    : this.$store.dispatch('TRANSFER-OUT-LINE/SAVE', {
+                        with: ['category', 'good', 'name', 'transferOut.buyer'],
+                        filterAttributes: [
+                            'SFCODE',
+                        ],
+                        filterOperators: ['='],
+                        filterValues: [this.value.SFCODE],
+                        sortBy: ['category.CATEGORY', 'name.NAME'],
+                        sortDesc: [false, false],
+                    });
+                download
+                    .then(() => {
+                    })
+                    .catch(() => {
+                    })
+                    .then(() => this.downloading = false);
+            },
         },
     }
 </script>

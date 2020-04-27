@@ -18,6 +18,8 @@ import seller from "./seller";
 import user from "./user";
 import employee from "./employee";
 import category from "./category";
+import advancedBuyer from "./advancedBuyer";
+import errorMessage from "./errorMessage";
 
 Vue.use(Vuex);
 
@@ -32,11 +34,13 @@ export default new Vuex.Store({
     mutations: {},
     actions: {},
     modules: {
+        'ADVANCED-BUYER': advancedBuyer,
         AUTH: auth,
         BREADCRUMBS: breadcrumbs,
         BUYER: buyer,
         CATEGORY: category,
         EMPLOYEE: employee,
+        'ERROR-MESSAGE': errorMessage,
         FIRM: firm,
         INVOICE: invoice,
         'INVOICE-LINE': invoiceLine,

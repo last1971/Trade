@@ -15,6 +15,11 @@ class Buyer extends Model
 
     protected $table = 'POKUPAT';
 
+    public function advancedBuyer()
+    {
+        return $this->hasOne('App\AdvancedBuyer', 'POCUPATCODE', 'buyer_id');
+    }
+
     public function invoices()
     {
         return $this->hasMany('App\Invoice', 'POKUPATCODE', 'POKUPATCODE');

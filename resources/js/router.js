@@ -14,10 +14,17 @@ import Order from "./components/Order";
 import Users from "./components/Users";
 import ResetPassword from "./components/ResetPassword";
 import InvoiceLinesSearch from "./components/InvoiceLinesSearch";
+import AdvancedBuyers from "./components/AdvancedBuyers";
 
 Vue.use(VueRouter);
 
 const routes = [
+    {
+        name: 'advanced-buyer',
+        path: '/advanced-buyer',
+        component: AdvancedBuyers,
+        meta: {requiresAuth: true},
+    },
     {
         name: 'help',
         path: '/help',

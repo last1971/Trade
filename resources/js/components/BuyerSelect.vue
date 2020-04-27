@@ -8,6 +8,7 @@
         model="buyer"
         v-model="proxy"
         :dense="dense"
+        :error-messages="errorMessages"
     ></model-select>
 </template>
 
@@ -35,6 +36,10 @@
                 type: Boolean,
                 default: false,
             },
+            errorMessages: {
+                type: Array,
+                default: () => [],
+            }
         },
     }
 </script>

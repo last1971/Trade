@@ -1,6 +1,6 @@
 <?php
 
-use App\InvoiceLine;
+use App\Services\SbisService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -20,7 +20,5 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-    //DB::connection('firebird')->raw('update "REALPRICE" set "PRICE" = 2.45 where "REALPRICECODE" = 480705');
-    $inv = InvoiceLine::find(480705);
-    $inv->update(['PRICE' => DB::raw('2.45')]);
+    $s = new SbisService();
 })->describe('Display an inspiring quote');

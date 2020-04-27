@@ -45,12 +45,13 @@ class ModelController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param Request $request
+     * @param ModelRequest $request
      * @return Response
      */
-    public function store(Request $request)
+    public function store(ModelRequest $request)
     {
         //
+        return $this->service->create($request);
     }
 
     /**

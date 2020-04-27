@@ -1,6 +1,20 @@
 <?php
 
 return [
+    'advanced-buyer.store' => [
+        'item' => 'array|required',
+        'item.edo_id' => 'required|string|unique:App\AdvancedBuyer,edo_id',
+        'item.buyer_id' => 'required|integer|unique:App\AdvancedBuyer,buyer_id',
+        'options.with' => 'array',
+        'options.with.*' => 'string',
+    ],
+    'advanced-buyer.update' => [
+        'item' => 'array|required',
+        'item.edo_id' => 'string|required',
+        'item.buyer_id' => 'integer|required',
+        'options.with' => 'array',
+        'options.with.*' => 'string',
+    ],
     'checkToken' => [
         'token' => 'required|string',
     ],

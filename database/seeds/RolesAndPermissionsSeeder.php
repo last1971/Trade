@@ -7,6 +7,7 @@ use Spatie\Permission\Models\Role;
 class RolesAndPermissionsSeeder extends Seeder
 {
     private $models = [
+        'advanced-buyer',
         'buyer',
         'category',
         'employee',
@@ -33,6 +34,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::query()->firstOrCreate(['name' => $model . '.*']);
             Permission::query()->firstOrCreate(['name' => $model . '.index']);
             Permission::query()->firstOrCreate(['name' => $model . '.show']);
+            Permission::query()->firstOrCreate(['name' => $model . '.store']);
             Permission::query()->firstOrCreate(['name' => $model . '.update']);
             Permission::query()->firstOrCreate(['name' => $model . '.full']);
             Permission::query()->firstOrCreate(['name' => $model . '.xlsx']);
@@ -53,6 +55,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin = Role::query()->firstOrCreate(['name' => 'admin']);
         $admin->givePermissionTo([
             'nav.*',
+            'advanced-buyer.*',
             'buyer.*',
             'category.*',
             'employee.*',

@@ -7,6 +7,7 @@
         :dense="dense"
         :disabled="disabled"
         :error="!proxy"
+        :error-messages="errorMessages"
         :item-text="itemText"
         :item-value="itemValue"
         :items="items"
@@ -46,6 +47,7 @@
             sortDesc: {type: Array, default: () => [false]},
             disabled: {type: Boolean, default: false},
             dense: {type: Boolean, default: false},
+            errorMessages: {type: Array, default: () => []},
         },
         data() {
             return {

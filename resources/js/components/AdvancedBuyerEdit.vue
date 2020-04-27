@@ -1,0 +1,131 @@
+<template>
+    <v-dialog max-width="500px" v-model="proxy">
+        <template v-slot:activator="{ on }">
+            <v-btn dark icon v-on="on">
+                <v-icon color="green">mdi-plus</v-icon>
+            </v-btn>
+        </template>
+        <v-card>
+            <v-card-title>
+                <span class="headline">{{ title }}</span>
+                <v-spacer/>
+                <v-btn @click="close" icon right>
+                    <v-icon color="red">
+                        mdi-close
+                    </v-icon>
+                </v-btn>
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-card-text>
+                <v-container>
+                    <v-row>
+                        <v-col cols="12" md="4" sm="6">
+                            <buyer-select :error-messages="errors['item.buyer_id']" v-model="item.buyer_id"/>
+                        </v-col>
+                        <v-col cols="12" md="4" sm="6">
+                            <v-text-field :error-messages="errors['item.edo_id']" label="ЭДО" v-model="item.edo_id"/>
+                        </v-col>
+                        <v-col cols="12" md="4" sm="6">
+                            <v-text-field label="Грузополучатель" v-model="item.consignee"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" md="4" sm="6">
+                            <v-text-field label="Адрес грузополучателя" v-model="item.consigneeAddress"/>
+                        </v-col>
+                    </v-row>
+                </v-container>
+            </v-card-text>
+
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn @click="close" outlined>
+                    <v-icon color="red" dark>mdi-cancel</v-icon>
+                    <span class="ml-2">Отмена</span>
+                </v-btn>
+                <v-btn @click="save" outlined>
+                    <v-icon color="green" dark>mdi-content-save</v-icon>
+                    <span class="ml-2">Сохранить</span>
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+</template>
+
+<script>
+    import utilsMixin from "../mixins/utilsMixin";
+    import BuyerSelect from "./BuyerSelect";
+
+    export default {
+        name: "AdvancedBuyerEdit",
+        components: {BuyerSelect},
+        props: {
+            value: {
+                type: Boolean,
+                default: false,
+            },
+            id: {
+                type: Number,
+                required: true,
+            },
+        },
+        data() {
+            return {
+                default: {
+                    buyer_id: null,
+                    edo_id: null,
+                    consignee: '',
+                    consigneeAddress: '',
+                },
+                item: {
+                    buyer_id: null,
+                    edo_id: null,
+                    consignee: '',
+                    consigneeAddress: '',
+                },
+                errors: {},
+            }
+        },
+        mixins: [utilsMixin],
+        computed: {
+            title() {
+                return this.item.id ? 'Отредактируйте' : 'Новый Покупатель+';
+            },
+        },
+        watch: {
+            id(val) {
+                this.item = val ? this.$store.getters['ADVANCED-BUYER/GET'](val) : _.cloneDeep(this.default);
+            }
+        },
+        methods: {
+            close() {
+                this.proxy = false;
+                this.editedItem = Object.assign({}, this.default);
+            },
+
+            save() {
+                const {item} = this;
+                const options = {with: ['buyer']};
+                const action = this.item.id
+                    ? this.$store.dispatch('ADVANCED-BUYER/UPDATE', {item, options})
+                    : this.$store.dispatch('ADVANCED-BUYER/CREATE', {item, options});
+                action
+                    .then(() => {
+                        this.$emit('saved');
+                        this.close();
+                    })
+                    .catch((error) => {
+                        if (error.response && error.response.data.errors) {
+                            this.errors = _.mapValues(error.response.data.errors, (v) => {
+                                return _.isArray(v)
+                                    ? v.map((e) => this.$store.getters['ERROR-MESSAGE/GET'](e))
+                                    : this.$store.getters['ERROR-MESSAGE/GET'](v);
+                            });
+                        }
+                    });
+            },
+        }
+    }
+</script>
+
+<style scoped>
+
+</style>

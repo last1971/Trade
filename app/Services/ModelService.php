@@ -184,36 +184,17 @@ class ModelService
         return $this->index(collect($request->options))->find(intval($id));
     }
 
-    protected function checkUserBuyers(Builder $query)
+    /**
+     * @param $request
+     * @return mixed
+     */
+    public function create($request)
     {
-        if (auth()->user() && !auth()->user()->userBuyers->isEmpty()) {
-            $userBuyers = Str::replaceLast(
-                ',', '',
-                auth()->user()->userBuyers->reduce(
-                    function ($carry, $buyer) {
-                        return $carry . $buyer->buyer_id . ',';
-                    },
-                    ''
-                )
-            );
-            $query->whereRaw($query->getModel()->getTable() . '.POKUPATCODE IN (' . $userBuyers . ')');
-        }
-    }
-
-    protected function checkUserFirms(Builder $query)
-    {
-        if (auth()->user() && !auth()->user()->userFirms->isEmpty()) {
-            $userFirms = Str::replaceLast(
-                ',', '',
-                auth()->user()->userFirms->reduce(
-                    function ($carry, $firm) {
-                        return $carry . $firm->firm_id . ',';
-                    },
-                    ''
-                )
-            );
-            $query->whereRaw($query->getModel()->getTable() . '.FIRM_ID IN (' . $userFirms . ')');
-        }
+        $model = new $this->modelClass;
+        $model->fill($request->item);
+        $model->save();
+        if (isset($request->options['with'])) $model->load($request->options['with']);
+        return $model;
     }
 
     protected function addUserBuyers($request, $table = null)

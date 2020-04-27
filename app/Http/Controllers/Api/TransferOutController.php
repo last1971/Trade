@@ -11,4 +11,5 @@ class TransferOutController extends ModelController
     {
         parent::__construct(TransferOutService::class, TransferOutResource::class);
     }
+
 }
