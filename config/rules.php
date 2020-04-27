@@ -15,6 +15,7 @@ return [
         'options.with' => 'array',
         'options.with.*' => 'string',
     ],
+    'advanced-buyer.destroy' => [],
     'checkToken' => [
         'token' => 'required|string',
     ],

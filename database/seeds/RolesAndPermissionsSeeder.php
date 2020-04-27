@@ -36,6 +36,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::query()->firstOrCreate(['name' => $model . '.show']);
             Permission::query()->firstOrCreate(['name' => $model . '.store']);
             Permission::query()->firstOrCreate(['name' => $model . '.update']);
+            Permission::query()->firstOrCreate(['name' => $model . '.destroy']);
             Permission::query()->firstOrCreate(['name' => $model . '.full']);
             Permission::query()->firstOrCreate(['name' => $model . '.xlsx']);
             Permission::query()->firstOrCreate(['name' => $model . '.pdf']);

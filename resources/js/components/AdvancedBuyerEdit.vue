@@ -62,7 +62,7 @@
                 type: Boolean,
                 default: false,
             },
-            id: {
+            itemValue: {
                 type: Number,
                 required: true,
             },
@@ -82,34 +82,39 @@
                     consigneeAddress: '',
                 },
                 errors: {},
+                model: 'ADVANCED-BUYER',
+                options: {with: ['buyer']},
             }
         },
         mixins: [utilsMixin],
         computed: {
             title() {
-                return this.item.id ? 'Отредактируйте' : 'Новый Покупатель+';
+                return this.item.id ? 'Редактировать' : 'Добавить';
             },
         },
         watch: {
-            id(val) {
-                this.item = val ? this.$store.getters['ADVANCED-BUYER/GET'](val) : _.cloneDeep(this.default);
+            itemValue(val) {
+                this.item = val ? this.$store.getters[this.model + '/GET'](val) : _.cloneDeep(this.default);
             }
         },
         methods: {
             close() {
                 this.proxy = false;
-                this.editedItem = Object.assign({}, this.default);
+                this.item = this.itemValue
+                    ? this.$store.getters[this.model + '/GET'](this.itemValue)
+                    : _.cloneDeep(this.default);
+                this.errors = {};
+                this.$emit('close');
             },
 
             save() {
-                const {item} = this;
-                const options = {with: ['buyer']};
+                const {item, options} = this;
                 const action = this.item.id
-                    ? this.$store.dispatch('ADVANCED-BUYER/UPDATE', {item, options})
-                    : this.$store.dispatch('ADVANCED-BUYER/CREATE', {item, options});
+                    ? this.$store.dispatch(this.model + '/UPDATE', {item, options})
+                    : this.$store.dispatch(this.model + '/CREATE', {item, options});
                 action
-                    .then(() => {
-                        this.$emit('saved');
+                    .then((response) => {
+                        this.$emit('saved', response);
                         this.close();
                     })
                     .catch((error) => {

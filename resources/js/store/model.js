@@ -86,7 +86,7 @@ const mutations = {
     },
 
     REMOVE(state, removeData) {
-        const key = typeof removeData === 'object' ? removeData[state.key] : key;
+        const key = typeof removeData === 'object' ? removeData[state.key] : removeData;
         if (!key) {
             const error = 'Wrong key value ' + key + ' for ' + state.name;
             this.commit('SNACKBAR/ERROR', error);

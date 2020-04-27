@@ -91,8 +91,9 @@ class ModelController extends Controller
      * @param int $id
      * @return Response
      */
-    public function destroy($id)
+    public function destroy(ModelRequest $request, $id)
     {
         //
+        $this->service->remove($id);
     }
 }

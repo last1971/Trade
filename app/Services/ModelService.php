@@ -197,6 +197,11 @@ class ModelService
         return $model;
     }
 
+    public function remove($id)
+    {
+        $this->query->find(intval($id))->delete();
+    }
+
     protected function addUserBuyers($request, $table = null)
     {
         $table = $table ?? $this->query->getModel()->getTable();

@@ -12,7 +12,11 @@
                   loading-text="Loading... Please wait"
     >
         <template v-slot:header.actions>
-            <advanced-buyer-edit :id="id" @saved="updateItems" v-model="edit"/>
+            <advanced-buyer-edit :item-value="itemValue"
+                                 @close="itemValue=0"
+                                 @saved="updateItems"
+                                 v-model="editing"
+            />
         </template>
         <template v-slot:item.actions="{ item }">
             <v-speed-dial :open-on-hover="true" direction="right">
@@ -24,7 +28,7 @@
                 <v-btn @click="editItem(item)" fab>
                     <v-icon color="green">mdi-pencil</v-icon>
                 </v-btn>
-                <v-btn fab>
+                <v-btn @click="deleteItem(item)" fab>
                     <v-icon color="red">mdi-delete</v-icon>
                 </v-btn>
             </v-speed-dial>
@@ -48,14 +52,19 @@
                 },
                 mobileFiltersVisible: false,
                 model: 'ADVANCED-BUYER',
-                edit: false,
-                id: 0,
+                editing: false,
+                itemValue: 0,
+                itemKey: 'id',
             }
         },
         methods: {
             editItem(item) {
-                this.id = item.id;
-                this.edit = true;
+                this.itemValue = item[this.itemKey];
+                this.editing = true;
+            },
+            deleteItem(item) {
+                this.$store.dispatch(this.model + '/REMOVE', item[this.itemKey])
+                    .then(() => this.updateItems());
             }
         },
         beforeRouteEnter(to, from, next) {
