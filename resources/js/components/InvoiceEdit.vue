@@ -72,13 +72,40 @@
                             <v-icon>mdi-download</v-icon>
                         </v-btn>
                     </template>
-                    <v-btn @click="download('pdf')" fab>
+                    <v-btn @click="pdfDialog=true" fab>
                         <v-icon color="red">mdi-adobe-acrobat</v-icon>
                     </v-btn>
                     <v-btn @click="download('xlsx')" fab>
                         <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>
                 </v-speed-dial>
+                <v-dialog max-width="400px" persistent v-model="pdfDialog">
+                    <v-card>
+                        <v-card-title>
+                            <span class="headline">Параметры счета</span>
+                            <v-spacer/>
+                        </v-card-title>
+                        <v-divider></v-divider>
+                        <v-card-text>
+                            <v-container>
+                                <v-row>
+                                    <v-switch :label="(withVAT ? 'С ' : 'Без ') + 'НДС'"
+                                              inset
+                                              v-model="withVAT"
+                                    />
+                                    <v-switch :label="withStamp ? 'С печатью' : 'Без печати'"
+                                              class="ml-4"
+                                              inset
+                                              v-model="withStamp"
+                                    />
+                                    <v-btn @click="download('pdf')" class="ml-4 " fab>
+                                        <v-icon dark>mdi-download</v-icon>
+                                    </v-btn>
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+                    </v-card>
+                </v-dialog>
             </v-col>
         </v-row>
     </v-form>
@@ -99,6 +126,9 @@
             return {
                 MODEL: 'INVOICE',
                 downloading: false,
+                withStamp: true,
+                withVAT: true,
+                pdfDialog: false,
             }
         },
         computed: {
@@ -118,8 +148,12 @@
         methods: {
             download(type) {
                 this.downloading = true;
+                this.pdfDialog = false;
+                const {withVAT, withStamp} = this;
                 const download = type === 'pdf'
-                    ? this.$store.dispatch('INVOICE/PDF', this.value.SCODE)
+                    ? this.$store.dispatch(
+                        'INVOICE/PDF', {id: this.value.SCODE, query: {withVAT, withStamp}}
+                    )
                     : this.$store.dispatch('INVOICE-LINE/SAVE', {
                         with: ['category', 'good', 'name'],
                         filterAttributes: [

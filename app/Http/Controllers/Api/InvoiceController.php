@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exports\InvoiceExport;
+use App\Http\Requests\InvoicePDFRequest;
 use App\Http\Resources\InvoiceResource;
-use App\Invoice;
 use App\Services\InvoiceLineService;
 use App\Services\InvoiceService;
 use Maatwebsite\Excel\Excel;
@@ -39,17 +39,18 @@ class InvoiceController extends ModelController
         return $excel->download($export, 'invoices.xlsx');
     }
 
-    public function pdf($id)
+    public function pdf(InvoicePDFRequest $request)
     {
-        $invoice = Invoice::with('firm', 'buyer')->findOrFail(intval($id));
-        $lines = (new InvoiceLineService())->index(collect([
-            'with' => ['category', 'good', 'name'],
-            'filterAttributes' => ['invoice.SCODE'],
-            'filterOperators' => ['='],
-            'filterValues' => [$invoice->SCODE],
-            'sortBy' => ['category.CATEGORY', 'name.NAME'],
-            'sortDesc' => [false, false]
-        ]))->get();
-        return PDF::loadView('invoice-pdf', compact('invoice', 'lines'))->download('invoice.pdf');
+        $request->merge([
+            'lines' => (new InvoiceLineService())->index(collect([
+                'with' => ['category', 'good', 'name'],
+                'filterAttributes' => ['invoice.SCODE'],
+                'filterOperators' => ['='],
+                'filterValues' => [$request->invoice->SCODE],
+                'sortBy' => ['category.CATEGORY', 'name.NAME'],
+                'sortDesc' => [false, false]
+            ]))->get()
+        ]);
+        return PDF::loadView('invoice-pdf', $request->all())->download('invoice.pdf');
     }
 }

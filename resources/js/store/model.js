@@ -111,9 +111,9 @@ let actions = {
         return dispatch('GET', payload);
 
     },
-    GET({getters, commit}, payload) {
-        let id = typeof payload === 'object' ? payload.id : payload;
-        let query = typeof payload === 'object' ? payload.query : {};
+    GET({state, getters, commit}, payload) {
+        const id = typeof payload === 'object' ? payload.id : payload;
+        const query = typeof payload === 'object' ? payload.query : {};
         queryClear(query);
         return new Promise((resolve, reject) => {
             axios
@@ -129,8 +129,8 @@ let actions = {
         });
     },
     PDF({getters, commit}, payload) {
-        let id = typeof payload === 'object' ? payload.id : payload;
-        let query = typeof payload === 'object' ? payload.query : {};
+        const id = typeof payload === 'object' ? payload.id : payload;
+        const query = typeof payload === 'object' ? payload.query : {};
         queryClear(query);
         return new Promise((resolve, reject) => {
             axios
