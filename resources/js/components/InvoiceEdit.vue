@@ -84,6 +84,11 @@
                         <v-card-title>
                             <span class="headline">Параметры счета</span>
                             <v-spacer/>
+                            <v-btn @click="pdfDialog=false" icon right>
+                                <v-icon color="red">
+                                    mdi-close
+                                </v-icon>
+                            </v-btn>
                         </v-card-title>
                         <v-divider></v-divider>
                         <v-card-text>
@@ -143,6 +148,18 @@
             },
             notCan() {
                 return !this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
+            }
+        },
+        created() {
+            this.withStamp = this.$store.getters['AUTH/LOCAL_OPTION']('withStamp');
+            this.withVAT = this.$store.getters['AUTH/LOCAL_OPTION']('withVAT');
+        },
+        watch: {
+            withStamp(val) {
+                this.$store.commit('AUTH/SET_LOCAL_OPTION', {withStamp: val});
+            },
+            withVAT(val) {
+                this.$store.commit('AUTH/SET_LOCAL_OPTION', {withVAT: val});
             }
         },
         methods: {

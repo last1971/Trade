@@ -215,8 +215,8 @@
         <th width="50%">Наименование товара, работ, услуг</th>
         <th width="8%">Коли-<br>чество</th>
         <th width="5%">Ед.<br>изм.</th>
-        <th width="11%">Цена c НДС (руб.)</th>
-        <th width="11%">Сумма с НДС (руб.)</th>
+        <th width="11%">Цена {{ $withVAT ? 'с' : 'без' }} НДС (руб.)</th>
+        <th width="11%">Сумма {{ $withVAT ? 'с' : 'без' }} НДС (руб.)</th>
         <th width="11%">Срок поставки</th>
     </tr>
     </thead>
@@ -242,10 +242,12 @@
                 {{empty($line->good->UNIT_I) ? 'шт.' : $line->good->UNIT_I}}
             </td>
             <td align="right">
-                {{$line->PRICE}}
+                {{number_format(
+                    $withVAT ? $line->PRICE : $line->SUMMAP / (100 + VAT::get($invoice->DATA)) * 100 / $line->QUAN, 2
+                )}}
             </td>
             <td align="right">
-                {{$line->SUMMAP}}
+                {{number_format($withVAT ? $line->SUMMAP : $line->SUMMAP / (100 + VAT::get($invoice->DATA)) * 100, 2)}}
             </td>
             <td align="left">
                 {{$line->PRIM}}
@@ -254,20 +256,26 @@
     @endforeach
     </tbody>
     <tfoot>
+    @if(!$withVAT)
+        <tr>
+            <th colspan="5" align="right">Итого:</th>
+            <th align="right">
+                {{ number_format($invoice->invoiceLines->sum('SUMMAP') / (100 + VAT::get($invoice->DATA)) * 100, 2) }}
+            </th>
+            <th align="left">руб.</th>
+        </tr>
+    @endif
     <tr>
-        <th colspan="5" align="right">Итого:</th>
+        <th colspan="5" align="right">Итого C НДС:</th>
         <th align="right">{{ number_format($invoice->invoiceLines->sum('SUMMAP'), 2) }}</th>
         <th align="left">руб.</th>
     </tr>
     <tr>
         <th colspan="5" align="right">В том числе НДС:</th>
         <th align="right">
-            {{
-                number_format(
-                    $invoice->invoiceLines->sum('SUMMAP') / (100 + VAT::get($invoice->DATA)) * VAT::get($invoice->DATA),
-                    2
-                )
-            }}
+            {{number_format(
+                $invoice->invoiceLines->sum('SUMMAP') / (100 + VAT::get($invoice->DATA)) * VAT::get($invoice->DATA), 2
+            )}}
         </th>
         <th align="left">руб.</th>
     </tr>
@@ -292,7 +300,9 @@
     </p>
 </div>
 <div class="sign" style="page-break-inside: avoid">
-    <img class="printing" src="{{ storage_path('fonts/stamp.png') }}">
+    @if ($withStamp)
+        <img class="printing" src="{{ storage_path('fonts/stamp.png') }}">
+    @endif
     <table>
         <tbody>
         <tr>
