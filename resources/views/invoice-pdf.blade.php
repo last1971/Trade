@@ -169,8 +169,8 @@
         <td style="border-top: none;">{{ $invoice->firm->RS }}</td>
     </tr>
     <tr>
-        <td width="25%">ИНН {{ \Illuminate\Support\Str::before($invoice->firm->INN, '/') }}</td>
-        <td width="30%">КПП {{ \Illuminate\Support\Str::after($invoice->firm->INN, '/') }}</td>
+        <td width="25%">ИНН {{ $invoice->firm->Inn }}</td>
+        <td width="30%">КПП {{ $invoice->firm->Kpp }}</td>
         <td width="10%" rowspan="3">Сч. №</td>
         <td width="35%" rowspan="3">{{ $invoice->firm->KS }}</td>
     </tr>
