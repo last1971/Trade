@@ -19,7 +19,7 @@ class Buyer extends Model
 
     public function advancedBuyer()
     {
-        return $this->hasOne('App\AdvancedBuyer', 'POCUPATCODE', 'buyer_id');
+        return $this->hasOne('App\AdvancedBuyer', 'buyer_id', 'POKUPATCODE');
     }
 
     public function invoices()

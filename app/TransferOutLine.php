@@ -33,13 +33,19 @@ class TransferOutLine extends Model
 
     public function getAmountWithoutVatAttribute()
     {
-        return
-            round($this->getAttributes()['SUMMAP'] / (100 + VAT::get($this->transferOut->DATA)) * 100, 2);
+        return str_replace(
+            ',',
+            '.',
+            round($this->getAttributes()['SUMMAP'] / (100 + VAT::get($this->transferOut->DATA)) * 100, 2)
+        );
     }
 
     public function getPriceWithoutVatAttribute()
     {
-        return round($this->amountWithoutVat / $this->QUAN, 2);
+        return str_replace(
+            ',',
+            '.', round($this->amountWithoutVat / $this->QUAN, 2)
+        );
     }
 
     public function getCountryNumCodeAttribute()

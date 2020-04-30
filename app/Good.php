@@ -18,7 +18,7 @@ class Good extends Model
 
     public function getUnitCodeAttribute()
     {
-        return config('unit_codes')[Str::upper($this->getAttributes()['UNIT_I'])];
+        return config('unit_codes')[trim(Str::upper($this->getAttributes()['UNIT_I']))];
     }
 
     public function getUnitNameAttribute()

@@ -41,11 +41,13 @@
                 <ИдСв>
                     <СвЮЛУч ИННЮЛ="{{ $transferOut->buyer->Inn }}"
                             КПП="{{ $transferOut->buyer->Kpp }}"
-                            НаимОрг="{{ $transferOut->buyer->advancedBuyer->consignee }}"
+                            НаимОрг="{{ $transferOut->buyer->advancedBuyer->consignee ?? $transferOut->buyer->FULLNAME }}"
                     />
                 </ИдСв>
                 <Адрес>
-                    <АдрИнф АдрТекст="{{ $transferOut->buyer->advancedBuyer->consigneeAddress }}" КодСтр="643"/>
+                    <АдрИнф
+                        АдрТекст="{{ $transferOut->buyer->advancedBuyer->consigneeAddress ?? $transferOut->buyer->ADDRESS }}"
+                        КодСтр="643"/>
                 </Адрес>
                 <Контакт Тлф="{{ $transferOut->buyer->PHONES }}"/>
                 <БанкРекв НомерСчета="{{ $transferOut->buyer->RSCHET1 }}">
@@ -78,7 +80,7 @@
             @foreach($transferOutLines as $line)
                 <СведТов КолТов="{{ $line->QUAN }}"
                          НаимТов="{{ $line->name->NAME . ' ' . ($line->good->PRODCUER ?  $line->good->PRODCUER . ' ' : '') . $line->category->CATEGORY }}"
-                         НалСт="{{ VAT::get($itransferOut->DATA) }}%"
+                         НалСт="{{ VAT::get($transferOut->DATA) }}%"
                          НомСтр="{{ $loop->iteration }}"
                          ОКЕИ_Тов="{{ $line->good->unitCode }}"
                          СтТовБезНДС="{{ $line->amountWithoutVat }}"
@@ -88,7 +90,7 @@
                         <БезАкциз>без акциза</БезАкциз>
                     </Акциз>
                     <СумНал>
-                        <СумНал>{{ $line->SUMMAP - $line->amountWithoutVat }}</СумНал>
+                        <СумНал>{{ str_replace(',', '.', $line->SUMMAP - $line->amountWithoutVat) }}</СумНал>
                     </СумНал>
                     @if ($line->countryNumCode)
                         <СвТД КодПроисх="{{ $line->countryNumCode }}" НомерТД="{{ $line->GTD }}"/>
@@ -103,11 +105,13 @@
                     />
                 </СведТов>
             @endforeach
-            <ВсегоОпл СтТовБезНДСВсего="{{ $transferOutLines->sum('amountWithoutVat') }}"
+            <ВсегоОпл СтТовБезНДСВсего="{{ str_replace( ',', '.', $transferOutLines->sum('amountWithoutVat')) }}"
                       СтТовУчНалВсего="{{ $transferOutLines->sum('SUMMAP') }}"
             >
                 <СумНалВсего>
-                    <СумНал>{{ $transferOutLines->sum('SUMMAP') - $transferOutLines->sum('amountWithoutVat') }}</СумНал>
+                    <СумНал>
+                        {{ str_replace(',', '.', $transferOutLines->sum('SUMMAP') - $transferOutLines->sum('amountWithoutVat')) }}
+                    </СумНал>
                 </СумНалВсего>
             </ВсегоОпл>
         </ТаблСчФакт>
@@ -118,7 +122,7 @@
                         НомОсн="{{ $transferOut->invoice->NS }}"
                         @if ($transferOut->invoice->NZ)
                         ДопСвОсн="GPC-00000{{ $transferOut->invoice->NZ }}"
-                        @enfif
+                    @endif
                 />
             </СвПер>
         </СвПродПер>
