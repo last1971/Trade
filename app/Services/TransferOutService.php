@@ -5,7 +5,12 @@ namespace App\Services;
 
 
 use App\TransferOut;
+use App\TransferOutLine;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Str;
 
 class TransferOutService extends ModelService
 {
@@ -40,5 +45,19 @@ class TransferOutService extends ModelService
         $this->addUserBuyers($request);
         $this->addUserFirms($request);
         return parent::index($request);
+    }
+
+    public function xml($id)
+    {
+        $transferOut = $this->query->with(['firm', 'buyer.advancedBuyer'])->find(intval($id));
+        throw_if(!$transferOut->buyer->advancedBuyer, new Exception('Введите ЭДО для покупателя'));
+        $fileId = 'ON_NSCHFDOPPR_' . $transferOut->buyer->advancedBuyer->edo_id . '_' . $transferOut->firm->EDOID .
+            '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
+        $transferOutLines = TransferOutLine::with(['category', 'name', 'good'])
+            ->where('SFCODE', '=', $transferOut->SFCODE);
+        $output = View::make('transfer-out-xml')
+            ->with(compact('fileId', 'transferOut', 'transferOutLines'))
+            ->render();
+        return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251", $output);
     }
 }

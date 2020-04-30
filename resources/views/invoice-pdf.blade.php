@@ -192,16 +192,21 @@
     <tr>
         <td width="15%">Поставщик:</td>
         <th width="85%">
-            {{ $invoice->firm->FIRMNAME }}, ИНН {{ \Illuminate\Support\Str::before($invoice->firm->INN, '/') }},
-            КПП {{ \Illuminate\Support\Str::after($invoice->firm->INN, '/') }}, {{ $invoice->firm->FACTADDRESS }}
+            {{ $invoice->firm->FIRMNAME }},
+            ИНН {{ $invoice->firm->Inn }},
+            @if ($invoice->firm->Kpp)
+                КПП {{ $invoice->firm->Kpp }},
+            @endif
+            {{ $invoice->firm->FACTADDRESS }}
         </th>
     </tr>
     <tr>
         <td>Покупатель:</td>
         <th>
-            {{ $invoice->buyer->FULLNAME }}, ИНН {{ \Illuminate\Support\Str::before($invoice->buyer->INN, '/') }},
-            @if (strpos($invoice->buyer->INN, '/') !== FALSE )
-                КПП {{ \Illuminate\Support\Str::after($invoice->buyer->INN, '/') }},
+            {{ $invoice->buyer->FULLNAME }},
+            ИНН {{ $invoice->buyer->Inn }},
+            @if ($invoice->buyer->Kpp)
+                КПП {{ $invoice->buyer->Kpp }},
             @endif
             {{ $invoice->buyer->ADDRESS }}
         </th>

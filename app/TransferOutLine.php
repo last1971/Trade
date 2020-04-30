@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
+use VAT;
 
 class TransferOutLine extends Model
 {
@@ -27,6 +29,22 @@ class TransferOutLine extends Model
             'GOODSCODE',
             'CATEGORYCODE'
         );
+    }
+
+    public function getAmountWithoutVatAttribute()
+    {
+        return
+            round($this->getAttributes()['SUMMAP'] / (100 + VAT::get($this->transferOut->DATA)) * 100, 2);
+    }
+
+    public function getPriceWithoutVatAttribute()
+    {
+        return round($this->amountWithoutVat / $this->QUAN, 2);
+    }
+
+    public function getCountryNumCodeAttribute()
+    {
+        return config('country_codes')[Str::upper($this->STRANA)];
     }
 
     public function good()

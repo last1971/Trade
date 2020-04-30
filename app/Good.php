@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Good extends Model
 {
@@ -14,6 +15,16 @@ class Good extends Model
     protected $primaryKey = 'GOODSCODE';
 
     protected $table = 'GOODS';
+
+    public function getUnitCodeAttribute()
+    {
+        return config('unit_codes')[Str::upper($this->getAttributes()['UNIT_I'])];
+    }
+
+    public function getUnitNameAttribute()
+    {
+        return config('unit')[$this->unitCode];
+    }
 
     public function category()
     {

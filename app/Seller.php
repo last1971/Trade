@@ -2,11 +2,13 @@
 
 namespace App;
 
+use App\ModelTraits\InnKppTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class Seller extends Model
 {
-    //
+    use InnKppTrait;
+
     public $timestamps = false;
 
     protected $connection = 'firebird';
