@@ -136,7 +136,27 @@ let actions = {
             axios
                 .get(getters.URL + '/export/' + id, {params: query, responseType: 'blob'})
                 .then(response => {
-                    FileSaver.saveAs(response.data, state.name + id + '.pdf');
+                    FileSaver.saveAs(response.data, getters.PDF(id));
+                    resolve(response);
+                })
+                .catch((error) => {
+                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                    reject(error);
+                });
+        });
+    },
+    XML({getters, commit}, payload) {
+        const id = typeof payload === 'object' ? payload.id : payload;
+        const query = typeof payload === 'object' ? payload.query : {};
+        queryClear(query);
+        return new Promise((resolve, reject) => {
+            axios
+                .get(getters.URL + '/xml/' + id, {params: query, responseType: 'blob'})
+                .then(response => {
+                    FileSaver.saveAs(
+                        response.data,
+                        response.request.getResponseHeader('Content-Disposition').split('=')[1] + '.xml',
+                    );
                     resolve(response);
                 })
                 .catch((error) => {

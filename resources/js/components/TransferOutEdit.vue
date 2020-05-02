@@ -68,6 +68,9 @@
                     <v-btn @click="download('pdf')" fab>
                         <v-icon color="red">mdi-adobe-acrobat</v-icon>
                     </v-btn>
+                    <v-btn @click="download('xml')" fab>
+                        <v-icon color="blue">mdi-xml</v-icon>
+                    </v-btn>
                     <v-btn @click="download('xlsx')" fab>
                         <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>
@@ -107,18 +110,26 @@
         methods: {
             download(type) {
                 this.downloading = true;
-                const download = type === 'pdf'
-                    ? this.$store.dispatch('TRANSFER-OUT/PDF', this.value.SFCODE)
-                    : this.$store.dispatch('TRANSFER-OUT-LINE/SAVE', {
-                        with: ['category', 'good', 'name', 'transferOut.buyer'],
-                        filterAttributes: [
-                            'SFCODE',
-                        ],
-                        filterOperators: ['='],
-                        filterValues: [this.value.SFCODE],
-                        sortBy: ['category.CATEGORY', 'name.NAME'],
-                        sortDesc: [false, false],
-                    });
+                let download;
+                switch (type) {
+                    case 'pdf':
+                        download = this.$store.dispatch('TRANSFER-OUT/PDF', this.value.SFCODE);
+                        break;
+                    case 'xlsx':
+                        download = this.$store.dispatch('TRANSFER-OUT-LINE/SAVE', {
+                            with: ['category', 'good', 'name', 'transferOut.buyer'],
+                            filterAttributes: [
+                                'SFCODE',
+                            ],
+                            filterOperators: ['='],
+                            filterValues: [this.value.SFCODE],
+                            sortBy: ['category.CATEGORY', 'name.NAME'],
+                            sortDesc: [false, false],
+                        });
+                        break;
+                    default:
+                        download = this.$store.dispatch('TRANSFER-OUT/XML', this.value.SFCODE)
+                }
                 download
                     .then(() => {
                     })

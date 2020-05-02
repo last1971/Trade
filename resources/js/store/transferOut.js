@@ -2,6 +2,7 @@ import model from './model'
 import _ from 'lodash'
 
 let state = _.cloneDeep(model.state);
+let getters = _.cloneDeep(model.getters);
 
 state.name = 'transfer-out';
 
@@ -47,10 +48,14 @@ state.headers = [
     },
 ];
 
+getters.PDF = state => id => {
+    return 'УПД № ' + getters.GET(state)(id).NSF + '.pdf'
+}
+
 export default {
     namespaced: true,
     state,
-    getters: model.getters,
+    getters,
     mutations: model.mutations,
     actions: model.actions,
 }

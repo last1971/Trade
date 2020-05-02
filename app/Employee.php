@@ -15,6 +15,8 @@ class Employee extends Model
 
     protected $table = 'STAFF';
 
+    protected $with = ['employeePosition'];
+
     public function invoices()
     {
         return $this->hasMany('App\Invoice', 'STAFF_ID', 'ID');
@@ -28,5 +30,10 @@ class Employee extends Model
     public function user()
     {
         return $this->hasOne('App\User', 'employeeId', 'ID');
+    }
+
+    public function employeePosition()
+    {
+        return $this->belongsTo('App\EmployeePosition', 'JOBS_ID', 'ID');
     }
 }

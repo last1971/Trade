@@ -5,6 +5,7 @@ namespace App\Services;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ServerException;
 use Psr\SimpleCache\InvalidArgumentException;
 
 
@@ -88,5 +89,32 @@ class SbisService
             ]
         );
         return json_decode($response->getBody()->getContents());
+    }
+
+    public function xml2html($xml)
+    {
+        try {
+            $response = $this->client->request(
+                'POST',
+                'https://online.sbis.ru/service/?srv=1',
+                [
+                    'headers' => $this->headers,
+                    'body' => json_encode([
+                        "jsonrpc" => "2.0",
+                        "method" => "СБИС.СформироватьHTMLИзXML",
+                        "params" => [
+                            "Параметр" => [
+                                "XML" => base64_encode($xml)
+                            ],
+                        ],
+                        "id" => 0
+                    ])
+                ]
+            );
+            $json = json_decode($response->getBody()->getContents());
+            return base64_decode($json->result->HTML);
+        } catch (ServerException $e) {
+            throw new Exception($e->getResponse()->getBody()->getContents());
+        }
     }
 }

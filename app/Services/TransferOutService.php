@@ -7,8 +7,8 @@ namespace App\Services;
 use App\TransferOut;
 use App\TransferOutLine;
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
@@ -50,17 +50,17 @@ class TransferOutService extends ModelService
     }
 
     /**
-     * @param integer|string $id
-     * @param Collection $request
+     * @param Collection|FormRequest $request
      * @return string
      * @throws Throwable
      */
-    public function xml($id, $request)
+    public function xml($request)
     {
-        $transferOut = $this->query->with(['firm', 'buyer.advancedBuyer'])->find(intval($id));
-        throw_if(!$transferOut->buyer->advancedBuyer, new Exception('Введите ЭДО для покупателя'));
-        $fileId = 'ON_NSCHFDOPPR_' . $transferOut->buyer->advancedBuyer->edo_id . '_' . $transferOut->firm->EDOID .
-            '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
+        $transferOut = is_object($request->get('transferOut'))
+            ? $request->get('transferOut')
+            : $this->query->with(['firm', 'buyer.advancedBuyer'])->find(intval($request->get('transferOut')));
+        $fileId = 'ON_NSCHFDOPPR_' . ($transferOut->buyer->advancedBuyer->edo_id ?? $transferOut->buyer->Inn) .
+            '_' . $transferOut->firm->EDOID . '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
         $transferOutLines = TransferOutLine::with(['category', 'name', 'good'])
             ->where('SFCODE', '=', $transferOut->SFCODE)
             ->get();

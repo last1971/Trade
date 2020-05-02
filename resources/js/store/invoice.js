@@ -3,6 +3,8 @@ import _ from 'lodash'
 
 let state = _.cloneDeep(model.state);
 
+let getters = _.cloneDeep(model.getters);
+
 state.name = 'invoice';
 
 state.key = 'SCODE';
@@ -57,10 +59,15 @@ state.headers = [
     },
 ];
 
+getters.PDF = state => id => {
+    return 'Счет № ' + getters.GET(state)(id).NS + '.pdf'
+}
+
+
 export default {
     namespaced: true,
     state,
-    getters: model.getters,
+    getters,
     mutations: model.mutations,
     actions: model.actions,
 }

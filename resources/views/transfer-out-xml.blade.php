@@ -1,6 +1,6 @@
 <Файл ИдФайл="{{ $fileId }}" ВерсФорм="5.01" ВерсПрог="epricing.v0">
-    <СвУчДокОбор
-        ИдОтпр="{{ $transferOut->firm->EDOID }}" ИдПок="{{ $transferOut->buyer->advancedBuyer->edo_id }}"
+    <СвУчДокОбор ИдОтпр="{{ $transferOut->firm->EDOID }}"
+                 ИдПок="{{ $transferOut->buyer->advancedBuyer->edo_id ?? $transferOut->buyer->Inn }}"
     >
         <СвОЭДОтпрСФ ИННЮЛ="7605016030" ИдЭДОСФ="2BE" НаимОрг="ООО {{ '"Компания "Тензор""' }}"/>
     </СвУчДокОбор>
@@ -106,12 +106,10 @@
                 </СведТов>
             @endforeach
             <ВсегоОпл СтТовБезНДСВсего="{{ str_replace( ',', '.', $transferOutLines->sum('amountWithoutVat')) }}"
-                      СтТовУчНалВсего="{{ $transferOutLines->sum('SUMMAP') }}"
+                      СтТовУчНалВсего="{{ str_replace( ',', '.', $transferOutLines->sum('SUMMAP')) }}"
             >
                 <СумНалВсего>
-                    <СумНал>
-                        {{ str_replace(',', '.', $transferOutLines->sum('SUMMAP') - $transferOutLines->sum('amountWithoutVat')) }}
-                    </СумНал>
+                    <СумНал>{{ str_replace(',', '.', $transferOutLines->sum('SUMMAP') - $transferOutLines->sum('amountWithoutVat')) }}</СумНал>
                 </СумНалВсего>
             </ВсегоОпл>
         </ТаблСчФакт>

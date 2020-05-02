@@ -1,5 +1,7 @@
 <?php
 
+use App\TransferOut;
+use App\TransferOutLine;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,7 +14,16 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/test1/{test1}', 'TestController@test')->name('test1.t');
+Route::get('/test1/', function () {
+    $transferOut = TransferOut::with('firm', 'buyer', 'employee')->find(68451);
+    $transferOutLines = TransferOutLine::with(['category', 'good', 'name'])
+        ->where('SFCODE', '=', 68451)
+        ->get();
+    $cashFlows = $transferOut->invoice->cashFlows->filter(function ($v) {
+        return !$v->SFCODE1;
+    });
+    return view('transfer-out-pdf', compact('transferOut', 'transferOutLines', 'cashFlows'));
+})->name('test1.t');
 Route::get('/test2/{test2}', 'TestController@test');
 
 Route::get('/{path?}', function () {
