@@ -6,6 +6,7 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
+use Illuminate\Support\Str;
 use Psr\SimpleCache\InvalidArgumentException;
 
 
@@ -115,6 +116,49 @@ class SbisService
             return base64_decode($json->result->HTML);
         } catch (ServerException $e) {
             throw new Exception($e->getResponse()->getBody()->getContents());
+        }
+    }
+
+    public function exportTransferOut($xml)
+    {
+        {
+            $file = (string)(simplexml_load_string($xml))->attributes()["ИдФайл"];
+            try {
+                $response = $this->client->request(
+                    'POST',
+                    'https://online.sbis.ru/service/?srv=1',
+                    [
+                        'headers' => $this->headers,
+                        'body' => json_encode([
+                            "jsonrpc" => "2.0",
+                            "method" => "СБИС.ЗаписатьДокумент",
+                            "params" => [
+                                "Документ" => [
+                                    "Идентификатор" => Str::uuid(),
+                                    // "Тип" => "ФактураИсх",
+                                    "Регламент" => [
+                                        // "Идентификатор" => Str::uuid(),
+                                        "Название" => "Реализация",
+                                    ],
+                                    "Вложение" => [
+                                        [
+                                            "Идентификатор" => Str::uuid(),
+                                            "Файл" => [
+                                                "ДвоичныеДанные" => base64_encode($xml),
+                                                "Имя" => $file . '.xml'
+                                            ],
+                                        ]
+                                    ]
+                                ],
+                            ],
+                            "id" => 0
+                        ])
+                    ]
+                );
+                return json_decode($response->getBody()->getContents());
+            } catch (ServerException $e) {
+                throw new Exception($e->getResponse()->getBody()->getContents());
+            }
         }
     }
 }

@@ -40,7 +40,7 @@
                 </v-btn>
             </v-col>
             <v-col class="d-flex justify-center">
-                <v-btn>
+                <v-btn :loading="transferLoading" @click="transfer">
                     Выгрузить в СБИС
                 </v-btn>
             </v-col>
@@ -62,6 +62,7 @@
                 buyerId: null,
                 xlsxLoading: false,
                 gtdLoading: false,
+                transferLoading: false,
             }
         },
         created() {
@@ -92,6 +93,16 @@
                     .catch(() => {
                     })
                     .then(() => this.gtdLoading = false);
+            },
+            transfer() {
+                const {date, buyerId} = this;
+                this.transferLoading = true;
+                this.$store.dispatch('SBIS/EXPORT', {date, buyerId})
+                    .then(() => {
+                    })
+                    .catch(() => {
+                    })
+                    .then(() => this.transferLoading = false);
             }
         }
     }

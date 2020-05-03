@@ -21,7 +21,20 @@ const actions = {
     'CLEAR-GTD'({commit}, payload) {
         return new Promise((resolve, reject) => {
             axios
-                .post('api/sbis/clear-gtd', payload, {responseType: 'blob'})
+                .post('api/sbis/clear-gtd', payload)
+                .then((response) => {
+                    resolve(response);
+                })
+                .catch((error) => {
+                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                    reject(error);
+                });
+        });
+    },
+    EXPORT({commit}, payload) {
+        return new Promise((resolve, reject) => {
+            axios
+                .post('api/sbis/export', payload)
                 .then((response) => {
                     resolve(response);
                 })

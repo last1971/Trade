@@ -129,19 +129,19 @@ class ModelService
                                 $request->get('filterOperators')[$index],
                                 $request->get('filterValues')[$index]
                             );
-                        // date where
-                        } else if (array_search($filterAttribute, $this->dateAttributes) !== false) {
-                            $query->whereRaw(
-                                $this->rawAttribute($filterAttribute) . ' '
-                                . $request->get('filterOperators')[$index]
-                                . '\'' . Carbon::parse($request->get('filterValues')[$index]) . '\''
-                            );
                             // date between
                         } else if ($request->get('filterOperators')[$index] === 'BETWEENDATE') {
                             $query->whereRaw(
                                 $this->rawAttribute($filterAttribute) . ' BETWEEN '
                                 . '\'' . Carbon::parse($request->get('filterValues')[$index][0]) . '\' AND '
                                 . '\'' . Carbon::parse($request->get('filterValues')[$index][1]) . '\''
+                            );
+                            // date where
+                        } else if (array_search($filterAttribute, $this->dateAttributes) !== false) {
+                            $query->whereRaw(
+                                $this->rawAttribute($filterAttribute) . ' '
+                                . $request->get('filterOperators')[$index]
+                                . '\'' . Carbon::parse($request->get('filterValues')[$index]) . '\''
                             );
                             // in where
                         } else if ($request->get('filterOperators')[$index] === 'IN') {
