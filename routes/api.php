@@ -46,6 +46,9 @@ Route::middleware('auth:api')->group(function () {
         'user' => 'Api\UserController',
         'user-option' => 'Api\UserOptionController'
     ]);
+    Route::post('sbis/xlsx', 'Api\SbisController@xlsx')->name('sbis.xlsx');
+    Route::post('sbis/clear-gtd', 'Api\SbisController@clearGtd')->name('sbis.clear-gtd');
+    Route::post('sbis/export', 'Api\SbisController@export')->name('sbis.export');
 });
 
 Route::post('login', 'Api\AuthController@login')->name('login');

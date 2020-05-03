@@ -20,6 +20,7 @@ import employee from "./employee";
 import category from "./category";
 import advancedBuyer from "./advancedBuyer";
 import errorMessage from "./errorMessage";
+import sbis from "./sbis";
 
 Vue.use(Vuex);
 
@@ -49,6 +50,7 @@ export default new Vuex.Store({
         'ORDER-LINE': orderLine,
         ORDERSTATUS: orderStatus,
         ROLE: role,
+        SBIS: sbis,
         SELLER: seller,
         SNACKBAR: snackbar,
         'TRANSFER-OUT': transferOut,

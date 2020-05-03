@@ -15,6 +15,7 @@ import Users from "./components/Users";
 import ResetPassword from "./components/ResetPassword";
 import InvoiceLinesSearch from "./components/InvoiceLinesSearch";
 import AdvancedBuyers from "./components/AdvancedBuyers";
+import SbisComponent from "./components/SbisComponent";
 
 Vue.use(VueRouter);
 
@@ -23,7 +24,7 @@ const routes = [
         name: 'advanced-buyer',
         path: '/advanced-buyer',
         component: AdvancedBuyers,
-        meta: {requiresAuth: true},
+        meta: {requiresAuth: true, permission: 'advanced-buyer.index'},
     },
     {
         name: 'help',
@@ -98,6 +99,12 @@ const routes = [
         path: '/user',
         component: Users,
         meta: {requiresAuth: true, model: 'USER', permission: 'user.index'},
+    },
+    {
+        name: 'sbis',
+        path: '/sbis',
+        component: SbisComponent,
+        meta: {requiresAuth: true, permission: 'sbis.show'},
     },
     {path: '*', component: Help},
 ];

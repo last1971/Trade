@@ -136,6 +136,13 @@ class ModelService
                                 . $request->get('filterOperators')[$index]
                                 . '\'' . Carbon::parse($request->get('filterValues')[$index]) . '\''
                             );
+                            // date between
+                        } else if ($request->get('filterOperators')[$index] === 'BETWEENDATE') {
+                            $query->whereRaw(
+                                $this->rawAttribute($filterAttribute) . ' BETWEEN '
+                                . '\'' . Carbon::parse($request->get('filterValues')[$index][0]) . '\' AND '
+                                . '\'' . Carbon::parse($request->get('filterValues')[$index][1]) . '\''
+                            );
                             // in where
                         } else if ($request->get('filterOperators')[$index] === 'IN') {
                             $query->whereIn($filterAttribute, $request->get('filterValues')[$index]);

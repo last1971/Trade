@@ -13,6 +13,8 @@ class TransferOutLine extends Model
 
     protected $connection = 'firebird';
 
+    protected $fillable = ['STRANA', 'GTD'];
+
     protected $primaryKey = 'REALPRICEFCODE';
 
     public static $snakeAttributes = false;

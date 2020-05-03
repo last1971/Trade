@@ -43,6 +43,8 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         Permission::query()->firstOrCreate(['name' => 'role.index']);
+        Permission::query()->firstOrCreate(['name' => 'sbis.*']);
+        Permission::query()->firstOrCreate(['name' => 'sbis.show']);
 
         Permission::query()->firstOrCreate(['name' => 'nav.*']);
         Permission::query()->firstOrCreate(['name' => 'nav.home']);
@@ -66,6 +68,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'order.*',
             'order-line.*',
             'role.index',
+            'sbis.*',
             'seller.*',
             'transfer-out.*',
             'transfer-out-line.*',
@@ -113,6 +116,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'transfer-out.show',
             'transfer-out-line.index',
             'transfer-out-line.show',
+            'transfer-out-line.xlsx',
         ]);
     }
 }
