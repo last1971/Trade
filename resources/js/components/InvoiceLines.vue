@@ -159,6 +159,7 @@
                     filterValues: [this.value.SCODE],
                     sortBy: ['category.CATEGORY', 'name.NAME'],
                     sortDesc: [false, false],
+                    itemsPerPage: -1,
                 },
                 mobileFiltersVisible: false,
                 dependent: true,

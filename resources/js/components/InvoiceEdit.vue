@@ -122,10 +122,11 @@
     import InvoiceStatusSelect from "./InvoiceStatusSelect";
     import FirmSelect from "./FirmSelect";
     import editMixin from "../mixins/editMixin";
+    import InvoicePdf from "./InvoicePdf";
 
     export default {
         name: "InvoiceEdit",
-        components: {FirmSelect, InvoiceStatusSelect, BuyerSelect},
+        components: {InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
         mixins: [editMixin, utilsMixin],
         data() {
             return {

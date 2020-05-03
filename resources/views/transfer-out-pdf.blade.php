@@ -85,7 +85,7 @@
             <table width="100%">
                 <tbody>
                 <tr>
-                    <td>
+                    <td width="30%">
                         <table width="100%">
                             <tbody>
                             <tr>
@@ -95,6 +95,7 @@
                                         {{ (new Date($transferOut->DATA))->format('j F Y г.') }}
                                     </b>
                                 </td>
+                                <td>(1)</td>
                             </tr>
                             <tr>
                                 <td style="padding-left:4px">
@@ -103,6 +104,7 @@
                                     от
                                     ---
                                 </td>
+                                <td>(1a)</td>
                             </tr>
                             </tbody>
                         </table>
@@ -160,8 +162,8 @@
                 <tr>
                     <td>Грузополучатель и его адрес:</td>
                     <td width="75%" class="bottom-border">
-                        <b>{{ $transferOut->buyer->FULLNAME }}, </b>
-                        {{ $transferOut->buyer->ADDRESS }}
+                        <b>{{ $transferOut->buyer->advancedBuyer->consignee ?? $transferOut->buyer->FULLNAME }}, </b>
+                        {{ $transferOut->buyer->advancedBuyer->consigneeAddress ?? $transferOut->buyer->ADDRESS }}
                     </td>
                     <td width="3%" class="centred">(4)</td>
                 </tr>

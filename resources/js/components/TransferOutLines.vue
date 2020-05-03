@@ -57,6 +57,7 @@
                     ],
                     filterOperators: ['='],
                     filterValues: [this.value.SFCODE],
+                    itemsPerPage: -1,
                 },
                 mobileFiltersVisible: false,
                 dependent: true,

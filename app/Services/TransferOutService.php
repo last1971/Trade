@@ -64,9 +64,11 @@ class TransferOutService extends ModelService
         $transferOutLines = TransferOutLine::with(['category', 'name', 'good'])
             ->where('SFCODE', '=', $transferOut->SFCODE)
             ->get();
-        $director = $request->get('director');
+        $cashFlows = $transferOut->invoice->cashFlows->filter(function ($v) {
+            return !$v->SFCODE1;
+        });
         $output = View::make('transfer-out-xml')
-            ->with(compact('fileId', 'transferOut', 'transferOutLines', 'director'))
+            ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows'))
             ->render();
         return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251", $output);
     }

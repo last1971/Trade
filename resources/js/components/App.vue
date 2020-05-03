@@ -125,7 +125,7 @@
             breadcrumbs() {
                 const breadcrumbs = this.$store.getters['BREADCRUMBS/ALL'];
                 if (this.$vuetify.breakpoint.xsOnly) {
-                    return [_.last(breadcrumbs)];
+                    return !_.isEmpty(breadcrumbs) ? [_.last(breadcrumbs)] : [];
                 }
                 return breadcrumbs;
             }

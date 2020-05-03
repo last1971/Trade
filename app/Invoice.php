@@ -12,7 +12,7 @@ class Invoice extends Model
 
     protected $connection = 'firebird';
 
-    protected $fillable = ['DATA', 'NS', 'FIRM_ID', 'POKUPATCODE', 'PRIM', 'STATUS'];
+    protected $fillable = ['NS', 'FIRM_ID', 'POKUPATCODE', 'PRIM', 'STATUS'];
 
     protected $primaryKey = 'SCODE';
 

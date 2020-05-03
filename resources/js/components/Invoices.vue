@@ -17,14 +17,23 @@
                 v-if="!isMobile || mobileFiltersVisible"
             >
                 <td v-if="!isMobile">
-                    <v-btn :disabled="!$store.getters['AUTH/HAS_PERMISSION']('invoice.xlsx')"
-                           :loading="saving"
-                           @click="save"
-                           fab
-                           icon
-                    >
-                        <v-icon color="green">mdi-microsoft-excel</v-icon>
-                    </v-btn>
+                    <v-speed-dial :open-on-hover="true" direction="right">
+                        <template v-slot:activator>
+                            <v-btn icon>
+                                <v-icon>mdi-hand-pointing-right</v-icon>
+                            </v-btn>
+                        </template>
+                        <v-btn @click="updateItems" fab>
+                            <v-icon>mdi-reload</v-icon>
+                        </v-btn>
+                        <v-btn :disabled="!$store.getters['AUTH/HAS_PERMISSION']('invoice.xlsx')"
+                               :loading="saving"
+                               @click="save"
+                               fab
+                        >
+                            <v-icon color="green">mdi-microsoft-excel</v-icon>
+                        </v-btn>
+                    </v-speed-dial>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-menu
@@ -109,8 +118,8 @@
                 </td>
             </tr>
         </template>
-        <template v-slot:item.actions>
-
+        <template v-slot:item.actions="{ item }">
+            <invoice-pdf v-model="item"/>
         </template>
         <template v-slot:item.NS="{ item }">
             <router-link :to="{ name: 'invoice', params: { id: item.SCODE } }">
@@ -150,9 +159,11 @@
     import tableMixin from "../mixins/tableMixin";
     import utilsMixin from "../mixins/utilsMixin";
     import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
+    import InvoicePdf from "./InvoicePdf";
 
     export default {
         name: "Invoices",
+        components: {InvoicePdf},
         mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
         data() {
             return {

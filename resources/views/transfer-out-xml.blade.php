@@ -1,4 +1,4 @@
-<Файл ИдФайл="{{ $fileId }}" ВерсФорм="5.01" ВерсПрог="epricing.v0">
+<Файл ИдФайл="{{ $fileId }}" ВерсФорм="5.01" ВерсПрог="epricing.v1">
     <СвУчДокОбор ИдОтпр="{{ $transferOut->firm->EDOID }}"
                  ИдПок="{{ $transferOut->buyer->advancedBuyer->edo_id ?? $transferOut->buyer->Inn }}"
     >
@@ -8,7 +8,7 @@
               ДатаИнфПр="{{ \Carbon\Carbon::now('+07:00')->format('d.m.Y') }}"
               КНД="1115131"
               НаимДокОпр="Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
-              НаимЭконСубСост="{{ $transferOut->firm->FIRMNAME }}, ИНН/КПП {{ $transferOut->firm->INN }}"
+              НаимЭконСубСост="{{ $transferOut->firm->FIRMNAME }}, ИНН/КПП {{ $transferOut->firm->getAttributes()['INN'] }}"
               ПоФактХЖ="Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
               Функция="СЧФДОП"
     >
@@ -47,7 +47,8 @@
                 <Адрес>
                     <АдрИнф
                         АдрТекст="{{ $transferOut->buyer->advancedBuyer->consigneeAddress ?? $transferOut->buyer->ADDRESS }}"
-                        КодСтр="643"/>
+                        КодСтр="643"
+                    />
                 </Адрес>
                 <Контакт Тлф="{{ $transferOut->buyer->PHONES }}"/>
                 <БанкРекв НомерСчета="{{ $transferOut->buyer->RSCHET1 }}">
@@ -57,6 +58,12 @@
                     />
                 </БанкРекв>
             </ГрузПолуч>
+            @foreach($cashFlows as $cf)
+                <СвПРД НомерПРД="{{ $cf->NPP }}"
+                       ДатаПРД="{{ (new Date($cf->DATA))->format('d.m.Y') }}"
+                       СуммаПРД="{{ $cf->MONEYSCHET }}"
+                />
+            @endforeach
             <СвПокуп>
                 <ИдСв>
                     <СвЮЛУч ИННЮЛ="{{ $transferOut->buyer->Inn }}"
@@ -71,7 +78,7 @@
                 <БанкРекв НомерСчета="{{ $transferOut->buyer->RSCHET1 }}">
                     <СвБанк БИК="{{ $transferOut->buyer->BIK }}"
                             КорСчет="{{ $transferOut->buyer->KS }}"
-                            НаимБанк="{{ $transferOut->buyer->BIk }}"
+                            НаимБанк="{{ $transferOut->buyer->BANK }}"
                     />
                 </БанкРекв>
             </СвПокуп>
@@ -125,17 +132,11 @@
             </СвПер>
         </СвПродПер>
         <Подписант ОблПолн="5" ОснПолн="Должностные обязанности" Статус="1">
-            <ЮЛ Должн="{{ $director ? 'ДИРЕКТОР' : 'Менеджер' }}"
+            <ЮЛ Должн="ДИРЕКТОР"
                 ИННЮЛ="{{ $transferOut->firm->Inn }}"
                 НаимОрг="{{ $transferOut->firm->FIRMNAME }}"
             >
-                @if ($director)
-                    <ФИО Имя="Михаил" Отчество="Сергеевич" Фамилия="Верхотуров"/>
-                @else
-                    <ФИО Имя="{{ $transferOut->employee->IM }}"
-                         Отчество="{{ $transferOut->employee->OTCH }}"
-                         Фамилия="{{ $transferOut->employee->FAM }}"/>
-                @endif
+                <ФИО Имя="Михаил" Отчество="Сергеевич" Фамилия="Верхотуров"/>
             </ЮЛ>
         </Подписант>
     </Документ>
