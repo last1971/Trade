@@ -34,7 +34,19 @@ class TransferOutController extends ModelController
         $transferOutLines = TransferOutLine::with(['category', 'good', 'name'])
             ->where('SFCODE', '=', $transferOut->SFCODE)
             ->get();
-        $pdf = PDF::loadView('transfer-out-pdf', compact('transferOutLines', 'transferOut', 'cashFlows'));
+        $count = 0;
+        $pdf = PDF::loadView(
+            'transfer-out-pdf',
+            compact('transferOutLines', 'transferOut', 'cashFlows', 'count')
+        );
+        $pdf->setPaper('A4', 'landscape');
+        $proxy = $pdf->getDomPdf();
+        $proxy->render();
+        $count = $proxy->getCanvas()->get_page_count();
+        $pdf = PDF::loadView(
+            'transfer-out-pdf',
+            compact('transferOutLines', 'transferOut', 'cashFlows', 'count')
+        );
         $pdf->setPaper('A4', 'landscape');
         return $pdf->download('transfer-out.pdf');
     }

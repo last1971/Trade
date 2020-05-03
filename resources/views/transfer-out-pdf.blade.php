@@ -56,10 +56,6 @@
             padding-left: 2px;
             padding-right: 2px;
         }
-
-        .page-number:after {
-            content: counter(page);
-        }
     </style>
 </head>
 <body>
@@ -319,7 +315,7 @@
             </td>
         </tr>
     @endforeach
-    <tfoot style="page-break-inside: avoid">
+    <tfoot style="page-break-inside: avoid;">
     <tr>
         <td colspan="2" class="left-border right-border-double bottom-border"></td>
         <td colspan="6" class="right-border bottom-border">
@@ -339,7 +335,8 @@
     <tr>
         <td class="right-border-double" colspan="2" style="vertical-align: text-top;">
             Документ<br>составлен на<br/>
-            <span style="border-bottom: 1px solid black" class="page-number">&nbsp;</span>
+            <span style="border-bottom: 1px solid black">&nbsp;</span>
+            {{ $count  }}
             <span style="border-bottom: 1px solid black">&nbsp;</span>
             листах
         </td>
@@ -380,7 +377,7 @@
     </tr>
     </tfoot>
 </table>
-<div style="page-break-inside: avoid">
+<div style="page-break-inside: avoid;">
     <table width="100%" class="main">
         <tr>
             <td>Основание передачи (сдачи)/получения приемки</td>
