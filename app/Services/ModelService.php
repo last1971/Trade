@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
 
@@ -82,6 +83,14 @@ class ModelService
                 return $s;
             }, '')
         );
+    }
+
+    private function getCahngedDates(array $item, Model $model)
+    {
+        return array_filter($item, function ($val, $key) use ($model) {
+            return array_search($key, $this->dateAttributes) !== FALSE
+                && Carbon::create($val) != Carbon::create($model->getAttribute($key));
+        }, ARRAY_FILTER_USE_BOTH);
     }
 
     /**
@@ -187,6 +196,17 @@ class ModelService
         $model = $this->query->find(intval($id));
         $model->fill($request->item);
         $model->save();
+        $dateDiff = $this->getCahngedDates($request->item, $model);
+        if (count($dateDiff) > 0) {
+            $table = $model->getTable();
+            $keyName = $model->getKeyName();
+            $sql = 'UPDATE ' . $table . ' SET ';
+            foreach ($dateDiff as $key => $val) {
+                $sql .= $key . ' = \'' . $val . '\' ,';
+            }
+            $sql = Str::replaceLast(',', '', $sql) . 'WHERE ' . $keyName . ' = ' . $id;
+            DB::connection('firebird')->update($sql);
+        }
         // Log::debug('update', DB::connection('firebird')->getQueryLog());
         return $this->index(collect($request->options))->find(intval($id));
     }

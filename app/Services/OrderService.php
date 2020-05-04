@@ -26,7 +26,7 @@ class OrderService extends ModelService
             }],
         ];
 
-        $this->dateAttributes = ['INVOICE_DATA'];
+        $this->dateAttributes = ['DATA', 'INVOICE_DATA'];
 
         $this->aliases['seller.NAMEPOST'] = function (Builder $query) {
             $query->join(

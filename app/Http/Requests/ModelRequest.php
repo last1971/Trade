@@ -35,9 +35,6 @@ class ModelRequest extends FormRequest
     protected function passedValidation()
     {
         $item = $this->item;
-        if (isset($item['DATA'])) {
-            $item['DATA'] = DB::raw($item['DATA']);
-        }
         if (isset($item['QUAN'])) {
             $item['QUAN'] = intval($item['QUAN']);
         }

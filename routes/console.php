@@ -1,8 +1,8 @@
 <?php
 
+use App\Invoice;
 use App\Services\TransferOutLineService;
 use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 
 /*
@@ -21,11 +21,6 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function (TransferOutLineService $s) {
-    $query = $s->index(collect([
-        'with' => ['transferOut.invoice', 'name', 'invoiceLine'],
-        'filterAttributes' => ['transferOut.POKUPATCODE', 'transferOut.DATA'],
-        'filterOperators' => ['=', 'BETWEENDATE'],
-        'filterValues' => [3092, ['2020-04-28', Carbon::create('2020-04-28')->addDay()]],
-    ]));
-    dd($query->first());
+    $inv = Invoice::find(61266);
+    DB::connection('firebird')->update('UPDATE S SET DATA = \'29.04.2020\' WHERE SCODE = 61266');
 })->describe('Display an inspiring quote');
