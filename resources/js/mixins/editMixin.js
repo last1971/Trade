@@ -10,6 +10,7 @@ export default {
             model: {},
             datePicker: false,
             loading: false,
+            errors: {}
         }
     },
     computed: {
@@ -43,13 +44,25 @@ export default {
         },
         save() {
             this.loading = true;
+            this.errors = {};
+            const oper = this.model[this.$store.getters[this.MODEL + '/KEY']] === 0
+                ? '/CREATE' : '/UPDATE';
             this.$store.dispatch(
-                this.MODEL + '/UPDATE',
+                this.MODEL + oper,
                 {item: this.model, options: this.options}
             )
-                .then(() => {
+                .then((response) => {
+                    if (oper === '/CREATE')
+                        this.$router.replace({params: {id: response.data[this.$store.getters[this.MODEL + '/KEY']]}});
                 })
-                .catch(() => {
+                .catch((error) => {
+                    if (error.response && error.response.data.errors) {
+                        this.errors = _.mapValues(error.response.data.errors, (v) => {
+                            return _.isArray(v)
+                                ? v.map((e) => this.$store.getters['ERROR-MESSAGE/GET'](e))
+                                : this.$store.getters['ERROR-MESSAGE/GET'](v);
+                        });
+                    }
                 })
                 .then(() => {
                     this.loading = false;

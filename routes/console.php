@@ -1,7 +1,7 @@
 <?php
 
-use App\Invoice;
-use App\Services\TransferOutLineService;
+use App\Services\GoodService;
+use App\Services\OrderLineService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -20,7 +20,19 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test', function (TransferOutLineService $s) {
-    $inv = Invoice::find(61266);
-    DB::connection('firebird')->update('UPDATE S SET DATA = \'29.04.2020\' WHERE SCODE = 61266');
+Artisan::command('test', function (GoodService $s) {
+    $k = new OrderLineService();
+    $z = $k->index(collect([
+        'aggregateAttributes' => ['shopLinesQuantity']
+    ]))->find(495283);
+    dd($z);
+
+    // DB::connection('firebird')->enableQueryLog();
+    $g = $s->index(collect([
+        // 'with' => ['shopLinesTransit'],
+        'aggregateAttributes' => ['shopLinesTransitQuantity']
+    ]))->find(333930);
+    $t = $g->orderLinesTransit()->get();
+    // Log::debug('update', DB::connection('firebird')->getQueryLog());
+    dd($g);
 })->describe('Display an inspiring quote');

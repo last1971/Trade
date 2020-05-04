@@ -8,6 +8,7 @@
         label="Сотрудник"
         model="employee"
         v-model="proxy"
+        :no-filter="false"
     ></model-select>
 </template>
 

@@ -58,6 +58,10 @@ class MacrosServiceProvider extends ServiceProvider
         Builder::macro('orderLinesCount', function () {
             $this->select(DB::raw('count(ZAKAZ_DETAIL.ID)'));
         });
+        Builder::macro('orderLinesQuantity', function () {
+            $this->select(DB::raw('sum(ZAKAZ_DETAIL.QUAN)'))
+                ->join('ZAKAZ_MASTER', 'ZAKAZ_MASTER.ID', '=', 'ZAKAZ_DETAIL.MASTER_ID');
+        });
 
         // For PickUps
         Builder::macro('pickUpsQuantity', function () {
@@ -71,12 +75,14 @@ class MacrosServiceProvider extends ServiceProvider
 
         // For ShopLines
         Builder::macro('shopLinesQuantity', function () {
-            $this->select(DB::raw('COALESCE(sum(SHOPIN.QUAN), 0)'));
+            $this->select(DB::raw('COALESCE(sum(SHOPIN.QUAN), 0)'))
+                ->join('ZAKAZ_MASTER', 'ZAKAZ_MASTER.ID', '=', 'ZAKAZ_DETAIL.MASTER_ID');
         });
 
         // For StoreLines
         Builder::macro('storeLinesQuantity', function () {
-            $this->select(DB::raw('COALESCE(sum(SKLADIN.QUAN), 0)'));
+            $this->select(DB::raw('COALESCE(sum(SKLADIN.QUAN), 0)'))
+                ->join('ZAKAZ_MASTER', 'ZAKAZ_MASTER.ID', '=', 'ZAKAZ_DETAIL.MASTER_ID');
         });
 
         // For TransferLines
@@ -127,7 +133,6 @@ class MacrosServiceProvider extends ServiceProvider
                     }
                     return $ret;
                 };
-                $s = $sortBy($this, 0);
                 return $sortBy($this, 0);
             });
         }

@@ -46,9 +46,31 @@ class Good extends Model
         return $this->hasMany('App\OrderLine', 'GOODSCODE', 'GOODSCODE');
     }
 
+    public function orderLinesTransit()
+    {
+        return $this->hasMany('App\OrderLine', 'GOODSCODE', 'GOODSCODE')
+            ->join('ZAKAZ_MASTER', 'ZAKAZ_MASTER.ID', '=', 'MASTER_ID')
+            ->whereIn('ZAKAZ_MASTER.STATUS', [2, 3]);
+    }
+
+    public function orderStep()
+    {
+        return $this->hasOne('App\OrderStep', 'GOODSCODE', 'GOODSCODE');
+    }
+
     public function reserves()
     {
         return $this->hasMany('App\Reserve', 'GOODSCODE', 'GOODSCODE');
+    }
+
+    public function retailPrice()
+    {
+        return $this->hasOne('App\RetailPrice', 'GOODSCODE', 'GOODSCODE');
+    }
+
+    public function retailStore()
+    {
+        return $this->hasOne('App\RetailStore', 'GOODSCODE', 'GOODSCODE');
     }
 
     public function shopLines()
@@ -56,9 +78,37 @@ class Good extends Model
         return $this->hasMany('App\ShopLine', 'GOODSCODE', 'GOODSCODE');
     }
 
+    public function shopLinesTransit()
+    {
+        return $this->hasManyThrough(
+            'App\ShopLine',
+            'App\OrderLine',
+            'GOODSCODE',
+            'ZAKAZ_DETAIL_ID',
+            'GOODSCODE',
+            'ID'
+        )
+            ->join('ZAKAZ_MASTER', 'ZAKAZ_MASTER.ID', '=', 'MASTER_ID')
+            ->whereIn('ZAKAZ_MASTER.STATUS', [2, 3]);
+    }
+
     public function storeLines()
     {
         return $this->hasMany('App\StoreLine', 'GOODSCODE', 'GOODSCODE');
+    }
+
+    public function storeLinesTransit()
+    {
+        return $this->hasManyThrough(
+            'App\StoreLine',
+            'App\OrderLine',
+            'GOODSCODE',
+            'ZAKAZ_DETAIL_ID',
+            'GOODSCODE',
+            'ID'
+        )
+            ->join('ZAKAZ_MASTER', 'ZAKAZ_MASTER.ID', '=', 'MASTER_ID')
+            ->whereIn('ZAKAZ_MASTER.STATUS', [2, 3]);
     }
 
     public function transferOutLines()
@@ -69,5 +119,10 @@ class Good extends Model
     public function pickUps()
     {
         return $this->hasMany('App\PickUp', 'GOODSCODE', 'GOODSCODE');
+    }
+
+    public function warehouse()
+    {
+        return $this->hasOne('App\Warehouse', 'GOODSCODE', 'GOODSCODE');
     }
 }

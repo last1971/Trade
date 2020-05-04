@@ -45,6 +45,16 @@ return [
         'email' => 'required|string|email|max:255',
         'password' => 'required|string|min:6',
     ],
+    'order.store' => [
+        'item' => 'array|required',
+        'item.STATUS' => 'integer',
+        'item.INVOICE_DATA' => 'required|date',
+        'item.DATA_PRIH' => 'required|date',
+        'item.INVOICE_NUM' => 'required|string',
+        'item.WHEREISPOSTCODE' => 'required|integer',
+        'options.with' => 'array',
+        'options.with.*' => 'string',
+    ],
     'order.update' => [
         'item' => 'array|required',
         'item.STATUS' => 'integer',

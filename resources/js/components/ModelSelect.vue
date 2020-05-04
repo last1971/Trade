@@ -14,7 +14,7 @@
         :label="label"
         :loading="isLoading"
         :multiple="multiple"
-        :no-filter="true"
+        :no-filter="noFilter"
         :search-input.sync="search"
         hide-no-data
         hide-selected
@@ -48,6 +48,7 @@
             disabled: {type: Boolean, default: false},
             dense: {type: Boolean, default: false},
             errorMessages: {type: Array, default: () => []},
+            noFilter: {type: Boolean, default: true}
         },
         data() {
             return {

@@ -26,7 +26,7 @@ class OrderService extends ModelService
             }],
         ];
 
-        $this->dateAttributes = ['DATA', 'INVOICE_DATA'];
+        $this->dateAttributes = ['DATA_ZAK', 'DATA_PRIH', 'INVOICE_DATA'];
 
         $this->aliases['seller.NAMEPOST'] = function (Builder $query) {
             $query->join(
@@ -51,6 +51,5 @@ class OrderService extends ModelService
                     as inSum'
             )
         ];
-
     }
 }

@@ -7,6 +7,10 @@ state.name = 'order';
 
 state.key = 'ID';
 
+state.items = [
+    {ID: 0}
+]
+
 state.fillable = ['WHEREISPOSTCODE', 'INVOICE_NUM', 'INVOICE_DATA', 'DATA_PRIH', 'PRIM', 'STATUS'];
 
 state.headers = [

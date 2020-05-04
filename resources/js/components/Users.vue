@@ -56,7 +56,7 @@
         created() {
             Promise.all(
                 ['ROLE', 'FIRM', 'EMPLOYEE'].map((v) => _.isEmpty(this.$store.getters[v + '/ALL']) ?
-                    this.$store.dispatch(v + '/ALL', {}) :
+                    this.$store.dispatch(v + '/ALL', {itemsPerPage: -1}) :
                     Promise.resolve()
                 )
             ).then(() => this.go = true);

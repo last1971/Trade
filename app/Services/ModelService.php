@@ -93,6 +93,21 @@ class ModelService
         }, ARRAY_FILTER_USE_BOTH);
     }
 
+    private function setCahngedDates(array $item, Model $model)
+    {
+        $dateDiff = $this->getCahngedDates($item, $model);
+        if (count($dateDiff) > 0) {
+            $table = $model->getTable();
+            $keyName = $model->getKeyName();
+            $sql = 'UPDATE ' . $table . ' SET ';
+            foreach ($dateDiff as $key => $val) {
+                $sql .= $key . ' = \'' . $val . '\' ,';
+            }
+            $sql = Str::replaceLast(',', '', $sql) . 'WHERE ' . $keyName . ' = ' . $model->getKey();
+            DB::connection('firebird')->update($sql);
+        }
+    }
+
     /**
      * @param FormRequest|Request|Collection $request
      * @return Builder|mixed
@@ -196,17 +211,7 @@ class ModelService
         $model = $this->query->find(intval($id));
         $model->fill($request->item);
         $model->save();
-        $dateDiff = $this->getCahngedDates($request->item, $model);
-        if (count($dateDiff) > 0) {
-            $table = $model->getTable();
-            $keyName = $model->getKeyName();
-            $sql = 'UPDATE ' . $table . ' SET ';
-            foreach ($dateDiff as $key => $val) {
-                $sql .= $key . ' = \'' . $val . '\' ,';
-            }
-            $sql = Str::replaceLast(',', '', $sql) . 'WHERE ' . $keyName . ' = ' . $id;
-            DB::connection('firebird')->update($sql);
-        }
+        $this->setCahngedDates($request->item, $model);
         // Log::debug('update', DB::connection('firebird')->getQueryLog());
         return $this->index(collect($request->options))->find(intval($id));
     }
@@ -220,8 +225,8 @@ class ModelService
         $model = new $this->modelClass;
         $model->fill($request->item);
         $model->save();
-        if (isset($request->options['with'])) $model->load($request->options['with']);
-        return $model;
+        $this->setCahngedDates($request->item, $model);
+        return $this->index(collect($request->options))->find($model->getKey());
     }
 
     public function remove($id)

@@ -88,6 +88,7 @@
     import editMixin from "../mixins/editMixin";
     import utilsMixin from "../mixins/utilsMixin";
     import OrderStatusSelect from "./OrderStatusSelect";
+    import moment from "moment";
 
     export default {
         name: "OrderEdit",
@@ -114,8 +115,12 @@
         methods: {
             initialModel() {
                 this.model = _.cloneDeep(this.value);
-                this.model.INVOICE_DATA = this.model.INVOICE_DATA.substr(0, 10);
-                this.model.DATA_PRIH = this.model.DATA_PRIH.substr(0, 10);
+                this.model.INVOICE_DATA = this.model.INVOICE_DATA
+                    ? this.model.INVOICE_DATA.substr(0, 10)
+                    : moment().format('Y-MM-DD');
+                this.model.DATA_PRIH = this.model.DATA_PRIH
+                    ? this.model.DATA_PRIH.substr(0, 10)
+                    : moment().format('Y-MM-DD');
             },
         }
     }
