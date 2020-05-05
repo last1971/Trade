@@ -50,6 +50,10 @@ class MacrosServiceProvider extends ServiceProvider
         Builder::macro('invoiceLinesCount', function () {
             $this->select(DB::raw('count(SCODE)'));
         });
+        Builder::macro('invoiceLinesQuantity', function () {
+            $this->select(DB::raw('sum(QUAN)'))
+                ->join('S', 'S.SCODE', '=', 'REALPRICE.SCODE');
+        });
 
         // For OrderLines
         Builder::macro('orderLinesSum', function () {
@@ -65,12 +69,27 @@ class MacrosServiceProvider extends ServiceProvider
 
         // For PickUps
         Builder::macro('pickUpsQuantity', function () {
-            $this->select(DB::raw('COALESCE(sum(PODBPOS.QUANSHOP + PODBPOS.QUANSKLAD), 0)'));
+            $this->select(DB::raw('COALESCE(sum(PODBPOS.QUANSHOP + PODBPOS.QUANSKLAD), 0)'))
+                ->join('S', 'S.SCODE', '=', 'REALPRICE.SCODE');
         });
 
         // For Reserves
         Builder::macro('reservesQuantity', function () {
             $this->select(DB::raw('COALESCE(sum(RESERVEDPOS.QUANSHOP + RESERVEDPOS.QUANSKLAD), 0)'));
+        });
+        Builder::macro('reservesQuantityTransit', function () {
+            $this->select(DB::raw('COALESCE(sum(RESERVEDPOS.QUANSHOP + RESERVEDPOS.QUANSKLAD), 0)'))
+                ->join('S', 'S.SCODE', '=', 'REALPRICE.SCODE');
+        });
+
+
+        // For RetailOrderLines
+        Builder::macro('retailOrderLinesRemainingQuantity', function () {
+            $this->select(
+                DB::raw('COALESCE(
+                    sum(ROZN_DETAIL.QUAN-ROZN_DETAIL.QUAN_RES-ROZN_DETAIL.QUAN_PODB-ROZN_DETAIL.QUAN_SALED), 0)'
+                )
+            );
         });
 
         // For ShopLines

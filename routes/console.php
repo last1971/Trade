@@ -1,7 +1,6 @@
 <?php
 
 use App\Services\GoodService;
-use App\Services\OrderLineService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -21,18 +20,29 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function (GoodService $s) {
-    $k = new OrderLineService();
-    $z = $k->index(collect([
-        'aggregateAttributes' => ['shopLinesQuantity']
-    ]))->find(495283);
-    dd($z);
-
     // DB::connection('firebird')->enableQueryLog();
     $g = $s->index(collect([
-        // 'with' => ['shopLinesTransit'],
-        'aggregateAttributes' => ['shopLinesTransitQuantity']
+        'with' => ['retailPrice', 'orderStep', 'retailStore', 'warehouse', 'name', 'category'],
+        'aggregateAttributes' => [
+            'reservesQuantity',
+            'invoiceLinesQuantityTransit',
+            'reservesQuantityTransit',
+            'pickUpsTransitQuantity',
+            'retailOrderLinesNeedQuantity',
+            'orderLinesTransitQuantity',
+            'shopLinesTransitQuantity',
+            'storeLinesTransitQuantity',
+        ]
     ]))->find(333930);
     $t = $g->orderLinesTransit()->get();
     // Log::debug('update', DB::connection('firebird')->getQueryLog());
-    dd($g);
+    dd(
+        $g->retailPrice->getAttributes(),
+        $g->orderStep->getAttributes(),
+        $g->retailStore->getAttributes(),
+        $g->warehouse->getAttributes(),
+        $g->name->getAttributes(),
+        $g->category->getAttributes(),
+        $g->getAttributes()
+    );
 })->describe('Display an inspiring quote');

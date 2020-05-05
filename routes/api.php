@@ -35,6 +35,7 @@ Route::middleware('auth:api')->group(function () {
         'category' => 'Api\CategoryController',
         'employee' => 'Api\EmployeeController',
         'firm' => 'Api\FirmController',
+        'good' => 'Api\GoodController',
         'invoice' => 'Api\InvoiceController',
         'invoice-line' => 'Api\InvoiceLineController',
         'order' => 'Api\OrderController',

@@ -16,6 +16,7 @@ import ResetPassword from "./components/ResetPassword";
 import InvoiceLinesSearch from "./components/InvoiceLinesSearch";
 import AdvancedBuyers from "./components/AdvancedBuyers";
 import SbisComponent from "./components/SbisComponent";
+import Goods from "./components/Goods";
 
 Vue.use(VueRouter);
 
@@ -30,6 +31,12 @@ const routes = [
         name: 'help',
         path: '/help',
         component: Help,
+    },
+    {
+        name: 'goods',
+        path: '/good',
+        component: Goods,
+        meta: {requiresAuth: true, model: 'GOOD', permission: 'good.index'},
     },
     {
         name: 'home',

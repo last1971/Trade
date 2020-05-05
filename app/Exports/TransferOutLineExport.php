@@ -46,6 +46,7 @@ class TransferOutLineExport implements FromCollection, WithHeadings, WithColumnF
             'I' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
             'J' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
             'K' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
+            'N' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1,
         ];
     }
 
@@ -65,6 +66,7 @@ class TransferOutLineExport implements FromCollection, WithHeadings, WithColumnF
             'Сумма',
             'Страна',
             'ГТД',
+            'Цена с НДС'
         ];
     }
 
@@ -79,11 +81,12 @@ class TransferOutLineExport implements FromCollection, WithHeadings, WithColumnF
             $row->good->BODY,
             $row->good->PRODUCER,
             $row->QUAN,
-            $row->SUMMAP / (100 + VAT::get($row->transferOut['DATA'])) * 100,
+            $row->SUMMAP / (100 + VAT::get($row->transferOut['DATA'])) * 100 / $row->QUAN,
             $row->SUMMAP - $row->SUMMAP / (100 + VAT::get($row->transferOut['DATA'])) * 100,
             $row->SUMMAP,
             $row->STRANA,
             $row->GTD,
+            $row->PRICE
         ];
     }
 }

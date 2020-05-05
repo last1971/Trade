@@ -21,6 +21,7 @@ import category from "./category";
 import advancedBuyer from "./advancedBuyer";
 import errorMessage from "./errorMessage";
 import sbis from "./sbis";
+import good from "./good";
 
 Vue.use(Vuex);
 
@@ -46,6 +47,7 @@ export default new Vuex.Store({
         INVOICE: invoice,
         'INVOICE-LINE': invoiceLine,
         INVOICESTATUS: invoiceStatus,
+        GOOD: good,
         'ORDER': order,
         'ORDER-LINE': orderLine,
         ORDERSTATUS: orderStatus,

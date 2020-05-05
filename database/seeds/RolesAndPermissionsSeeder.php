@@ -12,6 +12,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'category',
         'employee',
         'firm',
+        'good',
         'invoice',
         'invoice-line',
         'order',
@@ -48,6 +49,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         Permission::query()->firstOrCreate(['name' => 'nav.*']);
         Permission::query()->firstOrCreate(['name' => 'nav.home']);
+        Permission::query()->firstOrCreate(['name' => 'nav.goods']);
         Permission::query()->firstOrCreate(['name' => 'nav.invoices']);
         Permission::query()->firstOrCreate(['name' => 'nav.invoice-lines']);
         Permission::query()->firstOrCreate(['name' => 'nav.orders']);
@@ -63,6 +65,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'category.*',
             'employee.*',
             'firm.*',
+            'good.*',
             'invoice.*',
             'invoice-line.*',
             'order.*',
@@ -86,6 +89,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'category.index',
             'employee.index',
             'firm.index',
+            'good.index',
             'invoice.*',
             'invoice-line.*',
             'order.*',

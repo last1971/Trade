@@ -31,9 +31,21 @@ class Good extends Model
         return $this->belongsTo('App\Category', 'CATEGORYCODE', 'CATEGORYCODE');
     }
 
+    public function goodNames()
+    {
+        return $this->hasMany('App\GoodName', 'GOODSCODE', 'GOODSCODE');
+    }
+
     public function invoiceLines()
     {
         return $this->hasMany('App\InvoiceLine', 'GOODSCODE', 'GOODSCODE');
+    }
+
+    public function invoiceLinesTransit()
+    {
+        return $this->hasMany('App\InvoiceLine', 'GOODSCODE', 'GOODSCODE')
+            ->join('S', 'S.SCODE', '=', 'REALPRICE.SCODE')
+            ->whereIn('S.STATUS', [2, 3]);
     }
 
     public function name()
@@ -58,9 +70,53 @@ class Good extends Model
         return $this->hasOne('App\OrderStep', 'GOODSCODE', 'GOODSCODE');
     }
 
+    public function pickUps()
+    {
+        return $this->hasMany('App\PickUp', 'GOODSCODE', 'GOODSCODE');
+    }
+
+    public function pickUpsTransit()
+    {
+        return $this->hasManyThrough(
+            'App\PickUp',
+            'App\InvoiceLine',
+            'GOODSCODE',
+            'REALPRICECODE',
+            'GOODSCODE',
+            'REALPRICECODE'
+        )
+            ->join('S', 'S.SCODE', '=', 'REALPRICE.SCODE')
+            ->whereIn('S.STATUS', [2, 3]);
+    }
+
+    public function retailOrderLines()
+    {
+        return $this->hasMany('App\RetailOrderLine', 'GOODSCODE', 'GOODSCODE');
+    }
+
+    public function retailOrderLinesTransit()
+    {
+        return $this->hasMany('App\RetailOrderLine', 'GOODSCODE', 'GOODSCODE')
+            ->whereIn('STATUS', [1, 2, 3, 5, 6]);
+    }
+
     public function reserves()
     {
         return $this->hasMany('App\Reserve', 'GOODSCODE', 'GOODSCODE');
+    }
+
+    public function reservesTransit()
+    {
+        return $this->hasManyThrough(
+            'App\Reserve',
+            'App\InvoiceLine',
+            'GOODSCODE',
+            'REALPRICECODE',
+            'GOODSCODE',
+            'REALPRICECODE'
+        )
+            ->join('S', 'S.SCODE', '=', 'REALPRICE.SCODE')
+            ->whereIn('S.STATUS', [2, 3]);
     }
 
     public function retailPrice()
@@ -114,11 +170,6 @@ class Good extends Model
     public function transferOutLines()
     {
         return $this->hasMany('App\TransferOutLine', 'GOODSCODE', 'GOODSCODE');
-    }
-
-    public function pickUps()
-    {
-        return $this->hasMany('App\PickUp', 'GOODSCODE', 'GOODSCODE');
     }
 
     public function warehouse()
