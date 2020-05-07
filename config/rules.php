@@ -45,6 +45,14 @@ return [
         'email' => 'required|string|email|max:255',
         'password' => 'required|string|min:6',
     ],
+    'name.store' => [
+        'item' => 'array|required',
+        'item.CATEGORYCODE' => 'integer|required',
+        'item.NAME' => 'required|string',
+        'item.SERIA' => 'required|string',
+        'options.with' => 'array',
+        'options.with.*' => 'string',
+    ],
     'order.store' => [
         'item' => 'array|required',
         'item.STATUS' => 'integer',

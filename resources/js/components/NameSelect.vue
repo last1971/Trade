@@ -38,7 +38,7 @@
                             </v-row>
                             <v-row>
                                 <category-select v-model="newName.CATEGORYCODE"/>
-                                <v-btn :disabled="!savePossible" class="ml-4 " fab>
+                                <v-btn :disabled="!savePossible" @click="save" class="ml-4 " fab>
                                     <v-icon color="green">mdi-content-save</v-icon>
                                 </v-btn>
                             </v-row>
@@ -103,6 +103,11 @@
                     NAME: '',
                 };
                 this.addName = true;
+            },
+            save() {
+                this.newName.SERIA = this.newName.NAME;
+                this.$store.dispatch('NAME/CREATE', {item: this.newName, options: {with: ['category']}})
+                    .then(() => this.addName = false)
             }
         }
     }
