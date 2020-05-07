@@ -30,6 +30,11 @@ class TransferOut extends Model
         return $this->belongsTo('App\Firm', 'FIRM_ID', 'FIRM_ID');
     }
 
+    public function firmHistory()
+    {
+        return $this->belongsTo('App\FirmHistory', 'FIRMS_HISTORY_ID', 'ID');
+    }
+
     public function invoice()
     {
         return $this->belongsTo('App\Invoice', 'SCODE', 'SCODE');

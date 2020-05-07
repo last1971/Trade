@@ -43,6 +43,11 @@ class Invoice extends Model
         return $this->belongsTo('App\Firm', 'FIRM_ID', 'FIRM_ID');
     }
 
+    public function firmHistory()
+    {
+        return $this->belongsTo('App\FirmHistory', 'FIRMS_HISTORY_ID', 'ID');
+    }
+
     public function invoiceLines()
     {
         return $this->hasMany('App\InvoiceLine', 'SCODE', 'SCODE');

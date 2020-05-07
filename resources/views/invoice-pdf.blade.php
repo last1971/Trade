@@ -159,20 +159,28 @@
 <table class="details">
     <tbody>
     <tr>
-        <td colspan="2" style="border-bottom: none;">{{ $invoice->firm->BANK }}</td>
+        <td colspan="2" style="border-bottom: none;">
+            {{ $invoice->firmHistory ? $invoice->firmHistory->BANK : $invoice->firm->BANK }}
+        </td>
         <td>БИК</td>
-        <td style="border-bottom: none;">{{ $invoice->firm->BIK }}</td>
+        <td style="border-bottom: none;">
+            {{ $invoice->firmHistory ? $invoice->firmHistory->BIK : $invoice->firm->BIK }}
+        </td>
     </tr>
     <tr>
         <td colspan="2" style="border-top: none; font-size: 10px;">Банк получателя</td>
         <td>Сч. №</td>
-        <td style="border-top: none;">{{ $invoice->firm->RS }}</td>
+        <td style="border-top: none;">
+            {{ $invoice->firmHistory ? $invoice->firmHistory->RS : $invoice->firm->RS }}
+        </td>
     </tr>
     <tr>
         <td width="25%">ИНН {{ $invoice->firm->Inn }}</td>
         <td width="30%">КПП {{ $invoice->firm->Kpp }}</td>
         <td width="10%" rowspan="3">Сч. №</td>
-        <td width="35%" rowspan="3">{{ $invoice->firm->KS }}</td>
+        <td width="35%" rowspan="3">
+            {{ $invoice->firmHistory ? $invoice->firmHistory->KS : $invoice->firm->KS }}
+        </td>
     </tr>
     <tr>
         <td colspan="2" style="border-bottom: none;">{{ $invoice->firm->FIRMNAME }}</td>

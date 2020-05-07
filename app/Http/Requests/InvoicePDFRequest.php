@@ -15,7 +15,7 @@ class InvoicePDFRequest extends FormRequest
     public function authorize()
     {
         $id = $this->route()->parameter('id');
-        $invoice = Invoice::with('firm', 'buyer')->findOrFail(intval($id));
+        $invoice = Invoice::with('firm', 'buyer', 'firmHistory')->findOrFail(intval($id));
         $buyers = $this->user()->userBuyers;
         if ($buyers->isEmpty() || $buyers->firstWhere('buyer_id', $invoice->POKUPATCODE)) {
             $this->merge(compact('invoice'));

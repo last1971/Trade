@@ -27,10 +27,12 @@
                     <АдрИнф АдрТекст="{{ $transferOut->firm->ADDRESS }}" КодСтр="643"/>
                 </Адрес>
                 <Контакт Тлф="{{ $transferOut->firm->PHONES }}" ЭлПочта="{{ $transferOut->firm->EMAIL }}"/>
-                <БанкРекв НомерСчета="{{ $transferOut->firm->RS }}">
-                    <СвБанк БИК="{{ $transferOut->firm->BIK }}"
-                            КорСчет="{{ $transferOut->firm->KS }}"
-                            НаимБанк="{{ $transferOut->firm->BANK }}"
+                <БанкРекв
+                    НомерСчета="{{ $transferOut->firmHistory ? $transferOut->firmHistory->RS : $transferOut->firm->RS }}">
+                    <СвБанк
+                        БИК="{{ $transferOut->firmHistory ?  $transferOut->firmHistory->BIK : $transferOut->firm->BIK }}"
+                        КорСчет="{{ $transferOut->firmHistory ? $transferOut->firmHistory->KS : $transferOut->firm->KS }}"
+                        НаимБанк="{{ $transferOut->firmHistory ? $transferOut->firmHistory->BANK : $transferOut->firm->BANK }}"
                     />
                 </БанкРекв>
             </СвПрод>
