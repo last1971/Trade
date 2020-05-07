@@ -20,7 +20,9 @@
         <template v-slot:item.name.NAME="{ item }">
             <v-tooltip top>
                 <template v-slot:activator="{ on }">
-                    <span v-on="on">{{ item.name.NAME }}</span>
+                    <router-link :to="{ name: 'good', params: { id: item.good.GOODSCODE }}" v-on="on">
+                        {{ item.name.NAME }}
+                    </router-link>
                 </template>
                 <span>{{ item.good.PRIM.trim() || 'описания нет' }}</span>
             </v-tooltip>

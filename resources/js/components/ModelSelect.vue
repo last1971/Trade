@@ -40,6 +40,7 @@
             itemValue: {type: String, default: 'id'},
             model: {type: String, required: true},
             itemsPerPage: {type: Number, default: 10},
+            with: {type: Array, default: () => []},
             filterAttributes: {type: Array, default: () => []},
             filterOperators: {type: Array, default: () => []},
             filterValues: {type: Array, default: () => []},
@@ -117,7 +118,7 @@
             getItem() {
                 if (this.value && !_.isArray(this.value)) {
                     this.isLoading = true;
-                    this.$store.dispatch(this.MODEL + '/CACHE', this.value)
+                    this.$store.dispatch(this.MODEL + '/CACHE', {id: this.value, query: {with: this.with}})
                         .then((model) => {
                             if (!_.find(this.items, {[this.itemValue]: model[this.itemValue]}))
                                 this.items.push(model)
@@ -131,6 +132,7 @@
                         this.isLoading = true;
                         const options = {
                             itemsPerPage: this.itemsPerPage,
+                            with: this.with,
                             filterAttributes: _.concat(this.filterAttributes, this.itemValue),
                             filterOperators: _.concat(this.filterOperators, 'IN'),
                             filterValues: _.concat(this.filterValues, [this.value]),

@@ -11,6 +11,8 @@ class Name extends Model
 
     protected $connection = 'firebird';
 
+    protected $fillable = ['NAME', 'SERIA', 'CATEGORYCODE'];
+
     protected $primaryKey = 'NAMECODE';
 
     protected $table = 'NAME';
@@ -18,5 +20,10 @@ class Name extends Model
     public function category()
     {
         return $this->belongsTo('App\Category', 'CATEGORYCODE', 'CATEGORYCODE');
+    }
+
+    public function goods()
+    {
+        return $this->hasMany('App\Good', 'NAMECODE', 'NAMECODE');
     }
 }

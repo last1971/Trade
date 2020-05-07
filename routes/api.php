@@ -38,6 +38,7 @@ Route::middleware('auth:api')->group(function () {
         'good' => 'Api\GoodController',
         'invoice' => 'Api\InvoiceController',
         'invoice-line' => 'Api\InvoiceLineController',
+        'name' => 'Api\NameController',
         'order' => 'Api\OrderController',
         'order-line' => 'Api\OrderLineController',
         'role' => 'Api\RoleController',

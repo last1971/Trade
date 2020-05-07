@@ -17,6 +17,7 @@ import InvoiceLinesSearch from "./components/InvoiceLinesSearch";
 import AdvancedBuyers from "./components/AdvancedBuyers";
 import SbisComponent from "./components/SbisComponent";
 import Goods from "./components/Goods";
+import Good from "./components/Good";
 
 Vue.use(VueRouter);
 
@@ -31,6 +32,12 @@ const routes = [
         name: 'help',
         path: '/help',
         component: Help,
+    },
+    {
+        name: 'good',
+        path: '/good/:id',
+        component: Good,
+        meta: {requiresAuth: true, permission: 'good.show'},
     },
     {
         name: 'goods',

@@ -38,6 +38,7 @@ class TransferOutLineService extends ModelService
         'СЛОВАКИЯ',
         'СЛОВЕНИЯ',
         'США',
+        'СОЕДИЕННЫЕ ШТАТЫ',
         'СОЕДИНЕННЫЕ ШТАТЫ',
         'ФИНЛЯНДИЯ',
         'ФРАНЦИЯ',

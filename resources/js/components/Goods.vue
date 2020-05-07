@@ -17,6 +17,14 @@
                 <v-text-field label="Наименовние" v-model="searchName"/>
             </div>
         </template>
+        <template v-slot:item.name.NAME="{ item }">
+            <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                    <span v-on="on">{{ item.name.NAME }}</span>
+                </template>
+                <span>{{ item.PRIM.trim() || 'описания нет' }}</span>
+            </v-tooltip>
+        </template>
         <template v-slot:item.retail_price="{ item }">
             <div v-if="item.retail_price && parseFloat(item.retail_price.PRICEROZN) > 0">
                 1: {{ item.retail_price.PRICEROZN | formatRub }}
