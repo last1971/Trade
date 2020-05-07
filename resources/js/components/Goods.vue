@@ -18,12 +18,10 @@
             </div>
         </template>
         <template v-slot:item.name.NAME="{ item }">
-            <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                    <span v-on="on">{{ item.name.NAME }}</span>
-                </template>
-                <span>{{ item.PRIM.trim() || 'описания нет' }}</span>
-            </v-tooltip>
+            <router-link :to="{ name: 'good', params: { id: item.GOODSCODE }}">
+                {{ item.name.NAME }}
+            </router-link>
+            <div class="font-italic" style="font-size: 10px" v-if="item.PRIM.trim()">{{ item.PRIM.trim() }}</div>
         </template>
         <template v-slot:item.retail_price="{ item }">
             <div v-if="item.retail_price && parseFloat(item.retail_price.PRICEROZN) > 0">

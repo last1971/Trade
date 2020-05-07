@@ -15,7 +15,7 @@
             <v-btn @click="add" class="pb-2" icon>
                 <v-icon color="green">mdi-plus</v-icon>
             </v-btn>
-            <v-dialog max-width="400px" persistent v-model="addName">
+            <v-dialog max-width="600px" persistent v-model="addName">
                 <v-card>
                     <v-card-title>
                         <span class="headline">Новое наименовние</span>
@@ -30,9 +30,15 @@
                     <v-card-text>
                         <v-container>
                             <v-row>
+                                <v-text-field :rules="[required, length]"
+                                              counter="70"
+                                              label="Наименовние"
+                                              v-model="newName.NAME"
+                                />
+                            </v-row>
+                            <v-row>
                                 <category-select v-model="newName.CATEGORYCODE"/>
-                                <v-text-field counter="70" label="Наименовние" v-model="newName.NAME"/>
-                                <v-btn class="ml-4 " fab>
+                                <v-btn :disabled="!savePossible" class="ml-4 " fab>
                                     <v-icon color="green">mdi-content-save</v-icon>
                                 </v-btn>
                             </v-row>
@@ -79,8 +85,15 @@
                 addName: false,
                 newName: {
                     CATEGORYCODE: null,
-                    NAME: '',
-                }
+                    NAME: null,
+                },
+                required: (v) => !!v || 'обязательный',
+                length: (v) => v.length < 71 || 'нужно сократить',
+            }
+        },
+        computed: {
+            savePossible() {
+                return !!this.newName.NAME && this.newName.NAME.length < 71 && this.newName.CATEGORYCODE;
             }
         },
         methods: {
