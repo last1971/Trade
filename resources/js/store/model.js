@@ -78,10 +78,12 @@ const mutations = {
         let index = _.findIndex(state.items, {[state.key]: newDataRow[state.key]});
         if (index >= 0) {
             state.items.splice(index, 1, _.cloneDeep(newDataRow));
-        } else {
-            const error = 'Imposible update ' + state.name + ' with key ' + newDataRow[state.key];
+        } else if (!newDataRow[state.key]) {
+            const error = 'New row of ' + state.name + ' must have key';
             this.commit('SNACKBAR/ERROR', error);
             throw new Error(error);
+        } else {
+            state.items.push(_.cloneDeep(newDataRow));
         }
     },
 

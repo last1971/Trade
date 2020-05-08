@@ -34,6 +34,7 @@
                                               counter="70"
                                               label="Наименовние"
                                               v-model="newName.NAME"
+                                              :error-messages="errors['item.NAME']"
                                 />
                             </v-row>
                             <v-row>
@@ -89,6 +90,7 @@
                 },
                 required: (v) => !!v || 'обязательный',
                 length: (v) => v.length < 71 || 'нужно сократить',
+                errors: {},
             }
         },
         computed: {
@@ -107,7 +109,19 @@
             save() {
                 this.newName.SERIA = this.newName.NAME;
                 this.$store.dispatch('NAME/CREATE', {item: this.newName, options: {with: ['category']}})
-                    .then(() => this.addName = false)
+                    .then((response) => {
+                        this.proxy = response.data.NAMECODE
+                        this.addName = false
+                    })
+                    .catch((error) => {
+                        if (error.response && error.response.data.errors) {
+                            this.errors = _.mapValues(error.response.data.errors, (v) => {
+                                return _.isArray(v)
+                                    ? v.map((e) => this.$store.getters['ERROR-MESSAGE/GET'](e))
+                                    : this.$store.getters['ERROR-MESSAGE/GET'](v);
+                            });
+                        }
+                    })
             }
         }
     }

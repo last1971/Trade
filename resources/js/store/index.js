@@ -23,6 +23,7 @@ import errorMessage from "./errorMessage";
 import sbis from "./sbis";
 import good from "./good";
 import name from "./name";
+import retailPrice from "./retailPrice";
 
 Vue.use(Vuex);
 
@@ -53,6 +54,7 @@ export default new Vuex.Store({
         'ORDER': order,
         'ORDER-LINE': orderLine,
         ORDERSTATUS: orderStatus,
+        'RETAIL-PRICE': retailPrice,
         ROLE: role,
         SBIS: sbis,
         SELLER: seller,

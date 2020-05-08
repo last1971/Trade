@@ -7,7 +7,8 @@ use Illuminate\Support\Str;
 
 class Good extends Model
 {
-    //
+    public static $snakeAttributes = false;
+
     public $timestamps = false;
 
     protected $connection = 'firebird';

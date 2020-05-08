@@ -1,5 +1,33 @@
 <?php
 
+$retailPrice = [
+    'item' => 'array|required',
+    'item.PRICEROZN' => 'required|numeric',
+    'item.QUANMOPT' => ['nullable', 'integer', function ($attribute, $value, $fail) {
+        if ($value && $value < 2)
+            $fail('validation.invalid');
+    }],
+    'item.PRICEMOPT' => ['nullable', 'numeric', function ($attribute, $value, $fail) {
+        if ($value && ($value >= request()->item['PRICEROZN'] || !request()->item['QUANMOPT']))
+            $fail('validation.invalid');
+    }],
+    'item.QUANOPT' => ['nullable', 'integer', function ($attribute, $value, $fail) {
+        if ($value && ($value < 2 || $value <= request()->item['QUANMOPT']))
+            $fail('validation.invalid');
+    }],
+    'item.PRICEOPT' => ['nullable', 'numeric', function ($attribute, $value, $fail) {
+        if ($value &&
+            (!request()->item['QUANOPT'] ||
+                $value >= request()->item['PRICEROZN'] ||
+                $value >= request()->item['PRICEMOPT']
+            )
+        )
+            $fail('validation.invalid');
+    }],
+    'options.with' => 'array',
+    'options.with.*' => 'string',
+];
+
 return [
     'advanced-buyer.store' => [
         'item' => 'array|required',
@@ -48,7 +76,7 @@ return [
     'name.store' => [
         'item' => 'array|required',
         'item.CATEGORYCODE' => 'integer|required',
-        'item.NAME' => 'required|string',
+        'item.NAME' => 'required|string|unique:firebird.NAME,NAME,NULL,id,CATEGORYCODE,' . request()->item['CATEGORYCODE'],
         'item.SERIA' => 'required|string',
         'options.with' => 'array',
         'options.with.*' => 'string',
@@ -83,6 +111,8 @@ return [
         'password' => 'required|string|min:6|confirmed',
         'token' => 'required|string'
     ],
+    'retail-price.store' => $retailPrice,
+    'retail-price.update' => $retailPrice,
     'user.update' => [
         'item' => 'array|required',
         'item.name' => 'string|required',

@@ -4,6 +4,8 @@ const state = {
         'validation.required': 'обязателен',
         'validation.unique': 'не уникален',
         'validation.integer': 'не целое число',
+        'validation.numeric': 'не число',
+        'validation.invalid': 'кривое значение',
     }
 };
 

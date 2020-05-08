@@ -10,7 +10,8 @@ export default {
             model: {},
             datePicker: false,
             loading: false,
-            errors: {}
+            errors: {},
+            dependent: false,
         }
     },
     computed: {
@@ -52,8 +53,9 @@ export default {
                 {item: this.model, options: this.options}
             )
                 .then((response) => {
-                    if (oper === '/CREATE')
+                    if (oper === '/CREATE' && !this.dependent)
                         this.$router.replace({params: {id: response.data[this.$store.getters[this.MODEL + '/KEY']]}});
+                    this.$emit('input', response.data)
                 })
                 .catch((error) => {
                     if (error.response && error.response.data.errors) {

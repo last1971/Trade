@@ -51,7 +51,7 @@
                 if (this.$route.name !== this.value) return this.previousValue;
                 const model =
                     this.$route.params.id ? this.$store.getters[this.MODEL + '/GET'](this.$route.params.id) : null;
-                if (!model || (!this.with.reduce((sum, v) => sum && model[v], true) && model[this.$store.getters[this.MODEL + '/KEY']] !== 0)) {
+                if (!model || (!this.with.reduce((sum, v) => sum && model[v] !== undefined, true) && model[this.$store.getters[this.MODEL + '/KEY']] !== 0)) {
                     this.getModel();
                 } else {
                     this.previousValue = model;
