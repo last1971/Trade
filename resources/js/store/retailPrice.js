@@ -3,6 +3,8 @@ import _ from 'lodash'
 
 let state = _.cloneDeep(model.state);
 
+state.dependentModels = {GOOD: 'retailPrice'}
+
 state.fillable = ['PRICEROZN', 'PRICEMOPT', 'PRICEOPT', 'QUANMOPT', 'QUANOPT', 'DOLLAR', 'GOODSCODE'];
 
 state.name = 'retail-price';

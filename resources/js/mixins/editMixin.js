@@ -19,7 +19,7 @@ export default {
             return true;
         },
         savePossible() {
-            return true;
+            return _.isEqual(_.omit(this.model, ['DATA']), _.omit(this.value, ['DATA']));
         },
         options() {
             return this.$store.getters['AUTH/LOCAL_OPTION'](this.MODEL);

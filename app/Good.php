@@ -13,9 +13,23 @@ class Good extends Model
 
     protected $connection = 'firebird';
 
+    protected $fillable = ['NAMECODE', 'CATEGORYCODE', 'UNIT_I', 'BODY', 'PRODUCER', 'PRIM'];
+
     protected $primaryKey = 'GOODSCODE';
 
     protected $table = 'GOODS';
+
+    public function setBODYAttribute($value) {
+        $this->attributes['BODY'] = $value ?? '';
+    }
+
+    public function setPRODUCERAttribute($value) {
+        $this->attributes['PRODUCER'] = $value ?? '';
+    }
+
+    public function setPRIMAttribute($value) {
+        $this->attributes['PRIM'] = $value ?? '';
+    }
 
     public function getUnitCodeAttribute()
     {

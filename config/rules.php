@@ -50,6 +50,15 @@ return [
     'forgot' => [
         'email' => 'required|string|email'
     ],
+    'good.update' => [
+        'item' => 'array|required',
+        'item.NAMECODE' => 'required|integer',
+        'item.CATEGORYCODE' => 'required|integer',
+        'item.UNIT_I' => 'required|string|max:10',
+        'item.PRODUCER' => 'nullable|string|max:60',
+        'item.BODY' => 'nullable|string|max:60',
+        'item.PRIM' => 'nullable|string|max:60',
+    ],
     'invoice.update' => [
         'item' => 'array|required',
         'item.STATUS' => 'integer',

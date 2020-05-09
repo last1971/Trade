@@ -18,12 +18,7 @@
             <slot name="top"/>
         </template>
         <template v-slot:item.name.NAME="{ item }">
-            <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                    <span v-on="on">{{ item.name.NAME }}</span>
-                </template>
-                <span>{{ item.good.PRIM.trim() || 'описания нет' }}</span>
-            </v-tooltip>
+            <good-name v-model="item" :prim="item.good.PRIM"/>
         </template>
         <template v-slot:item.invoice.DATA="{ item }">
             {{ item.invoice.DATA | formatDate }}
@@ -74,12 +69,13 @@
     import utilsMixin from "../mixins/utilsMixin";
     import OrderLineInWay from "./OrderLineInWay";
     import ExpandTransferOutLines from "./ExpandTransferOutLines";
+    import GoodName from "./GoodName";
     import {mapGetters} from 'vuex';
 
     export default {
         name: "InvoiceLinesDependent",
         mixins: [tableMixin, utilsMixin],
-        components: {OrderLineInWay, ExpandTransferOutLines},
+        components: {OrderLineInWay, ExpandTransferOutLines, GoodName},
         props: {
             value: {
                 type: Object,

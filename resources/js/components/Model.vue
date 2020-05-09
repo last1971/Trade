@@ -1,6 +1,6 @@
 <template>
     <div v-if="model">
-        <component :is="lines" :key="key" :value="model"/>
+        <component :is="lines" :key="key" :value="model" @input="test"/>
     </div>
 </template>
 
@@ -48,7 +48,7 @@
                 return _.toUpper(this.value);
             },
             model() {
-                if (this.$route.name !== this.value) return this.previousValue;
+                if (this.$route.name !== this.value || this.key === this.$route.params.id) return this.previousValue;
                 const model =
                     this.$route.params.id ? this.$store.getters[this.MODEL + '/GET'](this.$route.params.id) : null;
                 if (!model || (!this.with.reduce((sum, v) => sum && model[v] !== undefined, true) && model[this.$store.getters[this.MODEL + '/KEY']] !== 0)) {
@@ -58,13 +58,13 @@
                     this.key = this.$route.params.id;
                     this.$store.commit('BREADCRUMBS/PUT', {
                         text: `${this.name} № ${this.previousValue[this.number]} от
-                            ${this.$options.filters.formatDate(this.previousValue[this.date])}`,
+                           ${this.$options.filters.formatDate(this.previousValue[this.date])}`,
                         to: {name: this.value, params: {id: this.key}},
                         disabled: true,
                     });
                 }
                 return this.previousValue;
-            }
+            },
         },
         methods: {
             getModel() {
@@ -79,6 +79,9 @@
                             }
                         }
                     );
+            },
+            test(val) {
+                this.previousValue = val;
             }
         }
     }

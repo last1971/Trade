@@ -15,17 +15,10 @@
         show-expand
     >
         <template v-slot:top>
-            <invoice-edit :value="value"/>
+            <invoice-edit :value="value" @input="proxyInput"/>
         </template>
         <template v-slot:item.name.NAME="{ item }">
-            <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                    <router-link :to="{ name: 'good', params: { id: item.good.GOODSCODE }}" v-on="on">
-                        {{ item.name.NAME }}
-                    </router-link>
-                </template>
-                <span>{{ item.good.PRIM.trim() || 'описания нет' }}</span>
-            </v-tooltip>
+            <good-name v-model="item" :prim="item.good.PRIM"/>
         </template>
         <template v-slot:item.QUAN="{ item }">
             <v-edit-dialog @save="save(item, 'QUAN')">
@@ -136,11 +129,12 @@
     import utilsMixin from "../mixins/utilsMixin";
     import OrderLineInWay from "./OrderLineInWay";
     import {mapGetters} from 'vuex';
+    import GoodName from "./GoodName";
 
     export default {
         name: "InvoiceLines",
         mixins: [tableMixin, utilsMixin],
-        components: {OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},
+        components: {GoodName, OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},
         props: {
             value: {
                 type: Object,
@@ -241,7 +235,7 @@
             sumCalculate(item) {
                 item.SUMMAP = item.sumWithoutVat * (100 + this.vat) / 100 || '';
                 if (item.SUMMAP) item.SUMMAP = item.SUMMAP.toFixed(2);
-            }
+            },
         }
     }
 </script>

@@ -18,10 +18,7 @@
             </div>
         </template>
         <template v-slot:item.name.NAME="{ item }">
-            <router-link :to="{ name: 'good', params: { id: item.GOODSCODE }}">
-                {{ item.name.NAME }}
-            </router-link>
-            <div class="font-italic" style="font-size: 10px" v-if="item.PRIM.trim()">{{ item.PRIM.trim() }}</div>
+            <good-name v-model="item" />
         </template>
         <template v-slot:item.retail_price="{ item }">
             <div v-if="item.retail_price && parseFloat(item.retail_price.PRICEROZN) > 0">
@@ -79,9 +76,11 @@
     import tableMixin from "../mixins/tableMixin";
     import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
     import utilsMixin from "../mixins/utilsMixin";
+    import GoodName from "./GoodName";
 
     export default {
         name: "Goods",
+        components: {GoodName},
         mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
         data() {
             return {
@@ -100,10 +99,10 @@
                         'storeLinesTransitQuantity',
                     ],
                     filterAttributes: [
-                        'goodNames.NAME',
+                        'goodNames.NAME', 'HIDDEN'
                     ],
-                    filterOperators: ['CONTAIN'],
-                    filterValues: [''],
+                    filterOperators: ['CONTAIN', '='],
+                    filterValues: ['', 0],
                 },
                 mobileFiltersVisible: false,
                 model: 'GOOD',

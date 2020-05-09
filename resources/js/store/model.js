@@ -26,6 +26,7 @@ const state = {
     headers: [],
     aggregateAttributes: [],
     fillable: [],
+    dependentModels: {},
 };
 
 const getters = {
@@ -224,7 +225,7 @@ let actions = {
                 });
         });
     },
-    CREATE({getters, commit}, payload) {
+    CREATE({state, getters, commit, rootGetters}, payload) {
         const create = _.cloneDeep(payload);
         create.item = _.pick(create.item, getters.FILLABLE);
         create.options = _.pick(create.options, ['with', 'aggregateAttributes']);
@@ -232,6 +233,13 @@ let actions = {
             axios.post(getters.URL, create)
                 .then(response => {
                     commit('CREATE', response.data);
+                    _.forEach(state.dependentModels, (value, key) => {
+                        const model = rootGetters[key + '/GET'](response.data[rootGetters[key + '/KEY']]);
+                        if (model) {
+                            model[value] = response.data;
+                            commit(key + '/UPDATE', model, {root: true});
+                        }
+                    });
                     commit(
                         'SNACKBAR/SET',
                         {
@@ -250,7 +258,7 @@ let actions = {
                 });
         });
     },
-    UPDATE({getters, commit}, payload) {
+    UPDATE({state, getters, commit, rootGetters}, payload) {
         const update = _.cloneDeep(payload);
         update.item = _.pick(update.item, getters.FILLABLE);
         update.options = _.pick(update.options, ['with', 'aggregateAttributes']);
@@ -258,6 +266,15 @@ let actions = {
             axios.put(getters.URL + '/' + payload.item[getters.KEY], update)
                 .then(response => {
                     commit('UPDATE', response.data);
+                    _.forEach(state.dependentModels, (value, key) => {
+                        const models = _.filter(rootGetters[key + '/ALL'], function (model) {
+                            return model[value] && model[value][getters.KEY] === response.data[getters.KEY]
+                        })
+                        models.forEach((model) => {
+                            model[value] = response.data;
+                            commit(key + '/UPDATE', model, {root: true});
+                        })
+                    });
                     commit(
                         'SNACKBAR/SET',
                         {

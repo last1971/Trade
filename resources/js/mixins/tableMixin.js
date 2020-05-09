@@ -63,5 +63,8 @@ export default {
                 })
                 .then(() => this.loading = false)
         },
+        proxyInput(val) {
+            this.$emit('input', val);
+        }
     },
 }

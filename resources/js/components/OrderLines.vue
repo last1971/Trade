@@ -13,7 +13,10 @@
         loading-text="Loading... Please wait"
     >
         <template v-slot:top>
-            <order-edit :value="value"/>
+            <order-edit :value="value" @input="proxyInput"/>
+        </template>
+        <template v-slot:item.name.NAME="{ item }">
+            <good-name v-model="item" :prim="item.good.PRIM"/>
         </template>
         <template v-slot:item.DATA_PRIH="{ item }">
             {{ (item.DATA_PRIH || value.DATA_PRIH) | formatDate }}
@@ -36,11 +39,12 @@
     import tableMixin from "../mixins/tableMixin";
     import utilsMixin from "../mixins/utilsMixin";
     import OrderEdit from "./OrderEdit";
+    import GoodName from "./GoodName";
 
     export default {
         name: "OrderLines",
         mixins: [tableMixin, utilsMixin],
-        components: {OrderEdit},
+        components: {OrderEdit, GoodName},
         props: {
             value: {
                 type: Object,

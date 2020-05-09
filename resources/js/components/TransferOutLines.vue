@@ -13,15 +13,10 @@
         loading-text="Loading... Please wait"
     >
         <template v-slot:top>
-            <transfer-out-edit v-model="value"/>
+            <transfer-out-edit v-model="value" @input="proxyInput"/>
         </template>
         <template v-slot:item.name.NAME="{ item }">
-            <v-tooltip top>
-                <template v-slot:activator="{ on }">
-                    <span v-on="on">{{ item.name.NAME }}</span>
-                </template>
-                <span>{{ item.good.PRIM.trim() || 'описания нет' }}</span>
-            </v-tooltip>
+            <good-name v-model="item" :prim="item.good.PRIM"/>
         </template>
         <template v-slot:item.PRICE="{ item }">
             {{ item.PRICE | formatRub }}
@@ -36,11 +31,12 @@
     import tableMixin from "../mixins/tableMixin";
     import utilsMixin from "../mixins/utilsMixin";
     import TransferOutEdit from "./TransferOutEdit";
+    import GoodName from "./GoodName";
     import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
 
     export default {
         name: "TransferOutLines",
-        components: {TransferOutEdit},
+        components: {TransferOutEdit, GoodName},
         props: {
             value: {
                 type: Object,

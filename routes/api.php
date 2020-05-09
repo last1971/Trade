@@ -41,6 +41,7 @@ Route::middleware('auth:api')->group(function () {
         'name' => 'Api\NameController',
         'order' => 'Api\OrderController',
         'order-line' => 'Api\OrderLineController',
+        'order-step' => 'Api\OrderStepController',
         'retail-price' => 'Api\RetailPriceController',
         'role' => 'Api\RoleController',
         'seller' => 'Api\SellerController',

@@ -7,7 +7,7 @@ state.name = 'good';
 
 state.key = 'GOODSCODE';
 
-state.fillable = [];
+state.fillable = ['NAMECODE', 'CATEGORYCODE', 'UNIT_I', 'BODY', 'PRODUCER', 'PRIM'];
 
 state.headers = [
     {text: '', value: 'actions', width: 10, sortable: false},

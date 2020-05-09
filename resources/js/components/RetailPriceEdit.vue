@@ -39,7 +39,7 @@
             />
         </v-col>
         <v-col cols="12" sm="1">
-            <v-btn :disabled="savePossible" @click="save" fab>
+            <v-btn :disabled="savePossible" @click="save" fab :loading="loading">
                 <v-icon color="green">mdi-content-save</v-icon>
             </v-btn>
         </v-col>
@@ -58,11 +58,6 @@
                 dependent: true,
             }
         },
-        computed: {
-            savePossible() {
-                return _.isEqual(_.omit(this.model, ['DATA']), _.omit(this.value, ['DATA']));
-            }
-        }
     }
 </script>
 
