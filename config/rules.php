@@ -1,5 +1,5 @@
 <?php
-
+/*
 $retailPrice = [
     'item' => 'array|required',
     'item.PRICEROZN' => 'required|numeric',
@@ -27,7 +27,7 @@ $retailPrice = [
     'options.with' => 'array',
     'options.with.*' => 'string',
 ];
-
+*/
 return [
     'advanced-buyer.store' => [
         'item' => 'array|required',
@@ -85,7 +85,7 @@ return [
     'name.store' => [
         'item' => 'array|required',
         'item.CATEGORYCODE' => 'integer|required',
-        'item.NAME' => 'required|string|unique:firebird.NAME,NAME,NULL,id,CATEGORYCODE,' . request()->item['CATEGORYCODE'],
+       // 'item.NAME' => 'required|string|unique:firebird.NAME,NAME,NULL,id,CATEGORYCODE,' . request()->item['CATEGORYCODE'],
         'item.SERIA' => 'required|string',
         'options.with' => 'array',
         'options.with.*' => 'string',
