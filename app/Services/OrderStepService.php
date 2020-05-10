@@ -17,7 +17,7 @@ class OrderStepService extends ModelService
 
     public function create($request)
     {
-        $item = $request->getAttibutes()['item'];
+        $item = $request->all()['item'];
         $item['USERNAME'] = $request->user()->name;
         $item['DATA'] = Carbon::now()->format('d.m.Y');
         $request->merge(compact('item'));
@@ -26,7 +26,7 @@ class OrderStepService extends ModelService
 
     public function update($request, $id)
     {
-        $item = $request->getAttibutes()['item'];
+        $item = $request->all()['item'];
         $item['USERNAME'] = $request->user()->name;
         $item['DATA'] = Carbon::now()->format('d.m.Y');
         $request->merge(compact('item'));

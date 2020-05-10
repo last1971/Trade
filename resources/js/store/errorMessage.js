@@ -6,6 +6,7 @@ const state = {
         'validation.integer': 'не целое число',
         'validation.numeric': 'не число',
         'validation.invalid': 'кривое значение',
+        'validation.max.string': 'слишком динная строка'
     }
 };
 

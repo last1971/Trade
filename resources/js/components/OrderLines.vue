@@ -63,6 +63,7 @@
                     ],
                     filterOperators: ['='],
                     filterValues: [this.value.ID],
+                    itemsPerPage: -1,
                 },
                 mobileFiltersVisible: false,
                 dependent: true,
