@@ -32,6 +32,8 @@
             </v-expansion-panel-header>
             <v-expansion-panel-content>
                 <reserves v-model="value"/>
+                <v-divider/>
+                <future-reserves v-model="value"/>
             </v-expansion-panel-content>
         </v-expansion-panel>
     </v-expansion-panels>
@@ -39,10 +41,11 @@
 
 <script>
     import Reserves from "./Reserves";
+    import FutureReserves from "./FutureStoreReserves";
 
     export default {
         name: "Leftovers",
-        components: {Reserves},
+        components: {FutureReserves, Reserves},
         props: {
             value: {
                 type: Object,

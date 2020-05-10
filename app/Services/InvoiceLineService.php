@@ -28,11 +28,18 @@ class InvoiceLineService extends ModelService
                 $query->transferOutLinesQuantity();
             }],
         ];
+
         $this->dateAttributes = ['invoice.DATA'];
+
         $this->aliases['name.NAME'] = function (Builder $query) {
             $query
                 ->join('NAME as name', 'name.NAMECODE', '=', 'good.NAMECODE');
         };
+
+        $this->whereAttributes['notPickUp'] = '(SELECT COALESCE(sum(PODBPOS.QUANSHOP + PODBPOS.QUANSKLAD), 0)
+         FROM PODBPOS WHERE PODBPOS.REALPRICECODE = REALPRICE.REALPRICECODE) + (SELECT
+         COALESCE(sum(RESERVEDPOS.QUANSHOP + RESERVEDPOS.QUANSKLAD), 0) FROM RESERVEDPOS WHERE
+         RESERVEDPOS.REALPRICECODE = REALPRICE.REALPRICECODE) <> QUAN';
     }
 
     public function index($request)

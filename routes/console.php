@@ -1,6 +1,6 @@
 <?php
 
-use App\Services\GoodService;
+use App\Services\InvoiceLineService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -19,21 +19,19 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test', function (GoodService $s) {
+Artisan::command('test', function (InvoiceLineService $s) {
+    // $r = DB::connection('firebird')->query('SELECT * FROM S')->select
     // DB::connection('firebird')->enableQueryLog();
     $g = $s->index(collect([
-        'with' => ['retailPrice', 'orderStep', 'retailStore', 'warehouse', 'name', 'category'],
+        //'with' => ['retailPrice', 'orderStep', 'retailStore', 'warehouse', 'name', 'category'],
         'aggregateAttributes' => [
-            'reservesQuantity',
-            'invoiceLinesQuantityTransit',
-            'reservesQuantityTransit',
-            'pickUpsTransitQuantity',
-            'retailOrderLinesNeedQuantity',
-            'orderLinesTransitQuantity',
-            'shopLinesTransitQuantity',
-            'storeLinesTransitQuantity',
-        ]
-    ]))->find(333930);
+            'pickUpsQuantity', 'reservesQuantity'
+        ],
+        'filterAttributes' => ['notPickUp', 'invoice.STATUS'],
+        'filterOperators' => ['=', "IN"],
+        'filterValues' => [1, [2, 3]]
+    ]))->first();
+    dd($g);
     $t = $g->orderLinesTransit()->get();
     // Log::debug('update', DB::connection('firebird')->getQueryLog());
     dd(

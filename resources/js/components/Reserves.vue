@@ -1,8 +1,5 @@
 <template>
     <v-data-table
-        :footer-props="{
-            showFirstLastPage: true,
-        }"
         :headers="headers"
         :items="items"
         :loading="loading"
@@ -11,6 +8,7 @@
         :server-items-length="total"
         item-key="RESERVCODE"
         loading-text="Loading... Please wait"
+        :hide-default-footer="true"
     >
         <template v-slot:top>
             <div class="title">Резервы</div>

@@ -10,6 +10,7 @@
         :options.sync="options"
         :server-items-length="total"
         :single-expand="true"
+        :hide-default-footer="hideDefaultFooter"
         item-key="REALPRICECODE"
         loading-text="Loading... Please wait"
         show-expand
@@ -80,6 +81,10 @@
             value: {
                 type: Object,
                 required: true,
+            },
+            hideDefaultFooter: {
+                type: Boolean,
+                default: false,
             }
         },
         data() {
