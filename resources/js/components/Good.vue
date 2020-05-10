@@ -2,9 +2,9 @@
     <model :aggregate-attributes="aggregateAttributes"
            :lines="GoodEdit"
            :with="this.with"
-           date="DATA"
+           date=""
            name="Товар"
-           number="GOODSCODE"
+           number="name.NAME"
            value="good"
     />
 </template>

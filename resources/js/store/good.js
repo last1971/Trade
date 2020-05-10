@@ -29,7 +29,7 @@ state.headers = [
     },
     {
         text: 'Цены',
-        value: 'retail_price',
+        value: 'retailPrice',
         align: 'center',
         sortable: false,
     },
@@ -53,7 +53,7 @@ state.headers = [
     },
     {
         text: 'Пороги М/С',
-        value: 'order_step',
+        value: 'orderStep',
         align: 'center',
         sortable: false,
     },

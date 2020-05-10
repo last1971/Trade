@@ -25,6 +25,7 @@
         </v-row>
         <retail-price-edit v-model="retailPrice"/>
         <order-step-edit v-model="orderStep"/>
+        <leftovers v-model="model"/>
     </v-container>
 </template>
 
@@ -34,10 +35,11 @@
     import RetailPriceEdit from "./RetailPriceEdit";
     import OrderStepEdit from "./OrderStepEdit";
     import editMixin from "../mixins/editMixin";
+    import Leftovers from "./Leftovers";
 
     export default {
         name: "GoodEdit",
-        components: {RetailPriceEdit, NameSelect, CategorySelect, OrderStepEdit},
+        components: {Leftovers, RetailPriceEdit, NameSelect, CategorySelect, OrderStepEdit},
         mixins: [editMixin],
         data() {
             return {

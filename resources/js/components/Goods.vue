@@ -18,25 +18,25 @@
             </div>
         </template>
         <template v-slot:item.name.NAME="{ item }">
-            <good-name v-model="item" />
+            <good-name v-model="item"/>
         </template>
-        <template v-slot:item.retail_price="{ item }">
-            <div v-if="item.retail_price && parseFloat(item.retail_price.PRICEROZN) > 0">
-                1: {{ item.retail_price.PRICEROZN | formatRub }}
+        <template v-slot:item.retailPrice="{ item }">
+            <div v-if="item.retailPrice && parseFloat(item.retailPrice.PRICEROZN) > 0">
+                1: {{ item.retailPrice.PRICEROZN | formatRub }}
             </div>
-            <div v-if="item.retail_price && parseFloat(item.retail_price.PRICEMOPT)">
-                {{ item.retail_price.QUANMOPT }}: {{ item.retail_price.PRICEMOPT | formatRub }}
+            <div v-if="item.retailPrice && parseFloat(item.retailPrice.PRICEMOPT)">
+                {{ item.retailPrice.QUANMOPT }}: {{ item.retailPrice.PRICEMOPT | formatRub }}
             </div>
-            <div v-if="item.retail_price && parseFloat(item.retail_price.PRICEOPT)">
-                {{ item.retail_price.QUANOPT }}: {{ item.retail_price.PRICEOPT | formatRub }}
+            <div v-if="item.retailPrice && parseFloat(item.retailPrice.PRICEOPT)">
+                {{ item.retailPrice.QUANOPT }}: {{ item.retailPrice.PRICEOPT | formatRub }}
             </div>
         </template>
         <template v-slot:item.warehouse="{ item }">
             {{ item.warehouse ? item.warehouse.QUAN : 0 }} /
-            {{ item.retail_store ? item.retail_store.QUAN : 0 }} /
+            {{ item.retailStore ? item.retailStore.QUAN : 0 }} /
             <b class="primary--text">
                 {{
-                (item.warehouse ? item.warehouse.QUAN : 0) + (item.retail_store ? item.retail_store.QUAN : 0)
+                (item.warehouse ? item.warehouse.QUAN : 0) + (item.retailStore ? item.retailStore.QUAN : 0)
                 - item.reservesQuantity
                 }}
             </b>
@@ -61,12 +61,12 @@
             item.pickUpsTransitQuantity - item.reservesQuantityTransit : 0) - item.retailOrderLinesNeedQuantity : 0
             }}
         </template>
-        <template v-slot:item.order_step="{ item }">
-            <div v-if="item.order_step">
-                {{ item.order_step.BOUND_QUAN_SHOP }} : {{ item.order_step.QUAN_TO_ZAKAZ_SHOP }}
+        <template v-slot:item.orderStep="{ item }">
+            <div v-if="item.orderStep">
+                {{ item.orderStep.BOUND_QUAN_SHOP }} : {{ item.orderStep.QUAN_TO_ZAKAZ_SHOP }}
             </div>
-            <div v-if="item.order_step">
-                {{ item.order_step.BOUND_QUAN_SKLAD }} : {{ item.order_step.QUAN_TO_ZAKAZ_SKLAD }}
+            <div v-if="item.orderStep">
+                {{ item.orderStep.BOUND_QUAN_SKLAD }} : {{ item.orderStep.QUAN_TO_ZAKAZ_SKLAD }}
             </div>
         </template>
     </v-data-table>

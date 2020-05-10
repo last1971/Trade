@@ -56,9 +56,12 @@
                 } else {
                     this.previousValue = model;
                     this.key = this.$route.params.id;
+                    const text = this.date
+                        ? `${this.name} № ${this.previousValue[this.number]} от
+                           ${this.$options.filters.formatDate(this.previousValue[this.date])}`
+                        : `${this.name} ${_.get(this.previousValue, this.number)}`
                     this.$store.commit('BREADCRUMBS/PUT', {
-                        text: `${this.name} № ${this.previousValue[this.number]} от
-                           ${this.$options.filters.formatDate(this.previousValue[this.date])}`,
+                        text,
                         to: {name: this.value, params: {id: this.key}},
                         disabled: true,
                     });

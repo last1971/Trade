@@ -28,6 +28,11 @@ class Buyer extends Model
         return $this->hasMany('App\Invoice', 'POKUPATCODE', 'POKUPATCODE');
     }
 
+    public function retailOrders()
+    {
+        return $this->hasMany('App\RetailOrder', 'POKUPATCODE', 'POKUPATCODE');
+    }
+
     public function transferOuts()
     {
         return $this->hasMany('App\TransferOut', 'POKUPATCODE', 'POKUPATCODE');

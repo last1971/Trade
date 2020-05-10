@@ -31,7 +31,7 @@
             />
         </v-col>
         <v-col cols="12" sm="3">
-            <div class="mt-4 body-1">{{model.DATA | formatDate}} изменил: {{model.USERNAME}}</div>
+            <div class="mt-5 body-1">{{model.DATA | formatDate}} изменил: {{model.USERNAME}}</div>
         </v-col>
         <v-col cols="12" sm="1">
             <v-btn :disabled="savePossible" :loading="loading" @click="save" fab>
