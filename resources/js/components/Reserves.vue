@@ -60,6 +60,7 @@
                     sortBy: ['DATA'],
                     sortDesc: [false],
                     itemsPerPage: -1,
+                    page: 1,
                 },
                 mobileFiltersVisible: false,
                 dependent: true,

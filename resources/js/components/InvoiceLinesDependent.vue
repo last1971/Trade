@@ -85,12 +85,17 @@
             hideDefaultFooter: {
                 type: Boolean,
                 default: false,
+            },
+            dependentValue: {
+                type: Boolean,
+                default: false,
             }
         },
         data() {
             return {
                 mobileFiltersVisible: false,
                 model: 'INVOICE-LINE',
+                dependent: this.dependentValue,
             }
         },
         computed: {

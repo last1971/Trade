@@ -1,5 +1,5 @@
 <template>
-    <invoice-lines-dependent v-model="options">
+    <invoice-lines-dependent :dependent-value="true" v-model="options">
         <template v-slot:top>
             <div class="title">Необходимо для счетов</div>
         </template>

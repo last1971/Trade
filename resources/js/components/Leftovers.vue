@@ -31,6 +31,7 @@
                 </div>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
+                <v-divider/>
                 <reserves v-model="value"/>
                 <v-divider/>
                 <future-reserves v-model="value"/>
