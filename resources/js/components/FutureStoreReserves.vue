@@ -1,5 +1,5 @@
 <template>
-    <invoice-lines-dependent :dependent-value="true" v-model="options">
+    <invoice-lines-dependent :dependent-value="true" :remove-headers="removeHeaders" v-model="options">
         <template v-slot:top>
             <div class="title">Необходимо для счетов</div>
         </template>
@@ -35,6 +35,7 @@
                 mobileFiltersVisible: false,
                 dependent: true,
                 model: 'RESERVE',
+                removeHeaders: ['category.CATEGORY', 'name.NAME', 'good.BODY', 'good.PRODUCER'],
             }
         },
     }

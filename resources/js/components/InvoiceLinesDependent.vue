@@ -3,7 +3,7 @@
         :footer-props="{
             showFirstLastPage: true,
         }"
-        :headers="headers"
+        :headers="mutatedHeaders"
         :items="items"
         :loading="loading"
         :multi-sort="true"
@@ -89,6 +89,10 @@
             dependentValue: {
                 type: Boolean,
                 default: false,
+            },
+            removeHeaders: {
+                type: Array,
+                default: () => [],
             }
         },
         data() {
@@ -108,6 +112,12 @@
                 }
             },
             ...mapGetters({vat: 'VAT'}),
+            mutatedHeaders() {
+                return this.headers.filter(
+                    (header) => this.removeHeaders.find((rh) => rh === header.value) === undefined
+                );
+
+            }
         },
         methods: {
             reserveClass({QUAN, reservesQuantity, pickUpsQuantity, transferOutLinesQuantity}) {
