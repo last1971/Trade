@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\ForDeleteService;
 use App\Services\InvoiceLineService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -20,6 +21,13 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function (InvoiceLineService $s) {
+
+});
+
+Artisan::command('test', function (InvoiceLineService $s) {
+    dd(ForDeleteService::identicalLettersInWord(["кот", "ток", "лужа"]
+    ));
+
     // $r = DB::connection('firebird')->query('SELECT * FROM S')->select
     // DB::connection('firebird')->enableQueryLog();
     $g = $s->index(collect([

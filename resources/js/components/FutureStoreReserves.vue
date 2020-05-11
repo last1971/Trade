@@ -1,5 +1,9 @@
 <template>
-    <invoice-lines-dependent :dependent-value="true" :remove-headers="removeHeaders" v-model="options">
+    <invoice-lines-dependent :dependent-value="true"
+                             :hide-default-footer="true"
+                             :remove-headers="removeHeaders"
+                             v-model="options"
+    >
         <template v-slot:top>
             <div class="title">Необходимо для счетов</div>
         </template>
@@ -31,6 +35,7 @@
                     sortBy: ['invoice.DATA'],
                     sortDesc: [false],
                     itemsPerPage: -1,
+                    page: 1,
                 },
                 mobileFiltersVisible: false,
                 dependent: true,

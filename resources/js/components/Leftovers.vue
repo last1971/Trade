@@ -31,10 +31,22 @@
                 </div>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
-                <v-divider/>
-                <reserves v-model="value"/>
-                <v-divider/>
-                <future-reserves v-model="value"/>
+                <div v-if="value.reservesQuantity">
+                    <v-divider/>
+                    <reserves v-model="value"/>
+                </div>
+                <div v-if="invoiceNeedQuantity">
+                    <v-divider/>
+                    <future-reserves v-model="value"/>
+                </div>
+                <div v-if="value.retailOrderLinesNeedQuantity">
+                    <v-divider/>
+                    <retail-order-lines-in-work v-model="value"/>
+                </div>
+                <div v-if="transitQuantity">
+                    <v-divider/>
+                    <order-line-in-way :invoice-line="value"/>
+                </div>
             </v-expansion-panel-content>
         </v-expansion-panel>
     </v-expansion-panels>
@@ -43,10 +55,12 @@
 <script>
     import Reserves from "./Reserves";
     import FutureReserves from "./FutureStoreReserves";
+    import OrderLineInWay from "./OrderLineInWay";
+    import RetailOrderLinesInWork from "./RetailOrderLinesInWork";
 
     export default {
         name: "Leftovers",
-        components: {FutureReserves, Reserves},
+        components: {RetailOrderLinesInWork, OrderLineInWay, FutureReserves, Reserves},
         props: {
             value: {
                 type: Object,

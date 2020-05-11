@@ -26,6 +26,7 @@ import name from "./name";
 import retailPrice from "./retailPrice";
 import orderStep from "./orderStep";
 import reserve from "./reserve";
+import retailOrderLine from "./retailOrderLine";
 
 Vue.use(Vuex);
 
@@ -59,6 +60,7 @@ export default new Vuex.Store({
         ORDERSTATUS: orderStatus,
         RESERVE: reserve,
         'RETAIL-PRICE': retailPrice,
+        'RETAIL-ORDER-LINE': retailOrderLine,
         ROLE: role,
         SBIS: sbis,
         SELLER: seller,
