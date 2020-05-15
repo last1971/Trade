@@ -33,7 +33,8 @@ class InvoicePDFRequest extends FormRequest
     {
         return [
             'withVAT' => 'in:true,false',
-            'withStamp' => 'in:true,false'
+            'withStamp' => 'in:true,false',
+            'newAccount' => 'in:true,false',
         ];
     }
 
@@ -42,6 +43,7 @@ class InvoicePDFRequest extends FormRequest
         $this->merge([
             'withVAT' => $this->withVAT === 'true',
             'withStamp' => $this->withStamp === 'true',
+            'newAccount' => $this->newAccount === 'true'
         ]);
     }
 }

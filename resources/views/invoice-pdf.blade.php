@@ -158,6 +158,13 @@
 </table>
 <table class="details">
     <tbody>
+    @if ($newAccount)
+        <tr>
+            <td colspan="4" align="center">
+                <h style="color: red">Внимaние! Новые реквизиты</h>
+            </td>
+        </tr>
+    @endif
     <tr>
         <td colspan="2" style="border-bottom: none;">
             {{ $invoice->firmHistory ? $invoice->firmHistory->BANK : $invoice->firm->BANK }}

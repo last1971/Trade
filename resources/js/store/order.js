@@ -8,7 +8,7 @@ state.name = 'order';
 state.key = 'ID';
 
 state.items = [
-    {ID: 0}
+    {ID: 0, INVOICE_NUM: '?'}
 ]
 
 state.fillable = ['WHEREISPOSTCODE', 'INVOICE_NUM', 'INVOICE_DATA', 'DATA_PRIH', 'PRIM', 'STATUS'];

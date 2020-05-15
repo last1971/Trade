@@ -26,6 +26,10 @@ state.headers = [
         value: 'good.PRODUCER',
     },
     {
+        text: 'Ед.',
+        value: 'good.UNIT_I',
+    },
+    {
         text: 'Кол.-во',
         value: 'QUAN',
         align: 'right',

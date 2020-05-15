@@ -16,7 +16,11 @@
             <tr
                 v-if="!isMobile || mobileFiltersVisible"
             >
-                <td v-if="!isMobile"></td>
+                <td v-if="!isMobile">
+                    <v-btn :to="{ name: 'order', params: { id: 0 }}" dark icon>
+                        <v-icon color="green">mdi-plus</v-icon>
+                    </v-btn>
+                </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-menu
                         :close-on-content-click="false"

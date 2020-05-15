@@ -79,6 +79,9 @@
                     <span v-else>Сохранить</span>
                 </v-btn>
             </v-col>
+            <v-col>
+                <file-drop text=""/>
+            </v-col>
         </v-row>
     </v-form>
 </template>
@@ -89,10 +92,11 @@
     import utilsMixin from "../mixins/utilsMixin";
     import OrderStatusSelect from "./OrderStatusSelect";
     import moment from "moment";
+    import FileDrop from "./FileDrop";
 
     export default {
         name: "OrderEdit",
-        components: {OrderStatusSelect, SellerSelect},
+        components: {FileDrop, OrderStatusSelect, SellerSelect},
         mixins: [editMixin, utilsMixin],
         data() {
             return {

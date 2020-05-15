@@ -49,7 +49,7 @@
             disabled: {type: Boolean, default: false},
             dense: {type: Boolean, default: false},
             errorMessages: {type: Array, default: () => []},
-            noFilter: {type: Boolean, default: true}
+            noFilter: {type: Boolean, default: true},
         },
         data() {
             return {
@@ -86,6 +86,7 @@
             search: _.debounce(function (val) {
                 // case when not need update data from server
                 if (!val || this.isLoading || this.itemsPerPage < 0) return;
+                this.$emit('search', val);
                 // error for multiple possible will
                 const proxy = this.$store.getters[this.MODEL + '/GET'](this.value);
                 if (this.value && val === _.property(this.itemText)(proxy)) return;

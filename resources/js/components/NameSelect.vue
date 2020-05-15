@@ -10,15 +10,16 @@
         label="Наименовние"
         model="name"
         v-model="proxy"
+        @search="searching"
     >
         <template v-slot:prepend>
             <v-btn @click="add" class="pb-2" icon>
-                <v-icon color="green">mdi-plus</v-icon>
+                <v-icon color="green">mdi-content-save-edit</v-icon>
             </v-btn>
             <v-dialog max-width="600px" persistent v-model="addName">
                 <v-card>
                     <v-card-title>
-                        <span class="headline">Новое наименовние</span>
+                        <span class="headline">Наименовние</span>
                         <v-spacer/>
                         <v-btn @click="addName = false" icon right>
                             <v-icon color="red">
@@ -91,6 +92,7 @@
                 required: (v) => !!v || 'обязательный',
                 length: (v) => v.length < 71 || 'нужно сократить',
                 errors: {},
+                search: ''
             }
         },
         computed: {
@@ -100,13 +102,22 @@
         },
         methods: {
             add() {
-                this.newName = {
-                    CATEGORYCODE: null,
-                    NAME: '',
-                };
+                if (!this.proxy || _.isArray(this.proxy)) {
+                    this.newName = {
+                        CATEGORYCODE: null,
+                        NAME: this.search,
+                    };
+                } else {
+                    const name = this.$store.getters['NAME/GET'](this.proxy);
+                    this.newName = {
+                        CATEGORYCODE: name.CATEGORYCODE,
+                        NAME: name.NAME,
+                    };
+                }
                 this.addName = true;
             },
             save() {
+                this.errors = [];
                 this.newName.SERIA = this.newName.NAME;
                 this.$store.dispatch('NAME/CREATE', {item: this.newName, options: {with: ['category']}})
                     .then((response) => {
@@ -122,6 +133,9 @@
                             });
                         }
                     })
+            },
+            searching(val) {
+                this.search = val;
             }
         }
     }

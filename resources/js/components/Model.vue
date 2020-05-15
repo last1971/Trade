@@ -40,7 +40,7 @@
         data() {
             return {
                 previousValue: null,
-                key: 0,
+                key: -1,
             }
         },
         computed: {
@@ -50,21 +50,25 @@
             model() {
                 if (this.$route.name !== this.value || this.key === this.$route.params.id) return this.previousValue;
                 const model =
-                    this.$route.params.id ? this.$store.getters[this.MODEL + '/GET'](this.$route.params.id) : null;
+                    this.$route.params.id !== undefined
+                        ? this.$store.getters[this.MODEL + '/GET'](this.$route.params.id)
+                        : null;
                 if (!model || (!this.with.reduce((sum, v) => sum && model[v] !== undefined, true) && model[this.$store.getters[this.MODEL + '/KEY']] !== 0)) {
                     this.getModel();
                 } else {
                     this.previousValue = model;
                     this.key = this.$route.params.id;
-                    const text = this.date
-                        ? `${this.name} № ${this.previousValue[this.number]} от
+                    if (this.key) {
+                        const text = this.date
+                            ? `${this.name} № ${this.previousValue[this.number]} от
                            ${this.$options.filters.formatDate(this.previousValue[this.date])}`
-                        : `${this.name} ${_.get(this.previousValue, this.number)}`
-                    this.$store.commit('BREADCRUMBS/PUT', {
-                        text,
-                        to: {name: this.value, params: {id: this.key}},
-                        disabled: true,
-                    });
+                            : `${this.name} ${_.get(this.previousValue, this.number)}`
+                        this.$store.commit('BREADCRUMBS/PUT', {
+                            text,
+                            to: {name: this.value, params: {id: this.key}},
+                            disabled: true,
+                        });
+                    }
                 }
                 return this.previousValue;
             },

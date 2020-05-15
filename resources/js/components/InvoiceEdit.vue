@@ -94,9 +94,15 @@
                         <v-card-text>
                             <v-container>
                                 <v-row>
+                                    <v-switch class="ml-4"
+                                              inset
+                                              label="Новые реквизиты"
+                                              v-model="newAccount"
+                                    />
                                     <v-switch :label="(withVAT ? 'С ' : 'Без ') + 'НДС'"
                                               inset
                                               v-model="withVAT"
+                                              class="ml-4"
                                     />
                                     <v-switch :label="withStamp ? 'С печатью' : 'Без печати'"
                                               class="ml-4"
@@ -135,6 +141,7 @@
                 withStamp: true,
                 withVAT: true,
                 pdfDialog: false,
+                newAccount: false,
             }
         },
         computed: {
@@ -167,10 +174,10 @@
             download(type) {
                 this.downloading = true;
                 this.pdfDialog = false;
-                const {withVAT, withStamp} = this;
+                const {withVAT, withStamp, newAccount} = this;
                 const download = type === 'pdf'
                     ? this.$store.dispatch(
-                        'INVOICE/PDF', {id: this.value.SCODE, query: {withVAT, withStamp}}
+                        'INVOICE/PDF', {id: this.value.SCODE, query: {withVAT, withStamp, newAccount}}
                     )
                     : this.$store.dispatch('INVOICE-LINE/SAVE', {
                         with: ['category', 'good', 'name'],
