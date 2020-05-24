@@ -24,31 +24,6 @@ Artisan::command('test', function (InvoiceLineService $s) {
 
 });
 
-Artisan::command('test', function (InvoiceLineService $s) {
-    dd(ForDeleteService::identicalLettersInWord(["кот", "ток", "лужа"]
-    ));
-
-    // $r = DB::connection('firebird')->query('SELECT * FROM S')->select
-    // DB::connection('firebird')->enableQueryLog();
-    $g = $s->index(collect([
-        //'with' => ['retailPrice', 'orderStep', 'retailStore', 'warehouse', 'name', 'category'],
-        'aggregateAttributes' => [
-            'pickUpsQuantity', 'reservesQuantity'
-        ],
-        'filterAttributes' => ['notPickUp', 'invoice.STATUS'],
-        'filterOperators' => ['=', "IN"],
-        'filterValues' => [1, [2, 3]]
-    ]))->first();
-    dd($g);
-    $t = $g->orderLinesTransit()->get();
-    // Log::debug('update', DB::connection('firebird')->getQueryLog());
-    dd(
-        $g->retailPrice->getAttributes(),
-        $g->orderStep->getAttributes(),
-        $g->retailStore->getAttributes(),
-        $g->warehouse->getAttributes(),
-        $g->name->getAttributes(),
-        $g->category->getAttributes(),
-        $g->getAttributes()
-    );
+Artisan::command('test', function () {
+    dd(is_numeric(mb_ereg_replace("\s|,", '', "1 000 000,00")));
 })->describe('Display an inspiring quote');

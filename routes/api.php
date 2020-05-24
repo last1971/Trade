@@ -40,6 +40,7 @@ Route::middleware('auth:api')->group(function () {
         'invoice-line' => 'Api\InvoiceLineController',
         'name' => 'Api\NameController',
         'order' => 'Api\OrderController',
+        'order-import-line' => 'Api\OrderImportLineController',
         'order-line' => 'Api\OrderLineController',
         'order-step' => 'Api\OrderStepController',
         'reserve' => 'Api\ReserveController',

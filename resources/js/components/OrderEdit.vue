@@ -80,7 +80,7 @@
                 </v-btn>
             </v-col>
             <v-col>
-                <file-drop text=""/>
+                <file-drop @filesSelected="upload" text="Импорт заказа"/>
             </v-col>
         </v-row>
     </v-form>
@@ -126,6 +126,9 @@
                     ? this.model.DATA_PRIH.substr(0, 10)
                     : moment().format('Y-MM-DD');
             },
+            upload(files) {
+                this.$store.dispatch('ORDER-IMPORT-LINE/UPLOAD', {files});
+            }
         }
     }
 </script>
