@@ -4,12 +4,26 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Imports\CompelFactureImport;
+use App\Imports\XlsFactureImport;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
 use Maatwebsite\Excel\Facades\Excel;
 
 class OrderImportLineController extends Controller
 {
+    /**
+     * @param UploadedFile $file
+     * @return CompelFactureImport|XlsFactureImport
+     */
+    private function getImport(UploadedFile $file)
+    {
+        if (strpos($file->getClientOriginalName(), 'facture_') === 0) {
+            return new CompelFactureImport();
+        }
+        return new XlsFactureImport();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -30,8 +44,8 @@ class OrderImportLineController extends Controller
     {
         //
         $file = $request->file('file');
-        $import = new CompelFactureImport();
-        $a = Excel::toCollection($import, $file);
+        $import = $this->getImport($file);
+        return Excel::toCollection($import, $file);
     }
 
     /**
