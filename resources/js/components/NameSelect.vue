@@ -104,12 +104,14 @@
             add() {
                 if (!this.proxy || _.isArray(this.proxy)) {
                     this.newName = {
+                        NAMECODE: 0,
                         CATEGORYCODE: null,
                         NAME: this.search,
                     };
                 } else {
                     const name = this.$store.getters['NAME/GET'](this.proxy);
                     this.newName = {
+                        NAMECODE: name.NAMECODE,
                         CATEGORYCODE: name.CATEGORYCODE,
                         NAME: name.NAME,
                     };
@@ -119,9 +121,11 @@
             save() {
                 this.errors = [];
                 this.newName.SERIA = this.newName.NAME;
-                this.$store.dispatch('NAME/CREATE', {item: this.newName, options: {with: ['category']}})
+                const action = this.proxy ? 'NAME/UPDATE' : 'NAME/CREATE';
+                this.$store.dispatch(action, {item: this.newName, options: {with: ['category']}})
                     .then((response) => {
                         this.proxy = response.data.NAMECODE
+                        this.$emit('save', response.data);
                         this.addName = false
                     })
                     .catch((error) => {

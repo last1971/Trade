@@ -24,6 +24,14 @@
         <template v-slot:prepend>
             <slot name="prepend"></slot>
         </template>
+        <template v-slot:item="{ item }">
+            <slot name="item" v-bind:item="item" v-bind:maxLength="maxLength"></slot>
+            {{ item[itemText] }}
+        </template>
+        <template v-slot:selection="{ item }">
+            <slot name="selection" v-bind:item="item"></slot>
+            {{ item[itemText] }}
+        </template>
     </v-autocomplete>
 </template>
 
@@ -41,6 +49,7 @@
             model: {type: String, required: true},
             itemsPerPage: {type: Number, default: 10},
             with: {type: Array, default: () => []},
+            aggregateAttributes: {type: Array, default: () => []},
             filterAttributes: {type: Array, default: () => []},
             filterOperators: {type: Array, default: () => []},
             filterValues: {type: Array, default: () => []},
@@ -50,6 +59,7 @@
             dense: {type: Boolean, default: false},
             errorMessages: {type: Array, default: () => []},
             noFilter: {type: Boolean, default: true},
+            getValue: {type: Boolean, default: false},
         },
         data() {
             return {
@@ -78,6 +88,10 @@
                     this.$emit('input', val)
                 }
             },
+            maxLength() {
+                const maxName = _.maxBy(this.items, (item) => _.get(item, this.itemText).length)
+                return maxName ? _.get(maxName, this.itemText).length : 0;
+            },
             MODEL() {
                 return _.toUpper(this.model);
             }
@@ -95,16 +109,21 @@
             value() {
                 this.loadValue();
             },
+            getValue(val) {
+                if (val) this.loadValue();
+            },
         },
         methods: {
             getItems(val = '') {
                 const options = {
                     itemsPerPage: this.itemsPerPage,
+                    aggregateAttributes: this.aggregateAttributes,
                     filterAttributes: _.concat(this.filterAttributes, this.itemText),
                     filterOperators: _.concat(this.filterOperators, 'CONTAIN'),
                     filterValues: _.concat(this.filterValues, val),
                     sortBy: _.isEmpty(this.sortBy) ? [this.itemText] : this.sortBy,
-                    sortDesc: this.sortDesc
+                    sortDesc: this.sortDesc,
+                    with: this.with,
                 };
                 this.isLoading = true;
                 this.$store.dispatch(this.MODEL + '/ALL', options)

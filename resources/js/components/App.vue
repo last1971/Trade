@@ -116,6 +116,7 @@
                 {id: 7, text: 'СБИС', to: {name: 'sbis'}, icon: 'mdi-electron-framework'},
                 {id: 8, text: 'Покупатели+', to: {name: 'advanced-buyer'}, icon: 'mdi-account-plus'},
                 {id: 9, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
+                {id: 10, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
             ]
         }),
         computed: {

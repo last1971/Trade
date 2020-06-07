@@ -1,7 +1,6 @@
 <?php
 
 use App\Services\ForDeleteService;
-use App\Services\InvoiceLineService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
@@ -20,10 +19,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test', function (InvoiceLineService $s) {
-
-});
-
 Artisan::command('test', function () {
-    dd(is_numeric(mb_ereg_replace("\s|,", '', "1 000 000,00")));
+    dd(config('app.search_replace'));
 })->describe('Display an inspiring quote');

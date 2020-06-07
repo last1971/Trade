@@ -29,6 +29,7 @@ Route::middleware('auth:api')->group(function () {
         ->name('transfer-out.pdf');
     Route::get('transfer-out/xml/{id}', 'Api\TransferOutController@xml')
         ->name('transfer-out.xml');
+
     Route::apiResources([
         'advanced-buyer' => 'Api\AdvancedBuyerController',
         'buyer' => 'Api\BuyerController',
@@ -53,6 +54,7 @@ Route::middleware('auth:api')->group(function () {
         'user' => 'Api\UserController',
         'user-option' => 'Api\UserOptionController'
     ]);
+
     Route::post('sbis/xlsx', 'Api\SbisController@xlsx')->name('sbis.xlsx');
     Route::post('sbis/clear-gtd', 'Api\SbisController@clearGtd')->name('sbis.clear-gtd');
     Route::post('sbis/export', 'Api\SbisController@export')->name('sbis.export');

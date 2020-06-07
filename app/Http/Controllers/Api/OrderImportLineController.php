@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\GoodName;
 use App\Http\Controllers\Controller;
 use App\Imports\CompelFactureImport;
 use App\Imports\XlsFactureImport;
@@ -45,7 +46,29 @@ class OrderImportLineController extends Controller
         //
         $file = $request->file('file');
         $import = $this->getImport($file);
-        return Excel::toCollection($import, $file);
+        $rows = Excel::toCollection($import, $file)->get(0);
+        $names = $rows
+            ->pluck('name')
+            ->unique()
+            ->map(function ($name) {
+                return mb_ereg_replace(config('app.search_replace'), '', $name);
+            })
+            ->all();
+        $goodNames = GoodName::with('good.name')
+            ->whereIn('NAME', $names)
+            ->get();
+        $rows->each(function ($value) use ($goodNames) {
+            $goodName = $goodNames
+                ->where(
+                    'NAME',
+                    '=',
+                    mb_ereg_replace(config('app.search_replace'), '', $value->get('name'))
+                )
+                ->first();
+            $value->put('good', $goodName ? $goodName->good : null);
+            $a = 1;
+        });
+        return $rows;
     }
 
     /**

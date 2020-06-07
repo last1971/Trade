@@ -3,6 +3,13 @@ import _ from 'lodash'
 
 let state = _.cloneDeep(model.state);
 
+state.items = [
+    {
+        GOODSCODE: 0,
+        NAMECODE: null,
+    }
+];
+
 state.name = 'good';
 
 state.key = 'GOODSCODE';

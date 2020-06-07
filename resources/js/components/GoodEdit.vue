@@ -2,7 +2,10 @@
     <v-container>
         <v-row>
             <category-select :disabled="true" v-model="model.CATEGORYCODE"/>
-            <name-select :error-messages="errors['item.NAMECODE']" v-model="model.NAMECODE"/>
+            <name-select :error-messages="errors['item.NAMECODE']"
+                         @save="nameSaved"
+                         v-model="model.NAMECODE"
+            />
         </v-row>
         <v-row>
             <v-col cols="1">
@@ -78,6 +81,11 @@
                     }
                     this.NAMECODE = val.NAMECODE;
                 }
+            }
+        },
+        methods: {
+            nameSaved(name) {
+                this.model.CATEGORYCODE = name.CATEGORYCODE;
             }
         },
     }

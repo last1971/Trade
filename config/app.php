@@ -240,4 +240,8 @@ return [
 
     ],
 
+    /* Search replace */
+
+    'search_replace' => '[^а-яёА-ЯЁa-zA-Z0-9]'
+
 ];

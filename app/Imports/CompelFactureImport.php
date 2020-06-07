@@ -27,6 +27,12 @@ class CompelFactureImport implements WithHeadingRow, WithCustomCsvSettings, With
                 case 'D':
                     $cell->setValueExplicit('name', DataType::TYPE_STRING);
                     break;
+                case 'E':
+                    $cell->setValueExplicit('producer', DataType::TYPE_STRING);
+                    break;
+                case 'F':
+                    $cell->setValueExplicit('case', DataType::TYPE_STRING);
+                    break;
                 case 'G':
                     $cell->setValueExplicit('quantity', DataType::TYPE_STRING);
                     break;
@@ -35,6 +41,12 @@ class CompelFactureImport implements WithHeadingRow, WithCustomCsvSettings, With
                     break;
                 case 'I':
                     $cell->setValueExplicit('amount', DataType::TYPE_STRING);
+                    break;
+                case 'K':
+                    $cell->setValueExplicit('declaration', DataType::TYPE_STRING);
+                    break;
+                case 'L':
+                    $cell->setValueExplicit('country', DataType::TYPE_STRING);
                     break;
                 default:
                     $cell->setValueExplicit($value, DataType::TYPE_STRING);
@@ -54,18 +66,9 @@ class CompelFactureImport implements WithHeadingRow, WithCustomCsvSettings, With
                     );
                     break;
                 default:
-                    $cell->setValueExplicit($value, DataType::TYPE_STRING);
+                    $cell->setValueExplicit($str, DataType::TYPE_STRING);
             }
         }
         return true;
-    }
-
-    public function mapping(): array
-    {
-        return [
-            'name' => 'A1',
-            'is_test' => 'A2',
-            'sum' => 'A3',
-        ];
     }
 }

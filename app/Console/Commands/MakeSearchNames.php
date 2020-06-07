@@ -46,7 +46,7 @@ class MakeSearchNames extends Command
             foreach ($goods as $good) {
                 GoodName::query()->firstOrCreate([
                     'GOODSCODE' => $good->GOODSCODE,
-                    'NAME' => mb_ereg_replace('[^а-яёА-ЯЁa-zA-Z0-9]', '', $good->name->NAME)
+                    'NAME' => mb_ereg_replace(config('app.search_replace'), '', $good->name->NAME)
                 ]);
             }
             $counter++;

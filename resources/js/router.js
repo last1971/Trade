@@ -18,16 +18,11 @@ import AdvancedBuyers from "./components/AdvancedBuyers";
 import SbisComponent from "./components/SbisComponent";
 import Goods from "./components/Goods";
 import Good from "./components/Good";
-import FileDrop from "./components/FileDrop";
+import Test from "./components/Test";
 
 Vue.use(VueRouter);
 
 const routes = [
-    {
-        name: 'test',
-        path: '/test',
-        component: FileDrop,
-    },
     {
         name: 'advanced-buyer',
         path: '/advanced-buyer',
@@ -125,6 +120,12 @@ const routes = [
         path: '/sbis',
         component: SbisComponent,
         meta: {requiresAuth: true, permission: 'sbis.show'},
+    },
+    {
+        name: 'test',
+        path: '/test',
+        component: Test,
+        meta: {requiresAuth: true, model: 'GOOD', permission: 'user.index'},
     },
     {path: '*', component: Help},
 ];
