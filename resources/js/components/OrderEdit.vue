@@ -115,6 +115,9 @@
                 const d2 = this.value.DATA_PRIH ? this.value.DATA_PRIH.substr(0, 10) : undefined;
                 return _.isEqual(a, b) && this.model.INVOICE_DATA === d1 && this.model.DATA_PRIH === d2;
             },
+            showImportOrderLines() {
+                return this.importOrderLines.length;
+            }
         },
         methods: {
             initialModel() {
@@ -127,7 +130,10 @@
                     : moment().format('Y-MM-DD');
             },
             upload(files) {
-                this.$store.dispatch('ORDER-IMPORT-LINE/UPLOAD', {files});
+                this.$store.dispatch('ORDER-IMPORT-LINE/UPLOAD', {files})
+                    .then((response) => {
+                        this.$emit('import', response.data);
+                    })
             }
         }
     }

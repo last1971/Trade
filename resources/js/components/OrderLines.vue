@@ -1,38 +1,42 @@
 <template>
-    <v-data-table
-        :footer-props="{
+    <div>
+        <v-data-table
+            :footer-props="{
             showFirstLastPage: true,
         }"
-        :headers="headers"
-        :items="items"
-        :loading="loading"
-        :multi-sort="true"
-        :options.sync="options"
-        :server-items-length="total"
-        item-key="ID"
-        loading-text="Loading... Please wait"
-    >
-        <template v-slot:top>
-            <order-edit :value="value" @input="proxyInput"/>
-        </template>
-        <template v-slot:item.name.NAME="{ item }">
-            <good-name v-model="item" :prim="item.good.PRIM"/>
-        </template>
-        <template v-slot:item.DATA_PRIH="{ item }">
-            {{ (item.DATA_PRIH || value.DATA_PRIH) | formatDate }}
-        </template>
-        <template v-slot:item.inQuantity="{ item }">
-            <div :class="inQuantityColor(item)">
-                {{ item.shopLinesQuantity + item.storeLinesQuantity }}
-            </div>
-        </template>
-        <template v-slot:item.PRICE="{ item }">
-            {{ item.PRICE | formatRub }}
-        </template>
-        <template v-slot:item.SUMMAP="{ item }">
-            {{ item.SUMMAP | formatRub }}
-        </template>
-    </v-data-table>
+            :headers="headers"
+            :items="items"
+            :loading="loading"
+            :multi-sort="true"
+            :options.sync="options"
+            :server-items-length="total"
+            item-key="ID"
+            loading-text="Loading... Please wait"
+            v-if="isOrderImportLinesEmpty"
+        >
+            <template v-slot:top>
+                <order-edit :value="value" @import="importOpen" @input="proxyInput"/>
+            </template>
+            <template v-slot:item.name.NAME="{ item }">
+                <good-name :prim="item.good.PRIM" v-model="item"/>
+            </template>
+            <template v-slot:item.DATA_PRIH="{ item }">
+                {{ (item.DATA_PRIH || value.DATA_PRIH) | formatDate }}
+            </template>
+            <template v-slot:item.inQuantity="{ item }">
+                <div :class="inQuantityColor(item)">
+                    {{ item.shopLinesQuantity + item.storeLinesQuantity }}
+                </div>
+            </template>
+            <template v-slot:item.PRICE="{ item }">
+                {{ item.PRICE | formatRub }}
+            </template>
+            <template v-slot:item.SUMMAP="{ item }">
+                {{ item.SUMMAP | formatRub }}
+            </template>
+        </v-data-table>
+        <order-import-lines v-else v-model="orderImportLines"/>
+    </div>
 </template>
 
 <script>
@@ -40,11 +44,12 @@
     import utilsMixin from "../mixins/utilsMixin";
     import OrderEdit from "./OrderEdit";
     import GoodName from "./GoodName";
+    import OrderImportLines from "./OrderImportLines";
 
     export default {
         name: "OrderLines",
         mixins: [tableMixin, utilsMixin],
-        components: {OrderEdit, GoodName},
+        components: {OrderImportLines, OrderEdit, GoodName},
         props: {
             value: {
                 type: Object,
@@ -68,6 +73,12 @@
                 mobileFiltersVisible: false,
                 dependent: true,
                 model: 'ORDER-LINE',
+                orderImportLines: [],
+            }
+        },
+        computed: {
+            isOrderImportLinesEmpty() {
+                return !this.orderImportLines.length;
             }
         },
         methods: {
@@ -75,8 +86,13 @@
                 if (item.shopLinesQuantity + item.storeLinesQuantity === 0) return 'red--text';
                 if (item.shopLinesQuantity + item.storeLinesQuantity < item.QUAN) return 'primary--text';
                 return 'success--text';
+            },
+            importOpen(orderImportLines) {
+                if (_.isArray(orderImportLines) && !_.isEmpty(orderImportLines)) {
+                    this.orderImportLines = orderImportLines
+                }
             }
-        }
+        },
     }
 </script>
 

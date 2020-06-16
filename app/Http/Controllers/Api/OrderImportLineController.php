@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\GoodName;
 use App\Http\Controllers\Controller;
 use App\Imports\CompelFactureImport;
 use App\Imports\XlsFactureImport;
+use App\Services\GoodService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
@@ -41,7 +41,7 @@ class OrderImportLineController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function store(Request $request)
+    public function store(Request $request, GoodService $service)
     {
         //
         $file = $request->file('file');
@@ -54,7 +54,42 @@ class OrderImportLineController extends Controller
                 return mb_ereg_replace(config('app.search_replace'), '', $name);
             })
             ->all();
-        $goodNames = GoodName::with('good.name')
+        $goods = $service->index(collect([
+            'with' => [
+                'orderStep',
+                'retailStore',
+                'warehouse',
+                'name',
+                'goodNames',
+                'retailPrice'
+            ],
+            'aggregateAttributes' => [
+                'reservesQuantity',
+                'invoiceLinesQuantityTransit',
+                'reservesQuantityTransit',
+                'pickUpsTransitQuantity',
+                'retailOrderLinesNeedQuantity',
+                'orderLinesTransitQuantity',
+                'shopLinesTransitQuantity',
+                'storeLinesTransitQuantity',
+            ],
+            'filterAttributes' => ['goodNames.NAME'],
+            'filterOperators' => ['IN'],
+            'filterValues' => [$names],
+        ]))->get();
+        $rows->each(function ($row, $key) use ($goods) {
+            $good = $goods->first(function ($value) use ($row) {
+                return $value->goodNames->where(
+                    'NAME',
+                    '=',
+                    mb_ereg_replace(config('app.search_replace'), '', $row->get('name'))
+                )->first();
+            });
+            $row->put('good', $good);
+            $row->put('GOODSCODE', $good ? $good->GOODSCODE : null);
+            $row->put('id', $key);
+        });
+        /* $goodNames = GoodName::with('good.name')
             ->whereIn('NAME', $names)
             ->get();
         $rows->each(function ($value) use ($goodNames) {
@@ -67,7 +102,7 @@ class OrderImportLineController extends Controller
                 ->first();
             $value->put('good', $goodName ? $goodName->good : null);
             $a = 1;
-        });
+        });*/
         return $rows;
     }
 

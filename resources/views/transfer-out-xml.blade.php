@@ -88,7 +88,7 @@
         <ТаблСчФакт>
             @foreach($transferOutLines as $line)
                 <СведТов КолТов="{{ $line->QUAN }}"
-                         НаимТов="{{ $line->name->NAME . ' ' . ($line->good->PRODCUER ?  $line->good->PRODCUER . ' ' : '') . $line->category->CATEGORY }}"
+                         НаимТов="{{ $line->name->NAME . ' ' . $line->category->CATEGORY }}"
                          НалСт="{{ VAT::get($transferOut->DATA) }}%"
                          НомСтр="{{ $loop->iteration }}"
                          ОКЕИ_Тов="{{ $line->good->unitCode }}"

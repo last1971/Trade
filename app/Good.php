@@ -2,32 +2,40 @@
 
 namespace App;
 
+use App\ModelTraits\InsertTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Good extends Model
 {
+    use InsertTrait;
+
     public static $snakeAttributes = false;
 
     public $timestamps = false;
 
     protected $connection = 'firebird';
 
-    protected $fillable = ['NAMECODE', 'CATEGORYCODE', 'UNIT_I', 'BODY', 'PRODUCER', 'PRIM'];
+    protected $fillable = ['NAMECODE', 'CATEGORYCODE', 'UNIT_I', 'BODY', 'PRODUCER', 'PRIM', 'YEARP'];
 
     protected $primaryKey = 'GOODSCODE';
 
+    protected $sequenceName = 'GOODSCODE_GEN';
+
     protected $table = 'GOODS';
 
-    public function setBODYAttribute($value) {
+    public function setBODYAttribute($value)
+    {
         $this->attributes['BODY'] = $value ?? '';
     }
 
-    public function setPRODUCERAttribute($value) {
+    public function setPRODUCERAttribute($value)
+    {
         $this->attributes['PRODUCER'] = $value ?? '';
     }
 
-    public function setPRIMAttribute($value) {
+    public function setPRIMAttribute($value)
+    {
         $this->attributes['PRIM'] = $value ?? '';
     }
 

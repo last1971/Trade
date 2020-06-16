@@ -1,17 +1,25 @@
 <template>
     <v-row>
         <v-col>
-            {{ value.name.NAME }}
+            <span>{{ value.name.NAME }}</span>
+            <span v-if="value.BODY">/ {{ value.BODY }}</span>
+            <span v-if="value.PRODUCER">/ {{ value.PRODUCER }}</span>
         </v-col>
         <v-col>
-            <v-badge :content="quantity(value)">
+            <v-badge :color="color(quantity(value))" :content="quantity(value)">
                 есть
             </v-badge>
-            <v-badge :content="value.reservesQuantity.toString()" class="ml-2">
+            <v-badge :color="color(quantity(value.reservesQuantity.toString()))"
+                     :content="value.reservesQuantity.toString()"
+                     class="ml-2"
+            >
                 резерв
             </v-badge>
-            <v-badge :content="futureReserve(value)" class="ml-2">
+            <v-badge :color="color(futureReserve(value))" :content="futureReserve(value)" class="ml-2">
                 нада
+            </v-badge>
+            <v-badge :color="color(orderStep(value))" :content="orderStep(value)" class="ml-2">
+                порог
             </v-badge>
         </v-col>
     </v-row>
@@ -36,6 +44,16 @@
                             : 0
                     ) + item.retailOrderLinesNeedQuantity
                 ).toString();
+            },
+            orderStep(value) {
+                return value.orderStep
+                    ? value.orderStep.QUAN_TO_ZAKAZ_SHOP
+                        ? value.orderStep.QUAN_TO_ZAKAZ_SHOP.toString()
+                        : '0'
+                    : '0';
+            },
+            color(v) {
+                return v !== '0' ? 'green' : 'red';
             }
         }
     }

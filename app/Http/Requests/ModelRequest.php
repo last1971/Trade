@@ -87,6 +87,7 @@ class ModelRequest extends FormRequest
                     'item.buyer_id' => 'required|integer|unique:App\AdvancedBuyer,buyer_id',
                 ];
                 break;
+            case 'good.store':
             case 'good.update':
                 $rules += [
                     'item.NAMECODE' => 'required|integer',

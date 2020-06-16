@@ -59,7 +59,7 @@
         },
         data() {
             return {
-                with_: ['name', 'retailStore', 'warehouse'],
+                with_: ['name', 'retailStore', 'warehouse', 'orderStep', 'category', 'retailPrice'],
                 aggregateAttributes: [
                     'reservesQuantity',
                     'invoiceLinesQuantityTransit',

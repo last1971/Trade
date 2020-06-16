@@ -1,10 +1,11 @@
 <template>
     <v-container>
         <v-row>
-            <category-select :disabled="true" v-model="model.CATEGORYCODE"/>
+            <category-select :disabled="true" :key="categoryKey" v-model="model.CATEGORYCODE"/>
             <name-select :error-messages="errors['item.NAMECODE']"
                          @save="nameSaved"
                          v-model="model.NAMECODE"
+                         :key="nameKey"
             />
         </v-row>
         <v-row>
@@ -48,6 +49,8 @@
             return {
                 NAMECODE: null,
                 MODEL: 'GOOD',
+                nameKey: 0,
+                categoryKey: 100,
             }
         },
         computed: {
@@ -72,12 +75,16 @@
             model: {
                 deep: true,
                 handler: function (val) {
-                    if (this.NAMECODE && val.NAMECODE && this.NAMECODE !== val.NAMECODE) {
+                    if (val.NAMECODE && this.NAMECODE !== val.NAMECODE) {
                         this.$store.dispatch('NAME/CACHE', {id: val.NAMECODE, query: {with: ['category']}})
                             .then((response) => {
                                 this.model.CATEGORYCODE = response.CATEGORYCODE;
                                 this.model.category = response.category
+                                this.categoryKey += 1;
                             })
+                    }
+                    if (!val.NAMECODE) {
+                        this.CATEGORYCODE = null;
                     }
                     this.NAMECODE = val.NAMECODE;
                 }
@@ -85,7 +92,9 @@
         },
         methods: {
             nameSaved(name) {
-                this.model.CATEGORYCODE = name.CATEGORYCODE;
+                this.model.CATEGORYCODE = name ? name.CATEGORYCODE : null;
+                this.nameKey += 1;
+                this.categoryKey += 1;
             }
         },
     }
