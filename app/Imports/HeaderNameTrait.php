@@ -76,10 +76,9 @@ trait HeaderNameTrait
                 );
             } else if ($cell->getColumn() === $this->priceColumn) {
                 $price = Str::replaceFirst(',', '.', $value) / $this->lastMultiplicity;
-                $cell->setValueExplicit($price, DataType::TYPE_NUMERIC
-                );
+                $cell->setValueExplicit($price, DataType::TYPE_NUMERIC);
             } else if ($cell->getColumn() === $this->amountColumn) {
-                $cell->setValueExplicit(floatval($value), DataType::TYPE_NUMERIC
+                $cell->setValueExplicit(Str::replaceFirst(',', '.', $value), DataType::TYPE_NUMERIC
                 );
             } else {
                 $cell->setValueExplicit($value, DataType::TYPE_STRING);
