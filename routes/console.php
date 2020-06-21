@@ -20,5 +20,6 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-    dd(config('app.search_replace'));
+    $a = 3242342342.3223;
+    dd(str_replace(',', '.', $a));
 })->describe('Display an inspiring quote');

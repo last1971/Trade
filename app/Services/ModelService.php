@@ -43,6 +43,12 @@ class ModelService
     protected $dateAttributes = [];
 
     /**
+     * Firebird2.0 has ploblem with float attributes
+     * @var array
+     */
+    protected $floatAttributes = [];
+
+    /**
      * Additional RAW where
      * @var array
      */
@@ -102,6 +108,31 @@ class ModelService
             $sql = 'UPDATE ' . $table . ' SET ';
             foreach ($dateDiff as $key => $val) {
                 $sql .= $key . ' = \'' . $val . '\' ,';
+            }
+            $sql = Str::replaceLast(',', '', $sql) . 'WHERE ' . $keyName . ' = ' . $model->getKey();
+            DB::connection('firebird')->update($sql);
+        }
+    }
+
+    private function getFloatDiff(array $item, Model $model)
+    {
+        $ret = [];
+        foreach ($item as $key => $val) {
+            if (array_search($key, $this->floatAttributes) !== FALSE && $val !== $model->getAttribute($key))
+                $ret[$key] = $val;
+        }
+        return $ret;
+    }
+
+    private function setChangedFloats(array $item, Model $model)
+    {
+        $floatDiff = $this->getFloatDiff($item, $model);
+        if (count($floatDiff) > 0) {
+            $table = $model->getTable();
+            $keyName = $model->getKeyName();
+            $sql = 'UPDATE ' . $table . ' SET ';
+            foreach ($floatDiff as $key => $val) {
+                $sql .= $key . ' = ' . str_replace(',', '.', $val) . ' ,';
             }
             $sql = Str::replaceLast(',', '', $sql) . 'WHERE ' . $keyName . ' = ' . $model->getKey();
             DB::connection('firebird')->update($sql);
@@ -207,12 +238,11 @@ class ModelService
      */
     public function update($request, $id)
     {
-        // DB::connection('firebird')->enableQueryLog();
         $model = $this->query->find(intval($id));
         $model->fill($request->item);
         $model->save();
         $this->setCahngedDates($request->item, $model);
-        // Log::debug('update', DB::connection('firebird')->getQueryLog());
+        $this->setChangedFloats($request->item, $model);
         return $this->index(collect($request->options))->find(intval($id));
     }
 
@@ -227,6 +257,7 @@ class ModelService
         $model->fill($data);
         $model->save();
         $this->setCahngedDates($data, $model);
+        $this->setChangedFloats($data, $model);
         return $this->index(collect(is_array($request) ? [] : $request->options))->find($model->getKey());
     }
 

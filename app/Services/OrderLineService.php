@@ -44,5 +44,7 @@ class OrderLineService extends ModelService
             $query
                 ->join('NAME as name', 'name.NAMECODE', '=', 'good.NAMECODE');
         };
+
+        $this->floatAttributes = ['PRICE', 'SUMMAP'];
     }
 }

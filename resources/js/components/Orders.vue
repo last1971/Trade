@@ -17,9 +17,19 @@
                 v-if="!isMobile || mobileFiltersVisible"
             >
                 <td v-if="!isMobile">
-                    <v-btn :to="{ name: 'order', params: { id: 0 }}" dark icon>
-                        <v-icon color="green">mdi-plus</v-icon>
-                    </v-btn>
+                    <v-speed-dial :open-on-hover="true" direction="right">
+                        <template v-slot:activator>
+                            <v-btn icon>
+                                <v-icon>mdi-hand-pointing-right</v-icon>
+                            </v-btn>
+                        </template>
+                        <v-btn @click="updateItems" fab>
+                            <v-icon>mdi-reload</v-icon>
+                        </v-btn>
+                        <v-btn :to="{ name: 'order', params: { id: 0 }}" fab>
+                            <v-icon color="green">mdi-plus</v-icon>
+                        </v-btn>
+                    </v-speed-dial>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-menu

@@ -19,13 +19,13 @@
         <template v-slot:item.amount="{ item }">{{ item.amount | formatRub }}</template>
         <template v-slot:footer>
             <v-row class="py-4" justify="center" no-gutters>
-                <v-col lg="1">
+                <v-col md="1">
                     <v-btn @click="cancel" class="pa-2">
                         <v-icon color="red">mdi-cancel</v-icon>
                         Отмена
                     </v-btn>
                 </v-col>
-                <v-col class="pl-6" lg="1">
+                <v-col class="pl-6" md="1">
                     <v-btn :disabled="!savePossible" @click="save" class="pa-2">
                         <v-icon color="green">mdi-content-save</v-icon>
                         Сохранить

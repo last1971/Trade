@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Imports\CompelFactureImport;
 use App\Imports\XlsFactureImport;
 use App\Order;
-use App\OrderLine;
 use App\Services\GoodService;
+use App\Services\OrderLineService;
 use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -108,7 +108,7 @@ class OrderImportLineController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $order = Order::query()->find($id);
+        $order = Order::query()->find(intval($id));
         $GOODSCODE = 0;
         $staffId = $request->user()->employee->ID;
         foreach ($request->get('lines') as $line) {
@@ -116,11 +116,12 @@ class OrderImportLineController extends Controller
                 $service = new OrderService();
                 $order = $service->create($order->getAttributes());
             }
-            OrderLine::query()->create([
+            $orderLineService = new OrderLineService();
+            $orderLineService->create([
                 'MASTER_ID' => $order->ID,
                 'GOODSCODE' => $line['GOODSCODE'],
                 'QUAN' => $line['quantity'],
-                'PRICE' => $line['price'],
+                'PRICE' => '1.2',//$line['price'],
                 'SUMMAP' => $line['amount'],
                 'NAME_IN_PRICE' => $line['name'],
                 'STRANA' => $line['country'],
