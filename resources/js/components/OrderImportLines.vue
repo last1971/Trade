@@ -20,13 +20,13 @@
         <template v-slot:footer>
             <v-row class="py-4" justify="center" no-gutters>
                 <v-col md="1">
-                    <v-btn @click="cancel" class="pa-2">
+                    <v-btn :disabled="loading" @click="cancel" class="pa-2">
                         <v-icon color="red">mdi-cancel</v-icon>
                         Отмена
                     </v-btn>
                 </v-col>
                 <v-col class="pl-6" md="1">
-                    <v-btn :disabled="!savePossible" @click="save" class="pa-2">
+                    <v-btn :disabled="!savePossible || loading" :loading="loading" @click="save" class="pa-2">
                         <v-icon color="green">mdi-content-save</v-icon>
                         Сохранить
                     </v-btn>
@@ -50,6 +50,11 @@
                 type: Number,
             }
         },
+        data() {
+            return {
+                loading: false,
+            }
+        },
         computed: {
             headers() {
                 return this.$store.getters['ORDER-IMPORT-LINE/HEADERS'];
@@ -69,10 +74,14 @@
                 this.$emit('input', []);
             },
             save() {
+                this.loading = true;
                 this.$store.dispatch(
                     'ORDER-IMPORT-LINE/SAVE', {lines: this.value, masterId: this.masterId}
                 )
-                    .then(() => this.$emit('input', []));
+                    .then(() => this.$emit('input', []))
+                    .catch(() => {
+                    })
+                    .then(() => this.loading = false);
             }
         }
     }

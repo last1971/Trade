@@ -83,11 +83,12 @@
         <v-row>
             <v-col>
                 <v-file-input
-                    :disabled="model.STATUS !== 0"
+                    :disabled="model.STATUS !== 0 || loading"
                     @change="upload"
                     accept=".csv,.xlsx"
                     label="Импорт заказа"
                     v-model="importFiles"
+                    :loading="loading"
                 />
             </v-col>
         </v-row>
@@ -111,6 +112,7 @@
                 MODEL: 'ORDER',
                 datePickerCome: false,
                 importFiles: null,
+                loading: false,
             }
         },
         computed: {
@@ -139,10 +141,14 @@
                     : moment().format('Y-MM-DD');
             },
             upload(files) {
+                this.loading = true;
                 this.$store.dispatch('ORDER-IMPORT-LINE/UPLOAD', {files})
                     .then((response) => {
                         this.$emit('import', response.data);
                     })
+                    .catch(() => {
+                    })
+                    .then(() => this.loading = false)
             }
         }
     }
