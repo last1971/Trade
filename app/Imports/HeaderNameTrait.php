@@ -16,7 +16,7 @@ trait HeaderNameTrait
 
     private $amountHeaders = ['сумма', 'валютная сумма'];
 
-    private $multiplicityHeaders = ['кратность'];
+    private $multiplicityHeaders = ['кратность', 'Цена указана за ... шт.'];
 
     private $countryHeaders = ['страна происхождения', 'страна'];
 
