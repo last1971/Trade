@@ -2,16 +2,10 @@
 
 namespace App\Imports;
 
-use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\ToCollection;
+use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
 
-class XlsFactureImport implements ToCollection
+class XlsFactureImport implements WithCustomValueBinder
 {
-    /**
-     * @param Collection $collection
-     */
-    public function collection(Collection $collection)
-    {
-        //
-    }
+
+    use HeaderNameTrait;
 }

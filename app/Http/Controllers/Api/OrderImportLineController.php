@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\GoodName;
 use App\Http\Controllers\Controller;
 use App\Imports\CompelFactureImport;
-use App\Imports\XlsFactureImport;
+use App\Imports\PromelecFactureImport;
 use App\Order;
 use App\Services\GoodService;
 use App\Services\OrderLineService;
@@ -20,14 +20,14 @@ class OrderImportLineController extends Controller
 {
     /**
      * @param UploadedFile $file
-     * @return CompelFactureImport|XlsFactureImport
+     * @return mixed
      */
     private function getImport(UploadedFile $file)
     {
         if (strpos($file->getClientOriginalName(), 'facture_') === 0) {
             return new CompelFactureImport();
         }
-        return new XlsFactureImport();
+        return new PromelecFactureImport();//XlsFactureImport();
     }
 
     /**

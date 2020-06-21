@@ -26,7 +26,7 @@
                             v-on="on"
                         />
                     </template>
-                    <v-date-picker @input="datePicker = false" v-model="model.INVOICE_DATA"></v-date-picker>
+                    <v-date-picker @input="datePicker = false" first-day-of-week="1" v-model="model.INVOICE_DATA"/>
                 </v-menu>
             </v-col>
             <v-col cols="12" sm="auto">
@@ -58,7 +58,7 @@
                             v-on="on"
                         />
                     </template>
-                    <v-date-picker @input="datePickerCome = false" v-model="model.DATA_PRIH"></v-date-picker>
+                    <v-date-picker @input="datePickerCome = false" first-day-of-week="1" v-model="model.DATA_PRIH"/>
                 </v-menu>
             </v-col>
             <v-col cols="12" sm="auto">
@@ -85,7 +85,7 @@
                 <v-file-input
                     :disabled="model.STATUS !== 0"
                     @change="upload"
-                    accept=".csv"
+                    accept=".csv,.xlsx"
                     label="Импорт заказа"
                     v-model="importFiles"
                 />
