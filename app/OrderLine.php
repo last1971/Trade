@@ -2,16 +2,24 @@
 
 namespace App;
 
+use App\ModelTraits\InsertTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderLine extends Model
 {
-    //
+    use InsertTrait;
+
+    public $fillable = [
+        'MASTER_ID', 'GOODSCODE', 'QUAN', 'PRICE', 'SUMMAP', 'NAME_IN_PRICE', 'GTD', 'STRANA', 'STAFF_ID'
+    ];
+
     public $timestamps = false;
 
     protected $connection = 'firebird';
 
     protected $primaryKey = 'ID';
+
+    protected $sequenceName = 'GEN_ZAKAZ_DETAIL_ID';
 
     protected $table = 'ZAKAZ_DETAIL';
 

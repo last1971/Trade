@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\GoodName;
 use App\Http\Controllers\Controller;
 use App\Imports\CompelFactureImport;
 use App\Imports\XlsFactureImport;
+use App\Order;
+use App\OrderLine;
 use App\Services\GoodService;
+use App\Services\OrderService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
@@ -23,16 +28,6 @@ class OrderImportLineController extends Controller
             return new CompelFactureImport();
         }
         return new XlsFactureImport();
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return Response
-     */
-    public function index()
-    {
-        //
     }
 
     /**
@@ -107,36 +102,38 @@ class OrderImportLineController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
      * @param Request $request
-     * @param int $id
-     * @return Response
+     * @param $id
+     * @return JsonResponse
      */
     public function update(Request $request, $id)
     {
-        //
+        $order = Order::query()->find($id);
+        $GOODSCODE = 0;
+        $staffId = $request->user()->employee->ID;
+        foreach ($request->get('lines') as $line) {
+            if ($GOODSCODE === $line['GOODSCODE']) {
+                $service = new OrderService();
+                $order = $service->create($order->getAttributes());
+            }
+            OrderLine::query()->create([
+                'MASTER_ID' => $order->ID,
+                'GOODSCODE' => $line['GOODSCODE'],
+                'QUAN' => $line['quantity'],
+                'PRICE' => $line['price'],
+                'SUMMAP' => $line['amount'],
+                'NAME_IN_PRICE' => $line['name'],
+                'STRANA' => $line['country'],
+                'GTD' => $line['declaration'],
+                'STAFF_ID' => $staffId,
+            ]);
+            GoodName::query()->firstOrCreate([
+                'GOODSCODE' => $line['GOODSCODE'],
+                'NAME' => mb_ereg_replace(config('app.search_replace'), '', $line['name']),
+            ]);
+            $GOODSCODE = $line['GOODSCODE'];
+        }
+        return response()->json(['message' => 'OK']);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
 }

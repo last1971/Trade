@@ -223,10 +223,11 @@ class ModelService
     public function create($request)
     {
         $model = new $this->modelClass;
-        $model->fill($request->item);
+        $data = is_array($request) ? $request : $request->item;
+        $model->fill($data);
         $model->save();
-        $this->setCahngedDates($request->item, $model);
-        return $this->index(collect($request->options))->find($model->getKey());
+        $this->setCahngedDates($data, $model);
+        return $this->index(collect(is_array($request) ? [] : $request->options))->find($model->getKey());
     }
 
     public function remove($id)

@@ -60,6 +60,7 @@
             errorMessages: {type: Array, default: () => []},
             noFilter: {type: Boolean, default: true},
             getValue: {type: Boolean, default: false},
+            newSearch: {type: String, default: ''}
         },
         data() {
             return {
@@ -94,7 +95,7 @@
             },
             MODEL() {
                 return _.toUpper(this.model);
-            }
+            },
         },
         watch: {
             search: _.debounce(function (val) {
@@ -112,6 +113,9 @@
             getValue(val) {
                 if (val) this.loadValue();
             },
+            newSearch(val) {
+                this.search = val;
+            }
         },
         methods: {
             getItems(val = '') {

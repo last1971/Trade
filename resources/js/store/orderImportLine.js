@@ -49,7 +49,7 @@ let actions = {
     UPLOAD({state, getters, commit, rootGetters}, payload) {
         if (!payload.files) return Promise.reject('File is empty');
         const data = new FormData();
-        data.append('file', payload.files[0])
+        data.append('file', _.isArray(payload.files) ? payload.files[0] : payload.files)
         return new Promise((resolve, reject) => {
             axios.post(getters.URL, data, {headers: {'Content-Type': 'multipart/form-data'}})
                 .then(response => {
@@ -58,6 +58,19 @@ let actions = {
                             commit('GOOD/UPDATE', orderImportLine.good, {root: true});
                         }
                     });
+                    resolve(response);
+                })
+                .catch((error) => {
+                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                    reject(error);
+                });
+        });
+    },
+
+    SAVE({state, getters, commit, rootGetters}, payload) {
+        return new Promise((resolve, reject) => {
+            axios.put(getters.URL + '/' + payload.masterId, payload)
+                .then(response => {
                     resolve(response);
                 })
                 .catch((error) => {

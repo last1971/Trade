@@ -11,6 +11,7 @@
         label="Товар"
         model="good"
         v-model="proxy"
+        :new-search="newSearch"
     >
         <template v-slot:item="{ item, maxLength }">
             <good-in-string v-model="item"/>
@@ -56,6 +57,7 @@
             value: {type: [Array, Number, String]},
             disabled: {type: Boolean, default: false},
             dense: {type: Boolean, default: false},
+            newSearch: {type: String, default: ''},
         },
         data() {
             return {

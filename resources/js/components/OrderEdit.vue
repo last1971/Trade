@@ -79,8 +79,16 @@
                     <span v-else>Сохранить</span>
                 </v-btn>
             </v-col>
+        </v-row>
+        <v-row>
             <v-col>
-                <file-drop @filesSelected="upload" text="Импорт заказа"/>
+                <v-file-input
+                    :disabled="model.STATUS !== 0"
+                    @change="upload"
+                    accept=".csv"
+                    label="Импорт заказа"
+                    v-model="importFiles"
+                />
             </v-col>
         </v-row>
     </v-form>
@@ -102,6 +110,7 @@
             return {
                 MODEL: 'ORDER',
                 datePickerCome: false,
+                importFiles: null,
             }
         },
         computed: {

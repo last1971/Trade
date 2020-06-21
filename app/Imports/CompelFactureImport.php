@@ -37,10 +37,10 @@ class CompelFactureImport implements WithHeadingRow, WithCustomCsvSettings, With
                     $cell->setValueExplicit('quantity', DataType::TYPE_STRING);
                     break;
                 case 'H':
-                    $cell->setValueExplicit('price', DataType::TYPE_STRING);
+                    $cell->setValueExplicit('amount', DataType::TYPE_STRING);
                     break;
                 case 'I':
-                    $cell->setValueExplicit('amount', DataType::TYPE_STRING);
+                    $cell->setValueExplicit('price', DataType::TYPE_STRING);
                     break;
                 case 'K':
                     $cell->setValueExplicit('declaration', DataType::TYPE_STRING);

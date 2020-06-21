@@ -1,5 +1,8 @@
 <template>
-    <good-select v-model="test"/>
+    <div>
+        <good-select :new-search="newSearch" ref="test" v-model="test"/>
+        <v-btn @click="click">test</v-btn>
+    </div>
 </template>
 
 <script>
@@ -12,6 +15,15 @@
         data() {
             return {
                 test: null,
+                newSearch: '123',
+            }
+        },
+        methods: {
+            click() {
+                const el = this.$refs.test.$el;
+                let childData = el.querySelectorAll("input")[0];
+                childData.focus()
+                this.newSearch = 'max232cpe'
             }
         }
     }

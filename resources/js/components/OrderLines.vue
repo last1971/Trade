@@ -35,7 +35,7 @@
                 {{ item.SUMMAP | formatRub }}
             </template>
         </v-data-table>
-        <order-import-lines v-else v-model="orderImportLines"/>
+        <order-import-lines :master-id="value.ID" v-else v-model="orderImportLines"/>
     </div>
 </template>
 
