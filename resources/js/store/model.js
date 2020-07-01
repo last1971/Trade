@@ -27,6 +27,7 @@ const state = {
     aggregateAttributes: [],
     fillable: [],
     dependentModels: {},
+    parentModel: {},
 };
 
 const getters = {
@@ -35,9 +36,13 @@ const getters = {
     KEYTYPE: state => state.keyType,
     URL: state => `/api/${state.name}`,
     GET: state => (id) => {
-        return _.cloneDeep(_.find(state.items, {[state.key]: state.keyType === Number ? parseInt(id) : id}))
+        return _.isArray(id)
+            ? state.items.filter(
+                (item) => id.indexOf(state.keyType === Number ? parseInt(item[state.key]) : item[state.key]) >= 0
+            )
+            : _.find(state.items, {[state.key]: state.keyType === Number ? parseInt(id) : id})
     },
-    ALL: state => _.cloneDeep(state.items),
+    ALL: state => state.items,
     HEADERS: state => state.headers,
     FILLABLE: state => state.fillable,
 };
@@ -62,8 +67,7 @@ const mutations = {
             this.commit('SNACKBAR/ERROR', error);
             throw new Error(error);
         }
-        const update = _.cloneDeep(mergeData);
-        state.items = _.unionBy(update, state.items, state.key);
+        state.items = _.unionBy(mergeData, state.items, state.key);
     },
 
     CREATE(state, newDataRow) {
@@ -184,23 +188,23 @@ let actions = {
                 });
         });
     },
-    ALL({state, getters, commit}, payload) {
-        return new Promise((resolve, reject) => {
+    async ALL({state, getters, commit}, payload) {
+        try {
             const query = _.cloneDeep(payload);
             queryClear(query);
-            axios
-                .get(getters.URL, {params: query})
-                .then((response) => {
-                    if (response.data.data && response.data.data.length > 0) {
-                        commit('MERGE', response.data.data);
-                    }
-                    resolve(response);
-                })
-                .catch((error) => {
-                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
-                    reject(error);
-                });
-        });
+            const response = await axios.get(getters.URL, {params: query});
+            if (response.data.data && response.data.data.length > 0) {
+                commit('MERGE', response.data.data);
+            }
+            return {
+                itemIds: response.data.data.map((item) => item[state.key]),
+                copyItmes: response.data.data,
+                total: response.data.total !== undefined ? response.data.total : response.data.meta.total
+            }
+        } catch (error) {
+            commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+            throw error;
+        }
     },
     REMOVE({getters, commit}, id) {
         return new Promise((resolve, reject) => {
@@ -266,25 +270,28 @@ let actions = {
             axios.put(getters.URL + '/' + payload.item[getters.KEY], update)
                 .then(response => {
                     commit('UPDATE', response.data);
+                    /* нужно переосмыслить */
+                    /* берем модели внутри котрых есть эта */
                     _.forEach(state.dependentModels, (value, key) => {
                         const models = _.filter(rootGetters[key + '/ALL'], function (model) {
                             return model[value] && model[value][getters.KEY] === response.data[getters.KEY]
                         })
+                        /* и меняем ту что внутри взятых моделей на эту  */
                         models.forEach((model) => {
                             model[value] = response.data;
                             commit(key + '/UPDATE', model, {root: true});
                         })
                     });
-                    commit(
-                        'SNACKBAR/SET',
-                        {
-                            text: getters.NAME + ' with id ' + payload.item[getters.KEY] + ' was saved.',
-                            color: 'success',
-                            status: true,
-                            timeout: 3000
-                        },
-                        {root: true}
-                    );
+                    /*   commit(
+                           'SNACKBAR/SET',
+                           {
+                               text: getters.NAME + ' with id ' + payload.item[getters.KEY] + ' was saved.',
+                               color: 'success',
+                               status: true,
+                               timeout: 3000
+                           },
+                           {root: true}
+                       );*/
                     resolve(response)
                 })
                 .catch((error) => {

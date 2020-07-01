@@ -3,7 +3,9 @@ export default {
         return {
             loading: false,
             total: 0,
-            items: [],
+            // items: [],
+            itemIds: [],
+            copyItems: [],
             dependent: false,
             parent: null,
             filterValues: null,
@@ -20,6 +22,9 @@ export default {
         checkFilters() {
             return true;
         },
+        items() {
+            return this.$store.getters[this.model + '/GET'](this.itemIds);
+        }
     },
     watch: {
         options: {
@@ -50,8 +55,9 @@ export default {
             this.loading = true;
             this.$store.dispatch(this.model + '/ALL', this.requestParams())
                 .then((response) => {
-                    this.total = response.data.total !== undefined ? response.data.total : response.data.meta.total;
-                    this.items = response.data.data;
+                    this.total = response.total;//.data.total !== undefined ? response.data.total : response.data.meta.total;
+                    this.itemIds = response.itemIds;
+                    this.copyItems = response.copyItems;
                     const newQuery = _.cloneDeep(this.options);
                     if (!this.dependent && !_.isEqual(this.$route.query, newQuery)) {
                         this.$router.replace(

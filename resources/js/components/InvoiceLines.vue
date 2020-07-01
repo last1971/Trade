@@ -21,16 +21,13 @@
             <good-name v-model="item" :prim="item.good.PRIM"/>
         </template>
         <template v-slot:item.QUAN="{ item }">
-            <v-edit-dialog @save="save(item, 'QUAN')">
-                {{ item.QUAN }}
-                <template v-if="editable" v-slot:input>
-                    <v-text-field
+            <edit-field :disabled="!editable"
+                        :model="model"
+                        :options="options"
                         :rules="QUANRules"
-                        single-line
-                        v-model="item.QUAN"
-                    />
-                </template>
-            </v-edit-dialog>
+                        attribute="QUAN"
+                        v-model="item"
+            />
         </template>
         <template v-slot:item.reservesQuantity="{ item }">
             <div :class="reserveClass(item)">
@@ -130,11 +127,12 @@
     import OrderLineInWay from "./OrderLineInWay";
     import {mapGetters} from 'vuex';
     import GoodName from "./GoodName";
+    import EditField from "./EditField";
 
     export default {
         name: "InvoiceLines",
         mixins: [tableMixin, utilsMixin],
-        components: {GoodName, OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},
+        components: {EditField, GoodName, OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},
         props: {
             value: {
                 type: Object,
