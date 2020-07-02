@@ -135,7 +135,7 @@
                         const filtred = _.isArray(this.value)
                             ? this.items.filter((item) => this.value.indexOf(item[this.itemValue]) >= 0)
                             : [];
-                        this.items = _.union(response.data.data, filtred);
+                        this.items = _.union(response.copyItems, filtred);
                     })
                     .then(() => this.isLoading = false);
             },

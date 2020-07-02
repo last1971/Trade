@@ -22,11 +22,10 @@
         </template>
         <template v-slot:item.QUAN="{ item }">
             <edit-field :disabled="!editable"
-                        :model="model"
-                        :options="options"
                         :rules="QUANRules"
                         attribute="QUAN"
                         v-model="item"
+                        @save="save"
             />
         </template>
         <template v-slot:item.reservesQuantity="{ item }">
@@ -45,66 +44,60 @@
             </div>
         </template>
         <template v-slot:item.priceWithoutVat="{ item }">
-            <v-edit-dialog @save="save(item, 'PRICE')">
-                {{ item.priceWithoutVat | formatRub }}
-                <template v-if="editable" v-slot:input>
-                    <v-text-field
+            <edit-field :disabled="!editable"
                         :rules="PRICERules"
-                        @input="priceCalculate(item)"
-                        single-line
-                        v-model="item.priceWithoutVat"
-                    />
+                        @save="priceCalculate"
+                        attribute="priceWithoutVat"
+                        v-model="item"
+            >
+                <template v-slot:cell>
+                    {{ item.priceWithoutVat | formatRub }}
                 </template>
-            </v-edit-dialog>
+            </edit-field>
         </template>
         <template v-slot:item.PRICE="{ item }">
-            <v-edit-dialog @save="save(item, 'PRICE')">
-                {{ item.PRICE | formatRub }}
-                <template v-if="editable" v-slot:input>
-                    <v-text-field
+            <edit-field :disabled="!editable"
                         :rules="PRICERules"
-                        single-line
-                        v-model="item.PRICE"
-                    />
+                        @save="save"
+                        attribute="PRICE"
+                        v-model="item"
+            >
+                <template v-slot:cell>
+                    {{ item.PRICE | formatRub }}
                 </template>
-            </v-edit-dialog>
+            </edit-field>
         </template>
         <template v-slot:item.sumWithoutVat="{ item }">
-            <v-edit-dialog @save="save(item, 'SUMMAP')">
-                {{ item.sumWithoutVat | formatRub }}
-                <template v-if="editable" v-slot:input>
-                    <v-text-field
+            <edit-field :disabled="!editable"
                         :rules="SUMMAPRules"
-                        @change="sumCalculate(item)"
-                        single-line
-                        v-model="item.sumWithoutVat"
-                    />
+                        @save="sumCalculate"
+                        attribute="sumWithoutVat"
+                        v-model="item"
+            >
+                <template v-slot:cell>
+                    {{ item.sumWithoutVat | formatRub }}
                 </template>
-            </v-edit-dialog>
+            </edit-field>
         </template>
         <template v-slot:item.SUMMAP="{ item }">
-            <v-edit-dialog @save="save(item, 'SUMMAP')">
-                {{ item.SUMMAP | formatRub }}
-                <template v-if="editable" v-slot:input>
-                    <v-text-field
-                        :rules="PRICERules"
-                        single-line
-                        v-model="item.SUMMAP"
-                    />
+            <edit-field :disabled="!editable"
+                        :rules="SUMMAPRules"
+                        @save="save"
+                        attribute="SUMMAP"
+                        v-model="item"
+            >
+                <template v-slot:cell>
+                    {{ item.SUMMAP | formatRub }}
                 </template>
-            </v-edit-dialog>
+            </edit-field>
         </template>
         <template v-slot:item.PRIM="{ item }">
-            <v-edit-dialog @save="save(item, 'PRIM')">
-                {{ item.PRIM }}
-                <template v-if="editable" v-slot:input>
-                    <v-text-field
+            <edit-field :disabled="!editable"
                         :rules="PRIMRules"
-                        single-line
-                        v-model="item.PRIM"
-                    />
-                </template>
-            </v-edit-dialog>
+                        @save="save"
+                        attribute="PRIM"
+                        v-model="item"
+            />
         </template>
         <template v-slot:expanded-item="{ headers, item }">
             <td :colspan="headers.length" :key="item.REALPRICECODE">
@@ -173,13 +166,13 @@
             },
             ...mapGetters({vat: 'VAT'}),
             QUANRules() {
-                return [this.rules.isInteger, this.rules.required]
+                return [this.rules.isInteger, this.rules.required, this.rules.positive]
             },
             PRICERules() {
-                return [this.rules.isNumber, this.rules.required]
+                return [this.rules.isNumber, this.rules.required, this.rules.positive]
             },
             SUMMAPRules() {
-                return [this.rules.isNumber, this.rules.required]
+                return [this.rules.isNumber, this.rules.required, this.rules.positive]
             },
             PRIMRules() {
                 return [() => true];
@@ -205,22 +198,8 @@
                 if (QUAN === transferOutLinesQuantity) return 'success--text';
                 return 'primary--text';
             },
-            save(item, attr) {
-                const validate = this[attr + 'Rules'].reduce((res, f) => res && f(item[attr]) === true, true);
-                if (validate) {
-                    this.$store.dispatch(this.model + '/UPDATE', {item, options: this.options})
-                        .then((response) => {
-                            const index = _.findIndex(this.items, {REALPRICECODE: item.REALPRICECODE});
-                            this.items.splice(index, 1, response.data);
-                        })
-                        .catch(() => this.restore(item));
-                } else {
-                    const error = this[attr + 'Rules'].reduce((res, f) =>
-                        res === true ? f(item[attr]) : res, true
-                    );
-                    this.restore(item);
-                    this.$store.commit('SNACKBAR/ERROR', error);
-                }
+            save(item) {
+                this.$store.dispatch(this.model + '/UPDATE', {item, options: this.options});
             },
             restore(item) {
                 const restore = this.$store.getters[this.model + '/GET'](item.REALPRICECODE);
@@ -229,10 +208,13 @@
             },
             priceCalculate(item) {
                 item.PRICE = item.priceWithoutVat * (100 + this.vat) / 100 || '';
+                if (item.PRICE) item.PRICE = item.PRICE.toFixed(2);
+                this.save(item);
             },
             sumCalculate(item) {
                 item.SUMMAP = item.sumWithoutVat * (100 + this.vat) / 100 || '';
                 if (item.SUMMAP) item.SUMMAP = item.SUMMAP.toFixed(2);
+                this.save(item);
             },
         }
     }

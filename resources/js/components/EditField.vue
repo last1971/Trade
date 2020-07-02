@@ -1,6 +1,6 @@
 <template>
     <v-edit-dialog @open="open" @save="save">
-        {{ value[attribute] }}
+        <slot name="cell">{{ value[attribute] }}</slot>
         <template v-if="!disabled" v-slot:input>
             <v-text-field
                 :rules="rules"
@@ -16,11 +16,9 @@
         name: "EditField",
         props: {
             value: {type: Object, required: true},
-            model: {type: String, required: true},
             attribute: {type: String, required: true},
             rules: {type: Array, default: () => []},
-            options: {type: Object, default: () => ({})},
-            disabled: {type: Boolean, default: false}
+            disabled: {type: Boolean, default: false},
         },
         data() {
             return {
@@ -38,7 +36,7 @@
                 } else {
                     const item = _.cloneDeep(this.value);
                     item[this.attribute] = this.editingValue;
-                    this.$store.dispatch(this.model + '/UPDATE', {item, options: this.options});
+                    this.$emit('save', item);
                 }
             }
         }
