@@ -10,7 +10,7 @@ class OrderLine extends Model
     use InsertTrait;
 
     public $fillable = [
-        'MASTER_ID', 'GOODSCODE', 'QUAN', 'NAME_IN_PRICE', 'GTD', 'STRANA', 'STAFF_ID'
+        'MASTER_ID', 'GOODSCODE', 'QUAN', 'NAME_IN_PRICE', 'GTD', 'STRANA', 'STAFF_ID', 'PRIM'
     ];
 
     public $timestamps = false;

@@ -198,14 +198,6 @@
                 if (QUAN === transferOutLinesQuantity) return 'success--text';
                 return 'primary--text';
             },
-            save(item) {
-                this.$store.dispatch(this.model + '/UPDATE', {item, options: this.options});
-            },
-            restore(item) {
-                const restore = this.$store.getters[this.model + '/GET'](item.REALPRICECODE);
-                const index = _.findIndex(this.items, {REALPRICECODE: item.REALPRICECODE});
-                this.items.splice(index, 1, restore);
-            },
             priceCalculate(item) {
                 item.PRICE = item.priceWithoutVat * (100 + this.vat) / 100 || '';
                 if (item.PRICE) item.PRICE = item.PRICE.toFixed(2);

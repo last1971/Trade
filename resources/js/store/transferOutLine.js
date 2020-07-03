@@ -7,6 +7,8 @@ state.name = 'transfer-out-line';
 
 state.key = 'REALPRICEFCODE';
 
+state.fillable = ['STRANA', 'GTD'];
+
 state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},
     {

@@ -24,6 +24,12 @@
         <template v-slot:item.SUMMAP="{ item }">
             {{ item.SUMMAP | formatRub }}
         </template>
+        <template v-slot:item.STRANA="{ item }">
+            <edit-field @save="save" attribute="STRANA" v-model="item"/>
+        </template>
+        <template v-slot:item.GTD="{ item }">
+            <edit-field @save="save" attribute="GTD" v-model="item"/>
+        </template>
     </v-data-table>
 </template>
 
@@ -32,11 +38,12 @@
     import utilsMixin from "../mixins/utilsMixin";
     import TransferOutEdit from "./TransferOutEdit";
     import GoodName from "./GoodName";
+    import EditField from "./EditField";
     import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
 
     export default {
         name: "TransferOutLines",
-        components: {TransferOutEdit, GoodName},
+        components: {TransferOutEdit, GoodName, EditField},
         props: {
             value: {
                 type: Object,

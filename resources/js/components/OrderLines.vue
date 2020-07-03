@@ -5,7 +5,7 @@
             showFirstLastPage: true,
         }"
             :headers="headers"
-            :items="items"
+            :items="items2"
             :loading="loading"
             :multi-sort="true"
             :options.sync="options"
@@ -31,8 +31,20 @@
             <template v-slot:item.PRICE="{ item }">
                 {{ item.PRICE | formatRub }}
             </template>
+            <template v-slot:item.priceWithoutVat="{ item }">
+                {{ item.priceWithoutVat | formatRub }}
+            </template>
             <template v-slot:item.SUMMAP="{ item }">
                 {{ item.SUMMAP | formatRub }}
+            </template>
+            <template v-slot:item.sumWithoutVat="{ item }">
+                {{ item.sumWithoutVat | formatRub }}
+            </template>
+            <template v-slot:item.STRANA="{ item }">
+                <edit-field @save="save" attribute="STRANA" v-model="item"/>
+            </template>
+            <template v-slot:item.GTD="{ item }">
+                <edit-field @save="save" attribute="GTD" v-model="item"/>
             </template>
         </v-data-table>
         <order-import-lines :master-id="value.ID" v-else v-model="orderImportLines"/>
@@ -45,11 +57,13 @@
     import OrderEdit from "./OrderEdit";
     import GoodName from "./GoodName";
     import OrderImportLines from "./OrderImportLines";
+    import EditField from "./EditField";
+    import {mapGetters} from "vuex";
 
     export default {
         name: "OrderLines",
         mixins: [tableMixin, utilsMixin],
-        components: {OrderImportLines, OrderEdit, GoodName},
+        components: {OrderImportLines, OrderEdit, GoodName, EditField},
         props: {
             value: {
                 type: Object,
@@ -79,7 +93,15 @@
         computed: {
             isOrderImportLinesEmpty() {
                 return !this.orderImportLines.length;
-            }
+            },
+            items2() {
+                return _.map(this.items, (v) => {
+                    v.priceWithoutVat = v.SUMMAP / (100 + this.vat) * 100 / v.QUAN;
+                    v.sumWithoutVat = v.SUMMAP / (100 + this.vat) * 100;
+                    return v;
+                })
+            },
+            ...mapGetters({vat: 'VAT'}),
         },
         methods: {
             inQuantityColor(item) {

@@ -118,7 +118,7 @@
             }
         },
         methods: {
-            getItems(val = '') {
+            async getItems(val = '') {
                 const options = {
                     itemsPerPage: this.itemsPerPage,
                     aggregateAttributes: this.aggregateAttributes,
@@ -130,15 +130,12 @@
                     with: this.with,
                 };
                 this.isLoading = true;
-                this.$store.dispatch(this.MODEL + '/ALL', options)
-                    .then((response) => {
-                        debugger
-                        const filtred = _.isArray(this.value)
-                            ? this.items.filter((item) => this.value.indexOf(item[this.itemValue]) >= 0)
-                            : [];
-                        this.items = _.union(response.copyItmes, filtred);
-                    })
-                    .then(() => this.isLoading = false);
+                const response = await this.$store.dispatch(this.MODEL + '/ALL', options);
+                const filtred = _.isArray(this.value)
+                    ? this.items.filter((item) => this.value.indexOf(item[this.itemValue]) >= 0)
+                    : [];
+                this.items = _.union(response.copyItmes, filtred);
+                this.isLoading = false;
             },
             getItem() {
                 if (this.value && !_.isArray(this.value)) {

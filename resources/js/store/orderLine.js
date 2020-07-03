@@ -7,6 +7,8 @@ state.name = 'order-line';
 
 state.key = 'ID';
 
+state.fillable = ['MASTER_ID', 'GOODSCODE', 'QUAN', 'NAME_IN_PRICE', 'GTD', 'STRANA', 'STAFF_ID', 'PRIM'];
+
 state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},
     {
@@ -41,8 +43,18 @@ state.headers = [
         sortable: false,
     },
     {
+        text: 'Цена без НДС',
+        value: 'priceWithoutVat',
+        align: 'right',
+    },
+    {
         text: 'Цена',
         value: 'PRICE',
+        align: 'right',
+    },
+    {
+        text: 'Сумма без НДС',
+        value: 'sumWithoutVat',
         align: 'right',
     },
     {
@@ -61,6 +73,10 @@ state.headers = [
     {
         text: 'Ожидаем',
         value: 'DATA_PRIH'
+    },
+    {
+        text: 'Примечание',
+        value: 'PRIM'
     },
 ];
 

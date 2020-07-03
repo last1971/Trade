@@ -142,6 +142,16 @@ class ModelRequest extends FormRequest
                     'item.WHEREISPOSTCODE' => 'integer',
                 ];
                 break;
+            case 'order-line.update':
+                $rules += [
+                    'item.QUAN' => 'integer',
+                    'item.PRICE' => 'numeric',
+                    'item.SUMMAP' => 'numeric',
+                    'item.STRANA' => 'string',
+                    'item.GTD' => 'string',
+                    'item.PRIM' => 'nullable|string',
+                ];
+                break;
             case 'order-step.store':
             case 'order-step.update':
                 $rules += [
@@ -155,6 +165,8 @@ class ModelRequest extends FormRequest
             case 'retail-price.store':
             case 'retail-price.update':
                 $rules += $this->retailPrice();
+                break;
+            case 'transfer-out-line.update':
                 break;
             case 'user.update':
                 $rules += [

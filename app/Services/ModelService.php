@@ -5,6 +5,7 @@ namespace App\Services;
 
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
@@ -238,7 +239,7 @@ class ModelService
      */
     public function update($request, $id)
     {
-        $model = $this->query->find(intval($id));
+        $model = $this->modelClass::query()->find(intval($id));
         $model->fill($request->item);
         $model->save();
         $this->setCahngedDates($request->item, $model);
@@ -261,9 +262,14 @@ class ModelService
         return $this->index(collect(is_array($request) ? [] : $request->options))->find($model->getKey());
     }
 
+    /**
+     * @param $id
+     * @return bool|mixed|null
+     * @throws Exception
+     */
     public function remove($id)
     {
-        $this->query->find(intval($id))->delete();
+        return $this->modelClass::query()->find(intval($id))->delete();
     }
 
     protected function addUserBuyers($request, $table = null)
