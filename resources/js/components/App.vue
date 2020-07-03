@@ -64,13 +64,13 @@
             </v-tooltip>
         </v-app-bar>
 
-        <v-content>
+        <v-main>
             <transition>
                 <keep-alive>
                     <router-view></router-view>
                 </keep-alive>
             </transition>
-        </v-content>
+        </v-main>
         <v-footer
             app
             color="primary"

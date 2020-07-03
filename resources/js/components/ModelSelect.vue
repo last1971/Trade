@@ -28,7 +28,7 @@
             <slot name="item" v-bind:item="item" v-bind:maxLength="maxLength"></slot>
             {{ item[itemText] }}
         </template>
-        <template v-slot:selection="{ item }">
+        <template v-if="!multiple" v-slot:selection="{ item }">
             <slot name="selection" v-bind:item="item"></slot>
             {{ item[itemText] }}
         </template>
