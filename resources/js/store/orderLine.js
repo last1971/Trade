@@ -7,7 +7,9 @@ state.name = 'order-line';
 
 state.key = 'ID';
 
-state.fillable = ['MASTER_ID', 'GOODSCODE', 'QUAN', 'NAME_IN_PRICE', 'GTD', 'STRANA', 'STAFF_ID', 'PRIM'];
+state.fillable = [
+    'MASTER_ID', 'GOODSCODE', 'QUAN', 'NAME_IN_PRICE', 'GTD', 'STRANA', 'STAFF_ID', 'PRIM', 'PRICE', 'SUMMAP'
+];
 
 state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},

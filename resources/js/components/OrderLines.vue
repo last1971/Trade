@@ -23,19 +23,45 @@
             <template v-slot:item.DATA_PRIH="{ item }">
                 {{ (item.DATA_PRIH || value.DATA_PRIH) | formatDate }}
             </template>
+            <template v-slot:item.QUAN="{ item }">
+                <edit-field :disabled="!editable"
+                            :rules="[rules.isInteger, rules.required, rules.positive]"
+                            @save="save"
+                            attribute="QUAN"
+                            v-model="item"
+                />
+            </template>
             <template v-slot:item.inQuantity="{ item }">
                 <div :class="inQuantityColor(item)">
                     {{ item.shopLinesQuantity + item.storeLinesQuantity }}
                 </div>
             </template>
             <template v-slot:item.PRICE="{ item }">
-                {{ item.PRICE | formatRub }}
+                <edit-field :disabled="!editable"
+                            :rules="[rules.isNumber, rules.required, rules.positive]"
+                            @save="save"
+                            attribute="PRICE"
+                            v-model="item"
+                >
+                    <template v-slot:cell>
+                        {{ item.PRICE | formatRub }}
+                    </template>
+                </edit-field>
             </template>
             <template v-slot:item.priceWithoutVat="{ item }">
                 {{ item.priceWithoutVat | formatRub }}
             </template>
             <template v-slot:item.SUMMAP="{ item }">
-                {{ item.SUMMAP | formatRub }}
+                <edit-field :disabled="!editable"
+                            :rules="[rules.isNumber, rules.required, rules.positive]"
+                            @save="save"
+                            attribute="SUMMAP"
+                            v-model="item"
+                >
+                    <template v-slot:cell>
+                        {{ item.SUMMAP | formatRub }}
+                    </template>
+                </edit-field>
             </template>
             <template v-slot:item.sumWithoutVat="{ item }">
                 {{ item.sumWithoutVat | formatRub }}
@@ -45,6 +71,9 @@
             </template>
             <template v-slot:item.GTD="{ item }">
                 <edit-field @save="save" attribute="GTD" v-model="item"/>
+            </template>
+            <template v-slot:item.PRIM="{ item }">
+                <edit-field @save="save" attribute="PRIM" v-model="item"/>
             </template>
         </v-data-table>
         <order-import-lines :master-id="value.ID" v-else v-model="orderImportLines"/>
@@ -91,6 +120,9 @@
             }
         },
         computed: {
+            editable() {
+                return this.$store.getters['AUTH/HAS_PERMISSION']('order-line.update') && this.value.STATUS === 0;
+            },
             isOrderImportLinesEmpty() {
                 return !this.orderImportLines.length;
             },
