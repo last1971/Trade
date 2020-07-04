@@ -1,21 +1,18 @@
 <template>
-    <v-edit-dialog @open="open" @save="save" ref="dialog">
+    <v-edit-dialog @open="open" ref="dialog">
         <slot name="cell">{{ value[attribute] }}</slot>
         <template v-if="!disabled" v-slot:input>
-            <slot :editingv.sync="editingValue" name="input">
-                <v-text-field
-                    :rules="rules"
-                    single-line
-                    v-model="editingValue"
-                />
-            </slot>
+            <invoice-status-select @input="save" v-model="editingValue"/>
         </template>
     </v-edit-dialog>
 </template>
 
 <script>
+    import InvoiceStatusSelect from "./InvoiceStatusSelect";
+
     export default {
         name: "EditField",
+        components: {InvoiceStatusSelect},
         props: {
             value: {type: Object, required: true},
             attribute: {type: String, required: true},
@@ -33,6 +30,7 @@
             },
             save() {
 
+                this.$refs.dialog.isActive = false;
                 const validate = this.rules.reduce((res, f) => res === true ? f(this.editingValue) : res, true);
                 if (validate !== true) {
                     this.$store.commit('SNACKBAR/ERROR', validate);
@@ -41,6 +39,7 @@
                     item[this.attribute] = this.editingValue;
                     this.$emit('save', item);
                 }
+
             },
         }
     }

@@ -28,7 +28,7 @@
                         </v-btn>
                         <v-btn :disabled="!$store.getters['AUTH/HAS_PERMISSION']('invoice.xlsx')"
                                :loading="saving"
-                               @click="save"
+                               @click="saveFile"
                                fab
                         >
                             <v-icon color="green">mdi-microsoft-excel</v-icon>
@@ -148,7 +148,11 @@
             </div>
         </template>
         <template v-slot:item.STATUS="{ item }">
-            {{ invoiceStatus(item.STATUS) }}
+            <invoice-status-select-inline @save="save" attribute="STATUS" v-model="item">
+                <template v-slot:cell>
+                    {{ invoiceStatus(item.STATUS) }}
+                </template>
+            </invoice-status-select-inline>
         </template>
     </v-data-table>
 </template>
@@ -160,10 +164,13 @@
     import utilsMixin from "../mixins/utilsMixin";
     import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
     import InvoicePdf from "./InvoicePdf";
+    import EditField from "./EditField";
+    import InvoiceStatusSelect from "./InvoiceStatusSelect";
+    import InvoiceStatusSelectInline from "./InvoiceStatusSelectInline";
 
     export default {
         name: "Invoices",
-        components: {InvoicePdf},
+        components: {InvoiceStatusSelect, EditField, InvoicePdf, InvoiceStatusSelectInline},
         mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
         data() {
             return {
@@ -218,7 +225,7 @@
                 if (parseFloat(a) === parseFloat(b)) return 'green--text';
                 return 'primary--text';
             },
-            save() {
+            saveFile() {
                 this.saving = true;
                 this.$store.dispatch('INVOICE/SAVE', this.options)
                     .then(() => {

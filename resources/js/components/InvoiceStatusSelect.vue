@@ -1,5 +1,5 @@
 <template>
-    <v-select :disabled="disabled" :items="statuses" label="Статус" v-model="proxy"/>
+    <v-select :disabled="disabled" :items="statuses" @change="change" label="Статус" v-model="proxy"/>
 </template>
 
 <script>
@@ -25,6 +25,11 @@
                     return {text, value}
                 })
             },
+        },
+        methods: {
+            change(payload) {
+                this.$emit('change', payload)
+            }
         }
     }
 </script>
