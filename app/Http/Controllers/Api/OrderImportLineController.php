@@ -121,7 +121,7 @@ class OrderImportLineController extends Controller
                 'MASTER_ID' => $order->ID,
                 'GOODSCODE' => $line['GOODSCODE'],
                 'QUAN' => $line['quantity'],
-                'PRICE' => '1.2',//$line['price'],
+                'PRICE' => $line['price'],
                 'SUMMAP' => $line['amount'],
                 'NAME_IN_PRICE' => $line['name'],
                 'STRANA' => $line['country'],
