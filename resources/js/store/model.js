@@ -28,6 +28,7 @@ const state = {
     fillable: [],
     dependentModels: {},
     parentModel: {},
+    links: new Map(),
 };
 
 const getters = {
@@ -45,9 +46,18 @@ const getters = {
     ALL: state => state.items,
     HEADERS: state => state.headers,
     FILLABLE: state => state.fillable,
+    GET_LINK: state => id => {
+        const key = state.keyType === Number ? parseInt(id) : id;
+        if (state.links.has(key)) return state.links.get(key);
+        return {previous: {name: state.name + 's'}, next: {name: state.name + 's'}}
+    }
 };
 
 const mutations = {
+    SET_LINK(state, payload) {
+        state.links.set(payload.key, payload.link);
+    },
+
     CLEAR(state) {
         state.items = [];
     },

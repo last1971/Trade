@@ -220,6 +220,11 @@
             }
         },
         methods: {
+            previousItem(item) {
+                const index = this.items.indexOf(item);
+                if (index > 0) return this.items[index - 1].SCODE;
+                return _.last(this.items).SCODE;
+            },
             compareToColorText(a, b) {
                 if (parseFloat(a) > parseFloat(b) && parseFloat(b) === 0) return 'red--text';
                 if (parseFloat(a) === parseFloat(b)) return 'green--text';

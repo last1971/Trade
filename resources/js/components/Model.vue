@@ -1,6 +1,17 @@
 <template>
     <div v-if="model">
         <component :is="lines" :key="key" :value="model" @input="test"/>
+        <v-bottom-navigation color="primary" horizontal>
+            <v-btn :to="links.previous">
+                <span>Предыдущая</span>
+                <v-icon>mdi-step-backward</v-icon>
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn :to="links.next">
+                <v-icon>mdi-step-forward</v-icon>
+                <span>Следующая</span>
+            </v-btn>
+        </v-bottom-navigation>
     </div>
 </template>
 
@@ -72,6 +83,11 @@
                 }
                 return this.previousValue;
             },
+            links() {
+                const func = this.$store.getters[this.MODEL + '/GET_LINK'];
+                const key = this.model[this.$store.getters[this.MODEL + '/KEY']];
+                return func(key);
+            }
         },
         methods: {
             getModel() {
