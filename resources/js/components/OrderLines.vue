@@ -102,7 +102,7 @@
         data() {
             return {
                 options: {
-                    with: ['category', 'good', 'name'],
+                    with: ['category', 'good', 'name', 'order', 'seller'],
                     aggregateAttributes: [
                         'shopLinesQuantity', 'storeLinesQuantity',
                     ],

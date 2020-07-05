@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Name;
 use Error;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
@@ -119,8 +120,17 @@ class ModelRequest extends FormRequest
             case 'name.update':
                 $rules += [
                     'item.CATEGORYCODE' => 'integer|required',
-                    'item.NAME' => 'required|string|unique:firebird.NAME,NAME,NULL,id,CATEGORYCODE,'
-                        . $this->item['CATEGORYCODE'],
+                    'item.NAME' => [
+                        'required',
+                        'string',
+                        function ($attribute, $value, $fail) {
+                            if (Name::query()
+                                ->where('NAME', $value)
+                                ->where('CATEGORYCODE', intval($this->item['CATEGORYCODE']))
+                                ->count() > 0)
+                                $fail('validation.invalid');
+                        }
+                    ],
                     'item.SERIA' => 'required|string',
                 ];
                 break;
