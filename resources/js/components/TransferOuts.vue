@@ -120,10 +120,11 @@
     import tableMixin from "../mixins/tableMixin";
     import utilsMixin from "../mixins/utilsMixin";
     import {mapGetters} from "vuex";
+    import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
 
     export default {
         name: "TransferOuts",
-        mixins: [tableMixin, utilsMixin],
+        mixins: [tableMixin, utilsMixin, tableOptionsRouteMixin],
         data() {
             return {
                 options: {
