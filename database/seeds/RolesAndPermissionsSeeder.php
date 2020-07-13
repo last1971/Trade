@@ -101,6 +101,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'category.index',
             'employee.index',
             'firm.index',
+            'firm.show',
             'good.index',
             'invoice.*',
             'invoice-line.*',
