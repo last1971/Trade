@@ -58,6 +58,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'nav.invoices']);
         Permission::query()->firstOrCreate(['name' => 'nav.invoice-lines']);
         Permission::query()->firstOrCreate(['name' => 'nav.orders']);
+        Permission::query()->firstOrCreate(['name' => 'nav.sbis']);
         Permission::query()->firstOrCreate(['name' => 'nav.transfer-outs']);
 
         Role::query()->firstOrCreate(['name' => 'guest']);
@@ -94,6 +95,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.invoices',
             'nav.invoice-lines',
             'nav.orders',
+            'nav.sbis',
             'nav.transfer-outs',
             'buyer.*',
             'category.index',
@@ -105,6 +107,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'name.index',
             'order.*',
             'order-line.*',
+            'sbis.show',
             'seller.*',
             'transfer-out.*',
             'transfer-out-line.*',
