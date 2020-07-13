@@ -61,6 +61,12 @@
 <body>
 <table class="main">
     <tr>
+        <td colspan="15">
+            Второй экземпляр документов, просим подписать и отправить почтой по адресу: 634009, г. Томск, а/я 1361, ООО
+            "ЭлкоПро"
+        </td>
+    </tr>
+    <tr>
         <td class="right-border-double" colspan="2" style="vertical-align: text-top;">
             Универсальный<br>
             передаточный<br>
@@ -358,6 +364,12 @@
                     <td>(подпись)</td>
                     <td>(ф.и.о.)</td>
                 </tr>
+                <tr class="heading" style="font-size: 6px;">
+                    <td></td>
+                    <td colspan="2">На основнии приказа № 1/П от 09.01.2020</td>
+                    <td></td>
+                    <td colspan="2">На основнии приказа № 1/П от 09.01.2020</td>
+                </tr>
                 <tr>
                     <td>Индивидуальный предприниматель<br>или иное уполномоченное лицо</td>
                     <td class="bottom-border" width="12%"></td>
@@ -456,7 +468,7 @@
             </td>
             <td colspan="2" class="right-border"></td>
             <td colspan="2">
-                Иные сведения об отгрузке, передаче
+                Иные сведения о получении, приемке
             </td>
             <td></td>
         </tr>
@@ -499,6 +511,14 @@
             <td class="centred">(должность)</td>
             <td class="centred">(подпись)</td>
             <td class="centred">(ф.и.о.)</td>
+            <td></td>
+        </tr>
+        <tr class="heading" style="font-size: 6px;">
+            <td class="centred"></td>
+            <td class="centred" colspan="2">На основнии приказа № 1/П от 09.01.2020</td>
+            <td class="right-border"></td>
+            <td class="centred"></td>
+            <td class="centred" colspan="2"></td>
             <td></td>
         </tr>
         <tr>
