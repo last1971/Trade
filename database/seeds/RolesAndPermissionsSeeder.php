@@ -108,7 +108,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'name.index',
             'order.*',
             'order-line.*',
-            'sbis.show',
+            'sbis.*',
             'seller.*',
             'transfer-out.*',
             'transfer-out-line.*',
