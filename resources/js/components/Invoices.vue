@@ -1,6 +1,6 @@
 <template>
     <v-data-table
-        :headers="headers"
+        :headers="headers2"
         :items="items"
         :loading="loading"
         :multi-sort="true"
@@ -108,6 +108,11 @@
                                   v-model="options.filterValues[5]"
                     />
                 </td>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }" v-if="hasPermission">
+                    <v-text-field :label="isMobile ? 'Примечание' : 'Содержит'"
+                                  v-model="options.filterValues[9]"
+                    />
+                </td>
             </tr>
             <tr v-if="isMobile">
                 <td>
@@ -123,12 +128,7 @@
         </template>
         <template v-slot:item.NS="{ item }">
             <router-link :to="{ name: 'invoice', params: { id: item.SCODE } }">
-                <v-tooltip top>
-                    <template v-slot:activator="{ on }">
-                        <span v-on="on">{{ item.NS }}</span>
-                    </template>
-                    <span>{{ item.PRIM || 'перейти' }}</span>
-                </v-tooltip>
+                {{ item.NS }}
             </router-link>
         </template>
         <template v-slot:item.DATA="{ item }">
@@ -189,9 +189,10 @@
                         'firm.FIRMNAME',
                         'cashFlowsSum',
                         'transferOutLinesSum',
+                        'PRIM',
                     ],
-                    filterOperators: ['>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>='],
-                    filterValues: [moment().format('Y-MM-DD'), '', 0, [], '', '', '', 0, 0],
+                    filterOperators: ['>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>=', 'CONTAIN'],
+                    filterValues: [moment().format('Y-MM-DD'), '', 0, [], '', '', '', 0, 0, ''],
                 },
                 model: 'INVOICE',
                 datePicker: false,
@@ -217,6 +218,13 @@
                     && this.rules.required(this.options.filterValues[7]) === true
                     && this.rules.isNumber(this.options.filterValues[8]) === true
                     && this.rules.required(this.options.filterValues[8]) === true;
+            },
+            headers2() {
+                return this.hasPermission
+                    ? this.headers : _.initial(this.headers);
+            },
+            hasPermission() {
+                return this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
             }
         },
         methods: {

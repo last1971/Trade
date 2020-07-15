@@ -57,6 +57,10 @@ state.headers = [
         text: 'Манагер',
         value: 'employee.FULLNAME'
     },
+    {
+        text: 'Примечание',
+        value: 'PRIM'
+    },
 ];
 
 getters.PDF = state => id => {
