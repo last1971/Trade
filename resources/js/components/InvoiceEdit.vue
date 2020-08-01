@@ -50,6 +50,9 @@
             <v-col cols="12" sm="auto" v-if="!notCan">
                 <v-text-field label="Примечание" v-model="model.PRIM"/>
             </v-col>
+            <v-col cols="12" sm="auto" v-if="!notCan">
+                <v-text-field label="ИГК" v-model="model.IGK"/>
+            </v-col>
             <v-col cols="12" sm="auto">
                 <invoice-status-select :disabled="notCan" v-model="model.STATUS"/>
             </v-col>
@@ -123,44 +126,44 @@
 </template>
 
 <script>
-    import BuyerSelect from "./BuyerSelect";
-    import utilsMixin from "../mixins/utilsMixin";
-    import InvoiceStatusSelect from "./InvoiceStatusSelect";
-    import FirmSelect from "./FirmSelect";
-    import editMixin from "../mixins/editMixin";
-    import InvoicePdf from "./InvoicePdf";
+import BuyerSelect from "./BuyerSelect";
+import utilsMixin from "../mixins/utilsMixin";
+import InvoiceStatusSelect from "./InvoiceStatusSelect";
+import FirmSelect from "./FirmSelect";
+import editMixin from "../mixins/editMixin";
+import InvoicePdf from "./InvoicePdf";
 
-    export default {
-        name: "InvoiceEdit",
-        components: {InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
-        mixins: [editMixin, utilsMixin],
-        data() {
-            return {
-                MODEL: 'INVOICE',
-                downloading: false,
-                withStamp: true,
-                withVAT: true,
-                pdfDialog: false,
-                newAccount: false,
-            }
+export default {
+    name: "InvoiceEdit",
+    components: {InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
+    mixins: [editMixin, utilsMixin],
+    data() {
+        return {
+            MODEL: 'INVOICE',
+            downloading: false,
+            withStamp: true,
+            withVAT: true,
+            pdfDialog: false,
+            newAccount: false,
+        }
+    },
+    computed: {
+        notEditable() {
+            return this.model.transferOutLinesSum > 0;
         },
-        computed: {
-            notEditable() {
-                return this.model.transferOutLinesSum > 0;
-            },
-            savePossible() {
-                const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
-                const b = _.pick(_.omit(this.model, ['DATA']), this.fillable);
-                const d = this.value.DATA ? this.value.DATA.substr(0, 10) : undefined;
-                return _.isEqual(a, b) && this.model.DATA === d;
-            },
-            notCan() {
-                return !this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
-            }
+        savePossible() {
+            const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
+            const b = _.pick(_.omit(this.model, ['DATA']), this.fillable);
+            const d = this.value.DATA ? this.value.DATA.substr(0, 10) : undefined;
+            return _.isEqual(a, b) && this.model.DATA === d;
         },
-        created() {
-            this.withStamp = this.$store.getters['AUTH/LOCAL_OPTION']('withStamp');
-            this.withVAT = this.$store.getters['AUTH/LOCAL_OPTION']('withVAT');
+        notCan() {
+            return !this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
+        }
+    },
+    created() {
+        this.withStamp = this.$store.getters['AUTH/LOCAL_OPTION']('withStamp');
+        this.withVAT = this.$store.getters['AUTH/LOCAL_OPTION']('withVAT');
         },
         watch: {
             withStamp(val) {

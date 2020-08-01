@@ -9,7 +9,7 @@ state.name = 'invoice';
 
 state.key = 'SCODE';
 
-state.fillable = ['DATA', 'NS', 'FIRM_ID', 'POKUPATCODE', 'PRIM', 'STATUS'];
+state.fillable = ['DATA', 'NS', 'FIRM_ID', 'POKUPATCODE', 'PRIM', 'STATUS', 'IGK'];
 
 state.headers = [
     {text: '', value: 'actions', width: 10, sortable: false},
@@ -60,6 +60,10 @@ state.headers = [
     {
         text: 'Примечание',
         value: 'PRIM'
+    },
+    {
+        text: 'ИГК',
+        value: 'IGK'
     },
 ];
 

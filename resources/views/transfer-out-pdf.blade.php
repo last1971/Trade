@@ -218,7 +218,9 @@
             <table width="100%">
                 <tr>
                     <td>Идентификатор государственного контракта, договора (соглашения) (при наличии)</td>
-                    <td width="60%" class="bottom-border"></td>
+                    <td width="60%" class="bottom-border">
+                        {{ $transferOut->invoice->IGK ?? '' }}
+                    </td>
                     <td width="3%" class="centred">(8)</td>
                 </tr>
             </table>

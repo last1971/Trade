@@ -107,6 +107,7 @@ class ModelRequest extends FormRequest
                     'item.FIRM_ID' => 'integer',
                     'item.POKUPATCODE' => 'integer',
                     'item.PRIM' => 'nullable|string',
+                    'item.IGK' => 'nullable|string',
                 ];
                 break;
             case 'invoice-line.update':

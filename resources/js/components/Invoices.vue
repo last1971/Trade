@@ -113,6 +113,11 @@
                                   v-model="options.filterValues[9]"
                     />
                 </td>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }" v-if="hasPermission">
+                    <v-text-field :label="isMobile ? 'ИГК' : 'Содержит'"
+                                  v-model="options.filterValues[10]"
+                    />
+                </td>
             </tr>
             <tr v-if="isMobile">
                 <td>
@@ -158,62 +163,65 @@
 </template>
 
 <script>
-    import moment from 'moment';
-    import {mapGetters} from 'vuex';
-    import tableMixin from "../mixins/tableMixin";
-    import utilsMixin from "../mixins/utilsMixin";
-    import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
-    import InvoicePdf from "./InvoicePdf";
-    import EditField from "./EditField";
-    import InvoiceStatusSelect from "./InvoiceStatusSelect";
-    import InvoiceStatusSelectInline from "./InvoiceStatusSelectInline";
+import moment from 'moment';
+import {mapGetters} from 'vuex';
+import tableMixin from "../mixins/tableMixin";
+import utilsMixin from "../mixins/utilsMixin";
+import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
+import InvoicePdf from "./InvoicePdf";
+import EditField from "./EditField";
+import InvoiceStatusSelect from "./InvoiceStatusSelect";
+import InvoiceStatusSelectInline from "./InvoiceStatusSelectInline";
 
-    export default {
-        name: "Invoices",
-        components: {InvoiceStatusSelect, EditField, InvoicePdf, InvoiceStatusSelectInline},
-        mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
-        data() {
-            return {
-                options: {
-                    with: ['buyer', 'employee', 'firm'],
-                    aggregateAttributes: [
-                        'invoiceLinesCount', 'invoiceLinesSum', 'cashFlowsSum', 'transferOutLinesSum'
-                    ],
-                    filterAttributes: [
-                        'DATA',
-                        'NS',
-                        'invoiceLinesSum',
-                        'STATUS',
-                        'buyer.SHORTNAME',
-                        'employee.FULLNAME',
-                        'firm.FIRMNAME',
-                        'cashFlowsSum',
-                        'transferOutLinesSum',
-                        'PRIM',
-                    ],
-                    filterOperators: ['>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>=', 'CONTAIN'],
-                    filterValues: [moment().format('Y-MM-DD'), '', 0, [], '', '', '', 0, 0, ''],
-                },
-                model: 'INVOICE',
-                datePicker: false,
-                statuses: [
-                    {text: 'В работе', value: [0, 1, 2, 3, 4]},
-                    {text: 'Без корзины', value: [0, 1, 2, 3, 4, 5]},
-                    {text: 'Все', value: []},
+export default {
+    name: "Invoices",
+    components: {InvoiceStatusSelect, EditField, InvoicePdf, InvoiceStatusSelectInline},
+    mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
+    data() {
+        return {
+            options: {
+                with: ['buyer', 'employee', 'firm'],
+                aggregateAttributes: [
+                    'invoiceLinesCount', 'invoiceLinesSum', 'cashFlowsSum', 'transferOutLinesSum'
                 ],
-                mobileFiltersVisible: false,
-                saving: false,
-            }
-        },
-        computed: {
-            ...mapGetters({
-                invoiceStatus: 'INVOICESTATUS/GET',
-                user: 'AUTH/GET',
-            }),
-            checkFilters() {
-                return this.rules.isInteger(this.options.filterValues[1]) === true
-                    && this.rules.isNumber(this.options.filterValues[2]) === true
-                    && this.rules.required(this.options.filterValues[2]) === true
+                filterAttributes: [
+                    'DATA',
+                    'NS',
+                    'invoiceLinesSum',
+                    'STATUS',
+                    'buyer.SHORTNAME',
+                    'employee.FULLNAME',
+                    'firm.FIRMNAME',
+                    'cashFlowsSum',
+                    'transferOutLinesSum',
+                    'S.PRIM',
+                    'IGK',
+                ],
+                filterOperators: [
+                    '>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>=', 'CONTAIN', 'CONTAIN'
+                ],
+                filterValues: [moment().format('Y-MM-DD'), '', 0, [], '', '', '', 0, 0, '', ''],
+            },
+            model: 'INVOICE',
+            datePicker: false,
+            statuses: [
+                {text: 'В работе', value: [0, 1, 2, 3, 4]},
+                {text: 'Без корзины', value: [0, 1, 2, 3, 4, 5]},
+                {text: 'Все', value: []},
+            ],
+            mobileFiltersVisible: false,
+            saving: false,
+        }
+    },
+    computed: {
+        ...mapGetters({
+            invoiceStatus: 'INVOICESTATUS/GET',
+            user: 'AUTH/GET',
+        }),
+        checkFilters() {
+            return this.rules.isInteger(this.options.filterValues[1]) === true
+                && this.rules.isNumber(this.options.filterValues[2]) === true
+                && this.rules.required(this.options.filterValues[2]) === true
                     && this.rules.isNumber(this.options.filterValues[7]) === true
                     && this.rules.required(this.options.filterValues[7]) === true
                     && this.rules.isNumber(this.options.filterValues[8]) === true
