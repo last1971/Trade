@@ -159,6 +159,13 @@
                 </template>
             </invoice-status-select-inline>
         </template>
+        <template v-slot:item.IGK="{ item }">
+            <edit-field
+                @save="save"
+                attribute="IGK"
+                v-model="item"
+            />
+        </template>
     </v-data-table>
 </template>
 
