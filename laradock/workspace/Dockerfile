@@ -368,7 +368,7 @@ RUN sed -i "s/xdebug.remote_autostart=0/xdebug.remote_autostart=1/" /etc/php/${L
 
 USER root
 
-RUN apt-get update && apt-get install -t php${LARADOCK_PHP_VERSION}-interbase
+RUN apt-get -y install firebird-dev
 
 ###########################################################################
 # pcov:

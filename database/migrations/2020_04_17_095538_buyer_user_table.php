@@ -13,7 +13,7 @@ class BuyerUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_buyers ', function (Blueprint $table) {
+        Schema::create('user_buyers', function (Blueprint $table) {
             //
             $table->id();
             $table->bigInteger('user_id');
