@@ -133,32 +133,38 @@
             {{ item.INSUM | formatRub }}
         </template>
         <template v-slot:item.STATUS="{ item }">
-            <div :class="statusColor(item.STATUS)">
-                {{ orderStatus(item.STATUS) }}
-            </div>
+            <order-status-select-inline @save="save" attribute="STATUS" v-model="item">
+                <template v-slot:cell>
+                    <div :class="statusColor(item.STATUS)">
+                        {{ orderStatus(item.STATUS) }}
+                    </div>
+                </template>
+            </order-status-select-inline>
         </template>
     </v-data-table>
 </template>
 
 <script>
-    import tableMixin from "../mixins/tableMixin";
-    import utilsMixin from "../mixins/utilsMixin";
-    import moment from "moment";
-    import {mapGetters} from "vuex";
-    import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
+import tableMixin from "../mixins/tableMixin";
+import utilsMixin from "../mixins/utilsMixin";
+import moment from "moment";
+import {mapGetters} from "vuex";
+import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
+import OrderStatusSelectInline from "./OrderStatusSelectInline";
 
-    export default {
-        name: "Orders",
-        mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
-        data() {
-            return {
-                options: {
-                    with: ['seller', 'employee'],
-                    aggregateAttributes: [
-                        'orderLinesCount', 'orderLinesSum', 'cashFlowsSum',
-                    ],
-                    filterAttributes: [
-                        'INVOICE_DATA',
+export default {
+    name: "Orders",
+    components: {OrderStatusSelectInline},
+    mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
+    data() {
+        return {
+            options: {
+                with: ['seller', 'employee'],
+                aggregateAttributes: [
+                    'orderLinesCount', 'orderLinesSum', 'cashFlowsSum',
+                ],
+                filterAttributes: [
+                    'INVOICE_DATA',
                         'INVOICE_NUM',
                         'seller.NAMEPOST',
                         'orderLinesSum',

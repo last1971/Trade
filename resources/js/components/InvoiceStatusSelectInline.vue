@@ -8,20 +8,20 @@
 </template>
 
 <script>
-    import InvoiceStatusSelect from "./InvoiceStatusSelect";
+import InvoiceStatusSelect from "./InvoiceStatusSelect";
 
-    export default {
-        name: "EditField",
-        components: {InvoiceStatusSelect},
-        props: {
-            value: {type: Object, required: true},
-            attribute: {type: String, required: true},
-            rules: {type: Array, default: () => []},
-            disabled: {type: Boolean, default: false},
-        },
-        data() {
-            return {
-                editingValue: '',
+export default {
+    name: "InvoiceStatusSelectInline",
+    components: {InvoiceStatusSelect},
+    props: {
+        value: {type: Object, required: true},
+        attribute: {type: String, required: true},
+        rules: {type: Array, default: () => []},
+        disabled: {type: Boolean, default: false},
+    },
+    data() {
+        return {
+            editingValue: '',
             }
         },
         methods: {
