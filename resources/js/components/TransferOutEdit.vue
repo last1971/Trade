@@ -68,7 +68,7 @@
                             <v-icon>mdi-download</v-icon>
                         </v-btn>
                     </template>
-                    <v-btn @click="download('pdf')" fab>
+                    <v-btn @click="pdfDialog=true" fab>
                         <v-icon color="red">mdi-adobe-acrobat</v-icon>
                     </v-btn>
                     <v-btn @click="download('xml')" fab>
@@ -78,6 +78,11 @@
                         <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>
                 </v-speed-dial>
+                <transfer-out-pdf-menu v-model="model"
+                                       :pdf-dialog="pdfDialog"
+                                       @close="pdfDialog=false"
+                                       @downloading="setDownloading"
+                />
             </v-col>
         </v-row>
     </v-form>
@@ -88,15 +93,17 @@
     import BuyerSelect from "./BuyerSelect";
     import FirmSelect from "./FirmSelect";
     import editMixin from "../mixins/editMixin";
+    import TransferOutPdfMenu from "./TransferOutPdfMenu";
 
     export default {
         name: "TransferOutEdit",
         mixins: [editMixin, utilsMixin],
-        components: {BuyerSelect, FirmSelect},
+        components: {TransferOutPdfMenu, BuyerSelect, FirmSelect},
         data() {
             return {
                 MODEL: 'TRANSFER-OUT',
                 downloading: false,
+                pdfDialog: false,
             }
         },
         computed: {
@@ -140,6 +147,9 @@
                     })
                     .then(() => this.downloading = false);
             },
+            setDownloading(downloading) {
+                this.downloading = downloading
+            }
         },
     }
 </script>

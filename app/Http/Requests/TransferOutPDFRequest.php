@@ -25,6 +25,22 @@ class TransferOutPDFRequest extends FormRequest
         return false;
     }
 
+    protected function prepareForValidation()
+    {
+        if ($this->has('body')) {
+           $this->merge(['body' => $this->body === 'true']);
+        }
+        if ($this->has('producer')) {
+            $this->merge(['producer' => $this->producer === 'true']);
+        }
+        if ($this->has('category')) {
+            $this->merge(['category' => $this->category === 'true']);
+        }
+        if ($this->has('divider')) {
+            $this->merge(['divider' => $this->divider === 'true']);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -33,7 +49,10 @@ class TransferOutPDFRequest extends FormRequest
     public function rules()
     {
         return [
-
+            'body' => 'boolean|required',
+            'producer' => 'boolean|required',
+            'category' => 'boolean|required',
+            'divider' => 'boolean|required',
         ];
     }
 }
