@@ -39,6 +39,11 @@ class Good extends Model
         $this->attributes['PRIM'] = $value ?? '';
     }
 
+    public function setYEARPAttribute($value)
+    {
+        $this->attributes['PRIM'] = $value ?? '-';
+    }
+
     public function getUnitCodeAttribute()
     {
         return config('unit_codes')[trim(Str::upper($this->getAttributes()['UNIT_I']))];
