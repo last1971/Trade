@@ -41,7 +41,7 @@ class Good extends Model
 
     public function setYEARPAttribute($value)
     {
-        $this->attributes['PRIM'] = $value ?? '-';
+        $this->attributes['YEARP'] = $value ?? '-';
     }
 
     public function getUnitCodeAttribute()
