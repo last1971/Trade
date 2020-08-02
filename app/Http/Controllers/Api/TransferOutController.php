@@ -37,7 +37,10 @@ class TransferOutController extends ModelController
         $count = 0;
         $pdf = PDF::loadView(
             'transfer-out-pdf',
-            compact('transferOutLines', 'transferOut', 'cashFlows', 'count')
+            array_merge(
+                $request->validated(),
+                compact('transferOutLines', 'transferOut', 'cashFlows', 'count')
+            )
         );
         $pdf->setPaper('A4', 'landscape');
         $proxy = $pdf->getDomPdf();
@@ -45,7 +48,10 @@ class TransferOutController extends ModelController
         $count = $proxy->getCanvas()->get_page_count();
         $pdf = PDF::loadView(
             'transfer-out-pdf',
-            compact('transferOutLines', 'transferOut', 'cashFlows', 'count')
+            array_merge(
+                $request->validated(),
+                compact('transferOutLines', 'transferOut', 'cashFlows', 'count')
+            )
         );
         $pdf->setPaper('A4', 'landscape');
         return $pdf->download('transfer-out.pdf');

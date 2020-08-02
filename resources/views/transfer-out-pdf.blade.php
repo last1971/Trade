@@ -282,14 +282,22 @@
             <td class="right-border-double bottom-border centred">{{ $line->good->GOODSCODE }}</td>
             <td class="right-border bottom-border text-justify" style="padding: 2px">
                 {{$line->name->NAME}}
-                @if ($line->good->BODY)
-                    / {{ $line->good->BODY }}
+                @if (!empty($line->good->BODY) && $body)
+                    @if ($divider)
+                        /
+                    @endif
+                    {{ $line->good->BODY }}
                 @endif
-                @if ($line->good->BODY)
-                    / {{ $line->good->PRODUCER }}
+                @if (!empty($line->good->PRODUCER) && $producer )
+                    @if ($divider)
+                        /
+                    @endif
+                    {{ $line->good->PRODUCER }}
                 @endif
                 <br/>
-                <span style="font-size: 6px; font-style: italic">{{ $line->category->CATEGORY }}</span>
+                @if ($category)
+                    <span style="font-size: 6px; font-style: italic">{{ $line->category->CATEGORY }}</span>
+                @endif
             </td>
             <td class="right-border bottom-border centred">-</td>
             <td class="right-border bottom-border centred">{{ $line->good->unitCode }}</td>
