@@ -33,6 +33,31 @@
                                       inset
                                       v-model="withStamp"
                             />
+                            <v-switch class="ml-4"
+                                      inset
+                                      label="Корпус"
+                                      v-model="body"
+                            />
+                            <v-switch class="ml-4"
+                                      inset
+                                      label="Производитель"
+                                      v-model="producer"
+                            />
+                            <v-switch class="ml-4"
+                                      inset
+                                      label="Категория"
+                                      v-model="category"
+                            />
+                            <v-switch :label="'Разделитель ' + (divider ? '/' : '\' \'')"
+                                      inset
+                                      v-model="divider"
+                                      class="ml-4"
+                            />
+                            <v-switch class="ml-4"
+                                      inset
+                                      label="Срок поставки"
+                                      v-model="deliveryTime"
+                            />
                             <v-btn @click="download()" class="ml-4 " fab>
                                 <v-icon dark>mdi-download</v-icon>
                             </v-btn>
@@ -55,6 +80,11 @@
                 withStamp: true,
                 withVAT: true,
                 newAccount: false,
+                body: true,
+                producer: true,
+                category: true,
+                divider: true,
+                deliveryTime: true,
             }
         },
         created() {
@@ -76,9 +106,13 @@
             download() {
                 this.downloading = true;
                 this.pdfDialog = false;
-                const {withVAT, withStamp, newAccount} = this;
+                const {withVAT, withStamp, newAccount, body, producer, category, divider, deliveryTime} = this;
                 const download = this.$store.dispatch(
-                    'INVOICE/PDF', {id: this.value.SCODE, query: {withVAT, withStamp, newAccount}}
+                    'INVOICE/PDF',
+                    {
+                        id: this.value.SCODE,
+                        query: {withVAT, withStamp, newAccount, body, producer, category, divider, deliveryTime}
+                    }
                 );
                 download
                     .then(() => {
