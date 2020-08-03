@@ -232,12 +232,14 @@
     <thead>
     <tr>
         <th width="4%">№</th>
-        <th width="50%">Наименование товара, работ, услуг</th>
+        <th width="{{ $deliveryTime ? '50%' : '71%' }}">Наименование товара, работ, услуг</th>
         <th width="8%">Коли-<br>чество</th>
         <th width="5%">Ед.<br>изм.</th>
         <th width="11%">Цена {{ $withVAT ? 'с' : 'без' }} НДС (руб.)</th>
         <th width="11%">Сумма {{ $withVAT ? 'с' : 'без' }} НДС (руб.)</th>
-        <th width="11%">Срок поставки</th>
+        @if ($deliveryTime)
+            <th width="11%">Срок поставки</th>
+        @endif
     </tr>
     </thead>
     <tbody>
@@ -246,14 +248,22 @@
             <td align="center">{{ $loop->iteration }}</td>
             <td align="left">
                 {{$line->name->NAME}}
-                @if ($line->good->BODY)
-                    / {{ $line->good->BODY }}
+                @if ($line->good->BODY && $body)
+                    @if ($divider)
+                        /
+                    @endif
+                    {{ $line->good->BODY }}
                 @endif
-                @if ($line->good->BODY)
-                    / {{ $line->good->PRODUCER }}
+                @if ($line->good->PRODUCER && $producer)
+                    @if ($divider)
+                        /
+                    @endif
+                    {{ $line->good->PRODUCER }}
                 @endif
                 <br/>
-                <span style="font-size: 10px; font-style: italic">{{ $line->category->CATEGORY }}</span>
+                @if ($category)
+                    <span style="font-size: 10px; font-style: italic">{{ $line->category->CATEGORY }}</span>
+                @endif
             </td>
             <td align="right">
                 {{$line->QUAN}}
@@ -269,16 +279,18 @@
             <td align="right">
                 {{number_format($withVAT ? $line->SUMMAP : $line->SUMMAP / (100 + VAT::get($invoice->DATA)) * 100, 2)}}
             </td>
-            <td align="left">
-                {{$line->PRIM}}
-            </td>
+            @if ($deliveryTime)
+                <td align="left">
+                    {{$line->PRIM}}
+                </td>
+            @endif
         </tr>
     @endforeach
     </tbody>
     <tfoot>
     @if(!$withVAT)
         <tr>
-            <th colspan="5" align="right">Итого:</th>
+            <th colspan="{{ $deliveryTime ? 5 : 4 }}" align="right">Итого:</th>
             <th align="right">
                 {{ number_format($invoice->invoiceLines->sum('SUMMAP') / (100 + VAT::get($invoice->DATA)) * 100, 2) }}
             </th>
@@ -286,12 +298,12 @@
         </tr>
     @endif
     <tr>
-        <th colspan="5" align="right">Итого C НДС:</th>
+        <th colspan="{{ $deliveryTime ? 5 : 4 }}" align="right">Итого C НДС:</th>
         <th align="right">{{ number_format($invoice->invoiceLines->sum('SUMMAP'), 2) }}</th>
         <th align="left">руб.</th>
     </tr>
     <tr>
-        <th colspan="5" align="right">В том числе НДС:</th>
+        <th colspan="{{ $deliveryTime ? 5 : 4 }}" align="right">В том числе НДС:</th>
         <th align="right">
             {{number_format(
                 $invoice->invoiceLines->sum('SUMMAP') / (100 + VAT::get($invoice->DATA)) * VAT::get($invoice->DATA), 2

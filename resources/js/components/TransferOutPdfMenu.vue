@@ -29,7 +29,7 @@
                                   label="Категория"
                                   v-model="category"
                         />
-                        <v-switch :label="'Разделитель ' + (divider ? '/' : 'пробел')"
+                        <v-switch :label="'Разделитель ' + (divider ? '/' : '\' \'')"
                                   inset
                                   v-model="divider"
                                   class="ml-4"

@@ -35,6 +35,11 @@ class InvoicePDFRequest extends FormRequest
             'withVAT' => 'in:true,false',
             'withStamp' => 'in:true,false',
             'newAccount' => 'in:true,false',
+            'body' => 'in:true,false',
+            'producer' => 'in:true,false',
+            'category' => 'in:true,false',
+            'divider' => 'in:true,false',
+            'deliveryTime' => 'in:true,false',
         ];
     }
 
@@ -43,7 +48,12 @@ class InvoicePDFRequest extends FormRequest
         $this->merge([
             'withVAT' => $this->withVAT === 'true',
             'withStamp' => $this->withStamp === 'true',
-            'newAccount' => $this->newAccount === 'true'
+            'newAccount' => $this->newAccount === 'true',
+            'body' => $this->body === 'true',
+            'producer' => $this->producer === 'true',
+            'category' => $this->category === 'true',
+            'divider' => $this->divider === 'true',
+            'deliveryTime' => $this->deliveryTime === 'true',
         ]);
     }
 }
