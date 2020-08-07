@@ -49,10 +49,10 @@ class TransferOutPDFRequest extends FormRequest
     public function rules()
     {
         return [
-            'body' => 'boolean|required',
-            'producer' => 'boolean|required',
-            'category' => 'boolean|required',
-            'divider' => 'boolean|required',
+            'body' => 'boolean',
+            'producer' => 'boolean',
+            'category' => 'boolean',
+            'divider' => 'boolean',
         ];
     }
 }
