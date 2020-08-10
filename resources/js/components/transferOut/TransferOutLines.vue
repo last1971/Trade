@@ -34,12 +34,12 @@
 </template>
 
 <script>
-    import tableMixin from "../mixins/tableMixin";
-    import utilsMixin from "../mixins/utilsMixin";
+    import tableMixin from "../../mixins/tableMixin";
+    import utilsMixin from "../../mixins/utilsMixin";
     import TransferOutEdit from "./TransferOutEdit";
-    import GoodName from "./GoodName";
-    import EditField from "./EditField";
-    import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
+    import GoodName from "../GoodName";
+    import EditField from "../EditField";
+    import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
 
     export default {
         name: "TransferOutLines",

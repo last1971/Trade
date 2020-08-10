@@ -9,7 +9,7 @@
         :multi-sort="true"
         :options.sync="options"
         :server-items-length="total"
-        item-key="SFCODE"
+        :item-key="itemKey"
         loading-text="Loading... Please wait"
     >
         <template v-slot:body.prepend="{ isMobile }">
@@ -84,6 +84,9 @@
         <template v-slot:item.actions>
 
         </template>
+        <template v-slot:item.actions="{ item }">
+            <transfer-out-pdf v-model="item"/>
+        </template>
         <template v-slot:item.NSF="{ item }">
             <router-link :to="{ name: 'transfer-out', params: { id: item.SFCODE } }">
                 <v-tooltip top>
@@ -117,13 +120,15 @@
 
 <script>
     import moment from 'moment';
-    import tableMixin from "../mixins/tableMixin";
-    import utilsMixin from "../mixins/utilsMixin";
+    import tableMixin from "../../mixins/tableMixin";
+    import utilsMixin from "../../mixins/utilsMixin";
     import {mapGetters} from "vuex";
-    import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
+    import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
+    import TransferOutPdf from "./TransferOutPdf";
 
     export default {
         name: "TransferOuts",
+        components: {TransferOutPdf},
         mixins: [tableMixin, utilsMixin, tableOptionsRouteMixin],
         data() {
             return {
@@ -146,6 +151,7 @@
                 datePicker: false,
                 mobileFiltersVisible: false,
                 model: 'TRANSFER-OUT',
+                itemKey: 'SFCODE',
             }
         },
         computed: {

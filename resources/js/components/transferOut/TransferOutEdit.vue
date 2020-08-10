@@ -89,10 +89,10 @@
 </template>
 
 <script>
-    import utilsMixin from "../mixins/utilsMixin";
-    import BuyerSelect from "./BuyerSelect";
-    import FirmSelect from "./FirmSelect";
-    import editMixin from "../mixins/editMixin";
+    import utilsMixin from "../../mixins/utilsMixin";
+    import BuyerSelect from "../BuyerSelect";
+    import FirmSelect from "../FirmSelect";
+    import editMixin from "../../mixins/editMixin";
     import TransferOutPdfMenu from "./TransferOutPdfMenu";
 
     export default {

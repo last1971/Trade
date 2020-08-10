@@ -66,11 +66,11 @@
 </template>
 
 <script>
-    import tableMixin from "../mixins/tableMixin";
-    import utilsMixin from "../mixins/utilsMixin";
-    import OrderLineInWay from "./OrderLineInWay";
-    import ExpandTransferOutLines from "./ExpandTransferOutLines";
-    import GoodName from "./GoodName";
+    import tableMixin from "../../mixins/tableMixin";
+    import utilsMixin from "../../mixins/utilsMixin";
+    import OrderLineInWay from "../OrderLineInWay";
+    import ExpandTransferOutLines from "../ExpandTransferOutLines";
+    import GoodName from "../GoodName";
     import {mapGetters} from 'vuex';
 
     export default {
