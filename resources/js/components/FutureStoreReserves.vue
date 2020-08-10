@@ -11,7 +11,7 @@
 </template>
 
 <script>
-    import InvoiceLinesDependent from "./InvoiceLinesDependent";
+    import InvoiceLinesDependent from "./invoice/InvoiceLinesDependent";
 
     export default {
         name: "FutureReserves",

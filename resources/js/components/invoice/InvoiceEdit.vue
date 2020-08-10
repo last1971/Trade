@@ -82,69 +82,35 @@
                         <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>
                 </v-speed-dial>
-                <v-dialog max-width="400px" persistent v-model="pdfDialog">
-                    <v-card>
-                        <v-card-title>
-                            <span class="headline">Параметры счета</span>
-                            <v-spacer/>
-                            <v-btn @click="pdfDialog=false" icon right>
-                                <v-icon color="red">
-                                    mdi-close
-                                </v-icon>
-                            </v-btn>
-                        </v-card-title>
-                        <v-divider></v-divider>
-                        <v-card-text>
-                            <v-container>
-                                <v-row>
-                                    <v-switch class="ml-4"
-                                              inset
-                                              label="Новые реквизиты"
-                                              v-model="newAccount"
-                                    />
-                                    <v-switch :label="(withVAT ? 'С ' : 'Без ') + 'НДС'"
-                                              inset
-                                              v-model="withVAT"
-                                              class="ml-4"
-                                    />
-                                    <v-switch :label="withStamp ? 'С печатью' : 'Без печати'"
-                                              class="ml-4"
-                                              inset
-                                              v-model="withStamp"
-                                    />
-                                    <v-btn @click="download('pdf')" class="ml-4 " fab>
-                                        <v-icon dark>mdi-download</v-icon>
-                                    </v-btn>
-                                </v-row>
-                            </v-container>
-                        </v-card-text>
-                    </v-card>
-                </v-dialog>
+                <invoice-pdf-menu
+                    v-model="value"
+                    :pdf-dialog="pdfDialog"
+                    @close="pdfDialog=false"
+                    @downloading="setDownloading"
+                />
             </v-col>
         </v-row>
     </v-form>
 </template>
 
 <script>
-import BuyerSelect from "./BuyerSelect";
-import utilsMixin from "../mixins/utilsMixin";
+import BuyerSelect from "../BuyerSelect";
+import utilsMixin from "../../mixins/utilsMixin";
 import InvoiceStatusSelect from "./InvoiceStatusSelect";
-import FirmSelect from "./FirmSelect";
-import editMixin from "../mixins/editMixin";
+import FirmSelect from "../FirmSelect";
+import editMixin from "../../mixins/editMixin";
 import InvoicePdf from "./InvoicePdf";
+import InvoicePdfMenu from "./InvoicePdfMenu";
 
 export default {
     name: "InvoiceEdit",
-    components: {InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
+    components: {InvoicePdfMenu, InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
     mixins: [editMixin, utilsMixin],
     data() {
         return {
             MODEL: 'INVOICE',
             downloading: false,
-            withStamp: true,
-            withVAT: true,
             pdfDialog: false,
-            newAccount: false,
         }
     },
     computed: {
@@ -161,46 +127,37 @@ export default {
             return !this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
         }
     },
-    created() {
-        this.withStamp = this.$store.getters['AUTH/LOCAL_OPTION']('withStamp');
-        this.withVAT = this.$store.getters['AUTH/LOCAL_OPTION']('withVAT');
+    methods: {
+        download(type) {
+            this.downloading = true;
+            this.pdfDialog = false;
+            const {withVAT, withStamp, newAccount} = this;
+            const download = type === 'pdf'
+                ? this.$store.dispatch(
+                    'INVOICE/PDF', {id: this.value.SCODE, query: {withVAT, withStamp, newAccount}}
+                )
+                : this.$store.dispatch('INVOICE-LINE/SAVE', {
+                    with: ['category', 'good', 'name'],
+                    filterAttributes: [
+                        'invoice.SCODE',
+                    ],
+                    filterOperators: ['='],
+                    filterValues: [this.value.SCODE],
+                    sortBy: ['category.CATEGORY', 'name.NAME'],
+                    sortDesc: [false, false],
+                });
+            download
+                .then(() => {
+                })
+                .catch(() => {
+                })
+                .then(() => this.downloading = false);
         },
-        watch: {
-            withStamp(val) {
-                this.$store.commit('AUTH/SET_LOCAL_OPTION', {withStamp: val});
-            },
-            withVAT(val) {
-                this.$store.commit('AUTH/SET_LOCAL_OPTION', {withVAT: val});
-            }
-        },
-        methods: {
-            download(type) {
-                this.downloading = true;
-                this.pdfDialog = false;
-                const {withVAT, withStamp, newAccount} = this;
-                const download = type === 'pdf'
-                    ? this.$store.dispatch(
-                        'INVOICE/PDF', {id: this.value.SCODE, query: {withVAT, withStamp, newAccount}}
-                    )
-                    : this.$store.dispatch('INVOICE-LINE/SAVE', {
-                        with: ['category', 'good', 'name'],
-                        filterAttributes: [
-                            'invoice.SCODE',
-                        ],
-                        filterOperators: ['='],
-                        filterValues: [this.value.SCODE],
-                        sortBy: ['category.CATEGORY', 'name.NAME'],
-                        sortDesc: [false, false],
-                    });
-                download
-                    .then(() => {
-                    })
-                    .catch(() => {
-                    })
-                    .then(() => this.downloading = false);
-            }
+        setDownloading(downloading) {
+            this.downloading = downloading
         }
-    }
+    },
+}
 </script>
 
 <style scoped>

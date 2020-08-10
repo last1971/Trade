@@ -14,27 +14,27 @@
             <v-card-text>
                 <v-container>
                     <v-row>
-                        <v-switch class="ml-4"
+                        <v-switch class="col-6"
                                   inset
-                                  label="Корпус"
+                                  :label="body ? 'Корпус' : 'Без корпуса'"
                                   v-model="body"
                         />
-                        <v-switch class="ml-4"
+                        <v-switch class="col-6"
                                   inset
-                                  label="Производитель"
+                                  :label="producer ? 'Производитель' : 'Без Производителя'"
                                   v-model="producer"
                         />
-                        <v-switch class="ml-4"
+                        <v-switch class="col-6"
                                   inset
-                                  label="Категория"
+                                  :label="category ? 'Категория' : 'Без категории'"
                                   v-model="category"
                         />
                         <v-switch :label="'Разделитель ' + (divider ? '/' : '\' \'')"
                                   inset
                                   v-model="divider"
-                                  class="ml-4"
+                                  class="col-6"
                         />
-                        <v-btn @click="download()" class="ml-4 " fab>
+                        <v-btn @click="download()" class="col-2" fab>
                             <v-icon dark>mdi-download</v-icon>
                         </v-btn>
                     </v-row>

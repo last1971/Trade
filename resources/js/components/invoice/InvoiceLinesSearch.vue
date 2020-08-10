@@ -51,10 +51,10 @@
     import InvoiceLinesDependent from "./InvoiceLinesDependent";
     import InvoiceStatusSelect from "./InvoiceStatusSelect";
     import moment from "moment";
-    import UserBuyers from "./UserBuyers";
-    import BuyerSelect from "./BuyerSelect";
-    import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
-    import CategorySelect from "./CategorySelect";
+    import UserBuyers from "../UserBuyers";
+    import BuyerSelect from "../BuyerSelect";
+    import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
+    import CategorySelect from "../CategorySelect";
 
     export default {
         name: "InvoiceLinesSearch",

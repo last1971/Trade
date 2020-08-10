@@ -112,15 +112,15 @@
 </template>
 
 <script>
-    import tableMixin from "../mixins/tableMixin";
-    import ExpandTransferOutLines from "./ExpandTransferOutLines";
-    import TransferOutList from "./TransferOutList";
+    import tableMixin from "../../mixins/tableMixin";
+    import ExpandTransferOutLines from "../ExpandTransferOutLines";
+    import TransferOutList from "../transferOut/TransferOutList";
     import InvoiceEdit from "./InvoiceEdit";
-    import utilsMixin from "../mixins/utilsMixin";
-    import OrderLineInWay from "./OrderLineInWay";
+    import utilsMixin from "../../mixins/utilsMixin";
+    import OrderLineInWay from "../OrderLineInWay";
     import {mapGetters} from 'vuex';
-    import GoodName from "./GoodName";
-    import EditField from "./EditField";
+    import GoodName from "../GoodName";
+    import EditField from "../EditField";
 
     export default {
         name: "InvoiceLines",
