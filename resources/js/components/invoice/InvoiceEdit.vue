@@ -87,6 +87,8 @@
                     :pdf-dialog="pdfDialog"
                     @close="pdfDialog=false"
                     @downloading="setDownloading"
+                    :sort-by="sortBy"
+                    :sort-desc="sortDesc"
                 />
             </v-col>
         </v-row>
@@ -106,6 +108,10 @@ export default {
     name: "InvoiceEdit",
     components: {InvoicePdfMenu, InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
     mixins: [editMixin, utilsMixin],
+    props: {
+        sortBy: { type: Array, default: () => [] },
+        sortDesc: { type: Array, default: () => [] },
+    },
     data() {
         return {
             MODEL: 'INVOICE',
