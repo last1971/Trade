@@ -70,6 +70,8 @@ export default {
     props: {
         value: { type: Object },
         pdfDialog: { type: Boolean, default: false },
+        sortBy: { type: Array, default: () => [] },
+        sortDesc: { type: Array, default: () => [] },
     },
     data() {
         return {
@@ -99,12 +101,25 @@ export default {
         download() {
             this.$emit('downloading', true);
             this.$emit('close');
-            const { withVAT, withStamp, newAccount, body, producer, category, divider, deliveryTime } = this;
+            const
+                { withVAT, withStamp, newAccount, body, producer, category, divider, deliveryTime, sortBy, sortDesc }
+                = this;
             this.$store.dispatch(
                 'INVOICE/PDF',
                 {
                     id: this.value.SCODE,
-                    query: {withVAT, withStamp, newAccount, body, producer, category, divider, deliveryTime}
+                    query: {
+                        withVAT,
+                        withStamp,
+                        newAccount,
+                        body,
+                        producer,
+                        category,
+                        divider,
+                        deliveryTime,
+                        sortBy,
+                        sortDesc,
+                    }
                 }
             )
                 .then(() => {

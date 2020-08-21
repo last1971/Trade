@@ -47,8 +47,8 @@ class InvoiceController extends ModelController
                 'filterAttributes' => ['invoice.SCODE'],
                 'filterOperators' => ['='],
                 'filterValues' => [$request->invoice->SCODE],
-                'sortBy' => ['category.CATEGORY', 'name.NAME'],
-                'sortDesc' => [false, false]
+                'sortBy' => $request->sortBy,
+                'sortDesc' =>$request->sortDesc,
             ]))->get()
         ]);
         return PDF::loadView('invoice-pdf', $request->all())->download('invoice.pdf');

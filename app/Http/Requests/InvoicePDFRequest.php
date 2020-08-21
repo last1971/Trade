@@ -40,11 +40,25 @@ class InvoicePDFRequest extends FormRequest
             'category' => 'in:true,false',
             'divider' => 'in:true,false',
             'deliveryTime' => 'in:true,false',
+            'sortBy' => 'array',
+            'sortBy.*' => 'string',
+            'sortDesc' => 'required_with:sortBy|array',
+            'sortDesc.*' => 'required_with:sortBy|in:true,false',
         ];
     }
 
     protected function passedValidation()
     {
+        if (is_array($this->sortDesc)) {
+            $this->merge(['sortDesc' => array_map(function ($v) {
+                return $v === 'true';
+            }, $this->sortDesc)]);
+        } else {
+          //  $this->merge([
+          //      'sortBy' => ['category.CATEGORY', 'name.NAME'],
+          //      'sortDesc' => [false, false]
+          //  ]);
+        }
         $this->merge([
             'withVAT' => $this->withVAT === 'true',
             'withStamp' => $this->withStamp === 'true',
