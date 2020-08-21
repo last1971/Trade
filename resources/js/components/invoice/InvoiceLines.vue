@@ -15,7 +15,7 @@
         show-expand
     >
         <template v-slot:top>
-            <invoice-edit :value="value" @input="proxyInput"/>
+            <invoice-edit :value="value" @input="proxyInput" :sort-by="options.sortBy" :sort-desc="options.sortDesc"/>
         </template>
         <template v-slot:item.name.NAME="{ item }">
             <good-name v-model="item" :prim="item.good.PRIM"/>
