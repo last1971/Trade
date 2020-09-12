@@ -10,7 +10,7 @@
 </template>
 
 <script>
-    import Model from './Model'
+    import Model from '../Model'
     import OrderLines from "./OrderLines";
 
     export default {

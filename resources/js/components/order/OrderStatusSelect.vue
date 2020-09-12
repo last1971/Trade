@@ -3,7 +3,7 @@
 </template>
 
 <script>
-    import utilsMixin from "../mixins/utilsMixin";
+    import utilsMixin from "../../mixins/utilsMixin";
 
     export default {
         name: "OrderStatusSelect",

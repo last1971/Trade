@@ -145,11 +145,11 @@
 </template>
 
 <script>
-import tableMixin from "../mixins/tableMixin";
-import utilsMixin from "../mixins/utilsMixin";
+import tableMixin from "../../mixins/tableMixin";
+import utilsMixin from "../../mixins/utilsMixin";
 import moment from "moment";
 import {mapGetters} from "vuex";
-import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
+import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
 import OrderStatusSelectInline from "./OrderStatusSelectInline";
 
 export default {

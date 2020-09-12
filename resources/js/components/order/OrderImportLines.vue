@@ -37,7 +37,7 @@
 </template>
 
 <script>
-    import GoodSelect from "./GoodSelect";
+    import GoodSelect from "../GoodSelect";
 
     export default {
         name: "OrderImportLines",

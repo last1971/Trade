@@ -81,12 +81,12 @@
 </template>
 
 <script>
-    import tableMixin from "../mixins/tableMixin";
-    import utilsMixin from "../mixins/utilsMixin";
+    import tableMixin from "../../mixins/tableMixin";
+    import utilsMixin from "../../mixins/utilsMixin";
     import OrderEdit from "./OrderEdit";
-    import GoodName from "./GoodName";
+    import GoodName from "../GoodName";
     import OrderImportLines from "./OrderImportLines";
-    import EditField from "./EditField";
+    import EditField from "../EditField";
     import {mapGetters} from "vuex";
 
     export default {

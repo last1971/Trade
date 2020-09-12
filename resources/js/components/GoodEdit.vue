@@ -37,7 +37,7 @@
     import CategorySelect from "./CategorySelect";
     import NameSelect from "./NameSelect";
     import RetailPriceEdit from "./RetailPriceEdit";
-    import OrderStepEdit from "./OrderStepEdit";
+    import OrderStepEdit from "./order/OrderStepEdit";
     import editMixin from "../mixins/editMixin";
     import Leftovers from "./Leftovers";
 

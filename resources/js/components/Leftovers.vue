@@ -55,7 +55,7 @@
 <script>
     import Reserves from "./Reserves";
     import FutureReserves from "./FutureStoreReserves";
-    import OrderLineInWay from "./OrderLineInWay";
+    import OrderLineInWay from "./order/OrderLineInWay";
     import RetailOrderLinesInWork from "./RetailOrderLinesInWork";
 
     export default {
