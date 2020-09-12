@@ -117,7 +117,7 @@
     import TransferOutList from "../transferOut/TransferOutList";
     import InvoiceEdit from "./InvoiceEdit";
     import utilsMixin from "../../mixins/utilsMixin";
-    import OrderLineInWay from "../OrderLineInWay";
+    import OrderLineInWay from "../order/OrderLineInWay";
     import {mapGetters} from 'vuex';
     import GoodName from "../GoodName";
     import EditField from "../EditField";

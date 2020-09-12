@@ -53,11 +53,6 @@ class InvoicePDFRequest extends FormRequest
             $this->merge(['sortDesc' => array_map(function ($v) {
                 return $v === 'true';
             }, $this->sortDesc)]);
-        } else {
-          //  $this->merge([
-          //      'sortBy' => ['category.CATEGORY', 'name.NAME'],
-          //      'sortDesc' => [false, false]
-          //  ]);
         }
         $this->merge([
             'withVAT' => $this->withVAT === 'true',

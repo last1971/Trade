@@ -39,7 +39,7 @@
 </template>
 
 <script>
-    import tableMixin from "../mixins/tableMixin";
+    import tableMixin from "../../mixins/tableMixin";
 
     export default {
         name: "OrderLineInWay",

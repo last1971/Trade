@@ -75,8 +75,11 @@
                        @click="save"
                        class="mt-2"
                 >
-                    <v-icon v-if="$vuetify.breakpoint.smAndUp">mdi-content-save</v-icon>
+                    <v-icon v-if="$vuetify.breakpoint.smAndUp" color="green">mdi-content-save</v-icon>
                     <span v-else>Сохранить</span>
+                </v-btn>
+                <v-btn v-if="$vuetify.breakpoint.smAndUp" fab class="mt-2 ml-2" @click="addOrderLine = true">
+                    <v-icon color="primary">mdi-playlist-plus</v-icon>
                 </v-btn>
             </v-col>
         </v-row>
@@ -92,20 +95,22 @@
                 />
             </v-col>
         </v-row>
+        <order-line-add :order="model" @close="addOrderLine=false"/>
     </v-form>
 </template>
 
 <script>
-    import SellerSelect from "./SellerSelect";
-    import editMixin from "../mixins/editMixin";
-    import utilsMixin from "../mixins/utilsMixin";
+    import SellerSelect from "../SellerSelect";
+    import editMixin from "../../mixins/editMixin";
+    import utilsMixin from "../../mixins/utilsMixin";
     import OrderStatusSelect from "./OrderStatusSelect";
     import moment from "moment";
-    import FileDrop from "./FileDrop";
+    import FileDrop from "../FileDrop";
+    import OrderLineAdd from "./OrderLineAdd";
 
     export default {
         name: "OrderEdit",
-        components: {FileDrop, OrderStatusSelect, SellerSelect},
+        components: {OrderLineAdd, FileDrop, OrderStatusSelect, SellerSelect},
         mixins: [editMixin, utilsMixin],
         data() {
             return {
@@ -113,6 +118,7 @@
                 datePickerCome: false,
                 importFiles: null,
                 loading: false,
+                addOrderLine: false,
             }
         },
         computed: {
