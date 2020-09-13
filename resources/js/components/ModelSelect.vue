@@ -134,7 +134,7 @@
                 const filtred = _.isArray(this.value)
                     ? this.items.filter((item) => this.value.indexOf(item[this.itemValue]) >= 0)
                     : [];
-                this.items = _.union(response.copyItmes, filtred);
+                this.items = _.union(response.copyItems, filtred);
                 this.isLoading = false;
             },
             getItem() {
@@ -162,8 +162,11 @@
                             sortDesc: this.sortDesc
                         };
                         this.$store.dispatch(this.MODEL + '/ALL', options)
-                            .then((response) => this.items = response.data.data)
-                            .catch(() => {
+                            .then((response) => {
+                                this.items = response.copyItems
+                            })
+                            .catch((e) => {
+                                console.error(e);
                             })
                             .then(() => this.isLoading = false);
                     } else {
