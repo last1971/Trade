@@ -57,7 +57,7 @@ export default {
                 .then((response) => {
                     this.total = response.total;//.data.total !== undefined ? response.data.total : response.data.meta.total;
                     this.itemIds = response.itemIds;
-                    this.copyItmes = response.copyItmes;
+                    this.copyItems = response.copyItems;
                     const newQuery = _.cloneDeep(this.options);
                     if (!this.dependent && !_.isEqual(this.$route.query, newQuery)) {
                         this.$router.replace(
@@ -77,7 +77,7 @@ export default {
             this.$store.dispatch(this.model + '/UPDATE', {item, options: this.options});
         },
         setLinks() {
-            this.copyItmes.forEach((item, index) => {
+            this.copyItems.forEach((item, index) => {
                 let previous, next;
                 const {page, itemsPerPage} = this.options;
                 const lastPage = Math.floor((this.total - 1) / itemsPerPage) + 1;
@@ -88,17 +88,17 @@ export default {
                 } else {
                     previous = {
                         name: this.$route.name.slice(0, -1),
-                        params: {id: this.copyItmes[index - 1][this.$store.getters[this.model + '/KEY']]}
+                        params: {id: this.copyItems[index - 1][this.$store.getters[this.model + '/KEY']]}
                     };
                 }
-                if (index + 1 === this.copyItmes.length) {
+                if (index + 1 === this.copyItems.length) {
                     const newQuery = _.cloneDeep(this.options);
                     newQuery.page = page === lastPage ? 1 : page + 1;
                     next = {name: this.$route.name, params: this.$route.params, query: newQuery};
                 } else {
                     next = {
                         name: this.$route.name.slice(0, -1),
-                        params: {id: this.copyItmes[index + 1][this.$store.getters[this.model + '/KEY']]}
+                        params: {id: this.copyItems[index + 1][this.$store.getters[this.model + '/KEY']]}
                     };
                 }
                 this.$store.commit(this.model + '/SET_LINK', {

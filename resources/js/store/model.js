@@ -208,7 +208,7 @@ let actions = {
             }
             return {
                 itemIds: response.data.data.map((item) => item[state.key]),
-                copyItmes: response.data.data,
+                copyItems: response.data.data,
                 total: response.data.total !== undefined ? response.data.total : response.data.meta.total
             }
         } catch (error) {
