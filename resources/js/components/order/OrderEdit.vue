@@ -95,7 +95,7 @@
                 />
             </v-col>
         </v-row>
-        <order-line-add :order="model" @close="addOrderLine=false"/>
+       <!-- <order-line-add :order="model" @close="addOrderLine=false"/> -->
     </v-form>
 </template>
 
