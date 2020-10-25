@@ -84,7 +84,7 @@
     import tableMixin from "../../mixins/tableMixin";
     import utilsMixin from "../../mixins/utilsMixin";
     import OrderEdit from "./OrderEdit";
-    import GoodName from "../GoodName";
+    import GoodName from "../good/GoodName";
     import OrderImportLines from "./OrderImportLines";
     import EditField from "../EditField";
     import {mapGetters} from "vuex";

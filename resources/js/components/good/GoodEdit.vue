@@ -34,12 +34,12 @@
 </template>
 
 <script>
-    import CategorySelect from "./CategorySelect";
-    import NameSelect from "./NameSelect";
-    import RetailPriceEdit from "./RetailPriceEdit";
-    import OrderStepEdit from "./order/OrderStepEdit";
-    import editMixin from "../mixins/editMixin";
-    import Leftovers from "./Leftovers";
+    import CategorySelect from "../CategorySelect";
+    import NameSelect from "../NameSelect";
+    import RetailPriceEdit from "../RetailPriceEdit";
+    import OrderStepEdit from "../order/OrderStepEdit";
+    import editMixin from "../../mixins/editMixin";
+    import Leftovers from "../Leftovers";
 
     export default {
         name: "GoodEdit",

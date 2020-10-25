@@ -119,7 +119,7 @@
     import utilsMixin from "../../mixins/utilsMixin";
     import OrderLineInWay from "../order/OrderLineInWay";
     import {mapGetters} from 'vuex';
-    import GoodName from "../GoodName";
+    import GoodName from "../good/GoodName";
     import EditField from "../EditField";
 
     export default {

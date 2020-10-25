@@ -19,35 +19,35 @@
                 <v-col>
                     <v-text-field
                         :rules="rules"
-                        single-line
                         v-model="orderLine.QUAN"
+                        label="Количество"
                     />
                 </v-col>
                 <v-col>
                     <v-text-field
                         :rules="rules"
-                        single-line
+                        label="Цена без НДС"
                         v-model="orderLine.priceWithoutVat"
                     />
                 </v-col>
                 <v-col>
                     <v-text-field
                         :rules="rules"
-                        single-line
+                        label="Цена с НДС"
                         v-model="orderLine.PRICE"
                     />
                 </v-col>
                 <v-col>
                     <v-text-field
                         :rules="rules"
-                        single-line
+                        label="Сумма без НДС"
                         v-model="orderLine.sumWithoutVat"
                     />
                 </v-col>
                 <v-col>
                     <v-text-field
                         :rules="rules"
-                        single-line
+                        label="Сумма с НДС"
                         v-model="orderLine.SUMMAP"
                     />
                 </v-col>
@@ -55,13 +55,13 @@
             <v-row>
                 <v-col>
                     <v-text-field
-                        single-line
+                        label="Страна"
                         v-model="orderLine.STRANA"
                     />
                 </v-col>
                 <v-col>
                     <v-text-field
-                        single-line
+                        label="ГТД"
                         v-model="orderLine.GTD"
                     />
                 </v-col>
@@ -70,12 +70,12 @@
                 <v-col col="10">
                     <v-text-field
                         :rules="rules"
-                        single-line
+                        label="Примечание"
                         v-model="orderLine.PRIM"
                     />
                 </v-col>
                 <v-col col="2">
-                    <v-btn :disabled="savePossible" @click="save" fab :loading="loading">
+                    <v-btn :disabled="!savePossible" @click="save" fab :loading="loading">
                         <v-icon color="green">mdi-content-save</v-icon>
                     </v-btn>
                 </v-col>
@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import GoodSelect from '../GoodSelect'
+import GoodSelect from '../good/GoodSelect'
 export default {
     name: "OrderLineAdd",
     components: { GoodSelect },
@@ -104,6 +104,14 @@ export default {
         save() {
             this.$emit('close');
         }
+    },
+    watch: {
+        orderLine: {
+            deep: true,
+            handler: (val, oldVal) => {
+                console.log(val, oldVal);
+            }
+        },
     }
 }
 </script>
