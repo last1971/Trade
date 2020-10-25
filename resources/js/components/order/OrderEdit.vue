@@ -78,7 +78,12 @@
                     <v-icon v-if="$vuetify.breakpoint.smAndUp" color="green">mdi-content-save</v-icon>
                     <span v-else>Сохранить</span>
                 </v-btn>
-                <v-btn v-if="$vuetify.breakpoint.smAndUp" fab class="mt-2 ml-2" @click="addOrderLine = true">
+                <v-btn v-if="$vuetify.breakpoint.smAndUp"
+                       fab
+                       class="mt-2 ml-2"
+                       @click="addOrderLine = true"
+                       :disabled="notEditable"
+                >
                     <v-icon color="primary">mdi-playlist-plus</v-icon>
                 </v-btn>
             </v-col>
@@ -95,7 +100,9 @@
                 />
             </v-col>
         </v-row>
-       <!-- <order-line-add :order="model" @close="addOrderLine=false"/> -->
+        <v-dialog v-model="addOrderLine" @close="addOrderLine=false">
+            <order-line-add :order="model" @close="addOrderLine=false"/>
+        </v-dialog>
     </v-form>
 </template>
 

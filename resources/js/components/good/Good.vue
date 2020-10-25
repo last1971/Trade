@@ -10,7 +10,7 @@
 </template>
 
 <script>
-    import Model from './Model'
+    import Model from '../Model'
     import GoodEdit from "./GoodEdit";
 
     export default {

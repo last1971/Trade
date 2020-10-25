@@ -28,6 +28,7 @@ import orderStep from "./orderStep";
 import reserve from "./reserve";
 import retailOrderLine from "./retailOrderLine";
 import orderImportLine from "./orderImportLine";
+import goodsList from "./goodsList";
 
 Vue.use(Vuex);
 
@@ -54,6 +55,7 @@ export default new Vuex.Store({
         'INVOICE-LINE': invoiceLine,
         INVOICESTATUS: invoiceStatus,
         GOOD: good,
+        'GOODS-LIST': goodsList,
         NAME: name,
         'ORDER': order,
         'ORDER-IMPORT-LINE': orderImportLine,

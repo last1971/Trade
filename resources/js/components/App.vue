@@ -51,6 +51,7 @@
                 </template>
                 <span>Вернуться</span>
             </v-tooltip>
+            <goods-list-button v-if="user && !$vuetify.breakpoint.xsOnly" class="mr-2"/>
             <v-chip outlined v-if="user && !$vuetify.breakpoint.xsOnly">
                 {{ user.name }}
             </v-chip>
@@ -98,9 +99,10 @@
 
 <script>
     import {mapGetters} from 'vuex';
-
+    import GoodsListButton from "./good/GoodsListButton";
     export default {
         name: "App",
+        components: {GoodsListButton},
         props: {
             source: String,
         },
@@ -116,7 +118,8 @@
                 {id: 7, text: 'СБИС', to: {name: 'sbis'}, icon: 'mdi-electron-framework'},
                 {id: 8, text: 'Покупатели+', to: {name: 'advanced-buyer'}, icon: 'mdi-account-plus'},
                 {id: 9, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
-                {id: 10, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
+                {id: 10, text: 'Список', to: {name: 'goods-list'}, icon: 'mdi-playlist-edit'},
+                {id: 11, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
             ]
         }),
         computed: {

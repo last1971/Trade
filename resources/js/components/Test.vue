@@ -6,7 +6,7 @@
 </template>
 
 <script>
-    import GoodSelect from "./GoodSelect";
+    import GoodSelect from "./good/GoodSelect";
     import NameSelect from "./NameSelect";
 
     export default {

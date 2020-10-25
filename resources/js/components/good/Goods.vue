@@ -14,7 +14,17 @@
     >
         <template v-slot:top>
             <div class="m-2">
-                <v-text-field label="Наименовние" v-model="searchName"/>
+                <v-row>
+                    <v-col>
+                        <v-text-field label="Наименовние" v-model="searchName"/>
+                    </v-col>
+                    <v-col>
+                        <v-switch
+                            v-model="inRetailStore"
+                            :label="inRetailStore ? 'Есть в магазине' : 'Все в магазине'"
+                        ></v-switch>
+                    </v-col>
+                </v-row>
             </div>
         </template>
         <template v-slot:item.name.NAME="{ item }">
@@ -32,14 +42,7 @@
             </div>
         </template>
         <template v-slot:item.warehouse="{ item }">
-            {{ item.warehouse ? item.warehouse.QUAN : 0 }} /
-            {{ item.retailStore ? item.retailStore.QUAN : 0 }} /
-            <b class="primary--text">
-                {{
-                (item.warehouse ? item.warehouse.QUAN : 0) + (item.retailStore ? item.retailStore.QUAN : 0)
-                - item.reservesQuantity
-                }}
-            </b>
+            <good-to-list v-model="item"/>
         </template>
         <template v-slot:item.reservesQuantity="{ item }">
             {{ item.reservesQuantity }} /
@@ -73,14 +76,15 @@
 </template>
 
 <script>
-    import tableMixin from "../mixins/tableMixin";
-    import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
-    import utilsMixin from "../mixins/utilsMixin";
+    import tableMixin from "../../mixins/tableMixin";
+    import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
+    import utilsMixin from "../../mixins/utilsMixin";
     import GoodName from "./GoodName";
+    import GoodToList from "./GoodToList";
 
     export default {
         name: "Goods",
-        components: {GoodName},
+        components: {GoodToList, GoodName},
         mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
         data() {
             return {
@@ -99,19 +103,23 @@
                         'storeLinesTransitQuantity',
                     ],
                     filterAttributes: [
-                        'goodNames.NAME', 'HIDDEN'
+                        'goodNames.NAME', 'HIDDEN', 'retailStore.QUAN'
                     ],
-                    filterOperators: ['CONTAIN', '='],
-                    filterValues: ['', 0],
+                    filterOperators: ['CONTAIN', '=', '>'],
+                    filterValues: ['', 0, 0],
                 },
                 mobileFiltersVisible: false,
                 model: 'GOOD',
                 searchName: '',
+                inRetailStore: true,
             }
         },
         watch: {
             searchName(val) {
                 this.options.filterValues.splice(0, 1, val.replace(/[^а-яёА-ЯЁa-zA-Z0-9]/g, ''));
+            },
+            inRetailStore(val) {
+                this.options.filterValues.splice(2, 1, val ? 0 : -1)
             }
         },
         methods: {},

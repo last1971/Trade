@@ -16,9 +16,10 @@ import ResetPassword from "./components/ResetPassword";
 import InvoiceLinesSearch from "./components/invoice/InvoiceLinesSearch";
 import AdvancedBuyers from "./components/AdvancedBuyers";
 import SbisComponent from "./components/SbisComponent";
-import Goods from "./components/Goods";
-import Good from "./components/Good";
+import Goods from "./components/good/Goods";
+import Good from "./components/good/Good";
 import Test from "./components/Test";
+import GoodsList from "./components/good/GoodsList";
 
 Vue.use(VueRouter);
 
@@ -74,6 +75,11 @@ const routes = [
         name: 'login',
         path: '/login',
         component: Login,
+    },
+    {
+        name: 'goods-list',
+        path: '/goods-list',
+        component: GoodsList,
     },
     {
         name: 'order',

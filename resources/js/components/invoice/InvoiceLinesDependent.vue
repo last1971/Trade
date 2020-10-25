@@ -70,7 +70,7 @@
     import utilsMixin from "../../mixins/utilsMixin";
     import OrderLineInWay from "../order/OrderLineInWay";
     import ExpandTransferOutLines from "../ExpandTransferOutLines";
-    import GoodName from "../GoodName";
+    import GoodName from "../good/GoodName";
     import {mapGetters} from 'vuex';
 
     export default {

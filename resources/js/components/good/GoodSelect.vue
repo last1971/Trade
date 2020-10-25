@@ -44,8 +44,8 @@
 </template>
 
 <script>
-    import utilsMixin from "../mixins/utilsMixin";
-    import ModelSelect from "./ModelSelect";
+    import utilsMixin from "../../mixins/utilsMixin";
+    import ModelSelect from "../ModelSelect";
     import GoodInString from "./GoodInString";
     import GoodEdit from "./GoodEdit";
 

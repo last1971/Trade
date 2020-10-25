@@ -40,6 +40,15 @@ class GoodService extends ModelService
             }]
         ];
 
+        $this->aliases['retailStore.QUAN'] = function (Builder $query) {
+            $query
+                ->join(
+                    'SHOPSKLAD as retailStore',
+                    'retailStore.GOODSCODE',
+                    '=',
+                    'GOODS.GOODSCODE'
+                );
+        };
         $this->aliases['name.NAME'] = function (Builder $query) {
             $query
                 ->join('NAME as name', 'name.NAMECODE', '=', 'GOODS.NAMECODE');

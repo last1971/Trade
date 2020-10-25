@@ -33,6 +33,9 @@ Vue.filter('formatDate', function (d) {
 Vue.filter('formatRub', function (d) {
     return new Intl.NumberFormat('ru-RU', {style: 'currency', currency: 'RUB'}).format(d);
 });
+Vue.filter('formatPercent', function (d) {
+    return new Intl.NumberFormat('ru-RU', { style: 'percent', minimumFractionDigits: 2 }).format(d);
+});
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
