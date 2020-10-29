@@ -1,7 +1,26 @@
 import model from './model'
 import _ from 'lodash'
 
-let state = _.cloneDeep(model.state);
+const state = _.cloneDeep(model.state);
+const getters = _.cloneDeep(model.getters);
+
+getters.PRICE_WITH_DISCOUNT = (state, getters, rootState, rootGetters) => (id, quantity) => {
+    const good = getters['GET'](id);
+    if (good && good.retailPrice) {
+        const buyerDiscount = parseFloat(good.retailPrice.PRICEROZN)
+            * (100 - (rootGetters['GOODS-LIST/BUYER'] ?
+                parseFloat(rootGetters['GOODS-LIST/BUYER'].SUMMA_PRICE_1) : 0)) / 100;
+        let goodDiscount = parseFloat(good.retailPrice.PRICEROZN);
+        if (quantity >= good.retailPrice.QUANMOPT) {
+            goodDiscount = parseFloat(good.retailPrice.PRICEMOPT);
+        }
+        if (quantity >= good.retailPrice.QUANOPT) {
+            goodDiscount = parseFloat(good.retailPrice.PRICEOPT);
+        }
+        return _.min([ buyerDiscount, goodDiscount ]);
+    }
+    return 0;
+}
 
 state.items = [
     {
@@ -71,7 +90,7 @@ state.headers = [
 export default {
     namespaced: true,
     state,
-    getters: model.getters,
+    getters,
     mutations: model.mutations,
     actions: model.actions,
 }
