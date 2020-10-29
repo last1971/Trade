@@ -52,7 +52,7 @@ export default {
         open() {
             this.editingValue = 1;
         },
-        save() {
+        save() {/*
             const buyerDiscount = parseFloat(this.value.retailPrice.PRICEROZN)
                 * (100 - (this.$store.getters['GOODS-LIST/BUYER'] ?
                     parseFloat(this.$store.getters['GOODS-LIST/BUYER'].SUMMA_PRICE_1) : 0)) / 100;
@@ -62,8 +62,8 @@ export default {
             }
             if (this.editingValue >= this.value.retailPrice.QUANOPT) {
                 goodDiscount = parseFloat(this.value.retailPrice.PRICEOPT);
-            }
-            const price = _.min([ buyerDiscount, goodDiscount ]);
+            }*/
+            const price = this.$store.getters['GOOD/PRICE_WITH_DISCOUNT'](this.value.GOODSCODE, this.editingValue);//_.min([ buyerDiscount, goodDiscount ]);
             this.$store.commit(
                 'GOODS-LIST/PUSH',
                 {
