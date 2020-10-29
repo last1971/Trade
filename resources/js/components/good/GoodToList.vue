@@ -15,6 +15,33 @@
                 </slot>
             </template>
         </v-edit-dialog>
+        <v-dialog
+            v-model="hasAlready"
+            persistent
+            max-width="290"
+        >
+            <v-card>
+                <v-card-title class="headline">
+                    Позиция уже есть в списке
+                </v-card-title>
+                <v-card-actions>
+                    <v-btn
+                        color="green darken-1"
+                        text
+                        @click="afterSave(true)"
+                    >
+                        Заменить
+                    </v-btn>
+                    <v-btn
+                        color="red darken-1"
+                        text
+                        @click="afterSave(false)"
+                    >
+                        Увеличить
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -28,6 +55,7 @@ export default {
     data() {
         return {
             editingValue: 1,
+            hasAlready: false,
         }
     },
     computed: {
@@ -52,28 +80,31 @@ export default {
         open() {
             this.editingValue = 1;
         },
-        save() {/*
-            const buyerDiscount = parseFloat(this.value.retailPrice.PRICEROZN)
-                * (100 - (this.$store.getters['GOODS-LIST/BUYER'] ?
-                    parseFloat(this.$store.getters['GOODS-LIST/BUYER'].SUMMA_PRICE_1) : 0)) / 100;
-            let goodDiscount = parseFloat(this.value.retailPrice.PRICEROZN);
-            if (this.editingValue >= this.value.retailPrice.QUANMOPT) {
-                goodDiscount = parseFloat(this.value.retailPrice.PRICEMOPT);
+        save() {
+            const { GOODSCODE } = this.value;
+            if (_.find(this.$store.getters['GOODS-LIST/ALL'], { GOODSCODE })) this.hasAlready = true;
+            else {
+                const price = this.$store.getters['GOOD/PRICE_WITH_DISCOUNT'](GOODSCODE, this.editingValue);
+                this.$store.commit(
+                    'GOODS-LIST/PUSH',
+                    {
+                        GOODSCODE: this.value.GOODSCODE,
+                        quantity: this.editingValue,
+                        price,
+                        discount: (1 - price / this.value.retailPrice.PRICEROZN) * 100,
+                        amount: price * this.editingValue,
+                    }
+                )
             }
-            if (this.editingValue >= this.value.retailPrice.QUANOPT) {
-                goodDiscount = parseFloat(this.value.retailPrice.PRICEOPT);
-            }*/
-            const price = this.$store.getters['GOOD/PRICE_WITH_DISCOUNT'](this.value.GOODSCODE, this.editingValue);//_.min([ buyerDiscount, goodDiscount ]);
-            this.$store.commit(
-                'GOODS-LIST/PUSH',
-                {
-                    GOODSCODE: this.value.GOODSCODE,
-                    quantity: this.editingValue,
-                    price,
-                    discount: (1 - price / this.value.retailPrice.PRICEROZN) * 100,
-                    amount: price * this.editingValue,
-                }
-            )
+        },
+        afterSave(replace) {
+            const { GOODSCODE } = this.value;
+            const change = _.find(this.$store.getters['GOODS-LIST/ALL'], { GOODSCODE });
+            change.quantity = replace ? this.editingValue : parseInt(change.quantity) + parseInt(this.editingValue);
+            change.price = this.$store.getters['GOOD/PRICE_WITH_DISCOUNT'](GOODSCODE, change.quantity);
+            change.amount = change.quantity * change.price;
+            this.$store.commit('GOODS-LIST/CHANGE', change);
+            this.hasAlready = false;
         }
     }
 }

@@ -87,8 +87,8 @@ export default {
                 return this.$store.getters['GOODS-LIST/BUYER-ID'];
             },
             set(v) {
-                console.log(v);
                 this.$store.commit('GOODS-LIST/BUYER-ID', v);
+                this.$store.commit('GOODS-LIST/APPLAY-DISCOUNT');
             }
         },
         totalCount() {

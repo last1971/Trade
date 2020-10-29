@@ -69,6 +69,11 @@ const mutations = {
     PUSH(state, payload) {
         state.items.push(payload);
     },
+    CHANGE(state, payload) {
+        const GOODSCODE = { payload };
+        const index = _.findIndex(state.items, { GOODSCODE });
+        state.items.splice(index, 1, payload);
+    },
     OPENED(state, payload) {
         if (!payload) {
             state.items = [];
@@ -88,7 +93,9 @@ const mutations = {
     'APPLAY-DISCOUNT'(state) {
         const items = _.cloneDeep(state.items);
         state.items = items.map((item) => {
-
+            item.price = this.getters['GOOD/PRICE_WITH_DISCOUNT'](item.GOODSCODE, item.quantity);
+            item.amount = item.price * item.quantity;
+            return item;
         })
     }
 }
