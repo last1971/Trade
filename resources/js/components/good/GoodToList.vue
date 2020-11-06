@@ -11,51 +11,26 @@
                     <v-text-field
                         label="Добавить в список"
                         v-model="editingValue"
+                        :rules="[rules.isInteger, rules.required, rules.positive, rules.upperLimit(retailStore)]"
                     />
                 </slot>
             </template>
         </v-edit-dialog>
-        <v-dialog
-            v-model="hasAlready"
-            persistent
-            max-width="290"
-        >
-            <v-card>
-                <v-card-title class="headline">
-                    Позиция уже есть в списке
-                </v-card-title>
-                <v-card-actions>
-                    <v-btn
-                        color="green darken-1"
-                        text
-                        @click="afterSave(true)"
-                    >
-                        Заменить
-                    </v-btn>
-                    <v-btn
-                        color="red darken-1"
-                        text
-                        @click="afterSave(false)"
-                    >
-                        Увеличить
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
     </div>
 </template>
 
 <script>
 
 import _ from "lodash";
+import utilsMixin from "../../mixins/utilsMixin";
 
 export default {
     name: "GoodToList",
+    mixins: [utilsMixin],
     props: ['value'],
     data() {
         return {
-            editingValue: 1,
-            hasAlready: false,
+            editingValue: 0,
         }
     },
     computed: {
@@ -78,11 +53,24 @@ export default {
     },
     methods: {
         open() {
-            this.editingValue = 1;
+            const v = this.$store.getters['GOODS-LIST/GET'](this.value.GOODSCODE);
+            this.editingValue = v ? v.quantity : 0;
         },
         save() {
+            const isPossible = [
+                this.rules.isInteger,
+                this.rules.required,
+                this.rules.positive,
+                this.rules.upperLimit(this.retailStore)
+            ].reduce((a, v) => a && v(this.editingValue) === true, true);
+            if (!isPossible) return;
             const { GOODSCODE } = this.value;
-            if (_.find(this.$store.getters['GOODS-LIST/ALL'], { GOODSCODE })) this.hasAlready = true;
+            if (this.$store.getters['GOODS-LIST/GET'](GOODSCODE)) {
+                this.$store.commit('GOODS-LIST/CHANGE-QUANTITY', {
+                    GOODSCODE,
+                    quantity: parseInt(this.editingValue)
+                });
+            }
             else {
                 const price = this.$store.getters['GOOD/PRICE_WITH_DISCOUNT'](GOODSCODE, this.editingValue);
                 this.$store.commit(
@@ -97,15 +85,6 @@ export default {
                 )
             }
         },
-        afterSave(replace) {
-            const { GOODSCODE } = this.value;
-            const change = _.find(this.$store.getters['GOODS-LIST/ALL'], { GOODSCODE });
-            change.quantity = replace ? this.editingValue : parseInt(change.quantity) + parseInt(this.editingValue);
-            change.price = this.$store.getters['GOOD/PRICE_WITH_DISCOUNT'](GOODSCODE, change.quantity);
-            change.amount = change.quantity * change.price;
-            this.$store.commit('GOODS-LIST/CHANGE', change);
-            this.hasAlready = false;
-        }
     }
 }
 </script>

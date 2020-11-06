@@ -1,5 +1,5 @@
 <template>
-    <retail-order-line-dependent :hide-default-footer="true" v-model="options">
+    <retail-order-line-dependent :hide-default-footer="true" v-model="options" :remove-headers="['good.name.NAME']">
         <template v-slot:top>
             <div class="title">Розничные заказы</div>
         </template>

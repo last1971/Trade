@@ -1,5 +1,6 @@
 <template>
     <v-data-table
+        :key="renderKey"
         :headers="headers"
         :items="items"
         item-key="GODDSCODE"
@@ -27,13 +28,28 @@
                         ></v-switch>
                     </v-col>
                     <v-col>
-                        Всего {{ totalCount }} на сумму {{ totalAmount }}
+                        Всего {{ totalCount }} позиций на сумму {{ totalAmount | formatRub }}
                     </v-col>
                 </v-row>
             </div>
         </template>
+        <template v-slot:item.actions="{ item }">
+            <v-hover v-slot="{ hover}">
+                <v-btn icon color="red" @click="remove(item)">
+                    <v-icon v-if="hover">mdi-cart-remove</v-icon>
+                </v-btn>
+            </v-hover>
+        </template>
         <template v-slot:item.good.name.NAME="{ item }">
             <good-name v-model="item.good"/>
+        </template>
+        <template v-slot:item.quantity="{ item }">
+            <edit-field
+                        :rules="[rules.isInteger, rules.required, rules.positive, rules.upperLimit(retailStore(item))]"
+                        @save="save"
+                        attribute="quantity"
+                        v-model="item"
+            />
         </template>
         <template v-slot:item.price="{ item }">
             {{ item.price | formatRub }}
@@ -50,10 +66,13 @@
 <script>
 import GoodName from "./GoodName";
 import BuyerSelect from "../BuyerSelect";
+import EditField from "../EditField";
+import utilsMixin from "../../mixins/utilsMixin";
 
 export default {
     name: "GoodsList",
-    components: {BuyerSelect, GoodName},
+    components: {BuyerSelect, GoodName, EditField},
+    mixins: [utilsMixin],
     data() {
         return {
 
@@ -92,10 +111,24 @@ export default {
             }
         },
         totalCount() {
-            //return this.$store.getters['GOODS-LIST/TOTAL-COUNT'];
+            return this.$store.getters['GOODS-LIST/TOTAL-COUNT'];
         },
         totalAmount() {
-            //return this.$store.getters['GOODS-LIST/TOTAL-AMOUNT'];
+            return this.$store.getters['GOODS-LIST/TOTAL-AMOUNT'];
+        },
+        renderKey() {
+            return this.$store.getters['GOODS-LIST/RENDER-KEY'];
+        }
+    },
+    methods: {
+        retailStore(item) {
+            return item.good.retailStore ? item.good.retailStore.QUAN : 0;
+        },
+        save(item) {
+            this.$store.commit('GOODS-LIST/CHANGE-QUANTITY', item);
+        },
+        remove(item) {
+            this.$store.commit('GOODS-LIST/REMOVE', item)
         }
     }
 }

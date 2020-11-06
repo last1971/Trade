@@ -20,6 +20,7 @@ import Goods from "./components/good/Goods";
 import Good from "./components/good/Good";
 import Test from "./components/Test";
 import GoodsList from "./components/good/GoodsList";
+import RetailOrderLines from "./components/RetailOrderLines";
 
 Vue.use(VueRouter);
 
@@ -80,6 +81,7 @@ const routes = [
         name: 'goods-list',
         path: '/goods-list',
         component: GoodsList,
+        meta: {requiresAuth: true, permission: 'goods-list.show'},
     },
     {
         name: 'order',
@@ -102,6 +104,12 @@ const routes = [
         name: 'register',
         path: '/register',
         component: Register,
+    },
+    {
+        name: 'retail-order-lines',
+        path: '/retail-order-lines',
+        component: RetailOrderLines,
+        meta: {requiresAuth: true, model: 'RETAIL-ORDER-LINE', permission: 'retail-order-line.show'},
     },
     {
         name: 'transfer-out',
