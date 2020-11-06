@@ -13,6 +13,8 @@ class Buyer extends Model
 
     protected $connection = 'firebird';
 
+    protected $hidden = ['XML_PRIM'];
+
     protected $primaryKey = 'POKUPATCODE';
 
     protected $table = 'POKUPAT';
