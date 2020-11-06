@@ -11,15 +11,20 @@ getters.PRICE_WITH_DISCOUNT = (state, getters, rootState, rootGetters) => (id, q
             * (100 - (rootGetters['GOODS-LIST/BUYER'] ?
                 parseFloat(rootGetters['GOODS-LIST/BUYER'].SUMMA_PRICE_1) : 0)) / 100;
         let goodDiscount = parseFloat(good.retailPrice.PRICEROZN);
-        if (quantity >= good.retailPrice.QUANMOPT) {
+        if (quantity >= good.retailPrice.QUANMOPT && good.retailPrice.QUANMOPT > 0) {
             goodDiscount = parseFloat(good.retailPrice.PRICEMOPT);
         }
-        if (quantity >= good.retailPrice.QUANOPT) {
+        if (quantity >= good.retailPrice.QUANOPT && good.retailPrice.QUANOPT > 0) {
             goodDiscount = parseFloat(good.retailPrice.PRICEOPT);
         }
         return _.min([ buyerDiscount, goodDiscount ]);
     }
     return 0;
+}
+
+getters.DISCOUNT = (state, getters) => (id, price) => {
+    const good = getters['GET'](id);
+    return good && good.retailPrice ? (1 - price / good.retailPrice.PRICEROZN) * 100 : 0;
 }
 
 state.items = [

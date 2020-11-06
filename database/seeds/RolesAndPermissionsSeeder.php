@@ -48,6 +48,8 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::query()->firstOrCreate(['name' => $model . '.pdf']);
         }
 
+        Permission::query()->firstOrCreate(['name' => 'goods-list.show']);
+        Permission::query()->firstOrCreate(['name' => 'goods-list.*']);
         Permission::query()->firstOrCreate(['name' => 'role.index']);
         Permission::query()->firstOrCreate(['name' => 'sbis.*']);
         Permission::query()->firstOrCreate(['name' => 'sbis.show']);
@@ -55,9 +57,11 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'nav.*']);
         Permission::query()->firstOrCreate(['name' => 'nav.home']);
         Permission::query()->firstOrCreate(['name' => 'nav.goods']);
+        Permission::query()->firstOrCreate(['name' => 'nav.goods-list']);
         Permission::query()->firstOrCreate(['name' => 'nav.invoices']);
         Permission::query()->firstOrCreate(['name' => 'nav.invoice-lines']);
         Permission::query()->firstOrCreate(['name' => 'nav.orders']);
+        Permission::query()->firstOrCreate(['name' => 'nav.retail-order-lines']);
         Permission::query()->firstOrCreate(['name' => 'nav.sbis']);
         Permission::query()->firstOrCreate(['name' => 'nav.transfer-outs']);
 
@@ -72,6 +76,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'employee.*',
             'firm.*',
             'good.*',
+            'goods-list.*',
             'invoice.*',
             'invoice-line.*',
             'name.*',
@@ -87,6 +92,23 @@ class RolesAndPermissionsSeeder extends Seeder
             'transfer-out.*',
             'transfer-out-line.*',
             'user.*'
+        ]);
+
+        $manager = Role::query()->firstOrCreate(['name' => 'retailer']);
+        $manager->givePermissionTo([
+            'nav.home',
+            'nav.goods',
+            'nav.goods-list',
+            'nav.retail-order-lines',
+            'buyer.*',
+            'category.index',
+            'employee.index',
+            'firm.index',
+            'good.index',
+            'goods-list.show',
+            'name.index',
+            'retail-price.*',
+            'retail-order-line.*',
         ]);
 
         $manager = Role::query()->firstOrCreate(['name' => 'manager']);

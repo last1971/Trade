@@ -9,7 +9,9 @@ state.key = 'ID';
 
 state.headers = [
     {text: 'Дата', value: 'retailOrder.DATA', sortable: false},
+    {text: 'Статус', value: 'ROZN_DETAIL.STATUS', sortable: false},
     {text: 'Покупатель', value: 'retailOrder.buyer.SHORTNAME', sortable: false},
+    {text: 'Наименование', value: 'good.name.NAME', sortable: false},
     {text: 'Цена', value: 'PRICE', sortable: false, align: 'right'},
     {text: 'Кол.', value: 'QUAN', align: 'right'},
     {text: 'Рез.', value: 'QUAN_RES', sortable: false, align: 'right'},

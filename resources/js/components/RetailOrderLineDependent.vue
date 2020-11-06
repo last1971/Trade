@@ -10,13 +10,18 @@
         :multi-sort="true"
         :options.sync="options"
         :server-items-length="total"
-        :single-expand="true"
-        item-key="REALPRICECODE"
+        item-key="ID"
         loading-text="Loading... Please wait"
-        show-expand
+
     >
         <template v-slot:top>
             <slot name="top"/>
+        </template>
+        <template v-slot:item.retailOrder.DATA="{ item }">
+            {{ item.retailOrder.DATA | formatDate }}
+        </template>
+        <template v-slot:item.PRICE="{ item }">
+            {{ item.PRICE | formatRub }}
         </template>
     </v-data-table>
 </template>
