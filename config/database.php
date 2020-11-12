@@ -42,6 +42,7 @@ return [
             'username' => env('FDB_USERNAME', 'sysdba'),
             'password' => env('FDB_PASSWORD', 'masterkey'),
             'charset' => env('FDB_CHARSET', 'UTF8'),
+            'version'  => env('DB_VERSION', '2.5'),
             'role' => null,
         ],
 

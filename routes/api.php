@@ -55,9 +55,12 @@ Route::middleware('auth:api')->group(function () {
         'user-option' => 'Api\UserOptionController'
     ]);
 
+    Route::get('retail-sale', 'Api\RetailSaleController@index')->name('retail-sale.index');
+
     Route::post('sbis/xlsx', 'Api\SbisController@xlsx')->name('sbis.xlsx');
     Route::post('sbis/clear-gtd', 'Api\SbisController@clearGtd')->name('sbis.clear-gtd');
     Route::post('sbis/export', 'Api\SbisController@export')->name('sbis.export');
+    Route::post('goods-list', 'Api\GoodsListController@store')->name('goods-list.store');
 });
 
 Route::post('login', 'Api\AuthController@login')->name('login');

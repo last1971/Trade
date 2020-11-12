@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexRequest;
 use App\Http\Requests\ModelRequest;
+use App\Services\ModelService;
 use Error;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -12,7 +13,7 @@ use Illuminate\Support\Str;
 
 class ModelController extends Controller
 {
-    protected $service;
+    protected ModelService $service;
 
     protected $resource;
 

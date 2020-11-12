@@ -59,7 +59,7 @@ export default {
     data() {
         return {
             options: {
-                with: ['retailOrder.buyer', 'good.name', 'good.retailStore'],
+                with: ['retailOrder.buyer', 'good.name', 'good.retailStore', 'good.retailPrice'],
                 // aggregateAttributes: [
                 //     'shopLinesQuantity', 'storeLinesQuantity',
                 // ],

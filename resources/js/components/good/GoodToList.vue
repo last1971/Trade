@@ -77,10 +77,11 @@ export default {
                     'GOODS-LIST/PUSH',
                     {
                         GOODSCODE: this.value.GOODSCODE,
-                        quantity: this.editingValue,
+                        quantity: parseInt(this.editingValue),
                         price,
                         discount: (1 - price / this.value.retailPrice.PRICEROZN) * 100,
                         amount: price * this.editingValue,
+                        retailOrderLineId: null,
                     }
                 )
             }
