@@ -39,7 +39,7 @@ export default {
                 }
                 this.filterValues = _.cloneDeep(newVal.filterValues);
                 this.updateItems();
-            }, 500),
+            }, 1000),
             deep: true
         },
     },

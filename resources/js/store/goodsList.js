@@ -52,7 +52,7 @@ const state = {
 const getters = {
     ALL: (state, getters, rootState, rootGetters) => {
         return state.items.map((line) => {
-            return Object.assign(line, { good: rootGetters['GOOD/GET'](line.GOODSCODE)});
+            return Object.assign({ good: rootGetters['GOOD/GET'](line.GOODSCODE)}, line);
         });
     },
     'BUYER-ID': state => state.buyerId,
@@ -122,7 +122,20 @@ const mutations = {
     }
 }
 
-const actions = {}
+const actions = {
+    async SALE({state, rootGetters}, paymentType = 'cash') {
+        await axios.post(
+            '/api/goods-list',
+            {
+                lines: state.items.map((item) => {
+                    return Object.assign({ name: rootGetters['GOOD/GET'](item.GOODSCODE).name.NAME }, item);
+                }),
+                buyerId: state.buyerId,
+                paymentType,
+            }
+        );
+    }
+}
 
 export default {
     namespaced: true,

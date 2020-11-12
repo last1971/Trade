@@ -18,7 +18,7 @@
                         ></v-switch>
                     </v-col>
                     <v-col>
-                        <buyer-select v-model="buyerId" :disabled="!opened"/>
+                        <buyer-select v-model="buyerId" :disabled="!opened || isRetailOrder"/>
                     </v-col>
                    <v-col>
                         <v-switch
@@ -28,7 +28,39 @@
                         ></v-switch>
                     </v-col>
                     <v-col>
-                        Всего {{ totalCount }} позиций на сумму {{ totalAmount | formatRub }}
+                        <div class="text-subtitle-1">
+                            Всего {{ totalCount }} позиций на сумму {{ totalAmount | formatRub }}
+                        </div>
+                    </v-col>
+                    <v-col>
+                        <v-speed-dial :open-on-hover="false" direction="bottom" >
+                            <template v-slot:activator>
+                                <v-btn
+                                       rounded
+                                       color="primary"
+                                       class="mt-3"
+                                       :disabled="!opened || !isRetailStore || isEmpty"
+                                       :loading="loading"
+                                >
+                                    SALE
+                                    <v-icon class="ml-2">mdi-printer-pos</v-icon>
+                                </v-btn>
+                            </template>
+                            <template v-slot:default v-if="!(!opened || !isRetailStore || isEmpty)">
+                            <v-btn rounded color="success" @click="sale('cash')">
+                                CASH
+                                <v-icon class="ml-2">mdi-cash</v-icon>
+                            </v-btn>
+                            <v-btn rounded color="error" @click="sale('electronically')">
+                                CARD
+                                <v-icon class="ml-2">mdi-credit-card</v-icon>
+                            </v-btn>
+                            <v-btn rounded color="secondary" @click="sale('black')">
+                                BLACK
+                                <v-icon class="ml-2">mdi-account-cash-outline</v-icon>
+                            </v-btn>
+                            </template>
+                        </v-speed-dial>
                     </v-col>
                 </v-row>
             </div>
@@ -75,7 +107,7 @@ export default {
     mixins: [utilsMixin],
     data() {
         return {
-
+            loading: false
         }
     },
     computed: {
@@ -118,6 +150,12 @@ export default {
         },
         renderKey() {
             return this.$store.getters['GOODS-LIST/RENDER-KEY'];
+        },
+        isRetailOrder() {
+            return !!this.items.reduce((a, v) => a || v.retailOrderLineId, false);
+        },
+        isEmpty() {
+            return this.items.length === 0;
         }
     },
     methods: {
@@ -129,6 +167,18 @@ export default {
         },
         remove(item) {
             this.$store.commit('GOODS-LIST/REMOVE', item)
+        },
+        sale(paymentType) {
+            this.loading=true;
+            this.$store.dispatch('GOODS-LIST/SALE', paymentType)
+                .then(() => {
+                    this.opened = false;
+                    this.$router.push({ name: 'goods' });
+                })
+                .catch(e => {
+                    this.$store.commit('SNACKBAR/ERROR', e.response.data.message);
+                })
+                .then(() => this.loading=false)
         }
     }
 }

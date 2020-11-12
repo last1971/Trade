@@ -5,6 +5,9 @@ namespace App;
 use App\ModelTraits\InnKppTrait;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static find($buyerId)
+ */
 class Buyer extends Model
 {
     use InnKppTrait;

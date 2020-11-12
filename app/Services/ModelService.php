@@ -75,6 +75,11 @@ class ModelService
         $this->query = $this->modelClass::query();
     }
 
+    public function setRawFrom(string $from, array $bindings)
+    {
+        $this->query->fromRaw($from, $bindings);
+    }
+
     /**
      * @param string $attribute
      * @return string

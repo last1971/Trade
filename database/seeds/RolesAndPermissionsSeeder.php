@@ -49,6 +49,7 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         Permission::query()->firstOrCreate(['name' => 'goods-list.show']);
+        Permission::query()->firstOrCreate(['name' => 'goods-list.store']);
         Permission::query()->firstOrCreate(['name' => 'goods-list.*']);
         Permission::query()->firstOrCreate(['name' => 'role.index']);
         Permission::query()->firstOrCreate(['name' => 'sbis.*']);
@@ -94,8 +95,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'user.*'
         ]);
 
-        $manager = Role::query()->firstOrCreate(['name' => 'retailer']);
-        $manager->givePermissionTo([
+        $retailer = Role::query()->firstOrCreate(['name' => 'retailer']);
+        $retailer->givePermissionTo([
             'nav.home',
             'nav.goods',
             'nav.goods-list',
@@ -106,6 +107,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'firm.index',
             'good.index',
             'goods-list.show',
+            'goods-list.store',
             'name.index',
             'retail-price.*',
             'retail-order-line.*',
