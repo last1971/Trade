@@ -22,6 +22,8 @@ class RolesAndPermissionsSeeder extends Seeder
         'reserve',
         'retail-price',
         'retail-order-line',
+        'retail-sale',
+        'retail-sale-line',
         'seller',
         'transfer-out',
         'transfer-out-line',
@@ -63,6 +65,8 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'nav.invoice-lines']);
         Permission::query()->firstOrCreate(['name' => 'nav.orders']);
         Permission::query()->firstOrCreate(['name' => 'nav.retail-order-lines']);
+        Permission::query()->firstOrCreate(['name' => 'nav.retail-sale']);
+        Permission::query()->firstOrCreate(['name' => 'nav.retail-sale-line']);
         Permission::query()->firstOrCreate(['name' => 'nav.sbis']);
         Permission::query()->firstOrCreate(['name' => 'nav.transfer-outs']);
 
@@ -87,6 +91,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'reserve.*',
             'retail-price.*',
             'retail-order-line.*',
+            'retail-sale.*',
+            'retail-sale-line.*',
             'role.index',
             'sbis.*',
             'seller.*',
@@ -101,6 +107,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.goods',
             'nav.goods-list',
             'nav.retail-order-lines',
+            'nav.retail-sale',
             'buyer.*',
             'category.index',
             'employee.index',
@@ -111,6 +118,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'name.index',
             'retail-price.*',
             'retail-order-line.*',
+            'retail-sale.*',
+            'retail-sale-line.*',
         ]);
 
         $manager = Role::query()->firstOrCreate(['name' => 'manager']);

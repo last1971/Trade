@@ -13,5 +13,9 @@ class RetailSale extends Model
 
     protected $connection = 'firebird';
 
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected $primaryKey = 'DATATIME';
 }

@@ -2,6 +2,7 @@ export default {
     data() {
         return {
             loading: false,
+            loadingText: 'Идут разгрузочно-погрузочные работы... будь пациентом',
             total: 0,
             // items: [],
             itemIds: [],

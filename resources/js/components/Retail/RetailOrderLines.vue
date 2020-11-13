@@ -46,10 +46,10 @@
 </template>
 
 <script>
-import tableMixin from "../mixins/tableMixin";
-import utilsMixin from "../mixins/utilsMixin";
-import BuyerSelect from "./BuyerSelect";
-import buyer from "../store/buyer";
+import tableMixin from "../../mixins/tableMixin";
+import utilsMixin from "../../mixins/utilsMixin";
+import BuyerSelect from "../BuyerSelect";
+import buyer from "../../store/buyer";
 import RetailOrderLineStatusSelect from "./RetailOrderLineStatusSelect";
 
 export default {

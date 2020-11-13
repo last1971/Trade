@@ -127,7 +127,8 @@
                 {id: 9, text: 'Покупатели+', to: {name: 'advanced-buyer'}, icon: 'mdi-account-plus'},
                 {id: 10, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
                 {id: 11, text: 'Список', to: {name: 'goods-list'}, icon: 'mdi-playlist-edit'},
-                {id: 12, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
+                {id: 12, text: 'Розн.продажи', to: {name: 'retail-sales'}, icon: 'mdi-store-24-hour'},
+                {id: 13, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
             ]
         }),
         computed: {

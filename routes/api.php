@@ -56,6 +56,8 @@ Route::middleware('auth:api')->group(function () {
     ]);
 
     Route::get('retail-sale', 'Api\RetailSaleController@index')->name('retail-sale.index');
+    Route::get('retail-sale-line', 'Api\RetailSaleLineController@index')
+        ->name('retail-sale-line.index');
 
     Route::post('sbis/xlsx', 'Api\SbisController@xlsx')->name('sbis.xlsx');
     Route::post('sbis/clear-gtd', 'Api\SbisController@clearGtd')->name('sbis.clear-gtd');

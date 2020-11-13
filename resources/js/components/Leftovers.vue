@@ -56,7 +56,7 @@
     import Reserves from "./Reserves";
     import FutureReserves from "./FutureStoreReserves";
     import OrderLineInWay from "./order/OrderLineInWay";
-    import RetailOrderLinesInWork from "./RetailOrderLinesInWork";
+    import RetailOrderLinesInWork from "./Retail/RetailOrderLinesInWork";
 
     export default {
         name: "Leftovers",
