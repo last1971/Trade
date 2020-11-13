@@ -27,8 +27,8 @@
 </template>
 
 <script>
-    import tableMixin from "../mixins/tableMixin";
-    import utilsMixin from "../mixins/utilsMixin";
+    import tableMixin from "../../mixins/tableMixin";
+    import utilsMixin from "../../mixins/utilsMixin";
 
     export default {
         name: "RetailOrderLineDependent",

@@ -20,7 +20,8 @@ import Goods from "./components/good/Goods";
 import Good from "./components/good/Good";
 import Test from "./components/Test";
 import GoodsList from "./components/good/GoodsList";
-import RetailOrderLines from "./components/RetailOrderLines";
+import RetailOrderLines from "./components/Retail/RetailOrderLines";
+import RetailSales from "./components/Retail/RetailSales";
 
 Vue.use(VueRouter);
 
@@ -110,6 +111,12 @@ const routes = [
         path: '/retail-order-lines',
         component: RetailOrderLines,
         meta: {requiresAuth: true, model: 'RETAIL-ORDER-LINE', permission: 'retail-order-line.show'},
+    },
+    {
+        name: 'retail-sales',
+        path: '/retail-sales',
+        component: RetailSales,
+        meta: {requiresAuth: true, model: 'RETAIL-SALE', permission: 'retail-sale.show'},
     },
     {
         name: 'transfer-out',

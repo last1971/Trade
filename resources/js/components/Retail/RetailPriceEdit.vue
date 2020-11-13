@@ -47,7 +47,7 @@
 </template>
 
 <script>
-    import editMixin from "../mixins/editMixin";
+    import editMixin from "../../mixins/editMixin";
 
     export default {
         name: "RetailPriceEdit",

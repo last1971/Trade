@@ -30,6 +30,9 @@ Vue.component('app', require('./components/App.vue').default);
 Vue.filter('formatDate', function (d) {
     return moment(d).format('DD.MM.Y');
 });
+Vue.filter('formatDateTime', function (d) {
+    return moment(d).format('DD.MM.Y H:mm:ss');
+});
 Vue.filter('formatRub', function (d) {
     return new Intl.NumberFormat('ru-RU', {style: 'currency', currency: 'RUB'}).format(d);
 });
