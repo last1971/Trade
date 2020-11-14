@@ -17,7 +17,7 @@
             <v-container>
                 <v-row>
                     <v-col>
-                        <v-btn rounded color="primary">
+                        <v-btn rounded color="primary" :disabled="disabled" @click="refund" :loading="refundLoading">
                             Возврат
                             <v-icon>mdi-credit-card-refund-outline</v-icon>
                         </v-btn>
@@ -74,7 +74,40 @@ export default {
                 itemsPerPage: -1,
             },
             dependent: true,
+            refundLoading: false,
             model: 'RETAIL-SALE-LINE'
+        }
+    },
+    computed: {
+        disabled() {
+            return this.selectedIds.length === 0;
+        }
+    },
+    methods: {
+        async refund() {
+            try {
+                this.refundLoading = true;
+                const payload = {
+                    selectedIds: this.selectedIds,
+                    selectedQnts: this.selectedIds.map((id) => {
+                        return this.$store.getters[this.model + '/GET'](id).QUANSHOP;
+                    }),
+                    username: this.value.USERNAME,
+                    datatime: this.value.DATATIME,
+                }
+                await this.$store.dispatch(this.model + '/REFUND', payload);
+                this.selectedIds.forEach((id) => {
+                    const index = this.itemIds.indexOf(id);
+                    this.itemIds.splice(index, 1);
+                });
+                this.selectedIds = [];
+                const retailSale = _.cloneDeep(this.value);
+                retailSale.SUMMA = this.items.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+                this.$store.commit('RETAIL-SALE', retailSale);
+            } catch (e) {
+                this.$store.commit('SNACKBAR/ERROR', e.response.data.message);
+            }
+            this.refundLoading = false;
         }
     }
 }
