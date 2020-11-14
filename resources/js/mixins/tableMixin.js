@@ -6,6 +6,7 @@ export default {
             total: 0,
             // items: [],
             itemIds: [],
+            selectedIds: [],
             copyItems: [],
             dependent: false,
             parent: null,
@@ -110,6 +111,18 @@ export default {
                     }
                 });
             });
+        },
+        selectItem(payload) {
+            const index = this.selectedIds.indexOf(payload.item[this.$store.getters[this.model + '/KEY']]);
+            if (payload.value && index < 0) {
+                this.selectedIds.push(payload.item[this.$store.getters[this.model + '/KEY']]);
+            } else if (!payload.value && index > -1) {
+                this.selectedIds.splice(index, 1);
+            }
+        },
+        selectItems(payload) {
+            const { value, items } = payload;
+            items.forEach((item) => this.selectItem({ item, value }));
         }
     },
 }

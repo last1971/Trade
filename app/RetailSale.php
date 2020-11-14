@@ -18,4 +18,5 @@ class RetailSale extends Model
     protected $keyType = 'string';
 
     protected $primaryKey = 'DATATIME';
+
 }

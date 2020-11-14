@@ -33,6 +33,9 @@
             </v-row>
             </v-container>
         </template>
+        <template v-slot:item.good.name.NAME="{ item }">
+            <good-name v-model="item.good" :prim="item.good.PRIM"/>
+        </template>
         <template v-slot:item.retailOrder.DATA="{ item }">
             {{ item.retailOrder.DATA | formatDate }}
         </template>
@@ -49,12 +52,12 @@
 import tableMixin from "../../mixins/tableMixin";
 import utilsMixin from "../../mixins/utilsMixin";
 import BuyerSelect from "../BuyerSelect";
-import buyer from "../../store/buyer";
+import GoodName from "../good/GoodName";
 import RetailOrderLineStatusSelect from "./RetailOrderLineStatusSelect";
 
 export default {
     name: "RetailOrderLines",
-    components: {RetailOrderLineStatusSelect, BuyerSelect},
+    components: {RetailOrderLineStatusSelect, BuyerSelect, GoodName},
     mixins: [tableMixin, utilsMixin],
     data() {
         return {
