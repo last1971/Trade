@@ -20,6 +20,7 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function (\App\Services\AtolService $service) {
+    dd(\Carbon\Carbon::parse('2020-11-12 13:56:18'));
     //dd(\App\RetailSale::from(\Illuminate\Support\Facades\DB::raw("select_outday1(?, null)"))->setBindings(['2020-11-12'])->where('SUMMA', '<', 100)->take(10)->get());
     $s = new \App\Services\ModelService(\App\RetailSale::class);
     $s->setRawFrom('select_outday1(?, null) as retail_sales', ['12.11.2020']);

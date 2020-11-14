@@ -75,8 +75,8 @@
             {{ item.SUMMA | formatRub }}
         </template>
         <template v-slot:expanded-item="{ headers, item }">
-            <td :colspan="headers.length" :key="item.REALPRICECODE">
-                ЕУЫЕ
+            <td :colspan="headers.length" :key="item.DATATIME">
+                <retail-sale-lines v-model="item"/>
             </td>
         </template>
     </v-data-table>
@@ -86,9 +86,11 @@
 import   moment from 'moment';
 import tableMixin from "../../mixins/tableMixin";
 import utilsMixin from "../../mixins/utilsMixin";
+import RetailSaleLines from "./RetailSaleLines";
 
 export default {
     name: "RetailSales",
+    components: {RetailSaleLines},
     mixins: [tableMixin, utilsMixin],
     data() {
         return {

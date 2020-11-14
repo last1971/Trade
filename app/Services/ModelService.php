@@ -26,7 +26,7 @@ class ModelService
     protected $aggregateAttributes = [];
 
     /**
-     * It need for join related tables when use in in wher eand orderBy clauses
+     * It need for join related tables when use in in where and orderBy clauses
      * @var array
      */
     protected $aliases = [];
@@ -192,10 +192,14 @@ class ModelService
                             );
                             // date between
                         } else if ($request->get('filterOperators')[$index] === 'BETWEENDATE') {
+                            $between = $request->get('filterValues')[$index];
+                            if (!is_array($between)) {
+                                $between = json_decode($between);
+                            }
                             $query->whereRaw(
                                 $this->rawAttribute($filterAttribute) . ' BETWEEN '
-                                . '\'' . Carbon::parse($request->get('filterValues')[$index][0]) . '\' AND '
-                                . '\'' . Carbon::parse($request->get('filterValues')[$index][1]) . '\''
+                                . '\'' . Carbon::parse($between[0]) . '\' AND '
+                                . '\'' . Carbon::parse($between[1]) . '\''
                             );
                             // date where
                         } else if (array_search($filterAttribute, $this->dateAttributes) !== false) {
