@@ -110,7 +110,7 @@ export default {
             return this.items.length;
         },
         amount() {
-            return this.items.reduce((acc, item) => acc + item.SUMMA, 0);
+            return this.items.reduce((acc, item) => acc + parseFloat(item.SUMMA), 0);
         }
     }
 }

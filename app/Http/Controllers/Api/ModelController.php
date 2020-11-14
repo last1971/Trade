@@ -30,7 +30,7 @@ class ModelController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return Response
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|Response
      */
     public function index(IndexRequest $request)
     {
@@ -78,7 +78,7 @@ class ModelController extends Controller
      *
      * @param Request $request
      * @param int $id
-     * @return Response
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Model|Response|\Illuminate\Support\Collection
      */
     public function update(ModelRequest $request, $id)
     {
@@ -89,12 +89,14 @@ class ModelController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param ModelRequest $request
      * @param int $id
-     * @return Response
+     * @return void
+     * @throws \Exception
      */
     public function destroy(ModelRequest $request, $id)
     {
         //
-        $this->service->remove($id);
+        return $this->service->remove($id);
     }
 }

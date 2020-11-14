@@ -31,6 +31,7 @@ class GoodsListRequest extends FormRequest
             'lines.*.name' => 'string|required',
             'lines.*.quantity' => 'integer|required',
             'lines.*.price' => 'numeric|required',
+            'lines.*.amount' => 'numeric|required',
             'lines.*.retailOrderLineId' => 'nullable|integer',
             'buyerId' => 'nullable|integer',
             'paymentType' => 'string|in:cash,electronically,black'

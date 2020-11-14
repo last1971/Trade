@@ -3,6 +3,8 @@ import _ from 'lodash'
 
 let state = _.cloneDeep(model.state);
 
+let actions = _.cloneDeep(model.actions);
+
 state.name = 'retail-sale-line';
 
 state.key = 'SHOPLOGCODE';
@@ -19,10 +21,15 @@ state.headers = [
     {text: 'Скидка', value: 'DISCOUNT', sortable: true, align: 'right'},
 ];
 
+actions.REFUND = async ({state, getters, commit}, payload) => {
+    await axios.delete(getters.URL + '/0', { data: payload });
+    payload.selectedIds.forEach((id) => commit('REMOVE', id) );
+}
+
 export default {
     namespaced: true,
     state,
     getters: model.getters,
     mutations: model.mutations,
-    actions: model.actions,
+    actions,
 }
