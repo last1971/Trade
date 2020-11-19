@@ -21,7 +21,7 @@ import Good from "./components/good/Good";
 import Test from "./components/Test";
 import GoodsList from "./components/good/GoodsList";
 import RetailOrderLines from "./components/Retail/RetailOrderLines";
-import RetailSales from "./components/Retail/RetailSales";
+import RetailSalesAndRefunds from "./components/Retail/RetailSalesAndRefunds";
 
 Vue.use(VueRouter);
 
@@ -115,7 +115,7 @@ const routes = [
     {
         name: 'retail-sales',
         path: '/retail-sales',
-        component: RetailSales,
+        component: RetailSalesAndRefunds,
         meta: {requiresAuth: true, model: 'RETAIL-SALE', permission: 'retail-sale.show'},
     },
     {

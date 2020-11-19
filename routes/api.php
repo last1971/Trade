@@ -56,12 +56,19 @@ Route::middleware('auth:api')->group(function () {
     ]);
 
     Route::get('retail-sale', 'Api\RetailSaleController@index')->name('retail-sale.index');
+
+    Route::get('retail-store-return', 'Api\RetailStoreReturnController@index')
+        ->name('retail-store-return.index');
+
     Route::get('retail-sale-line', 'Api\RetailSaleLineController@index')
         ->name('retail-sale-line.index');
+    Route::delete('retail-sale-line', 'Api\RetailSaleLineController@refund')
+        ->name('retail-sale-line.destroy');
 
     Route::post('sbis/xlsx', 'Api\SbisController@xlsx')->name('sbis.xlsx');
     Route::post('sbis/clear-gtd', 'Api\SbisController@clearGtd')->name('sbis.clear-gtd');
     Route::post('sbis/export', 'Api\SbisController@export')->name('sbis.export');
+
     Route::post('goods-list', 'Api\GoodsListController@store')->name('goods-list.store');
 });
 

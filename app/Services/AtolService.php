@@ -4,6 +4,7 @@
 namespace App\Services;
 
 use App\Buyer;
+use App\Exceptions\ApiException;
 use App\User;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -76,7 +77,12 @@ class AtolService
         $response = null;
         while ($not_ready) {
             $response = $this->getData('/requests/' . $uuid);
-            $not_ready = ($response['results'][0]['status'] != 'ready');
+            if ($response['results'][0]['status'] === 'error') {
+                throw(new ApiException(
+                    $response['results'][0]['errorDescription']
+                ));
+            }
+            $not_ready = ($response['results'][0]['status'] !== 'ready');
             sleep(1);
             $counter++;
             if ($counter > 30) {
@@ -254,9 +260,9 @@ class AtolService
             return [
                 'type' => 'position',
                 'name' => $item['name'],
-                'price' => $item['price'],
+                'price' => floatval($item['price']),
                 'quantity' => $item['quantity'],
-                'amount' => $item['amount'],
+                'amount' => floatval($item['amount']),
                 'paymentMethod' => $paymentMethod,
                 'paymentObject' => 'commodity',
                 'department' => $department,
@@ -298,7 +304,7 @@ class AtolService
         }
 
         $total = array_reduce($productList, function ($acc, $item) {
-            return $acc + $item['amount'];
+            return $acc + floatval($item['amount']);
         }, 0);
 
         $request = [

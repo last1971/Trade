@@ -30,7 +30,8 @@ class GoodsListController extends Controller
                 $atol->connect();
                 $atol->receipt(
                     $request->lines,
-                    'sell', $request->paymentType,
+                    'sell',
+                    $request->paymentType,
                     Buyer::find($request->buyerId),
                 );
             }
