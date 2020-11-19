@@ -102,6 +102,7 @@ export default {
                 date: moment().format('Y-MM-DD'),
             },
             model: 'RETAIL-SALE',
+            dependent: true,
             datePicker: false,
         }
     },

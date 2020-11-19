@@ -22,7 +22,7 @@ state.headers = [
 ];
 
 actions.REFUND = async ({state, getters, commit}, payload) => {
-    await axios.delete(getters.URL + '/0', { data: payload });
+    await axios.delete(getters.URL, { data: payload });
     payload.selectedIds.forEach((id) => commit('REMOVE', id) );
 }
 

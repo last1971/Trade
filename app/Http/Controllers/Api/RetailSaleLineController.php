@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-
-use App\Http\Requests\ModelRequest;
+use App\Http\Requests\RefundRequest;
 use App\Services\RetailSaleLineService;
 
 class RetailSaleLineController extends ModelController
@@ -13,8 +12,13 @@ class RetailSaleLineController extends ModelController
         parent::__construct(RetailSaleLineService::class);
     }
 
-    public function destroy(ModelRequest $request, $id)
+    /**
+     * @param RefundRequest $request
+     * @return string
+     */
+    public function refund(RefundRequest $request)
     {
-        return 1;
+        $this->service->refund($request);
+        return 'OK';
     }
 }

@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Http\Requests\RefundRequest;
 use App\RetailSaleLine;
 use App\User;
 use Carbon\Carbon;
@@ -23,8 +24,14 @@ class RetailSaleLineService extends ModelService
         ];
     }
 
-    public function refund($request, User $user): void
+    /**
+     * @param RefundRequest $request
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws \Throwable
+     */
+    public function refund(RefundRequest $request): void
     {
+        $user = $request->user();
         throw_if(
             !$user->employee,
             new Exception('Не известный кассир')
@@ -33,15 +40,15 @@ class RetailSaleLineService extends ModelService
         $connection = DB::connection('firebird');
         $connection->getPdo()->setAttribute(PDO::ATTR_AUTOCOMMIT, 0);
         $connection->beginTransaction();
-        $date = Carbon::parse($request->datetime);
-        $nextDate = $date->addSecond();
+        $date = Carbon::parse($request->datatime);
+        $nextDate = Carbon::parse($request->datatime)->addSecond();
         $paymentType = 'BLACK';
-        $userName = $user->name . ' через electronica.su';
+        $userName = $user->name . ' через www';
 
         try {
             $SHOPHEAD = $connection->table('SHOPHEADS')->whereBetween('SALEDATE', [$date, $nextDate])->first();
             if ($SHOPHEAD) {
-                $paymentType = $SHOPHEAD['UFN'];
+                $paymentType = $SHOPHEAD->UFN;
             }
             $noKassa = $paymentType === 'BLACK' ? 1 : 0;
             foreach ($request->selectedIds as $i => $id) {
@@ -54,12 +61,17 @@ class RetailSaleLineService extends ModelService
                 ->table('SHOPHEADS')
                 ->whereBetween('SALEDATE', [$date, $nextDate])
                 ->update(['AMOUNT' => $request->amount]);
-            //if ($paymentType !== 'BLACK') {
-                //
-            //}
+            if ($paymentType !== 'BLACK') {
+                $service = new AtolService();
+                $service->operator = $user;
+                $service->connect();
+                $paymentType = $paymentType === 'CASH' ? 'cash' : 'electronically';
+                $service->receipt($request->items,'sellReturn', $paymentType);
+            }
             $connection->commit();
         } catch (Exception $e) {
             $connection->rollBack();
+            throw $e;
         }
 
     }

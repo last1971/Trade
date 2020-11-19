@@ -92,8 +92,20 @@ export default {
                     selectedQnts: this.selectedIds.map((id) => {
                         return this.$store.getters[this.model + '/GET'](id).QUANSHOP;
                     }),
-                    username: this.value.USERNAME,
                     datatime: this.value.DATATIME,
+                    items: this.selectedIds.map((id) => {
+                        const item = this.$store.getters[this.model + '/GET'](id);
+                        return {
+                            name: item.good.name.NAME,
+                            quantity: item.QUANSHOP,
+                            price: item.PRICE,
+                            amount: item.AMOUNT,
+                        };
+                    }),
+                    amount: this.selectedIds.reduce((acc, id) => {
+                        const item = this.$store.getters[this.model + '/GET'](id);
+                        return acc + parseFloat(item.AMOUNT);
+                    }),
                 }
                 await this.$store.dispatch(this.model + '/REFUND', payload);
                 this.selectedIds.forEach((id) => {

@@ -24,6 +24,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'retail-order-line',
         'retail-sale',
         'retail-sale-line',
+        'retail-store-return',
         'seller',
         'transfer-out',
         'transfer-out-line',
@@ -93,6 +94,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'retail-order-line.*',
             'retail-sale.*',
             'retail-sale-line.*',
+            'retail-store-return.*',
             'role.index',
             'sbis.*',
             'seller.*',
@@ -120,6 +122,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'retail-order-line.*',
             'retail-sale.*',
             'retail-sale-line.*',
+            'retail-store-return.*',
         ]);
 
         $manager = Role::query()->firstOrCreate(['name' => 'manager']);
