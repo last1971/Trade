@@ -262,7 +262,8 @@ services:
         - no_proxy
         - MARIADB_VERSION=${MARIADB_VERSION}
     volumes:
-      - ${DATA_PATH_HOST}/mariadb:/var/lib/mysql
+      #- ${DATA_PATH_HOST}/mariadb:/var/lib/mysql
+      - mariadb:/var/lib/mysql
       - ${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
     ports:
       - "${MARIADB_PORT}:3306"
@@ -301,7 +302,7 @@ services:
 
   ### FIREBIRD ###
   firebird:
-    build: docker-firebird/
+    build: firebird/
     container_name: firebird
 
     ports:
