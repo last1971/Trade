@@ -20,6 +20,47 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function (\App\Services\AtolService $service) {
+    /*$s = new \App\Services\UCSService();
+    $s->send($s::LOGIN, '1');
+    $r = $s->receive();
+    $s->close();
+    dd($r);
+    exit;
+*/
+
+    $address = env('UCS_IP');
+    $service_port = 4001;
+    $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+    if ($socket === false) {
+        echo "Не удалось выполнить socket_create(): причина: " . socket_strerror(socket_last_error()) . "\n";
+    } else {
+        echo "OK.\n";
+    }
+
+    echo "Пытаемся соединиться с '$address' на порту '$service_port'...";
+    $result = socket_connect($socket, '192.168.12.201', 4001);
+    if ($result === false) {
+        echo "Не удалось выполнить socket_connect().\nПричина: ($result) " . socket_strerror(socket_last_error($socket)) . "\n";
+    } else {
+        echo "OK.\n";
+    }
+
+    socket_write($socket, '1000773460480C000000886000', 26);
+    echo "Читаем ответ:\n\n";
+    $out = socket_read($socket, 1000);
+        echo $out;
+    $out = '';
+    while ($out === '') {
+        sleep(1);
+        $out = socket_read($socket, 1000);
+    }
+    echo '-'.$out;
+    echo "Закрываем сокет...";
+    socket_close($socket);
+    echo "OK.\n\n";
+    exit;
+
+
     $s = new \App\Services\UCSService();
     $s->send($s::LOGIN, 1);
     $r = $s->get();

@@ -12,7 +12,30 @@ class UCSService
     const SALE='10';
     const LOGIN='30';
 
+    /**
+     * @var array
+     */
+    private $types = [
+        '31' => 'Login Response',
+        '50' => 'Initial response',
+        '51' => 'Initial response – Requires login first',
+        '52' => 'PIN Entry required',
+        '53' => 'On-line authorisation required',
+        '54' => 'Initial response — No previous transaction with such ref. number',
+        '55' => 'Hold',
+        '5M' => 'Console message',
+        '5X' => 'Initial response – Error parsing previous request',
+        '60' => 'Authorisation Response'
+    ];
+
+    /**
+     * @var false|resource
+     */
     private $resource;
+
+    /**
+     * @var mixed|string
+     */
     private string $terminal;
 
     /**
@@ -23,11 +46,20 @@ class UCSService
     {
         $this->terminal = env('UCS_TERMINAL');
         throw_if(empty($this->terminal), new Exception('Не указан номер терминала'));
-        $this->resource = stream_socket_client(
-            env('UCS_IP'), $errno, $errstr, 30
+        $this->resource = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        throw_if(
+            $this->resource === false,
+            new Exception(
+                "Не удалось выполнить socket_create(): причина: " . socket_strerror(socket_last_error())
+            )
         );
-        fclose($this->resource);
-        throw_if(!$this->resource, new Exception("$errstr ($errno)"));
+        $result = socket_connect($this->resource, env('UCS_IP'), env('UCS_PORT'));
+        throw_if(
+            $result === false,
+            new Exception(
+                "Не удалось выполнить socket_connect(). Причина: " . socket_strerror(socket_last_error())
+            )
+        );
     }
 
     /**
@@ -45,50 +77,42 @@ class UCSService
      */
     public function send(string $command, string $data = ''): void
     {
-        $length = $this->toHex(strlen($data));
-        fwrite($this->resource, $command . $this->terminal . $length . $data);
+        $buffer = $command . $this->terminal . $this->toHex(strlen($data)) . $data;
+        $length = strlen($buffer);
+        socket_write($this->resource, $buffer, $length);
     }
 
-    private function getBytes(int $bytes): string
+    /**
+     * @param int $length
+     * @return string
+     */
+    private function getBytes(int $length): string
     {
-        throw_if(feof($this->resource), new Exception('Соединение закрыто!'));
-        $res = '';
-        for ($i = 0;$i < $bytes; $i++) {
-            $res .= fgets($this->resource, 2);
-        }
-        return $res;
+        return socket_read($this->resource, $length);
     }
 
-    public function get()
+    /**
+     * @return array
+     * @throws \Throwable
+     */
+    public function receive()
     {
-        throw_if(feof($this->resource), new Exception('Соединение закрыто!'));
-        $command = $this->getBytes(2);
-        $termianl = $this->getBytes(10);
+        $code = $this->getBytes(2);
+        $terminal = $this->getBytes(10);
         $length = hexdec($this->getBytes(2));
-        throw_if($termianl !== $this->terminal, new Exception('Ошибка в номере терминала'));
-        $data = $length ? fgets($this->resource, $length) : '';
+        throw_if($terminal !== $this->terminal, new Exception('Ошибка в номере терминала'));
+        $data = $length ? $this->getBytes($length) : '';
         return [
-            $command, $data
+            'code' => $code, 'type' => $this->types[$code], 'data' => $data
         ];
     }
 
     /**
-     * @return bool
+     *
      */
-    public function isClosed(): bool
+    public function close(): void
     {
-        return feof($this->resource);
-    }
-
-    /**
-     * @return bool
-     */
-    public function close(): bool
-    {
-        while(!feof($this->resource)){
-            fgets($this->resource, 2);
-        }
-        return fclose($this->resource);
+        socket_close($this->resource);
     }
 
 }
