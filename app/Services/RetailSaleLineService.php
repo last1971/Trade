@@ -4,9 +4,9 @@
 namespace App\Services;
 
 
+use App\Exceptions\ApiException;
 use App\Http\Requests\RefundRequest;
 use App\RetailSaleLine;
-use App\User;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -42,14 +42,13 @@ class RetailSaleLineService extends ModelService
         $connection->beginTransaction();
         $date = Carbon::parse($request->datatime);
         $nextDate = Carbon::parse($request->datatime)->addSecond();
-        $paymentType = 'BLACK';
         $userName = $user->name . ' через www';
+        $SHOPHEAD = $connection->table('SHOPHEADS')->whereBetween('SALEDATE', [$date, $nextDate])->first();
+        throw_if(!$SHOPHEAD, new ApiException('Продажа не найдена'));
 
         try {
-            $SHOPHEAD = $connection->table('SHOPHEADS')->whereBetween('SALEDATE', [$date, $nextDate])->first();
-            if ($SHOPHEAD) {
-                $paymentType = $SHOPHEAD->UFN;
-            }
+            $paymentType = $SHOPHEAD->UFN;
+            $oldAmount = $SHOPHEAD->AMOUNT;
             $noKassa = $paymentType === 'BLACK' ? 1 : 0;
             foreach ($request->selectedIds as $i => $id) {
                 $connection->statement(
@@ -60,7 +59,7 @@ class RetailSaleLineService extends ModelService
             $connection
                 ->table('SHOPHEADS')
                 ->whereBetween('SALEDATE', [$date, $nextDate])
-                ->update(['AMOUNT' => $request->amount]);
+                ->update(['AMOUNT' => $oldAmount - $request->amount]);
             if ($paymentType !== 'BLACK') {
                 $service = new AtolService();
                 $service->operator = $user;

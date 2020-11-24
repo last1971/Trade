@@ -11,6 +11,7 @@ class UCSService
 {
     const SALE='10';
     const LOGIN='30';
+    const REVERSAL='1A';
 
     /**
      * @var array
@@ -84,20 +85,31 @@ class UCSService
 
     /**
      * @param int $length
+     * @param int $seconds
      * @return string
      */
-    private function getBytes(int $length): string
+    private function getBytes(int $length, int $seconds = 0): string
     {
-        return socket_read($this->resource, $length);
+        $count = 0;
+        $answer = '';
+        while ($count <= $seconds) {
+            if ($seconds) {
+                sleep(1);
+            }
+            $answer = socket_read($this->resource, $length);
+            $count = $count = $answer === '' ? $count + 1 : $seconds + 1;
+        }
+        return $answer;
     }
 
     /**
+     * @param int $seconds
      * @return array
      * @throws \Throwable
      */
-    public function receive()
+    public function receive(int $seconds = 30): array
     {
-        $code = $this->getBytes(2);
+        $code = $this->getBytes(2, $seconds);
         $terminal = $this->getBytes(10);
         $length = hexdec($this->getBytes(2));
         throw_if($terminal !== $this->terminal, new Exception('Ошибка в номере терминала'));

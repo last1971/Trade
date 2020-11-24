@@ -20,13 +20,10 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function (\App\Services\AtolService $service) {
-    /*$s = new \App\Services\UCSService();
-    $s->send($s::LOGIN, '1');
-    $r = $s->receive();
-    $s->close();
-    dd($r);
-    exit;
-*/
+    $s = new \App\Services\EFTPOSService();
+    $s->sale(1);
+    /*
+
 
     $address = env('UCS_IP');
     $service_port = 4001;
@@ -111,7 +108,7 @@ Artisan::command('test', function (\App\Services\AtolService $service) {
         ]
     ], 'sellReturn');
     $service->deactivateDevice();
-    */
+
     $service->closeShift();
-    $service->deactivateDevice();
+    $service->deactivateDevice();*/
 })->describe('Display an inspiring quote');
