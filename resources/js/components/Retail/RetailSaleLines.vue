@@ -105,7 +105,7 @@ export default {
                     amount: this.selectedIds.reduce((acc, id) => {
                         const item = this.$store.getters[this.model + '/GET'](id);
                         return acc + parseFloat(item.AMOUNT);
-                    }),
+                    }, 0),
                 }
                 await this.$store.dispatch(this.model + '/REFUND', payload);
                 this.selectedIds.forEach((id) => {
