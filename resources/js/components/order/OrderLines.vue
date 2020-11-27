@@ -11,11 +11,18 @@
             :options.sync="options"
             :server-items-length="total"
             item-key="ID"
-            loading-text="Loading... Please wait"
+            :loading-text="loadingText"
             v-if="isOrderImportLinesEmpty"
         >
             <template v-slot:top>
                 <order-edit :value="value" @import="importOpen" @input="proxyInput"/>
+            </template>
+            <template v-slot:item.actions="{ item }">
+                <v-hover v-slot="{ hover }" v-if="editable && !item.shopLinesQuantity && !item.storeLinesQuantity">
+                    <v-btn icon color="red" @click="remove(item)">
+                        <v-icon v-if="hover">mdi-cart-remove</v-icon>
+                    </v-btn>
+                </v-hover>
             </template>
             <template v-slot:item.name.NAME="{ item }">
                 <good-name :prim="item.good.PRIM" v-model="item"/>
@@ -145,7 +152,22 @@
                 if (_.isArray(orderImportLines) && !_.isEmpty(orderImportLines)) {
                     this.orderImportLines = orderImportLines
                 }
-            }
+            },
+            async remove(item) {
+                try {
+                    await this.$store.dispatch('ORDER-LINE/REMOVE', item.ID);
+                    const payload = {
+                        id: this.value.ID,
+                        query: {
+                            with: ['seller', 'employee'],
+                            aggregateAttributes: [
+                                'orderLinesCount', 'orderLinesSum', 'cashFlowsSum',
+                            ],
+                        }
+                    };
+                    await this.$store.dispatch('ORDER/GET', payload);
+                } catch (e) {}
+            },
         },
     }
 </script>

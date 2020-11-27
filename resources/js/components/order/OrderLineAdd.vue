@@ -96,14 +96,18 @@ export default {
         return {
             orderLine: {},
             rules: [],
-            savePossible: false,
             loading: false,
+        }
+    },
+    computed: {
+        savePossible() {
+            return orderLine.GOODSCODE && orderLine.QUAN && orderLine.PRICE && orderLine.SUMMAP;
         }
     },
     methods: {
         save() {
             this.$emit('close');
-        }
+        },
     },
     watch: {
         orderLine: {
