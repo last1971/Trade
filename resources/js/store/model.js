@@ -182,6 +182,14 @@ let actions = {
                 });
         });
     },
+    async RECEIPT({getters, commit}, payload) {
+        try {
+            await axios.get(getters.URL + '/receipt/' + payload);
+        } catch (error) {
+            commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+        }
+        return true;
+    },
     SAVE({state, getters, commit}, payload) {
         return new Promise((resolve, reject) => {
             const query = _.cloneDeep(payload);

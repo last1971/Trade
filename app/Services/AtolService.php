@@ -6,6 +6,7 @@ namespace App\Services;
 use App\Buyer;
 use App\Exceptions\ApiException;
 use App\User;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Str;
@@ -29,12 +30,13 @@ class AtolService
     function __construct()
     {
         $this->uri = env('ATOL_URI', '');
-        throw_if($this->uri === '', new \Exception('Не указаны данные кассы'));
+        throw_if($this->uri === '', new Exception('Не указаны данные кассы'));
         $this->client = new Client([
             'base_uri' => $this->uri,
             'timeout' => 600.0,
             'headers' => ['Content-Type' => 'application/json'],
         ]);
+        $this->connect();
     }
 
     /** Reading data from cashier
@@ -91,7 +93,7 @@ class AtolService
         }
         throw_if(
             $not_ready,
-            new \Exception('Касса не ответила в течении 30 секунд для UUID=' . $uuid)
+            new Exception('Касса не ответила в течении 30 секунд для UUID=' . $uuid)
         );
         $this->status = true;
         $this->error = $response['results'][0]['errorCode'] ?? 1;
@@ -155,7 +157,7 @@ class AtolService
      */
     function checkTaskQueue()
     {
-        throw_if(!$this->connected, new \Exception('Касса не подключена'));
+        throw_if(!$this->connected, new Exception('Касса не подключена'));
         return $this->getData('/api/v2/getRequestsQueueStatus');
     }
 
@@ -166,7 +168,7 @@ class AtolService
      */
     function checkDeviceStatus()
     {
-        throw_if(!$this->connected, new \Exception('Касса не подключена'));
+        throw_if(!$this->connected, new Exception('Касса не подключена'));
         return $this->postData(array(),'/api/v2/operations/queryDeviceStatus');
     }
 
@@ -180,7 +182,7 @@ class AtolService
         $response = $this->postData(array(), '/api/v2/operations/queryShiftStatus');
         throw_if(
             empty($response['shiftStatus']) || empty($response['shiftStatus']['state']),
-            new \Exception('Не известно открыта ли смена')
+            new Exception('Не известно открыта ли смена')
         );
         return $response['shiftStatus']['state'] === 'opened';
     }
@@ -192,11 +194,11 @@ class AtolService
      */
     function openShift()
     {
-        throw_if(!$this->connected, new \Exception('Касса не подключена'));
-        throw_if($this->isShiftOpen(), new \Exception('Смена уже открыта!'));
+        throw_if(!$this->connected, new Exception('Касса не подключена'));
+        throw_if($this->isShiftOpen(), new Exception('Смена уже открыта!'));
         throw_if(
             !$this->operator || !$this->operator->employee || !$this->operator->employee->INN,
-            new \Exception('Не известный кассир')
+            new Exception('Не известный кассир')
         );
         $newId = Str::uuid();
         $task = array(
@@ -220,11 +222,11 @@ class AtolService
      */
     function closeShift()
     {
-        throw_if(!$this->connected, new \Exception('Касса не подключена'));
-        throw_if(!$this->isShiftOpen(), new \Exception('Смена уже закрыта!'));
+        throw_if(!$this->connected, new Exception('Касса не подключена'));
+        throw_if(!$this->isShiftOpen(), new Exception('Смена уже закрыта!'));
         throw_if(
             !$this->operator || !$this->operator->employee || !$this->operator->employee->INN,
-            new \Exception('Не известный кассир')
+            new Exception('Не известный кассир')
         );
         $newId = Str::uuid();
         $task = array(
@@ -296,7 +298,7 @@ class AtolService
     {
         throw_if(
             !$this->operator || !$this->operator->employee || !$this->operator->employee->INN,
-            new \Exception('Не известный кассир')
+            new Exception('Не известный кассир')
         );
 
         if (!$this->isShiftOpen()) {

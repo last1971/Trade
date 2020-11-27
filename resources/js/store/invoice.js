@@ -71,7 +71,6 @@ getters.PDF = state => id => {
     return 'Счет № ' + getters.GET(state)(id).NS + '.pdf'
 }
 
-
 export default {
     namespaced: true,
     state,

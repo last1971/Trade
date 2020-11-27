@@ -2,10 +2,10 @@ import _ from 'lodash';
 
 const state = {
     items: [],
-    isReatailStore: false,
+    isReatailStore: true,
     isStore: false,
     buyerId: null,
-    opened: false,
+    opened: true,
     renderKey: 1,
 
     headers: [

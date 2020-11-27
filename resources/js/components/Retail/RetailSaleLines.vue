@@ -114,8 +114,8 @@ export default {
                 });
                 this.selectedIds = [];
                 const retailSale = _.cloneDeep(this.value);
-                retailSale.SUMMA = this.items.reduce((acc, item) => acc + parseFloat(item.amount), 0);
-                this.$store.commit('RETAIL-SALE', retailSale);
+                retailSale.SUMMA = this.items.reduce((acc, item) => acc + parseFloat(item.AMOUNT), 0);
+                this.$store.commit('RETAIL-SALE/UPDATE', retailSale);
             } catch (e) {
                 this.$store.commit('SNACKBAR/ERROR', e.response.data.message);
             }

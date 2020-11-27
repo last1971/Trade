@@ -9,9 +9,11 @@ use Illuminate\Support\Str;
 
 class UCSService
 {
-    const SALE='10';
-    const LOGIN='30';
-    const REVERSAL='1A';
+    const SALE = '10';
+    const LOGIN = '30';
+    const REVERSAL = '1A'; // корректировка не закрытой суммы
+    const CREDIT = '14'; // возврат денег на карту
+    const VOID = '19'; // отмена текущей операции
 
     /**
      * @var array

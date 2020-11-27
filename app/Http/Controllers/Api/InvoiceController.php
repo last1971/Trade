@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ApiException;
 use App\Exports\InvoiceExport;
+use App\Http\Requests\IndexRequest;
 use App\Http\Requests\InvoicePDFRequest;
 use App\Http\Resources\InvoiceResource;
+use App\Invoice;
+use App\Services\AtolService;
 use App\Services\InvoiceLineService;
 use App\Services\InvoiceService;
+use GuzzleHttp\Exception\GuzzleException;
 use Maatwebsite\Excel\Excel;
 use PDF;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Throwable;
 
 /**
  * Class InvoiceController
@@ -52,5 +58,38 @@ class InvoiceController extends ModelController
             ]))->get()
         ]);
         return PDF::loadView('invoice-pdf', $request->all())->download('invoice.pdf');
+    }
+
+    /**
+     * @param Invoice $invoice
+     * @param IndexRequest $request
+     * @param AtolService $atol
+     * @return string
+     * @throws ApiException
+     * @throws GuzzleException
+     * @throws Throwable
+     */
+    public function receipt(Invoice $invoice, IndexRequest $request, AtolService $atol)
+    {
+        try {
+            $lines = $invoice->invoiceLines()->with('good.name')->get();
+            $atol->operator = $request->user();
+            $atol->receipt(
+                $lines->map(function($line) {
+                    return [
+                        'name' => $line->good->name->NAME,
+                        'price' => $line->PRICE,
+                        'quantity' => $line->QUAN,
+                        'amount' => $line->SUMMAP
+                    ];
+                })->toArray(),
+                'sell',
+                'cash',
+                $invoice->buyer,
+            );
+            return 'OK';
+        } catch (\Exception $e) {
+            throw new ApiException($e->getMessage());
+        }
     }
 }

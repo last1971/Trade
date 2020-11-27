@@ -81,6 +81,9 @@
                     <v-btn @click="download('xlsx')" fab>
                         <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>
+                    <v-btn @click="receipt" fab>
+                        <v-icon color="primary">mdi-paper-roll</v-icon>
+                    </v-btn>
                 </v-speed-dial>
                 <invoice-pdf-menu
                     v-model="value"
@@ -134,6 +137,11 @@ export default {
         }
     },
     methods: {
+        async receipt() {
+            this.downloading = true;
+            await this.$store.dispatch('INVOICE/RECEIPT', this.value.SCODE)
+            this.downloading = false;
+        },
         download(type) {
             this.downloading = true;
             this.pdfDialog = false;
