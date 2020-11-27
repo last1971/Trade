@@ -46,10 +46,27 @@ class RetailSaleLineService extends ModelService
         $SHOPHEAD = $connection->table('SHOPHEADS')->whereBetween('SALEDATE', [$date, $nextDate])->first();
         throw_if(!$SHOPHEAD, new ApiException('Продажа не найдена'));
 
+        $urn = '';
+
         try {
             $paymentType = $SHOPHEAD->UFN;
             $oldAmount = $SHOPHEAD->AMOUNT;
+            $saleDate = Carbon::parse($SHOPHEAD->SALEDATE);
             $noKassa = $paymentType === 'BLACK' ? 1 : 0;
+
+            if (strlen($paymentType) === 12) {
+                $eft = new EFTPOSService();
+                $now = Carbon::now();
+                if ($saleDate->day === $now->day && $saleDate->month === $now->month) {
+                    $reversal = $eft->reversalOfSale($paymentType, $oldAmount, $oldAmount - $request->amount);
+                    $urn = $reversal['urn'];
+                } else {
+                    $credit = $eft->credit($request->amount);
+                    $urn = $credit['urn'];
+                }
+            }
+
+
             foreach ($request->selectedIds as $i => $id) {
                 $connection->statement(
                     'EXECUTE PROCEDURE DEL_SHOPLOG_TOTAL1(?, ?, 0, ?, ?)',
@@ -63,12 +80,15 @@ class RetailSaleLineService extends ModelService
             if ($paymentType !== 'BLACK') {
                 $service = new AtolService();
                 $service->operator = $user;
-                $service->connect();
                 $paymentType = $paymentType === 'CASH' ? 'cash' : 'electronically';
                 $service->receipt($request->items,'sellReturn', $paymentType);
             }
             $connection->commit();
         } catch (Exception $e) {
+            if ($urn !== '') {
+                $eft = new EFTPOSService();
+                $eft->void($urn);
+            }
             $connection->rollBack();
             throw $e;
         }

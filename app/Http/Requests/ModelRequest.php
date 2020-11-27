@@ -99,6 +99,8 @@ class ModelRequest extends FormRequest
                     'item.PRIM' => 'nullable|string|max:60',
                 ];
                 break;
+            case 'invoice.receipt':
+                break;
             case 'invoice.update':
                 $rules += [
                     'item.STATUS' => 'integer',

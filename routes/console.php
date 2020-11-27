@@ -20,8 +20,9 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function (\App\Services\AtolService $service) {
-    $s = new \App\Services\EFTPOSService();
-    $s->sale(1);
+    $d1 = \Carbon\Carbon::parse('26.11.2020 14:41:07');
+    $d2 = \Carbon\Carbon::now();
+    dd($d1->day, $d1->month, $d2->day, $d2->month);
     /*
 
 

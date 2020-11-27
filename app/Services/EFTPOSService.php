@@ -54,15 +54,38 @@ class EFTPOSService
     /**
      * @param string $urn
      * @param float $amount
-     * @param float $newAmount
+     * @param float|int $newAmount
+     * @return array
      * @throws Throwable
      */
-    public function reversalOfSale(string $urn, float $amount, float $newAmount = 0): void
+    public function reversalOfSale(string $urn, float $amount, float $newAmount = 0): array
     {
         $data = $urn
             . Str::padLeft(intval($amount * 100), 12, '0')
             . Str::padLeft(intval($newAmount * 100), 12, '0');
-        $this->ucs->send($this->ucs::SALE, $data);
+        $this->ucs->send($this->ucs::REVERSAL, $data);
+        return $this->getAnswer();
+    }
+
+    /**
+     * @param float $amount
+     * @return array
+     * @throws Throwable
+     */
+    public function credit(float $amount): array
+    {
+        $data = Str::padLeft(intval($amount * 100), 12, '0');
+        $this->ucs->send($this->ucs::CREDIT, $data);
+        return $this->getAnswer();
+    }
+
+    /**
+     * @param string $urn
+     * @throws Throwable
+     */
+    public function void(string $urn): void
+    {
+        $this->ucs->send($this->ucs::VOID, $urn);
         $this->getAnswer();
     }
 
@@ -75,7 +98,6 @@ class EFTPOSService
         $res = ['code' => '00'];
         while ($res['code'] !== '60' && $res['code'] !== '5X') {
             $res = $this->ucs->receive();
-            var_dump($res);
         }
         throw_if(
             $res['code'] === '5X',
@@ -92,7 +114,7 @@ class EFTPOSService
         );
         return [
             'urn' => Str::substr($res['data'] ,45,12),
-            'l4d' => Str::substr($res['data'] ,75,4)
+            'l4d' => Str::substr($res['data'] ,78,4)
         ];
     }
 }

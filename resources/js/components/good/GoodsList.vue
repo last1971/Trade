@@ -174,6 +174,7 @@ export default {
                 .then(() => {
                     this.opened = false;
                     this.$router.push({ name: 'goods' });
+                    this.opened = true;
                 })
                 .catch(e => {
                     this.$store.commit('SNACKBAR/ERROR', e.response.data.message);
