@@ -12,7 +12,7 @@ state.fillable = [
 ];
 
 state.headers = [
-    // {text: '', value: 'actions', width: 10, sortable: false},
+    {text: '', value: 'actions', width: 10, sortable: false},
     {
         text: 'Категория',
         value: 'category.CATEGORY',

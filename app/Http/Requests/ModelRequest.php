@@ -165,6 +165,9 @@ class ModelRequest extends FormRequest
                     'item.PRIM' => 'nullable|string',
                 ];
                 break;
+            case 'order-line.destroy':
+                $rules = [];
+                break;
             case 'order-step.store':
             case 'order-step.update':
                 $rules += [
