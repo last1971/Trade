@@ -15,7 +15,12 @@
             v-if="isOrderImportLinesEmpty"
         >
             <template v-slot:top>
-                <order-edit :value="value" @import="importOpen" @input="proxyInput"/>
+                <order-edit :value="value"
+                            @import="importOpen"
+                            @input="proxyInput"
+                            @reloadOrder="reloadOrder"
+                            @newOrderLine="newOrderLine"
+                />
             </template>
             <template v-slot:item.actions="{ item }">
                 <v-hover v-slot="{ hover }" v-if="editable && !item.shopLinesQuantity && !item.storeLinesQuantity">
@@ -156,18 +161,24 @@
             async remove(item) {
                 try {
                     await this.$store.dispatch('ORDER-LINE/REMOVE', item.ID);
-                    const payload = {
-                        id: this.value.ID,
-                        query: {
-                            with: ['seller', 'employee'],
-                            aggregateAttributes: [
-                                'orderLinesCount', 'orderLinesSum', 'cashFlowsSum',
-                            ],
-                        }
-                    };
-                    await this.$store.dispatch('ORDER/GET', payload);
+                    await this.reloadOrder();
                 } catch (e) {}
             },
+            async reloadOrder() {
+                const payload = {
+                    id: this.value.ID,
+                    query: {
+                        with: ['seller', 'employee'],
+                        aggregateAttributes: [
+                            'orderLinesCount', 'orderLinesSum', 'cashFlowsSum',
+                        ],
+                    }
+                };
+                await this.$store.dispatch('ORDER/GET', payload);
+            },
+            newOrderLine(id) {
+                this.itemIds.push(id);
+            }
         },
     }
 </script>

@@ -100,8 +100,11 @@
                 />
             </v-col>
         </v-row>
-        <v-dialog v-model="addOrderLine" @close="addOrderLine=false">
-            <order-line-add :order="model" @close="addOrderLine=false"/>
+        <v-dialog v-model="addOrderLine">
+            <order-line-add :order="model"
+                            @close="addOrderLine=false"
+                            @closeWithReload="closeWithReload"
+            />
         </v-dialog>
     </v-form>
 </template>
@@ -162,6 +165,11 @@
                     .catch(() => {
                     })
                     .then(() => this.loading = false)
+            },
+            async closeWithReload(id) {
+                this.addOrderLine = false;
+                this.$emit('newOrderLine', id);
+                this.$emit('reloadOrder');
             }
         }
     }

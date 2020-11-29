@@ -3,7 +3,7 @@ export default {
         value: {
             type: Object,
             required: true,
-        }
+        },
     },
     data() {
         return {

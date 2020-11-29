@@ -46,6 +46,9 @@ export default {
         },
     },
     created() {
+        if (this.dependent) {
+            this.$store.commit('AUTH/SET_LOCAL_OPTION', {[this.model]: this.options});
+        }
         this.updateItems();
     },
     methods: {
