@@ -155,6 +155,10 @@ class ModelRequest extends FormRequest
                     'item.WHEREISPOSTCODE' => 'integer',
                 ];
                 break;
+            case 'order-line.store':
+                $rules += [
+                    'item.MASTER_ID' => 'required|integer'  ,
+                ];
             case 'order-line.update':
                 $rules += [
                     'item.QUAN' => 'integer',

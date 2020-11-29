@@ -6,6 +6,7 @@ use App\GoodName;
 use App\Http\Controllers\Controller;
 use App\Imports\CompelFactureImport;
 use App\Imports\PromelecFactureImport;
+use App\Imports\XlsFactureImport;
 use App\Order;
 use App\Services\GoodService;
 use App\Services\OrderLineService;
@@ -26,8 +27,10 @@ class OrderImportLineController extends Controller
     {
         if (strpos($file->getClientOriginalName(), 'facture_') === 0) {
             return new CompelFactureImport();
+        } elseif (strpos($file->getClientOriginalName(), 'Архивная отгрузка') === 0){
+            return new PromelecFactureImport();
         }
-        return new PromelecFactureImport();//XlsFactureImport();
+        return new XlsFactureImport();
     }
 
     /**
