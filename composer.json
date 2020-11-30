@@ -26,7 +26,6 @@
         "spatie/laravel-permission": "^3.11",
         "zircote/swagger-php": "^3.0",
         "ext-pdo": "*",
-        "ext-spltype": "*",
         "ext-sockets": "*"
     },
     "require-dev": {
