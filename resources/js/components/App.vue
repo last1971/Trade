@@ -45,6 +45,17 @@
             <v-spacer></v-spacer>
             <v-tooltip bottom v-if="user">
                 <template v-slot:activator="{ on }">
+                    <v-btn @click="$router.push({ name: 'exchange-rates' })" icon v-on="on">
+                        <v-icon>mdi-currency-usd</v-icon>
+                    </v-btn>
+                </template>
+                <span>
+                    На {{ exchangeDate | formatDate }} $ = {{ exchangeRate('USD').value | formatRub }},
+                    € = {{ exchangeRate('EUR').value | formatRub }}
+                </span>
+            </v-tooltip>
+            <v-tooltip bottom v-if="user">
+                <template v-slot:activator="{ on }">
                     <v-btn @click="$router.back()" icon v-on="on">
                         <v-icon>mdi-arrow-left-circle</v-icon>
                     </v-btn>
@@ -136,6 +147,8 @@
                 user: 'AUTH/GET',
                 hasPermission: 'AUTH/HAS_PERMISSION',
                 snackbar: 'SNACKBAR/GET',
+                exchangeDate: 'EXCHANGE-RATE/DATE',
+                exchangeRate: 'EXCHANGE-RATE/GET',
             }),
             breadcrumbs() {
                 const breadcrumbs = this.$store.getters['BREADCRUMBS/ALL'];
