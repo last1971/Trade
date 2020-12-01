@@ -33,6 +33,7 @@ import retailOrderStatus from "./retailOrderStatus";
 import retailSale from "./retailSale";
 import retailSaleLine from "./retailSaleLine";
 import retailStoreReturn from "./retailStoreReturn";
+import exchangeRate from './exchangeRate';
 
 Vue.use(Vuex);
 
@@ -52,6 +53,7 @@ export default new Vuex.Store({
         BREADCRUMBS: breadcrumbs,
         BUYER: buyer,
         CATEGORY: category,
+        'EXCHANGE-RATE': exchangeRate,
         EMPLOYEE: employee,
         'ERROR-MESSAGE': errorMessage,
         FIRM: firm,

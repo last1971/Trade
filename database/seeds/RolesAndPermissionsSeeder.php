@@ -51,6 +51,7 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::query()->firstOrCreate(['name' => $model . '.pdf']);
         }
 
+        Permission::query()->firstOrCreate(['name' => 'exchange-rate.index']);
         Permission::query()->firstOrCreate(['name' => 'goods-list.show']);
         Permission::query()->firstOrCreate(['name' => 'goods-list.store']);
         Permission::query()->firstOrCreate(['name' => 'goods-list.*']);
@@ -81,6 +82,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'buyer.*',
             'category.*',
             'employee.*',
+            'exchange-rate.index',
             'firm.*',
             'good.*',
             'goods-list.*',
@@ -114,6 +116,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'buyer.*',
             'category.index',
             'employee.index',
+            'exchange-rate.index',
             'firm.index',
             'good.index',
             'goods-list.show',
@@ -137,6 +140,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'buyer.*',
             'category.index',
             'employee.index',
+            'exchange-rate.index',
             'firm.index',
             'firm.show',
             'good.index',
@@ -159,6 +163,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'buyer.index',
             'buyer.show',
             'category.index',
+            'exchange-rate.index',
             'firm.index',
             'firm.show',
             'invoice.index',

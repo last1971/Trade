@@ -22,6 +22,7 @@ import Test from "./components/Test";
 import GoodsList from "./components/good/GoodsList";
 import RetailOrderLines from "./components/Retail/RetailOrderLines";
 import RetailSalesAndRefunds from "./components/Retail/RetailSalesAndRefunds";
+import ExchangeRates from "./components/ExchangeRates";
 
 Vue.use(VueRouter);
 
@@ -36,6 +37,12 @@ const routes = [
         name: 'help',
         path: '/help',
         component: Help,
+    },
+    {
+        name: 'exchange-rates',
+        path: '/exchange-rates',
+        component: ExchangeRates,
+        meta: { requiresAuth: true },
     },
     {
         name: 'good',

@@ -57,6 +57,7 @@ const app = new Vue({
         }
         if (this.$store.getters['AUTH/IS_LOGGEDIN']) {
             window.axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token');
+            this.$store.dispatch('EXCHANGE-RATE/SET', moment().format('Y-MM-DD'))
             this.$store.dispatch('AUTH/REFRESH')
                 .then(() => {
                     if (this.$store.getters['AUTH/IS_GUEST']) this.$router.push({name: 'help'});

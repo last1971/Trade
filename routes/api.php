@@ -30,6 +30,7 @@ Route::middleware('auth:api')->group(function () {
         ->name('transfer-out.pdf');
     Route::get('transfer-out/xml/{id}', 'Api\TransferOutController@xml')
         ->name('transfer-out.xml');
+    Route::get('exchange-rate', 'Api\ExchangeRateController@index')->name('exchange-rate.index');
 
     Route::apiResources([
         'advanced-buyer' => 'Api\AdvancedBuyerController',
