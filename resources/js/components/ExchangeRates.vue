@@ -34,7 +34,7 @@
                     </v-col>
                     <v-col>
                         <v-text-field :reverse="true"
-                                     prefix="единиц"
+                                     prefix="единиц валюты"
                                      suffix="за"
                                      type="number"
                                      v-model="amount"
@@ -43,26 +43,41 @@
                 </v-row>
             </v-container>
         </template>
-
+        <template v-slot:item.value="{ item }">
+            <edit-field :value="{ value: item.value * amount, item }"
+                        attribute="value"
+                        @save="change"
+                        :rules="[rules.isNumber, rules.positive]"
+            >
+                <template v-slot:cell>
+                    {{ item.value * amount | formatRub }}
+                </template>
+            </edit-field>
+        </template>
     </v-data-table>
 </template>
 
 <script>
 import {mapGetters} from 'vuex';
+import EditField from "./EditField";
+import utilsMixin from "../mixins/utilsMixin";
 
 export default {
     name: "ExchangeRates",
+    components: {EditField},
+    mixins: [utilsMixin],
     data() {
         return {
             headers : [
                 {text: 'Код', value: 'CharCode', sortable: false},
                 {text: 'Номер', value: 'currency.NumCode', sortable: false},
                 {text: 'Название', value: 'currency.Name', sortable: false},
-                {text: 'Курс(₽)', value: 'value', align: 'right', sortable: false},
+                {text: 'Получается', value: 'value', align: 'right', sortable: false},
             ],
             loading: false,
             datePicker: false,
             amount: 1,
+            exchange: 1,
         }
     },
     computed: {
@@ -81,6 +96,11 @@ export default {
                     .catch(() => {})
                     .then(() => this.loading = false);
             }
+        }
+    },
+    methods: {
+        change(value) {
+            this.amount = value.value / value.item.value;
         }
     }
 }
