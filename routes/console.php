@@ -20,7 +20,8 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function (\App\Services\AtolService $service) {
-    dd(VAT::get(\Carbon\Carbon::now()));
+    $s = new \App\Services\RateExchangeService();
+    dd($s->getOnDate(\Carbon\Carbon::now()->subDay()));
     /*
 
 
