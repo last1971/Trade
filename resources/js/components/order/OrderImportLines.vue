@@ -5,14 +5,23 @@
         item-key="id"
         :items-per-page="-1"
         hide-default-footer
+        dense
     >
+        <template v-slot:header.actions>
+            <select-headers :model="model"/>
+        </template>
         <template v-slot:item.GOODSCODE="{ item }">
             <good-select :new-search="item.searchName" :ref="'ac_' + item.id" v-model="item.GOODSCODE"/>
         </template>
         <template v-slot:item.name="{ item }">
-            <v-btn @click="goodFocus(item)" outlined v-if="!item.GOODSCODE">
-                {{ item.name }}
-            </v-btn>
+            <v-tooltip bottom v-if="!item.GOODSCODE">
+                <template v-slot:activator="{ on, attrs }">
+                    <v-btn @click="goodFocus(item)" outlined v-bind="attrs" v-on="on">
+                        < в поиск
+                    </v-btn>
+                </template>
+                <span>{{ item.name }}</span>
+            </v-tooltip>
             <div v-else>{{ item.name }}</div>
         </template>
         <template v-slot:item.price="{ item }">{{ item.price | formatRub }}</template>
@@ -38,10 +47,11 @@
 
 <script>
     import GoodSelect from "../good/GoodSelect";
+    import SelectHeaders from "../SelectHeaders";
 
     export default {
         name: "OrderImportLines",
-        components: {GoodSelect},
+        components: {SelectHeaders, GoodSelect},
         props: {
             value: {
                 type: Array,
@@ -53,11 +63,12 @@
         data() {
             return {
                 loading: false,
+                model: 'ORDER-IMPORT-LINE',
             }
         },
         computed: {
             headers() {
-                return this.$store.getters['ORDER-IMPORT-LINE/HEADERS'];
+                return this.$store.getters['ORDER-IMPORT-LINE/HEADERS'].filter((header) => !header.hidden);
             },
             savePossible() {
                 return this.value.reduce((res, val) => res && !!val.GOODSCODE, true);

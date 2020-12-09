@@ -1,4 +1,5 @@
 <template>
+    <v-container>
     <v-row>
         <v-col>
             <span>{{ value.name.NAME }}</span>
@@ -23,6 +24,7 @@
             </v-badge>
         </v-col>
     </v-row>
+    </v-container>
 </template>
 
 <script>

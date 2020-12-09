@@ -5,12 +5,20 @@ let state = _.cloneDeep(model.state);
 
 state.headers = [
     {
+        text: '',
+        value: 'actions',
+        width: 10,
+        sortable: false
+    },
+    {
         text: 'Товар',
         value: 'GOODSCODE',
+        width: '40%',
     },
     {
         text: 'Наименование',
         value: 'name',
+        width: '20%',
     },
     {
         text: 'Корпус',
@@ -35,7 +43,7 @@ state.headers = [
         value: 'amount',
         align: 'right',
     },
-    {
+   {
         text: 'Страна',
         value: 'country',
     },
