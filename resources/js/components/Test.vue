@@ -1,30 +1,26 @@
 <template>
     <div>
-        <good-select :new-search="newSearch" ref="test" v-model="test"/>
-        <v-btn @click="click">test</v-btn>
+        <select-headers model="ORDER-IMPORT-LINE"/>
     </div>
 </template>
 
 <script>
-    import GoodSelect from "./good/GoodSelect";
-    import NameSelect from "./NameSelect";
 
+
+    import SelectHeaders from "./SelectHeaders";
     export default {
         name: "Test",
-        components: {NameSelect, GoodSelect},
+        components: {SelectHeaders},
         data() {
             return {
-                test: null,
-                newSearch: '123',
+
             }
         },
+        computed: {
+
+        },
         methods: {
-            click() {
-                const el = this.$refs.test.$el;
-                let childData = el.querySelectorAll("input")[0];
-                childData.focus()
-                this.newSearch = 'max232cpe'
-            }
+
         }
     }
 </script>

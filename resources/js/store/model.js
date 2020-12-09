@@ -117,6 +117,12 @@ const mutations = {
         }
         state.items.splice(index, 1);
     },
+    'TOGGLE-HEADER'(state, value) {
+        const index = _.findIndex(state.headers, { value });
+        const proxy = _.cloneDeep(state.headers[index]);
+        proxy.hidden = !proxy.hidden;
+        state.headers.splice(index, 1, proxy);
+    }
 
 };
 

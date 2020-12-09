@@ -6,8 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reserve extends Model
 {
+    /**
+     * @var bool
+     */
     public static $snakeAttributes = false;
 
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
     protected $connection = 'firebird';

@@ -15,7 +15,7 @@ export default {
     },
     computed: {
         headers() {
-            const headers = this.$store.getters[this.model + '/HEADERS'];
+            const headers = this.$store.getters[this.model + '/HEADERS'].filter((header) => !header.hidden);
             return headers ? headers.filter((v) => {
                 return !v.full
                     || this.$store.getters['AUTH/HAS_PERMISSION'](_.toLower(this.model) + '.full');
