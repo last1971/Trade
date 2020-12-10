@@ -44,7 +44,11 @@ class OrderImportLineController extends Controller
         //
         $file = $request->file('file');
         $import = $this->getImport($file);
-        $rows = Excel::toCollection($import, $file)->get(0);
+        $rows = Excel::toCollection($import, $file)
+            ->get(0)
+            ->filter(function ($value) {
+                return $value->get('name');
+            });
         $names = $rows
             ->pluck('name')
             ->unique()
