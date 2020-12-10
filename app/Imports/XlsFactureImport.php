@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
@@ -30,7 +31,7 @@ class XlsFactureImport implements WithMapping, WithHeadingRow
         $newRow = $this->newRow;
         array_walk($newRow, function (&$value) use ($row) {
             foreach ($row as $rowKey => $rowValue) {
-                if (in_array(strtolower($rowKey), $value, true)) {
+                if (in_array(Str::lower($rowKey), $value, true)) {
                     $value = $rowValue;
                     break;
                 }
