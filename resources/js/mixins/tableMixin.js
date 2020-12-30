@@ -32,9 +32,12 @@ export default {
         options: {
             handler: _.debounce(function (newVal, oldVal) {
                 if (
-                    oldVal.page &&
-                    newVal.page === oldVal.page &&
-                    this.filterValues &&
+                    oldVal.page
+                    &&
+                    newVal.page === oldVal.page
+                    &&
+                    this.filterValues
+                    &&
                     !_.isEqual(this.filterValues, newVal.filterValues)
                 ) {
                     this.options.page = 1;
@@ -46,10 +49,11 @@ export default {
         },
     },
     created() {
-        if (this.dependent) {
-            this.$store.commit('AUTH/SET_LOCAL_OPTION', {[this.model]: this.options});
-        }
-        this.updateItems();
+        //if (this.dependent) {
+        //    console.log('create');
+        //    this.$store.commit('AUTH/SET_LOCAL_OPTION', {[this.model]: this.options});
+        //}
+        // this.updateItems();
     },
     methods: {
         requestParams() {
