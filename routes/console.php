@@ -1,6 +1,5 @@
 <?php
 
-use App\Services\ForDeleteService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -97,9 +96,10 @@ Artisan::command('clear-wholesale', function () {
         $connection->statement('UPDATE RESERVEDPOS SET QUANSHOP=0');
         $query = \App\RetailStore::query()
             ->where('QUAN', '>', '0');
-        echo $query->count() . PHP_EOL;
+        $counter = $query->count();
+        echo $counter . PHP_EOL;
         foreach ($query->get() as $line) {
-            echo $line->GOODSCODE . PHP_EOL;
+            echo $counter-- . ' - ' . $line->GOODSCODE . PHP_EOL;
             $connection->statement(
                 'EXECUTE PROCEDURE spisanie_univ1(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 [
@@ -122,4 +122,4 @@ Artisan::command('clear-wholesale', function () {
         echo $e->getMessage() . PHP_EOL;
         $connection->rollBack();
     }
-})->describe('Clear retail');
+})->describe('Clear Wholesale');
