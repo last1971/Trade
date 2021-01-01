@@ -58,34 +58,30 @@ Artisan::command('clear-retail', function () {
     $connection->beginTransaction();
     try {
         $connection->statement('UPDATE RESERVEDPOS SET QUANSKLAD=0');
-        $counter = 0;
         $query = \App\Warehouse::query()
             ->where('QUAN', '>', '0')
             ->whereNotIn('GOODSCODE', [356804]);
-        echo $query->count() . PHP_EOL;
-        $query->chunk(100, function ($lines) use ($connection, &$counter) {
-                echo 'Counter: ' . $counter . PHP_EOL;
-                foreach ($lines as $line) {
-                    echo $line->GOODSCODE . PHP_EOL;
-                    $connection->statement(
-                        'EXECUTE PROCEDURE spisanie_univ1(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        [
-                            $line->GOODSCODE,
-                            'Automatic initial',
-                            $line->QUAN,
-                            'Automatic initial',
-                            0,
-                            0.01,
-                            \Carbon\Carbon::now(),
-                            25,
-                            null,
-                            null,
-                            10
-                        ]
-                    );
-                }
-                $counter++;
-            });
+        $counter = $query->count();
+        echo $counter . PHP_EOL;
+        foreach ($query->get() as $line) {
+            echo $counter-- . ' - ' . $line->GOODSCODE . PHP_EOL;
+            $connection->statement(
+                'EXECUTE PROCEDURE spisanie_univ1(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                [
+                    $line->GOODSCODE,
+                    'Automatic initial',
+                    $line->QUAN,
+                    'Automatic initial',
+                    0,
+                    0.01,
+                    \Carbon\Carbon::now(),
+                    25,
+                    null,
+                    null,
+                    10
+                ]
+            );
+        }
         $connection->commit();
     } catch (\Exception $e) {
         echo $e->getMessage() . PHP_EOL;
