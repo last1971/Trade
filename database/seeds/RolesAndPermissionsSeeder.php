@@ -180,5 +180,24 @@ class RolesAndPermissionsSeeder extends Seeder
             'transfer-out-line.show',
             'transfer-out-line.xlsx',
         ]);
+
+        $buh = Role::query()->firstOrCreate(['name' => 'buh']);
+        $buh->givePermissionTo([
+            'nav.invoices',
+            'nav.invoice-lines',
+            'nav.transfer-outs',
+            'buyer.*',
+            'category.index',
+            'exchange-rate.index',
+            'firm.*',
+            'invoice.*',
+            'invoice-line.*',
+            'name.*',
+            'order.*',
+            'order-line.*',
+            'seller.*',
+            'transfer-out.*',
+            'transfer-out-line.*',
+        ]);
     }
 }

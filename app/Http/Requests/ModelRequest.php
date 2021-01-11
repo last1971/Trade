@@ -186,6 +186,14 @@ class ModelRequest extends FormRequest
             case 'retail-price.update':
                 $rules += $this->retailPrice();
                 break;
+            case 'seller.store':
+            case 'seller.update':
+                $rules += [
+                    'item.NAMEPOST' => 'string|max:60',
+                    'item.INN' => 'nullable|string|max:60',
+                    'item.EMAIL' => 'nullable|email',
+                ];
+                break;
             case 'transfer-out-line.update':
                 break;
             case 'user.update':

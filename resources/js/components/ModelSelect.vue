@@ -66,7 +66,7 @@
         },
         data() {
             return {
-                items: [],
+                itemIds: [],
                 isLoading: false,
                 search: '',
             }
@@ -77,7 +77,8 @@
                 if (_.isEmpty(items)) {
                     this.getItems();
                 } else {
-                    this.items = items;
+                    this.itemIds = items.map((item) => item[this.itemValue]);
+                    //this.items = items;
                 }
             }
             this.loadValue();
@@ -98,6 +99,9 @@
             MODEL() {
                 return _.toUpper(this.model);
             },
+            items() {
+                return this.$store.getters[this.MODEL + '/GET'](this.itemIds);
+            }
         },
         watch: {
             search: _.debounce(function (val) {
@@ -108,7 +112,7 @@
                 const proxy = this.$store.getters[this.MODEL + '/GET'](this.value);
                 if (this.value && val === _.property(this.itemText)(proxy)) return;
                 this.getItems(val);
-            }, 500),
+            }, 1000),
             value() {
                 this.loadValue();
             },
@@ -136,7 +140,8 @@
                 const filtred = _.isArray(this.value)
                     ? this.items.filter((item) => this.value.indexOf(item[this.itemValue]) >= 0)
                     : [];
-                this.items = _.union(response.copyItems, filtred);
+                this.itemIds = _.union(response.itemIds, filtred.map((v) => v[this.itemValue]))
+                // this.items = _.union(response.copyItems, filtred);
                 this.isLoading = false;
             },
             getItem() {
@@ -144,8 +149,10 @@
                     this.isLoading = true;
                     this.$store.dispatch(this.MODEL + '/CACHE', {id: this.value, query: {with: this.with}})
                         .then((model) => {
-                            if (!_.find(this.items, {[this.itemValue]: model[this.itemValue]}))
-                                this.items.push(model)
+                            if (!_.find(this.items, {[this.itemValue]: model[this.itemValue]})) {
+                                this.itemIds.push(model[this.itemValue]);
+                                // this.items.push(model)
+                            }
                         })
                         .then(() => this.isLoading = false);
                 }
@@ -165,7 +172,8 @@
                         };
                         this.$store.dispatch(this.MODEL + '/ALL', options)
                             .then((response) => {
-                                this.items = response.copyItems
+                                this.itemIds = response.itemIds;
+                                // this.items = response.copyItems
                             })
                             .catch((e) => {
                                 console.error(e);

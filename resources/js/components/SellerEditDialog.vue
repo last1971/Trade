@@ -69,11 +69,16 @@ export default {
             this.instance = _.cloneDeep(this.proxy);
         },
         async save() {
-            if (this.instance.WHEREISPOSTCODE) {
-                await this.$store.dispatch('SELLER/UPDATE', { item: this.instance });
-            } else {
-                const newSeller = await this.$store.dispatch('SELLER/UPDATE', { item: this.instance });
-                this.$emit('input', newSeller.WHEREISPOSTCODE);
+            try {
+                if (this.instance.WHEREISPOSTCODE) {
+                    await this.$store.dispatch('SELLER/UPDATE', {item: this.instance});
+                } else {
+                    const newSeller = await this.$store.dispatch('SELLER/CREATE', {item: this.instance});
+                    this.$emit('input', newSeller.data.WHEREISPOSTCODE);
+                }
+                this.edit = false;
+            } catch (e) {
+                console.error(e);
             }
         }
     }
