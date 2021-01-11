@@ -3,17 +3,22 @@
 namespace App;
 
 use App\ModelTraits\InnKppTrait;
+use App\ModelTraits\InsertTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class Seller extends Model
 {
-    use InnKppTrait;
+    use InnKppTrait, InsertTrait;
 
     public $timestamps = false;
 
     protected $connection = 'firebird';
 
+    protected $fillable = ['NAMEPOST', 'EMAIL', 'INN'];
+
     protected $primaryKey = 'WHEREISPOSTCODE';
+
+    protected $sequenceName = 'WHEREISPOSTCODE_GEN';
 
     protected $table = 'WHEREISPOST';
 

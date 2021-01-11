@@ -25,12 +25,14 @@
             <slot name="prepend"></slot>
         </template>
         <template v-slot:item="{ item }">
-            <slot name="item" v-bind:item="item" v-bind:maxLength="maxLength"></slot>
-            {{ item[itemText] }}
+            <slot name="item" v-bind:item="item" v-bind:maxLength="maxLength">
+                {{ item[itemText] }}
+            </slot>
         </template>
         <template v-if="!multiple" v-slot:selection="{ item }">
-            <slot name="selection" v-bind:item="item"></slot>
-            {{ item[itemText] }}
+            <slot name="selection" v-bind:item="item">
+                {{ item[itemText] }}
+            </slot>
         </template>
     </v-autocomplete>
 </template>

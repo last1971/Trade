@@ -7,17 +7,26 @@
         label="Поставщик"
         model="seller"
         v-model="proxy"
-    ></model-select>
+    >
+        <template v-slot:prepend>
+            <seller-edit-dialog v-model="proxy"/>
+        </template>
+        <template v-slot:item="{ item }">
+            {{ item.NAMEPOST }} / {{ item.INN }}
+        </template>
+    </model-select>
 </template>
 
 <script>
     import utilsMixin from "../mixins/utilsMixin";
     import ModelSelect from "./ModelSelect";
+    import Test from "./Test";
+    import SellerEditDialog from "./SellerEditDialog";
 
     export default {
         name: "SellerSelect",
         mixins: [utilsMixin],
-        components: {ModelSelect},
+        components: {SellerEditDialog, Test, ModelSelect},
         props: {
             value: {
                 type: [Array, Number]

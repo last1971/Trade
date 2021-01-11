@@ -7,6 +7,8 @@ state.name = 'seller';
 
 state.key = 'WHEREISPOSTCODE';
 
+state.fillable = ['NAMEPOST', 'EMAIL', 'INN'];
+
 state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},
 
