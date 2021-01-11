@@ -102,11 +102,11 @@ export default {
         return {
             orderLine: {
                 MASTER_ID: this.order.ID,
-                QUAN: 0,
-                priceWithoutVat: 0,
-                PRICE: 0,
-                sumWithoutVat: 0,
-                SUMMAP: 0,
+                QUAN: null,
+                priceWithoutVat: null,
+                PRICE: null,
+                sumWithoutVat: null,
+                SUMMAP: null,
             },
             loading: false,
         }
@@ -116,7 +116,12 @@ export default {
             return this.orderLine.GOODSCODE && this.orderLine.QUAN && this.orderLine.PRICE && this.orderLine.SUMMAP;
         },
         options() {
-            return this.$store.getters['AUTH/LOCAL_OPTION']('ORDER-LINE');
+            return {
+                with: ['category', 'good', 'name', 'order', 'seller'],
+                aggregateAttributes: [
+                    'shopLinesQuantity', 'storeLinesQuantity',
+                ]
+            };
         }
     },
     methods: {
@@ -130,6 +135,14 @@ export default {
                         options: this.options,
                     },
                 );
+                this.orderLine = {
+                    MASTER_ID: this.order.ID,
+                    QUAN: null,
+                    priceWithoutVat: null,
+                    PRICE: null,
+                    sumWithoutVat: null,
+                    SUMMAP: null,
+                };
                 this.$emit('closeWithReload', orderLine.data.ID);
             } catch (e) {
 

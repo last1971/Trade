@@ -167,6 +167,7 @@
                     .then(() => this.loading = false)
             },
             async closeWithReload(id) {
+                console.log('closeWihtReload');
                 this.addOrderLine = false;
                 this.$emit('newOrderLine', id);
                 this.$emit('reloadOrder');
