@@ -21,6 +21,8 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
+    dd(asset('/t/t'));
+    /*
     $row = [
         "Наименование" => "2-1393222-0",
         "Кол" => 4,
@@ -48,7 +50,7 @@ Artisan::command('test', function () {
             }
         }
     });
-    dd($newRow);
+    dd($newRow);*/
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
