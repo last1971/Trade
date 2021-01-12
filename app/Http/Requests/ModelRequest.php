@@ -164,8 +164,8 @@ class ModelRequest extends FormRequest
                     'item.QUAN' => 'integer',
                     'item.PRICE' => 'numeric',
                     'item.SUMMAP' => 'numeric',
-                    'item.STRANA' => 'string',
-                    'item.GTD' => 'string',
+                    'item.STRANA' => 'nullable|string',
+                    'item.GTD' => 'nullable|string',
                     'item.PRIM' => 'nullable|string',
                 ];
                 break;
