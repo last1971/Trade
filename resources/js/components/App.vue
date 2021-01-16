@@ -139,7 +139,8 @@
                 {id: 10, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
                 {id: 11, text: 'Список', to: {name: 'goods-list'}, icon: 'mdi-playlist-edit'},
                 {id: 12, text: 'Розн.продажи', to: {name: 'retail-sales'}, icon: 'mdi-store-24-hour'},
-                {id: 13, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
+                {id: 13, text: 'Платежи', to: {name: 'payments'}, icon: 'mdi-credit-card-settings-outline'},
+                {id: 14, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
             ]
         }),
         computed: {
