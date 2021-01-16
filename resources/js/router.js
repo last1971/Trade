@@ -23,6 +23,7 @@ import GoodsList from "./components/good/GoodsList";
 import RetailOrderLines from "./components/Retail/RetailOrderLines";
 import RetailSalesAndRefunds from "./components/Retail/RetailSalesAndRefunds";
 import ExchangeRates from "./components/ExchangeRates";
+import Payments from "./components/payment/Payments";
 
 Vue.use(VueRouter);
 
@@ -107,6 +108,12 @@ const routes = [
         name: 'passwordReset',
         path: '/password-reset/:token',
         component: ResetPassword,
+    },
+    {
+        name: 'payments',
+        path: '/payment',
+        component: Payments,
+        meta: {requiresAuth: true, model: 'PAYMENT', permission: 'payment.show'},
     },
     {
         name: 'register',

@@ -79,6 +79,7 @@ class ModelRequest extends FormRequest
         ];
         switch ($this->route()->getName()) {
             case 'advanced-buyer.destroy':
+            case 'order-line.destroy':
                 $rules = [];
                 break;
             case 'advanced-buyer.store':
@@ -169,9 +170,6 @@ class ModelRequest extends FormRequest
                     'item.PRIM' => 'nullable|string',
                 ];
                 break;
-            case 'order-line.destroy':
-                $rules = [];
-                break;
             case 'order-step.store':
             case 'order-step.update':
                 $rules += [
@@ -180,6 +178,27 @@ class ModelRequest extends FormRequest
                     'item.BOUND_QUAN_SKLAD' => 'nullable|integer',
                     'item.QUAN_TO_ZAKAZ_SHOP' => 'integer',
                     'item.QUAN_TO_ZAKAZ_SKLAD' => 'nullable|integer',
+                ];
+                break;
+            case 'payment.store':
+            case 'payment.update':
+                $rules += [
+                    'item.date' => 'required|date',
+                    'item.number' => 'nullable|string',
+                    'item.seller_id' => 'required|integer',
+                    'item.amount' => 'required|numeric',
+                    'item.weight' => 'required|integer',
+                    'item.pay_before' => 'nullable|date',
+                    'item.comment' => 'nullable|string',
+                ];
+                break;
+            case 'payment-order.store':
+            case 'payment-order.update':
+                $rules += [
+                    'item.date' => 'required|date',
+                    'item.number' => 'nullable|string',
+                    'item.payment_id' => 'required|exists:payments,id',
+                    'item.amount' => 'required|numeric',
                 ];
                 break;
             case 'retail-price.store':

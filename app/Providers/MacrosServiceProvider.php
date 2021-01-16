@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\PaymentOrder;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -114,6 +115,10 @@ class MacrosServiceProvider extends ServiceProvider
         Builder::macro('transferOutLinesCount', function () {
             $this->select(DB::raw('count(REALPRICEFCODE)'));
         });
+        // For PaymentOrders
+        Builder::macro('paid', function () {
+            $this->select(DB::raw('COALESCE(count(amount), 0)'));
+        });
 
 
         if (!Collection::hasMacro('sortByMulti')) {
@@ -155,6 +160,54 @@ class MacrosServiceProvider extends ServiceProvider
                 return $sortBy($this, 0);
             });
         }
+
+        $aggregateAttributes = [
+            'paid' => PaymentOrder::query()
+                ->whereColumn('payment_id', 'payments.id')
+                ->selectRaw('coalesce(sum(amount), 0)')
+        ];
+
+        //for request()
+        Builder::macro('requestBuilder', function () use ($aggregateAttributes) {
+            $request = request()->query();
+            if (isset($request['with'])) {
+                $this->with($request['with']);
+            }
+            if (isset($request['sortBy'])) {
+                foreach ($request['sortBy'] as $index => $orderBy) {
+                    $this->orderBy($orderBy, $request['sortDesc'][$index] === 'true' ? 'desc' : 'asc');
+                }
+            }
+            if (isset($request['filterAttributes'])) {
+                foreach ($request['filterAttributes'] as $index => $attribute) {
+                    $value = $request['filterOperators'][$index] === 'LIKE'
+                        ? '%' . $request['filterValues'][$index] . '%'
+                        : $request['filterValues'][$index];
+                    $value = array_key_exists($value, $aggregateAttributes)
+                        ? function($query) use ($value, $aggregateAttributes) {
+                            $query->select([$value => $aggregateAttributes[$value]]);
+                        }
+                        : $value;
+                    $whereAttribute = array_key_exists($attribute, $aggregateAttributes)
+                        ? $aggregateAttributes[$attribute]
+                        : $attribute;
+                    $this->where(
+                        $whereAttribute,
+                        $request['filterOperators'][$index],
+                        $value
+                    );
+                }
+            }
+            if (isset($request['aggregateAttributes'])) {
+                $requestAggregateAttributes = is_array($request['aggregateAttributes'])
+                    ? $request['aggregateAttributes']
+                    : [$request['aggregateAttributes']];
+                foreach ($requestAggregateAttributes as $aggregateAttribute) {
+                    $this->addSelect([$aggregateAttribute => $aggregateAttributes[$aggregateAttribute]]);
+                }
+            }
+            return $this;
+        });
 
     }
 }

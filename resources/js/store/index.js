@@ -34,6 +34,8 @@ import retailSale from "./retailSale";
 import retailSaleLine from "./retailSaleLine";
 import retailStoreReturn from "./retailStoreReturn";
 import exchangeRate from './exchangeRate';
+import payment from "./payment";
+import paymentOrder from "./paymentOrder";
 
 Vue.use(Vuex);
 
@@ -68,6 +70,8 @@ export default new Vuex.Store({
         'ORDER-LINE': orderLine,
         'ORDER-STEP': orderStep,
         ORDERSTATUS: orderStatus,
+        PAYMENT: payment,
+        'PAYMENT-ORDER': paymentOrder,
         RESERVE: reserve,
         'RETAIL-PRICE': retailPrice,
         'RETAIL-ORDER-LINE': retailOrderLine,

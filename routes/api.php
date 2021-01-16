@@ -46,6 +46,8 @@ Route::middleware('auth:api')->group(function () {
         'order-import-line' => 'Api\OrderImportLineController',
         'order-line' => 'Api\OrderLineController',
         'order-step' => 'Api\OrderStepController',
+        'payment' => 'Api\PaymentController',
+        'payment-order' => 'Api\PaymentOrderController',
         'reserve' => 'Api\ReserveController',
         'retail-price' => 'Api\RetailPriceController',
         'retail-order-line' => 'Api\RetailOrderLineController',

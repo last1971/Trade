@@ -1,5 +1,6 @@
 <?php
 
+use App\PaymentOrder;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -21,36 +22,19 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test', function () {
-    dd(asset('/t/t'));
-    /*
-    $row = [
-        "Наименование" => "2-1393222-0",
-        "Кол" => 4,
-        "Цена" => 152.52,
-        0 => null
-    ];
-    $newRow = [
-        'name' => ['наименование', 'название', 'имя', 'name'],
-        'quantity' => ['количество', 'кол.', 'кол', 'кол-во', 'кол.-во', 'qnt', 'quan', 'quantity'],
-        'price' => ['цена', 'цена товара', 'price'],
-        'priceWithoutVat' => ['цена без ндс', 'price without vat'],
-        'amount' => ['сумма', 'валютная сумма', 'amount'],
-        'amountWithoutVat' => ['сумма с ндс'],
-        'multiplicity' => ['кратность', 'Цена указана за ... шт.'],
-        'country' => ['страна происхождения', 'страна', 'country'],
-        'declaration' => ['код таможенной декларации', 'гтд', 'declaration'],
-        'producer' => ['производитель', 'producer'],
-        'case' => ['case', 'корпус'],
-    ];
-    array_walk($newRow, function (&$value) use ($row) {
-        foreach ($row as $rowKey => $rowValue) {
-            if (in_array(Str::lower($rowKey), $value, true)) {
-                $value = $rowValue;
-                break;
-            }
-        }
-    });
-    dd($newRow);*/
+    $a =\App\Payment::query()
+        ->where(
+            'amount',
+             '>=',
+            function($query) {
+                $query->select([
+                    'paid' => PaymentOrder::query()
+                        ->whereColumn('payment_id', 'payments.id')
+                        ->selectRaw('coalesce(sum(amount), 0)')
+                ]);
+            },
+        )->count();
+    dd($a);
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
