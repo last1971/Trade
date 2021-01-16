@@ -25,7 +25,10 @@
         "vue-template-compiler": "^2.6.12"
     },
     "dependencies": {
+        "dotenv": "^6.2.0",
         "file-saver": "^2.0.2",
+        "fs": "^0.0.1-security",
+        "mix-env-file": "^0.1.0",
         "moment": "^2.27.0",
         "vue-router": "^3.4.3",
         "vuetify": "^2.3.10",

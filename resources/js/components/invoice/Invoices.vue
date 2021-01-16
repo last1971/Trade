@@ -229,59 +229,59 @@ export default {
             return this.rules.isInteger(this.options.filterValues[1]) === true
                 && this.rules.isNumber(this.options.filterValues[2]) === true
                 && this.rules.required(this.options.filterValues[2]) === true
-                    && this.rules.isNumber(this.options.filterValues[7]) === true
-                    && this.rules.required(this.options.filterValues[7]) === true
-                    && this.rules.isNumber(this.options.filterValues[8]) === true
-                    && this.rules.required(this.options.filterValues[8]) === true;
-            },
-            headers2() {
-                return this.hasPermission
-                    ? this.headers : _.initial(this.headers);
-            },
-            hasPermission() {
-                return this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
-            }
+                && this.rules.isNumber(this.options.filterValues[7]) === true
+                && this.rules.required(this.options.filterValues[7]) === true
+                && this.rules.isNumber(this.options.filterValues[8]) === true
+                && this.rules.required(this.options.filterValues[8]) === true;
         },
-        methods: {
-            previousItem(item) {
-                const index = this.items.indexOf(item);
-                if (index > 0) return this.items[index - 1].SCODE;
-                return _.last(this.items).SCODE;
-            },
-            compareToColorText(a, b) {
-                if (parseFloat(a) > parseFloat(b) && parseFloat(b) === 0) return 'red--text';
-                if (parseFloat(a) === parseFloat(b)) return 'green--text';
-                return 'primary--text';
-            },
-            saveFile() {
-                this.saving = true;
-                this.$store.dispatch('INVOICE/SAVE', this.options)
-                    .then(() => {
-                    })
-                    .catch(() => {
-                    })
-                    .then(() => this.saving = false);
-            }
+        headers2() {
+            return this.hasPermission
+                ? this.headers : _.initial(this.headers);
         },
-        beforeRouteEnter(to, from, next) {
-            next(vm => {
-                vm.$store.commit('BREADCRUMBS/SET', [
-                    {
-                        text: 'Торговля',
-                        to: {name: 'home'},
-                        exact: true,
-                        disabled: false,
-                    },
-                    {
-                        text: 'Счета',
-                        to: {name: 'invoices'},
-                        exact: true,
-                        disabled: true,
-                    }
-                ]);
-            });
+        hasPermission() {
+            return this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
         }
+    },
+    methods: {
+        previousItem(item) {
+            const index = this.items.indexOf(item);
+            if (index > 0) return this.items[index - 1].SCODE;
+            return _.last(this.items).SCODE;
+        },
+        compareToColorText(a, b) {
+            if (parseFloat(a) > parseFloat(b) && parseFloat(b) === 0) return 'red--text';
+            if (parseFloat(a) === parseFloat(b)) return 'green--text';
+            return 'primary--text';
+        },
+        saveFile() {
+            this.saving = true;
+            this.$store.dispatch('INVOICE/SAVE', this.options)
+                .then(() => {
+                })
+                .catch(() => {
+                })
+                .then(() => this.saving = false);
+        }
+    },
+    beforeRouteEnter(to, from, next) {
+        next(vm => {
+            vm.$store.commit('BREADCRUMBS/SET', [
+                {
+                    text: 'Торговля',
+                    to: {name: 'home'},
+                    exact: true,
+                    disabled: false,
+                },
+                {
+                    text: 'Счета',
+                    to: {name: 'invoices'},
+                    exact: true,
+                    disabled: true,
+                }
+            ]);
+        });
     }
+}
 </script>
 
 <style scoped>

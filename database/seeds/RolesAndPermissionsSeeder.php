@@ -19,6 +19,8 @@ class RolesAndPermissionsSeeder extends Seeder
         'order',
         'order-line',
         'order-step',
+        'payment',
+        'payment-order',
         'reserve',
         'retail-price',
         'retail-order-line',
@@ -67,6 +69,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'nav.invoices']);
         Permission::query()->firstOrCreate(['name' => 'nav.invoice-lines']);
         Permission::query()->firstOrCreate(['name' => 'nav.orders']);
+        Permission::query()->firstOrCreate(['name' => 'nav.payments']);
         Permission::query()->firstOrCreate(['name' => 'nav.retail-order-lines']);
         Permission::query()->firstOrCreate(['name' => 'nav.retail-sale']);
         Permission::query()->firstOrCreate(['name' => 'nav.retail-sale-line']);
@@ -92,6 +95,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'order.*',
             'order-line.*',
             'order-step.*',
+            'payment.*',
+            'payment-order.*',
             'reserve.*',
             'retail-price.*',
             'retail-order-line.*',
@@ -183,6 +188,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $buh = Role::query()->firstOrCreate(['name' => 'buh']);
         $buh->givePermissionTo([
+            'nav.payments',
             'nav.invoices',
             'nav.invoice-lines',
             'nav.transfer-outs',
@@ -195,6 +201,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'name.*',
             'order.*',
             'order-line.*',
+            'payment.*',
+            'payment-order.*',
             'seller.*',
             'transfer-out.*',
             'transfer-out-line.*',
