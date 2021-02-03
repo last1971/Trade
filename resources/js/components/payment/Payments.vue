@@ -13,11 +13,17 @@
         }"
         :single-expand="true"
         show-expand
+        :show-select="unpaid"
+        v-model="selected"
         item-key="id"
     >
         <template v-slot:top>
             <v-container class="d-flex flex-row">
                 <payment-add @reload="updateItems"/>
+                <v-btn :disabled="!canBeDeleted" rounded color="error" class="ml-2" @click="remove">
+                    <v-icon left>mdi-delete</v-icon>
+                    УДАЛИТЬ
+                </v-btn>
                 <v-switch v-model="unpaid"
                           :label="unpaid ? 'Неоплаченные' : 'Все'"
                           class="mt-0 pl-2"
@@ -210,6 +216,7 @@ export default {
             datePicker: false,
             mobileFiltersVisible: false,
             saving: false,
+            selected: [],
         }
     },
     computed: {
@@ -222,12 +229,26 @@ export default {
                 proxy[6] = v ? 'paid' : 0;
                 this.$set(this.options, 'filterValues', proxy);
             }
+        },
+        canBeDeleted() {
+            return this.selected.length;
         }
     },
     methods: {
         async save(item) {
             if (item.seller_id) {
                 await this.$store.dispatch('PAYMENT/UPDATE', {item});
+            }
+        },
+        async remove() {
+            try {
+                await Promise.all(this.selected.map((item) => {
+                    return this.$store.dispatch('PAYMENT/REMOVE', item.id);
+                }));
+                this.selected = [];
+                this.updateItems();
+            } catch (e) {
+                console.error(e);
             }
         }
     },

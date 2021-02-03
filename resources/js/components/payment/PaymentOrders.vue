@@ -8,12 +8,17 @@
         :options.sync="options"
         :server-items-length="total"
         :loading-text="loadingText"
-        :single-expand="true"
+        show-select
+        v-model="selected"
         item-key="id"
     >
         <template v-slot:top>
             <v-container>
                 <payment-order-add :value="value" @reload="reload"/>
+                <v-btn :disabled="!canBeDeleted" rounded color="error" class="ml-2" @click="remove">
+                    <v-icon left>mdi-delete</v-icon>
+                    УДАЛИТЬ
+                </v-btn>
             </v-container>
         </template>
     </v-data-table>
@@ -49,6 +54,12 @@ export default {
             mobileFiltersVisible: false,
             dependent: true,
             model: 'PAYMENT-ORDER',
+            selected: [],
+        }
+    },
+    computed: {
+        canBeDeleted() {
+            return this.selected.length;
         }
     },
     watch: {
@@ -61,6 +72,18 @@ export default {
         reload() {
             this.updateItems();
             this.$emit('reload');
+        },
+        async remove() {
+            try {
+                await Promise.all(this.selected.map((item) => {
+                    return this.$store.dispatch('PAYMENT-ORDER/REMOVE', item.id);
+                }));
+                this.selected = [];
+                this.updateItems();
+                this.$emit('reload');
+            } catch (e) {
+                console.error(e);
+            }
         }
     },
 }
