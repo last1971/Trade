@@ -23,7 +23,7 @@ import GoodsList from "./components/good/GoodsList";
 import RetailOrderLines from "./components/Retail/RetailOrderLines";
 import RetailSalesAndRefunds from "./components/Retail/RetailSalesAndRefunds";
 import ExchangeRates from "./components/ExchangeRates";
-import Payments from "./components/payment/Payments";
+import PaymentTabs from "./components/payment/PaymentTabs";
 
 Vue.use(VueRouter);
 
@@ -112,7 +112,7 @@ const routes = [
     {
         name: 'payments',
         path: '/payment',
-        component: Payments,
+        component: PaymentTabs,
         meta: {requiresAuth: true, model: 'PAYMENT', permission: 'payment.show'},
     },
     {

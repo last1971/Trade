@@ -18,17 +18,19 @@
         item-key="id"
     >
         <template v-slot:top>
-            <v-container class="d-flex flex-row">
-                <payment-add @reload="updateItems"/>
-                <v-btn :disabled="!canBeDeleted" rounded color="error" class="ml-2" @click="remove">
-                    <v-icon left>mdi-delete</v-icon>
-                    УДАЛИТЬ
-                </v-btn>
-                <v-switch v-model="unpaid"
-                          :label="unpaid ? 'Неоплаченные' : 'Все'"
-                          class="mt-0 pl-2"
-                />
-            </v-container>
+            <v-card class="d-flex flex-row ma-2">
+                <v-card-actions>
+                    <payment-add @reload="updateItems" />
+                    <v-btn :disabled="!canBeDeleted" rounded color="error"  @click="remove" class="ml-2">
+                        <v-icon left>mdi-delete</v-icon>
+                        УДАЛИТЬ
+                    </v-btn>
+                    <v-switch v-model="unpaid"
+                              :label="unpaid ? 'Неоплаченные' : 'Все'"
+                              class="ml-2"
+                    />
+                </v-card-actions>
+            </v-card>
         </template>
         <template v-slot:body.prepend="{ isMobile }">
             <tr :class="{ 'v-data-table__mobile-table-row' : isMobile }"
@@ -36,6 +38,7 @@
             >
                 <td v-if="!isMobile"></td>
                 <td v-if="!isMobile"></td>
+                <td v-if="!isMobile && unpaid"></td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field label="Номер" v-model="options.filterValues[0]"/>
                 </td>
@@ -169,7 +172,9 @@
         </template>
         <template v-slot:expanded-item="{ headers, item }">
             <td :colspan="headers.length" :key="item.REALPRICECODE">
-                <payment-orders v-model="item" @reload="updateItems"/>
+                <v-card>
+                    <payment-orders v-model="item" @reload="updateItems" class="my-4"/>
+                </v-card>
             </td>
         </template>
     </v-data-table>
