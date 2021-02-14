@@ -1,7 +1,7 @@
 <template>
     <v-data-table
         hide-default-footer
-        :headers="headers"
+        :headers="headers2"
         :items="items"
         :loading="loading"
         :multi-sort="true"
@@ -22,6 +22,9 @@
                     </v-btn>
                 </v-card-actions>
             </v-card>
+        </template>
+        <template v-slot:item.date="{ item }">
+            {{ item.date | formatDate }}
         </template>
     </v-data-table>
 </template>
@@ -62,6 +65,9 @@ export default {
     computed: {
         canBeDeleted() {
             return this.selected.length;
+        },
+        headers2() {
+            return this.headers.filter((h) => !h.additional);
         }
     },
     watch: {

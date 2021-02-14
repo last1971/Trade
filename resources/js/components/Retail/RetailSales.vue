@@ -76,7 +76,9 @@
         </template>
         <template v-slot:expanded-item="{ headers, item }">
             <td :colspan="headers.length" :key="item.DATATIME">
-                <retail-sale-lines v-model="item"/>
+                <v-card>
+                    <retail-sale-lines v-model="item" class="ma-4"/>
+                </v-card>
             </td>
         </template>
     </v-data-table>

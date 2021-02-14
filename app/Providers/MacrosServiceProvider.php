@@ -168,6 +168,16 @@ class MacrosServiceProvider extends ServiceProvider
         ];
 
         //for request()
+        Builder::macro('smartWhere', function($attribute, $operator, $value) {
+            if ($operator === 'IN') {
+                $parseValue = is_string($value) ? json_decode($value) : $value;
+                $parseValue = is_array($parseValue) ? $parseValue : [$parseValue];
+                $this->whereIn($attribute, $parseValue);
+            } else {
+                $this->where($attribute, $operator, $value);
+            }
+        });
+
         Builder::macro('requestBuilder', function () use ($aggregateAttributes) {
             $request = request()->query();
             if (isset($request['with'])) {
@@ -188,14 +198,26 @@ class MacrosServiceProvider extends ServiceProvider
                             $query->select([$value => $aggregateAttributes[$value]]);
                         }
                         : $value;
-                    $whereAttribute = array_key_exists($attribute, $aggregateAttributes)
-                        ? $aggregateAttributes[$attribute]
-                        : $attribute;
-                    $this->where(
-                        $whereAttribute,
-                        $request['filterOperators'][$index],
-                        $value
-                    );
+                    $whereHas = explode('.', $attribute);
+                    if (count($whereHas) > 1) {
+                        $this->whereHas($whereHas[0], function (Builder $query)
+                        use ($whereHas, $request, $index, $value) {
+                            $query->smartWhere(
+                                $whereHas[1],
+                                $request['filterOperators'][$index],
+                                $value,
+                            );
+                        });
+                    } else {
+                        $whereAttribute = array_key_exists($attribute, $aggregateAttributes)
+                            ? $aggregateAttributes[$attribute]
+                            : $attribute;
+                        $this->smartWhere(
+                            $whereAttribute,
+                            $request['filterOperators'][$index],
+                            $value
+                        );
+                    }
                 }
             }
             if (isset($request['aggregateAttributes'])) {

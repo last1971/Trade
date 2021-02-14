@@ -1,7 +1,7 @@
 <template>
     <model-select
         :disabled="disabled"
-        :multipe="multiple"
+        :multiple="multiple"
         item-text="NAMEPOST"
         item-value="WHEREISPOSTCODE"
         label="Поставщик"
