@@ -59,7 +59,7 @@ export default {
         requestParams() {
             return this.options;
         },
-        updateItems() {
+        updateItems(changeRoute = true) {
             if (!this.checkFilters || !this.options.page) return;
             this.loading = true;
             this.$store.dispatch(this.model + '/ALL', this.requestParams())
@@ -68,12 +68,12 @@ export default {
                     this.itemIds = response.itemIds;
                     this.copyItems = response.copyItems;
                     const newQuery = _.cloneDeep(this.options);
-                    if (!this.dependent && !_.isEqual(this.$route.query, newQuery)) {
+                    if (!this.dependent && !_.isEqual(this.$route.query, newQuery) && changeRoute) {
                         this.$router.replace(
-                            {name: this.$route.name, params: this.$route.params, query: newQuery}
+                            {params: this.$route.params, query: newQuery}
                         );
+                        this.setLinks();
                     }
-                    this.setLinks();
                 })
                 .catch(() => {
                 })
@@ -93,7 +93,7 @@ export default {
                 if (index === 0) {
                     const newQuery = _.cloneDeep(this.options);
                     newQuery.page = page > 1 ? page - 1 : lastPage;
-                    previous = {name: this.$route.name, params: this.$route.params, query: newQuery};
+                    previous = {params: this.$route.params, query: newQuery};
                 } else {
                     previous = {
                         name: this.$route.name.slice(0, -1),
@@ -103,7 +103,7 @@ export default {
                 if (index + 1 === this.copyItems.length) {
                     const newQuery = _.cloneDeep(this.options);
                     newQuery.page = page === lastPage ? 1 : page + 1;
-                    next = {name: this.$route.name, params: this.$route.params, query: newQuery};
+                    next = {params: this.$route.params, query: newQuery};
                 } else {
                     next = {
                         name: this.$route.name.slice(0, -1),

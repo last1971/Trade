@@ -40,6 +40,9 @@
                 <seller-select :disabled="notEditable" v-model="model.WHEREISPOSTCODE"/>
             </v-col>
             <v-col cols="12" sm="auto">
+                <v-text-field label="Сумма" :value="(model.orderLinesSum || 0) | formatRub" disabled/>
+            </v-col>
+            <v-col cols="12" sm="auto">
                 <v-menu
                     :close-on-content-click="false"
                     :nudge-right="40"
@@ -167,7 +170,6 @@
                     .then(() => this.loading = false)
             },
             async closeWithReload(id) {
-                console.log('closeWihtReload');
                 this.addOrderLine = false;
                 this.$emit('newOrderLine', id);
                 this.$emit('reloadOrder');

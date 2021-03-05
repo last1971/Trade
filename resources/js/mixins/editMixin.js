@@ -53,9 +53,11 @@ export default {
                 {item: this.model, options: this.options}
             )
                 .then((response) => {
-                    if (oper === '/CREATE' && !this.dependent)
+                    if (oper === '/CREATE' && !this.dependent) {
                         this.$router.replace({params: {id: response.data[this.$store.getters[this.MODEL + '/KEY']]}});
-                    this.$emit('input', response.data)
+                        this.$emit('reload');
+                    }
+                    this.$root.$emit('create', { model: this.MODEL, data: response.data })
                 })
                 .catch((error) => {
                     if (error.response && error.response.data.errors) {

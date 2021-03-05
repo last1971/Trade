@@ -174,10 +174,12 @@
                         ],
                     }
                 };
-                await this.$store.dispatch('ORDER/GET', payload);
+                const newValue = await this.$store.dispatch('ORDER/GET', payload);
+                this.$emit('input', newValue);
             },
             newOrderLine(id) {
                 this.itemIds.push(id);
+                this.total += 1;
             }
         },
     }
