@@ -89,7 +89,10 @@
                 this.$store.dispatch(
                     'ORDER-IMPORT-LINE/SAVE', {lines: this.value, masterId: this.masterId}
                 )
-                    .then(() => this.$emit('input', []))
+                    .then(() =>  {
+                        this.$emit('input', []);
+                        this.$emit('reload');
+                    })
                     .catch(() => {
                     })
                     .then(() => this.loading = false);

@@ -96,7 +96,7 @@
                 <v-file-input
                     :disabled="model.STATUS !== 0 || loading"
                     @change="upload"
-                    accept=".csv,.xlsx"
+                    accept=".csv,.xlsx,.xls"
                     label="Импорт заказа"
                     v-model="importFiles"
                     :loading="loading"

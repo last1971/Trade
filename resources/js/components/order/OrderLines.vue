@@ -88,7 +88,7 @@
                 <edit-field @save="save" attribute="PRIM" v-model="item"/>
             </template>
         </v-data-table>
-        <order-import-lines :master-id="value.ID" v-else v-model="orderImportLines"/>
+        <order-import-lines v-else :master-id="value.ID" v-model="orderImportLines" @reload="reloadOrder"/>
     </div>
 </template>
 
