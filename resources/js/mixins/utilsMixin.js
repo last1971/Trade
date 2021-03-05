@@ -24,4 +24,9 @@ export default {
             }
         }
     },
+    methods: {
+        $_utilsMixin_isValid(value, rules) {
+            return rules.reduce((result, rule) => rule(value) === true && result, true);
+        }
+    }
 }

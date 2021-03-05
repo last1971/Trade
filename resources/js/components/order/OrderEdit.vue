@@ -85,7 +85,7 @@
                        fab
                        class="mt-2 ml-2"
                        @click="addOrderLine = true"
-                       :disabled="notEditable"
+                       :disabled="notEditable || !model.ID"
                 >
                     <v-icon color="primary">mdi-playlist-plus</v-icon>
                 </v-btn>

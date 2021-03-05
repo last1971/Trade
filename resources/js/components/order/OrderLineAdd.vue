@@ -112,8 +112,43 @@ export default {
         }
     },
     computed: {
+        isRightQUAN() {
+            const { rules } = this;
+            return this.$_utilsMixin_isValid(
+                this.orderLine.QUAN, [rules.isInteger, rules.required, rules.positive]
+            );
+        },
+        isRightPRICE() {
+            const { rules } = this;
+            return this.$_utilsMixin_isValid(
+                this.orderLine.PRICE, [rules.isNumber, rules.required, rules.positive]
+            );
+        },
+        isRightPriceWithoutVat() {
+            const { rules } = this;
+            return this.$_utilsMixin_isValid(
+                this.orderLine.priceWithoutVat, [rules.isNumber, rules.required, rules.positive]
+            );
+        },
+        isRightSUMMAP() {
+            const { rules } = this;
+            return this.$_utilsMixin_isValid(
+                this.orderLine.SUMMAP, [rules.isNumber, rules.required, rules.positive]
+            );
+        },
+        isRightSumWithoutVat() {
+            const { rules } = this;
+            return this.$_utilsMixin_isValid(
+                this.orderLine.sumWithoutVat, [rules.isNumber, rules.required, rules.positive]
+            );
+        },
         savePossible() {
-            return this.orderLine.GOODSCODE && this.orderLine.QUAN && this.orderLine.PRICE && this.orderLine.SUMMAP;
+            return this.orderLine.GOODSCODE
+                && this.isRightQUAN
+                && this.isRightPRICE
+                && this.isRightPriceWithoutVat
+                && this.isRightSUMMAP
+                && this.isRightSumWithoutVat;
         },
         options() {
             return {
@@ -150,24 +185,34 @@ export default {
             this.loading = false;
         },
         changeQUAN() {
-            this.orderLine.sumWithoutVat = this.orderLine.QUAN * this.orderLine.priceWithoutVat;
-            this.orderLine.SUMMAP = this.orderLine.QUAN * this.orderLine.PRICE;
+            if (this.isRightQUAN) {
+                this.orderLine.sumWithoutVat = this.orderLine.QUAN * this.orderLine.priceWithoutVat;
+                this.orderLine.SUMMAP = this.orderLine.QUAN * this.orderLine.PRICE;
+            }
         },
         changePriceWithoutVat() {
-            this.orderLine.PRICE = this.orderLine.priceWithoutVat * (1 + this.$store.getters['VAT'] / 100);
-            this.changeQUAN();
+            if (this.isRightPriceWithoutVat) {
+                this.orderLine.PRICE = this.orderLine.priceWithoutVat * (1 + this.$store.getters['VAT'] / 100);
+                this.changeQUAN();
+            }
         },
         changePRICE() {
-            this.orderLine.priceWithoutVat = this.orderLine.PRICE / (1 + this.$store.getters['VAT'] / 100);
-            this.changeQUAN();
+            if (this.isRightPRICE) {
+                this.orderLine.priceWithoutVat = this.orderLine.PRICE / (1 + this.$store.getters['VAT'] / 100);
+                this.changeQUAN();
+            }
         },
         changeSumWithoutVat() {
-            this.orderLine.priceWithoutVat = this.orderLine.sumWithoutVat / this.orderLine.QUAN;
-            this.changePriceWithoutVat();
+            if (this.isRightSumWithoutVat) {
+                this.orderLine.priceWithoutVat = this.orderLine.sumWithoutVat / this.orderLine.QUAN;
+                this.changePriceWithoutVat();
+            }
         },
         changeSUMMAP() {
-            this.orderLine.PRICE = this.orderLine.SUMMAP / this.orderLine.QUAN;
-            this.changePRICE();
+            if (this.isRightSUMMAP) {
+                this.orderLine.PRICE = this.orderLine.SUMMAP / this.orderLine.QUAN;
+                this.changePRICE();
+            }
         }
     },
 }
