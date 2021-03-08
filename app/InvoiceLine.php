@@ -2,18 +2,22 @@
 
 namespace App;
 
+use App\ModelTraits\InsertTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class InvoiceLine extends Model
 {
-    //
+    use InsertTrait;
+
     public $timestamps = false;
 
     protected $connection = 'firebird';
 
-    protected $fillable = ['QUAN', 'PRICE', 'SUMMAP', 'PRIM'];
+    protected $fillable = ['SCODE', 'GOODSCODE', 'QUAN', 'PRICE', 'SUMMAP', 'PRIM', 'WHERE_ORDERED'];
 
     protected $primaryKey = 'REALPRICECODE';
+
+    protected $sequenceName = 'REALPRICECODE_GEN';
 
     protected $table = 'REALPRICE';
 

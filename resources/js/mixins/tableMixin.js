@@ -80,8 +80,12 @@ export default {
         proxyInput(val) {
             this.$emit('input', val);
         },
-        save(item) {
-            this.$store.dispatch(this.model + '/UPDATE', {item, options: this.options});
+        async save(item) {
+            await this.$store.dispatch(this.model + '/UPDATE', {item, options: this.options});
+            await this.reloadValue();
+        },
+        async reloadValue() {
+            //
         },
         setLinks() {
             this.copyItems.forEach((item, index) => {

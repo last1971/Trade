@@ -15,7 +15,13 @@
         show-expand
     >
         <template v-slot:top>
-            <invoice-edit :value="value" @input="proxyInput" :sort-by="options.sortBy" :sort-desc="options.sortDesc"/>
+            <invoice-edit :value="value"
+                          @input="proxyInput"
+                          @reloadInvoice="reloadValue"
+                          @newInvoiceLine="newInvoiceLine"
+                          :sort-by="options.sortBy"
+                          :sort-desc="options.sortDesc"
+            />
         </template>
         <template v-slot:item.name.NAME="{ item }">
             <good-name v-model="item" :prim="item.good.PRIM"/>
@@ -208,7 +214,24 @@
                 if (item.SUMMAP) item.SUMMAP = item.SUMMAP.toFixed(2);
                 this.save(item);
             },
-        }
+            newInvoiceLine(id) {
+                this.itemIds.push(id);
+                this.total += 1;
+            },
+            async reloadValue() {
+                const payload = {
+                    id: this.value.SCODE,
+                    query: {
+                        with: ['buyer', 'employee', 'firm'],
+                        aggregateAttributes: [
+                            'invoiceLinesCount', 'invoiceLinesSum', 'cashFlowsSum', 'transferOutLinesSum'
+                        ],
+                    }
+                };
+                const newValue = await this.$store.dispatch('INVOICE/GET', payload);
+                this.$emit('input', newValue);
+            }
+         }
     }
 </script>
 

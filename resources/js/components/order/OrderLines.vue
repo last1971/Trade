@@ -18,7 +18,7 @@
                 <order-edit :value="value"
                             @import="importOpen"
                             @input="proxyInput"
-                            @reloadOrder="reloadOrder"
+                            @reloadOrder="reloadValue"
                             @newOrderLine="newOrderLine"
                 />
             </template>
@@ -164,7 +164,7 @@
                     await this.reloadOrder();
                 } catch (e) {}
             },
-            async reloadOrder() {
+            async reloadValue() {
                 const payload = {
                     id: this.value.ID,
                     query: {

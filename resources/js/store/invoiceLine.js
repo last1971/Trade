@@ -7,7 +7,7 @@ state.name = 'invoice-line';
 
 state.key = 'REALPRICECODE';
 
-state.fillable = ['QUAN', 'PRICE', 'SUMMAP', 'PRIM'];
+state.fillable = ['SCODE', 'GOODSCODE', 'QUAN', 'PRICE', 'SUMMAP', 'PRIM', 'WHERE_ORDERED'];
 
 state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},

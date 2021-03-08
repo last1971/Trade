@@ -123,6 +123,17 @@ class ModelRequest extends FormRequest
                     'item.IGK' => 'nullable|string',
                 ];
                 break;
+            case 'invoice-line.store':
+                $rules += [
+                    'item.SCODE' => 'integer',
+                    'item.GOODSCODE' => 'integer',
+                    'item.QUAN' => 'integer',
+                    'item.PRICE' => 'numeric',
+                    'item.SUMMAP' => 'numeric',
+                    'item.PRIM' => 'nullable|string',
+                    'item.WHERE_ORDERED' => 'nullable|string',
+                ];
+                break;
             case 'invoice-line.update':
                 $rules += [
                     'item.QUAN' => 'integer',

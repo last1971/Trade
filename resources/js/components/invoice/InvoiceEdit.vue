@@ -71,7 +71,7 @@
                        fab
                        class="mt-2 ml-2"
                        @click="addInvoiceLine = true"
-                       :disabled="notEditable || !model.ID"
+                       :disabled="notEditable || !model.SCODE"
                 >
                     <v-icon color="primary">mdi-playlist-plus</v-icon>
                 </v-btn>
@@ -186,8 +186,10 @@ export default {
         setDownloading(downloading) {
             this.downloading = downloading
         },
-        closeWithReload() {
-
+        closeWithReload(id) {
+            this.addInvoiceLine = false;
+            this.$emit('newInvoiceLine', id);
+            this.$emit('reloadInvoice');
         }
     },
 }
