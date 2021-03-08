@@ -196,11 +196,6 @@ export default {
                     && this.rules.required(this.options.filterValues[4]) === true;
             }
         },
-        created() {
-            this.$root.$on('create', (a) => {
-                if (a.model === this.model) this.updateItems(false);
-            });
-        },
         methods: {
             statusColor(status) {
                 if (status === 0) return 'red--text';

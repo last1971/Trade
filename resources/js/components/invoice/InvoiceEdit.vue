@@ -64,8 +64,16 @@
                        @click="save"
                        class="mt-2"
                 >
-                    <v-icon v-if="$vuetify.breakpoint.smAndUp">mdi-content-save</v-icon>
+                    <v-icon v-if="$vuetify.breakpoint.smAndUp" color="green">mdi-content-save</v-icon>
                     <span v-else>Сохранить</span>
+                </v-btn>
+                <v-btn v-if="$vuetify.breakpoint.smAndUp"
+                       fab
+                       class="mt-2 ml-2"
+                       @click="addInvoiceLine = true"
+                       :disabled="notEditable || !model.ID"
+                >
+                    <v-icon color="primary">mdi-playlist-plus</v-icon>
                 </v-btn>
             </v-col>
             <v-col cols="12" sm="auto" v-if="$vuetify.breakpoint.smAndUp">
@@ -95,6 +103,12 @@
                 />
             </v-col>
         </v-row>
+        <v-dialog v-model="addInvoiceLine">
+            <invoice-line-add :invoice="model"
+                              @close="addInvoiceLine=false"
+                              @closeWithReload="closeWithReload"
+            />
+        </v-dialog>
     </v-form>
 </template>
 
@@ -106,10 +120,11 @@ import FirmSelect from "../FirmSelect";
 import editMixin from "../../mixins/editMixin";
 import InvoicePdf from "./InvoicePdf";
 import InvoicePdfMenu from "./InvoicePdfMenu";
+import InvoiceLineAdd from "./InvoiceLineAdd";
 
 export default {
     name: "InvoiceEdit",
-    components: {InvoicePdfMenu, InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
+    components: {InvoiceLineAdd, InvoicePdfMenu, InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
     mixins: [editMixin, utilsMixin],
     props: {
         sortBy: { type: Array, default: () => [] },
@@ -120,6 +135,7 @@ export default {
             MODEL: 'INVOICE',
             downloading: false,
             pdfDialog: false,
+            addInvoiceLine: false
         }
     },
     computed: {
@@ -169,6 +185,9 @@ export default {
         },
         setDownloading(downloading) {
             this.downloading = downloading
+        },
+        closeWithReload() {
+
         }
     },
 }

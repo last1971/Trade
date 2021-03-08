@@ -33,6 +33,12 @@
                         >
                             <v-icon color="green">mdi-microsoft-excel</v-icon>
                         </v-btn>
+                        <v-btn :to="{ name: 'invoice', params: { id: 0 }}"
+                               :disabled="!$store.getters['AUTH/HAS_PERMISSION']('invoice.store')"
+                               fab
+                        >
+                            <v-icon color="green">mdi-plus</v-icon>
+                        </v-btn>
                     </v-speed-dial>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">

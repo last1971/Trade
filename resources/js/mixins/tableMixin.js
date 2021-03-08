@@ -49,11 +49,9 @@ export default {
         },
     },
     created() {
-        //if (this.dependent) {
-        //    console.log('create');
-        //    this.$store.commit('AUTH/SET_LOCAL_OPTION', {[this.model]: this.options});
-        //}
-        // this.updateItems();
+        this.$root.$on('create', (a) => {
+            if (a.model === this.model) this.updateItems(false);
+        });
     },
     methods: {
         requestParams() {

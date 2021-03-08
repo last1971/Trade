@@ -2,25 +2,28 @@
 
 namespace App;
 
+use App\ModelTraits\InsertTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class Invoice extends Model
 {
-    //
+    use InsertTrait;
 
     public $timestamps = false;
 
     protected $connection = 'firebird';
 
-    protected $fillable = ['NS', 'FIRM_ID', 'POKUPATCODE', 'PRIM', 'STATUS', 'IGK'];
+    protected $fillable = ['NS', 'FIRM_ID', 'POKUPATCODE', 'PRIM', 'STATUS', 'IGK', 'DATA'];
 
     protected $primaryKey = 'SCODE';
+
+    protected $sequenceName = 'SCODE_GEN';
 
     protected $table = 'S';
 
     protected $casts = [
         'SCODE' => 'integer',
-        //'DATA' => 'date',
+        'NS' => 'integer',
     ];
 
     public function buyer()

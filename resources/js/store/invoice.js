@@ -1,5 +1,6 @@
 import model from './model'
 import _ from 'lodash'
+import moment from 'moment'
 
 let state = _.cloneDeep(model.state);
 
@@ -8,6 +9,10 @@ let getters = _.cloneDeep(model.getters);
 state.name = 'invoice';
 
 state.key = 'SCODE';
+
+state.items = [
+    { SCODE: 0, FIRM_ID: 38, DATA: moment().format('Y-MM-DD'), STATUS: 0 }
+]
 
 state.fillable = ['DATA', 'NS', 'FIRM_ID', 'POKUPATCODE', 'PRIM', 'STATUS', 'IGK'];
 

@@ -113,6 +113,16 @@ class ModelRequest extends FormRequest
                     'item.IGK' => 'nullable|string',
                 ];
                 break;
+            case 'invoice.store':
+                $rules += [
+                    'item.STATUS' => 'integer',
+                    'item.DATA' => 'date',
+                    'item.FIRM_ID' => 'integer',
+                    'item.POKUPATCODE' => 'integer',
+                    'item.PRIM' => 'nullable|string',
+                    'item.IGK' => 'nullable|string',
+                ];
+                break;
             case 'invoice-line.update':
                 $rules += [
                     'item.QUAN' => 'integer',
