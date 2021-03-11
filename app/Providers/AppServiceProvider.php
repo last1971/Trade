@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
         // For MariaDB
         Schema::defaultStringLength(191);
         // hhtps on prod
-        if (!env('APP_DEBUG')) {
+        if (env('APP_ENV') !== 'local') {
             URL::forceScheme('https');
         }
         // locale
