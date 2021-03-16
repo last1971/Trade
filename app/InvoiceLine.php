@@ -21,6 +21,11 @@ class InvoiceLine extends Model
 
     protected $table = 'REALPRICE';
 
+    protected $casts = [
+        'PRICE' => 'double',
+        'SUMMAP' => 'double',
+    ];
+
     public function category()
     {
         return $this->hasOneThrough(

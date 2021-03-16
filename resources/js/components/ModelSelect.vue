@@ -93,7 +93,7 @@
                 }
             },
             maxLength() {
-                const maxName = _.maxBy(this.items, (item) => _.get(item, this.itemText).length)
+                const maxName = _.maxBy(this.items, (item) => (_.get(item, this.itemText) || '').length)
                 return maxName ? _.get(maxName, this.itemText).length : 0;
             },
             MODEL() {

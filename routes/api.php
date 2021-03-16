@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\FirmHistoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,6 +39,7 @@ Route::middleware('auth:api')->group(function () {
         'category' => 'Api\CategoryController',
         'employee' => 'Api\EmployeeController',
         'firm' => 'Api\FirmController',
+        'firm-history' => 'Api\FirmHistoryController',
         'good' => 'Api\GoodController',
         'invoice' => 'Api\InvoiceController',
         'invoice-line' => 'Api\InvoiceLineController',

@@ -39,6 +39,13 @@
                 <firm-select :disabled="notEditable || notCan" v-model="model.FIRM_ID"/>
             </v-col>
             <v-col cols="12" sm="auto">
+                <firm-history-select
+                    :disabled="notEditable || notCan"
+                    v-model="model.FIRMS_HISTORY_ID"
+                    :firm-id="model.FIRM_ID"
+                />
+            </v-col>
+            <v-col cols="12" sm="auto">
                 <v-text-field :disabled="true" :value="model.invoiceLinesSum | formatRub" label="Сумма"/>
             </v-col>
             <v-col cols="12" sm="auto">
@@ -121,10 +128,13 @@ import editMixin from "../../mixins/editMixin";
 import InvoicePdf from "./InvoicePdf";
 import InvoicePdfMenu from "./InvoicePdfMenu";
 import InvoiceLineAdd from "./InvoiceLineAdd";
+import FirmHistorySelect from "../FirmHistorySelect";
 
 export default {
     name: "InvoiceEdit",
-    components: {InvoiceLineAdd, InvoicePdfMenu, InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
+    components: {
+        FirmHistorySelect,
+        InvoiceLineAdd, InvoicePdfMenu, InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
     mixins: [editMixin, utilsMixin],
     props: {
         sortBy: { type: Array, default: () => [] },

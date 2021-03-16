@@ -36,6 +36,7 @@ import retailStoreReturn from "./retailStoreReturn";
 import exchangeRate from './exchangeRate';
 import payment from "./payment";
 import paymentOrder from "./paymentOrder";
+import firmHistory from "./firmHistory";
 
 Vue.use(Vuex);
 
@@ -59,6 +60,7 @@ export default new Vuex.Store({
         EMPLOYEE: employee,
         'ERROR-MESSAGE': errorMessage,
         FIRM: firm,
+        'FIRM-HISTORY': firmHistory,
         INVOICE: invoice,
         'INVOICE-LINE': invoiceLine,
         INVOICESTATUS: invoiceStatus,

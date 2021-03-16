@@ -14,7 +14,7 @@ state.items = [
     { SCODE: 0, FIRM_ID: 38, DATA: moment().format('Y-MM-DD'), STATUS: 0 }
 ]
 
-state.fillable = ['DATA', 'NS', 'FIRM_ID', 'POKUPATCODE', 'PRIM', 'STATUS', 'IGK'];
+state.fillable = ['DATA', 'NS', 'FIRM_ID', 'FIRMS_HISTORY_ID', 'POKUPATCODE', 'PRIM', 'STATUS', 'IGK'];
 
 state.headers = [
     {text: '', value: 'actions', width: 10, sortable: false},
