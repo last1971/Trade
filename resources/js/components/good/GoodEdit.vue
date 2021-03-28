@@ -51,6 +51,7 @@
                 MODEL: 'GOOD',
                 nameKey: 0,
                 categoryKey: 100,
+                dependent: true,
             }
         },
         computed: {
@@ -69,7 +70,25 @@
                 set(val) {
                     this.model.orderStep = val;
                 }
-            }
+            },
+            options() {
+                return this.$store.getters['AUTH/LOCAL_OPTION'](this.MODEL)
+                    || {
+                        with: [
+                            'retailPrice', 'orderStep', 'retailStore', 'warehouse', 'name', 'category', 'goodNames'
+                        ],
+                        aggregateAttributes: [
+                            'reservesQuantity',
+                            'invoiceLinesQuantityTransit',
+                            'reservesQuantityTransit',
+                            'pickUpsTransitQuantity',
+                            'retailOrderLinesNeedQuantity',
+                            'orderLinesTransitQuantity',
+                            'shopLinesTransitQuantity',
+                            'storeLinesTransitQuantity',
+                        ],
+                    }
+            },
         },
         watch: {
             model: {
