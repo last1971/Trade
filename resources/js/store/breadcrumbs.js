@@ -11,7 +11,11 @@ const mutations = {
         state.items = items;
     },
     PUT(state, item) {
-        const index = _.findIndex(state.items, {text: item.text});
+        let index = _.findIndex(state.items, {to: { name: item.to.name }});
+        if (index >= 0) {
+            state.items.splice(index, 1, item);
+        }
+        index = _.findIndex(state.items, {text: item.text});
         if (index >= 0) {
             state.length = index + 1;
         } else {

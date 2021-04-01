@@ -51,5 +51,6 @@ class MakeSearchNames extends Command
             }
             $counter++;
         });
+        return 0;
     }
 }

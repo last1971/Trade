@@ -27,7 +27,8 @@
         "zircote/swagger-php": "^3.0",
         "ext-pdo": "*",
         "ext-sockets": "*",
-        "ext-simplexml": "*"
+        "ext-simplexml": "*",
+        "ext-zip": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.6",
