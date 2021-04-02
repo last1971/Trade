@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\Good;
 use App\Seller;
 use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -47,8 +47,6 @@ class ImportDanPrice extends Command
     public function handle()
     {
         try {
-            dd(SellerGood::query()
-                ->create(['seller_id' => 1, 'code' => 1]));
             /*$dan = file_get_contents("http://danomsk.ru/upload/dan_dealer.zip");
             Storage::disk('local')->put('dan.zip', $dan);
             $zipper = new \ZipArchive();
@@ -66,19 +64,17 @@ class ImportDanPrice extends Command
                 if (!empty($cells[$i]['H'])) {
                     $good = SellerGood::query()
                         ->firstOrNew(['seller_id' => $dan->{$dan->getKeyName()}, 'code' => $cells[$i]['B']]);
-                    //if (empty($good)) {
-                    //    $good = new SellerGood();
-                    //    $good->seller_id = $dan->{$dan->getKeyName()};
-                    //    $good->code = $cells[$i]['B'];
-                    //}
-                    $good->name = $cells[$i]['C'] . ' ' . $cells[$i]['D'];
                     $length = mb_strlen($cells[$i]['J']) <= 400 ? strlen($cells[$i]['J']) : 400;
-                    $good->remark = mb_substr($cells[$i]['J'], 0, $length);
-                    $good->case = $cells[$i]['E'];
-                    $good->producer = $cells[$i]['F'];
-                    $good->is_active = true;
+                    $good->fill([
+                        'name' => $cells[$i]['C'] . ' ' . $cells[$i]['D'],
+                        'remark' => mb_substr($cells[$i]['J'], 0, $length),
+                        'basic_delivery_time' => 5,
+                        'case' => $cells[$i]['E'],
+                        'producer' => $cells[$i]['F'],
+                        'is_active' => true,
+                    ]);
                     $good->save();
-                    dd($good);
+
                     $warehouse = SellerWarehouse::query()->firstOrNew(['seller_good_id' => $good->id]);
                     $warehouse->quantity = $cells[$i]['I'];
                     $warehouse->save();
@@ -93,13 +89,15 @@ class ImportDanPrice extends Command
                 ->where('updated_at', '<', $start)
                 ->where('is_active', true)
                 ->update(['is_active' => false]);
-            \Log::info('Dan price was imported');
+            Log::info('Dan price was imported');
             return 0;
-        } catch (\Exception $e) {
-            \Log::info('Dan price was errored');
+        } catch (Exception $e) {
+            Log::error('Dan price was errored');
+            Log::error($e->getMessage());
             //Mail::raw($e->getMessage(),function($message){
             //    $message->to('elcopro@gmail.com')->subject('Error in import DAN price');
             //});
+            return -1;
         }
     }
 }

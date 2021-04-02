@@ -12,6 +12,8 @@ class SellerPrice extends Model
 
     protected $connection = 'mysql';
 
+    protected $fillable = ['seller_warehouse_id', 'min_quantity', 'max_quantity', 'value', 'CharCode', 'is_input'];
+
     public function sellerWarehouse()
     {
         return $this->belongsTo('App\SellerWarehouse');

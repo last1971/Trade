@@ -21,20 +21,9 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test', function () {
-    $a =\App\Payment::query()
-        ->where(
-            'amount',
-             '>=',
-            function($query) {
-                $query->select([
-                    'paid' => PaymentOrder::query()
-                        ->whereColumn('payment_id', 'payments.id')
-                        ->selectRaw('coalesce(sum(amount), 0)')
-                ]);
-            },
-        )->count();
-    dd($a);
+Artisan::command('test1', function () {
+    $s = new \App\Services\SellerPriceService();
+    dd($s->get('IDC10', 0));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

@@ -9,6 +9,19 @@ class SellerGood extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'producer',
+        'case',
+        'code',
+        'seller_id',
+        'good_id',
+        'is_active',
+        'basic_delivery_time',
+        'remark',
+        'package_quantity',
+    ];
+
     public function setNameAttribute(string $value)
     {
         $this->attributes['name'] = $value;
@@ -16,7 +29,7 @@ class SellerGood extends Model
             config('app.search_replace'), '', $value
         );
     }
-/*
+
     public function seller()
     {
         return $this->belongsTo('App\Seller', 'WHEREISPOSTCODE', 'seller_id');
@@ -26,5 +39,5 @@ class SellerGood extends Model
     {
         return $this->belongsTo('App\Good', 'GOODSCODE', 'good_id');
     }
-*/
+
 }

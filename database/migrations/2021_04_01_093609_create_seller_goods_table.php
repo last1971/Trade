@@ -24,7 +24,7 @@ class CreateSellerGoodsTable extends Migration
             $table->integer('good_id')->nullable();
             $table->boolean('is_active')->default(true);
             $table->integer('basic_delivery_time');
-            $table->string('remark')->nullable();
+            $table->string('remark', 400)->nullable();
             $table->unsignedInteger('package_quantity')->default(1);
             $table->timestamps();
             $table->unique(['seller_id', 'code']);

@@ -11,6 +11,8 @@ class SellerWarehouse extends Model
 
     protected $connection = 'mysql';
 
+    protected $fillable = ['seller_good_id', 'quantity', 'additional_delivery_time', 'multiplicity', 'remark'];
+
     public function sellerGood()
     {
         return $this->belongsTo('App\SellerGood');

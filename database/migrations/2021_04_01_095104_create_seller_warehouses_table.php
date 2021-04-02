@@ -19,7 +19,7 @@ class CreateSellerWarehousesTable extends Migration
             $table->unsignedInteger('quantity')->default(0);
             $table->integer('additional_delivery_time')->default(0);
             $table->unsignedInteger('multiplicity')->default(1);
-            $table->string('remark')->nullable();
+            $table->string('remark', 400)->nullable();
             $table->timestamps();
         });
     }
