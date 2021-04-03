@@ -14,6 +14,10 @@ class SellerPrice extends Model
 
     protected $fillable = ['seller_warehouse_id', 'min_quantity', 'max_quantity', 'value', 'CharCode', 'is_input'];
 
+    protected $casts = [
+        'is_input' => 'boolean'
+    ];
+
     public function sellerWarehouse()
     {
         return $this->belongsTo('App\SellerWarehouse');

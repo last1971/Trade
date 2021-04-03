@@ -37,7 +37,9 @@ class SellerPriceTest extends TestCase
     public function testFromSeller()
     {
         foreach (array_keys($this->service->aliases) as $key) {
-            $this->assertIsArray($this->invokeMethod($this->service, $this->service->aliases[$key], array('')));
+            $this->assertIsArray(
+                $this->invokeMethod($this->service, $this->service->aliases[$key]['function'], array('MAX232'))
+            );
         }
     }
 

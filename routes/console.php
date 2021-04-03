@@ -1,6 +1,7 @@
 <?php
 
 use App\PaymentOrder;
+use App\SellerPrice;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,13 @@ Artisan::command('inspire', function () {
 
 Artisan::command('test1', function () {
     $s = new \App\Services\SellerPriceService();
-    dd($s->get('IDC10', 0));
+    dd($s->get('IDC-10F', 0));
+    /*$s = SellerPrice::with('sellerWarehouse.sellerGood')
+        ->whereHas('sellerWarehouse.sellerGood', function (\Illuminate\Database\Eloquent\Builder $query) {
+            return $query->where('search_name', 'like' , '%MAX232%');
+        })
+        ->get();
+    dd($s);*/
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

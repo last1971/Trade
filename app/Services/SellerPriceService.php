@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Entry;
 use App\Good;
+use App\SellerPrice;
 use App\Warehouse;
 use Carbon\Carbon;
 use Error;
@@ -16,9 +17,9 @@ use Illuminate\Support\Str;
 class SellerPriceService
 {
     public array $aliases = [
-        0    => 'fromElco',
-        857  => 'fromCompel',
-        1068 => 'fromDan',
+        0    => ['function' => 'fromElco', 'trim' => true, 'ereg' => true,],
+        857  => ['function' => 'fromCompel', 'trim' => true, 'ereg' => false,],
+        1068 => ['function' => 'fromDan', 'trim' => true, 'ereg' => true,],
     ];
 
     public array $cacheTimes = [
@@ -27,22 +28,43 @@ class SellerPriceService
         1068 => 86400,
     ];
 
+    /**
+     * @param int $id
+     * @return bool
+     */
     private function isSeller(int $id): bool
     {
         return array_key_exists($id, $this->aliases);
     }
 
+    /**
+     * @param string $search
+     * @param int $sellerId
+     * @param bool $file
+     * @param bool $update
+     * @return array
+     * @throws \Throwable
+     */
     public function get(string $search, int $sellerId, bool $file = true, bool $update = false): array
     {
+        $processedSearch = $search;
+        if ($this->aliases[$sellerId]['trim']) {
+            $processedSearch = trim($processedSearch);
+        }
+        if ($this->aliases[$sellerId]['ereg']) {
+            $processedSearch = mb_ereg_replace(
+                config('app.search_replace'), '', $processedSearch
+            );
+        }
         throw_if(!$this->isSeller($sellerId), new Error('Bad Seller!'));
-        throw_if(mb_strlen($search) < 3, new Error('Search string is short!'));
-        $key = 'sellerId=' . $sellerId . ' ' . $search;
+        throw_if(mb_strlen($processedSearch) < 3, new Error('Search string is short!'));
+        $key = 'sellerId=' . $sellerId . ';search=' . $processedSearch . ';file=' . $file;
         $result = array();
         if (!$update && Cache::has($key)) {
             $result['data'] = Cache::get($key);
             $result['cache'] = true;
         } else {
-            $result['data'] = $this->{$this->aliases[$sellerId]}($search, $file);
+            $result['data'] = $this->{$this->aliases[$sellerId]['function']}($processedSearch, $file);
             Cache::put($key, $result['data'], $this->cacheTimes[$sellerId]);
             $result['cache'] = false;
         }
@@ -81,26 +103,27 @@ class SellerPriceService
                 'remark' => $good->DESCRIPTION,
                 'id' => Str::uuid(),
                 'code' => $good->GOODSCODE,
+                'goodId' => $good->GOODSCODE,
                 'sellerId' => 0,
-                'package_quantity' => 1,
+                'packageQuantity' => 1,
                 'multiplicity' => 1,
                 'quantity' => $good->quantity,
-                'min_quantity' => 1,
-                'max_quantity' => 0,
+                'minQuantity' => 1,
+                'maxQuantity' => 0,
                 'price' => $good->price,
                 'CharCode' => 'RUB',
-                'is_input' => true,
+                'isInput' => true,
                 'delivery_time' => 0,
-                'is_api' => true,
-                'updated_at' => Carbon::now(),
+                'isApi' => true,
+                'updatedAt' => Carbon::now(),
             ];
             $ret->push($line);
             if ($good->retailPrice && !empty($good->retailPrice->PRICEROZN)) {
                 $lineRozn = $line;
-                $lineRozn['is_input'] = false;
+                $lineRozn['isInput'] = false;
                 $lineRozn['price'] = $good->retailPrice->PRICEROZN;
                 if (!empty($good->retailPrice->QUANMOPT) && $good->retailPrice->QUANMOPT > 1) {
-                    $lineRozn['max_quantity'] = $good->retailPrice->QUANMOPT - 1;
+                    $lineRozn['maxQuantity'] = $good->retailPrice->QUANMOPT - 1;
                 }
                 $ret->push($lineRozn);
             }
@@ -111,17 +134,17 @@ class SellerPriceService
                 !empty($good->retailPrice->QUANMOPT)
             ) {
                 $lineMopt = $line;
-                $lineMopt['is_input'] = false;
+                $lineMopt['isInput'] = false;
                 $lineMopt['price'] = $good->retailPrice->PRICEMOPT;
-                $lineMopt['min_quantity'] = $good->retailPrice->QUANMOPT;
+                $lineMopt['minQuantity'] = $good->retailPrice->QUANMOPT;
                 if (
                     !empty($good->retailPrice->QUANOPT)
                     &&
                     $good->retailPrice->QUANOPT > $good->retailPrice->QUANMOPT
                 ) {
-                    $lineMopt['max_quantity'] = $good->retailPrice->QUANOPT - 1;
+                    $lineMopt['maxQuantity'] = $good->retailPrice->QUANOPT - 1;
                 } else {
-                    $lineMopt['max_quantity'] = $good->retailPrice->QUANMOPT;
+                    $lineMopt['maxQuantity'] = $good->retailPrice->QUANMOPT;
                 }
                 $ret->push($lineMopt);
             }
@@ -132,22 +155,59 @@ class SellerPriceService
                 !empty($good->retailPrice->QUANOPT)
             ) {
                 $lineOpt = $line;
-                $lineOpt['is_input'] = false;
+                $lineOpt['isInput'] = false;
                 $lineOpt['price'] = $good->retailPrice->PRICEOPT;
-                $lineOpt['min_quantity'] = $good->retailPrice->QUANOPT;
+                $lineOpt['minQuantity'] = $good->retailPrice->QUANOPT;
                 $ret->push($lineOpt);
             }
         }
         return $ret->toArray();
     }
 
+    private function fromDataBase(string $search, int $sellerId): array
+    {
+        $prices = SellerPrice::with('sellerWarehouse.sellerGood')
+            ->whereHas('sellerWarehouse.sellerGood', function (Builder $query) use ($search, $sellerId) {
+                return $query->where('is_active', true)
+                    ->where('seller_id', $sellerId)
+                    ->where('search_name', 'like', '%' . $search . '%');
+            })
+            ->take(100)
+            ->get();
+        return $prices->map(fn($price) => [
+            'name' => $price->sellerWarehouse->sellerGood->name,
+            'producer' => $price->sellerWarehouse->sellerGood->producer,
+            'case' => $price->sellerWarehouse->sellerGood->case,
+            'remark' => $price->sellerWarehouse->sellerGood->remark . ' ' . $price->sellerWarehouse->remark,
+            'id' => $price->id,
+            'code' => $price->sellerWarehouse->sellerGood->code,
+            'goodId' => $price->sellerWarehouse->sellerGood->good_id,
+            'sellerId' => $price->sellerWarehouse->sellerGood->seller_id,
+            'packageQuantity' => $price->sellerWarehouse->sellerGood->package_quantity,
+            'multiplicity' => $price->sellerWarehouse->muliplicity,
+            'quantity' => $price->sellerWarehouse->quantity,
+            'minQuantity' => $price->min_quantity,
+            'maxQuantity' => $price->max_quantity,
+            'price' => $price->value,
+            'CharCode' => $price->CharCode,
+            'isInput' => $price->is_input,
+            'delivery_time' => $price->sellerWarehouse->sellerGood->basic_delivery_time
+                + $price->sellerWarehouse->additional_delivery_time,
+            'isApi' => false,
+            'updatedAt' => $price->updated_at,
+        ])->toArray();
+    }
+
     private function fromCompel(string $search, bool $file = true): array
     {
+        if ($file) {
+            return $this->fromDataBase($search, 857);
+        }
         return [];
     }
 
     private function fromDan(string $search): array
     {
-        return [];
+        return $this->fromDataBase($search, 1068);
     }
 }

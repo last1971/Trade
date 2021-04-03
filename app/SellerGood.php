@@ -9,6 +9,8 @@ class SellerGood extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = [
         'name',
         'producer',
@@ -20,6 +22,10 @@ class SellerGood extends Model
         'basic_delivery_time',
         'remark',
         'package_quantity',
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean'
     ];
 
     public function setNameAttribute(string $value)

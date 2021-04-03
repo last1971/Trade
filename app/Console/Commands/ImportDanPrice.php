@@ -8,6 +8,7 @@ use App\SellerPrice;
 use App\SellerWarehouse;
 use Carbon\Carbon;
 use Exception;
+use ZipArchive;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -47,13 +48,13 @@ class ImportDanPrice extends Command
     public function handle()
     {
         try {
-            /*$dan = file_get_contents("http://danomsk.ru/upload/dan_dealer.zip");
+            $dan = file_get_contents("http://danomsk.ru/upload/dan_dealer.zip");
             Storage::disk('local')->put('dan.zip', $dan);
-            $zipper = new \ZipArchive();
+            $zipper = new ZipArchive();
             $path = Storage::disk('local')->path('dan.zip');
             $zipper->open($path);
             $zipper->setPassword('dandealer000');
-            $zipper->extractTo(storage_path('app'));*/
+            $zipper->extractTo(storage_path('app'));
             $sheet = IOFactory::load(Storage::disk('local')->path('dan_dealer.xls'));
             $cells = $sheet
                 ->getActiveSheet()
