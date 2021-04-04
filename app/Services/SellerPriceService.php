@@ -6,7 +6,9 @@ namespace App\Services;
 
 use App\Entry;
 use App\Good;
+use App\SellerGood;
 use App\SellerPrice;
+use App\SellerWarehouse;
 use App\Warehouse;
 use Carbon\Carbon;
 use Error;
@@ -35,6 +37,24 @@ class SellerPriceService
     private function isSeller(int $id): bool
     {
         return array_key_exists($id, $this->aliases);
+    }
+
+    /**
+     * @param string $function
+     * @return int
+     * @throws \Throwable
+     */
+    private function sellerCode(string $function): int
+    {
+        $ret = -1;
+        foreach ($this->aliases as $code => $alias) {
+            if ($alias['function'] === $function) {
+                $ret = $code;
+                break;
+            }
+        }
+        throw_if($ret < 0, new Error('Wrong function name'));
+        return $code;
     }
 
     /**
@@ -73,6 +93,7 @@ class SellerPriceService
 
     private function fromElco(string $search): array
     {
+        $sellerId = $this->sellerCode(__FUNCTION__);
         $goods = Good::with('name', 'retailPrice')
             ->where('HIDDEN', 0)
             ->whereHas('goodNames', function (Builder $query) use ($search) {
@@ -104,7 +125,7 @@ class SellerPriceService
                 'id' => Str::uuid(),
                 'code' => $good->GOODSCODE,
                 'goodId' => $good->GOODSCODE,
-                'sellerId' => 0,
+                'sellerId' => $sellerId,
                 'packageQuantity' => 1,
                 'multiplicity' => 1,
                 'quantity' => $good->quantity,
@@ -200,14 +221,51 @@ class SellerPriceService
 
     private function fromCompel(string $search, bool $file = true): array
     {
+        $sellerId = $this->sellerCode(__FUNCTION__);
         if ($file) {
-            return $this->fromDataBase($search, 857);
+            return $this->fromDataBase($search, $sellerId);
         }
-        return [];
+        $compel = new CompelApiService();
+        $ret = [];
+        foreach ($compel->apiSearchByName($search)->result as $item) {
+            $sellerGood = SellerGood::query()
+                ->firstOrNew(['code' => $item->item_id, 'seller_id' => $sellerId
+                ]);
+            $sellerGood->fill([
+                'producer' => $item->item_brend,
+                'case' => $item->package_name,
+                'is_active' => true,
+                'basic_delivery' => 7,
+                'package_quantity' => $item->qty_in_pack ?? 1
+            ]);
+            $sellerGood->save();
+            foreach ($item->proposals as $proposal) {
+                /*
+                 *  Количество для ДМС может браться из последней строчки прайса
+                 */
+                $quantity = $proposal->vend_qty;
+                if ($quantity == 0 && count($proposal->price_qty) > 0) {
+                    $quantity = $proposal->price_qty[count($proposal->price_qty) - 1]->max_qty;
+                }
+                $code = empty(trim($proposal->location_id))
+                    ? $proposal->prognosis_id . ';' . $proposal->vend_type . ';' . $proposal->vend_qty . ';'
+                        . $proposal->vend_note
+                    : null;
+                $sellerWarehouse = SellerWarehouse::query()
+                    ->firstOrNew(['seller_good_id' => $sellerGood->id, 'code' => $code]);
+                $sellerWarehouse->fill([
+                    'quantity' => $quantity,
+                    'additional_delivery_time' => $proposal->prognosis_days,
+                    'multiplicity' => $proposal->mpq,
+                    'remark' => $proposal->vend_type . '; ' . new Carbon($proposal->vend_proposal_date)
+                ]);
+            }
+        }
     }
 
     private function fromDan(string $search): array
     {
-        return $this->fromDataBase($search, 1068);
+        $sellerId = $this->sellerCode(__FUNCTION__);
+        return $this->fromDataBase($search, $sellerId);
     }
 }

@@ -24,13 +24,9 @@ Artisan::command('inspire', function () {
 
 Artisan::command('test1', function () {
     $s = new \App\Services\SellerPriceService();
-    dd($s->get('IDC-10F', 0));
-    /*$s = SellerPrice::with('sellerWarehouse.sellerGood')
-        ->whereHas('sellerWarehouse.sellerGood', function (\Illuminate\Database\Eloquent\Builder $query) {
-            return $query->where('search_name', 'like' , '%MAX232%');
-        })
-        ->get();
-    dd($s);*/
+    dd($s->get('IDC-10F', 1068));
+    //$s = new \App\Services\CompelApiService();
+    //dd($s->apiSearchByName('MAX232CPE'));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

@@ -11,7 +11,14 @@ class SellerWarehouse extends Model
 
     protected $connection = 'mysql';
 
-    protected $fillable = ['seller_good_id', 'quantity', 'additional_delivery_time', 'multiplicity', 'remark'];
+    protected $fillable = [
+        'seller_good_id',
+        'code',
+        'quantity',
+        'additional_delivery_time',
+        'multiplicity',
+        'remark'
+    ];
 
     public function sellerGood()
     {

@@ -27,7 +27,7 @@ class CompelApiService
         ];
         $res = $client->request(
             'POST',
-            env('compel_api_url'),
+            env('COMPEL_API_URL'),
             [
                 'json'   => $request
             ]

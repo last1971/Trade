@@ -34,6 +34,14 @@ class SellerPriceTest extends TestCase
         $this->assertFalse($this->invokeMethod($this->service, 'isSeller', array(100)));
     }
 
+    public function testSellerCode()
+    {
+        foreach ($this->service->aliases as $code => $alias) {
+            $this->assertEquals(
+                $code, $this->invokeMethod($this->service, 'sellerCode', array($alias['function'])));
+        }
+    }
+
     public function testFromSeller()
     {
         foreach (array_keys($this->service->aliases) as $key) {

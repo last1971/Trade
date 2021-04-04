@@ -16,11 +16,13 @@ class CreateSellerWarehousesTable extends Migration
         Schema::create('seller_warehouses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('seller_good_id')->constrained();
+            $table->string('code')->nullable();
             $table->unsignedInteger('quantity')->default(0);
             $table->integer('additional_delivery_time')->default(0);
             $table->unsignedInteger('multiplicity')->default(1);
             $table->string('remark', 400)->nullable();
             $table->timestamps();
+            $table->unique(['seller_good_id', 'code']);
         });
     }
 
