@@ -65,5 +65,13 @@ class IndexRequest extends FormRequest
             });
             $this->merge(compact('filterValues'));
         }
+        if (is_array($this->filterAttributes)) {
+            $index = array_search('name.NAME', $this->filterAttributes);
+            if ($index !== false) {
+                $filterValues = $this->filterValues;
+                $filterValues[$index] = mb_substr($filterValues[$index], 0, 70);
+                $this->merge(compact('filterValues'));
+            }
+        }
     }
 }
