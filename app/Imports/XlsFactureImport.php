@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Imports\HeadingRowFormatter;
+use VAT;
 
 HeadingRowFormatter::default('none');
 
