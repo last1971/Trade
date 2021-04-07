@@ -24,7 +24,7 @@ Artisan::command('inspire', function () {
 
 Artisan::command('test1', function () {
     $s = new \App\Services\SellerPriceService();
-    dd($s->get('IDC-10F', 1068));
+    dd($s->get('max232cpe+', 857, false));
     //$s = new \App\Services\CompelApiService();
     //dd($s->apiSearchByName('MAX232CPE'));
 })->describe('Test');

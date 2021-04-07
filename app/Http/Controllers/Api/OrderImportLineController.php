@@ -131,8 +131,8 @@ class OrderImportLineController extends Controller
                 'PRICE' => $line['price'],
                 'SUMMAP' => $line['amount'],
                 'NAME_IN_PRICE' => $line['name'],
-                'STRANA' => $line['country'],
-                'GTD' => $line['declaration'],
+                'STRANA' => isset($line['country']) ? $line['country'] : '',
+                'GTD' => isset($line['declaration']) ? $line['declaration'] : '',
                 'STAFF_ID' => $staffId,
             ]);
             GoodName::query()->firstOrCreate([

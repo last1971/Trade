@@ -4,6 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SellerWarehouse extends Model
 {
@@ -20,8 +22,19 @@ class SellerWarehouse extends Model
         'remark'
     ];
 
-    public function sellerGood()
+    /**
+     * @return BelongsTo
+     */
+    public function sellerGood(): BelongsTo
     {
         return $this->belongsTo('App\SellerGood');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function sellerPrices(): HasMany
+    {
+        return $this->hasMany('App\SellerPrice');
     }
 }

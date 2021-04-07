@@ -19,9 +19,9 @@ use Illuminate\Support\Str;
 class SellerPriceService
 {
     public array $aliases = [
-        0    => ['function' => 'fromElco', 'trim' => true, 'ereg' => true,],
-        857  => ['function' => 'fromCompel', 'trim' => true, 'ereg' => false,],
-        1068 => ['function' => 'fromDan', 'trim' => true, 'ereg' => true,],
+        0    => ['function' => 'fromElco', 'trim' => true, 'ereg' => true, 'basic_delivery_time' => 0],
+        857  => ['function' => 'fromCompel', 'trim' => true, 'ereg' => false, 'basic_delivery_time' => 6],
+        1068 => ['function' => 'fromDan', 'trim' => true, 'ereg' => true, 'basic_delivery_time' => 3],
     ];
 
     public array $cacheTimes = [
@@ -134,8 +134,9 @@ class SellerPriceService
                 'price' => $good->price,
                 'CharCode' => 'RUB',
                 'isInput' => true,
-                'delivery_time' => 0,
+                'delivery_time' => $this->aliases[$sellerId]['basic_delivery_time'],
                 'isApi' => true,
+                'options' => null,
                 'updatedAt' => Carbon::now(),
             ];
             $ret->push($line);
@@ -215,6 +216,7 @@ class SellerPriceService
             'delivery_time' => $price->sellerWarehouse->sellerGood->basic_delivery_time
                 + $price->sellerWarehouse->additional_delivery_time,
             'isApi' => false,
+            'options' => null,
             'updatedAt' => $price->updated_at,
         ])->toArray();
     }
@@ -226,16 +228,17 @@ class SellerPriceService
             return $this->fromDataBase($search, $sellerId);
         }
         $compel = new CompelApiService();
-        $ret = [];
-        foreach ($compel->apiSearchByName($search)->result as $item) {
+        $ret = collect();
+        foreach ($compel->apiSearchByName($search)->result->items as $item) {
             $sellerGood = SellerGood::query()
                 ->firstOrNew(['code' => $item->item_id, 'seller_id' => $sellerId
                 ]);
             $sellerGood->fill([
+                'name' => $item->item_name,
                 'producer' => $item->item_brend,
                 'case' => $item->package_name,
                 'is_active' => true,
-                'basic_delivery' => 7,
+                'basic_delivery_time' => $this->aliases[$sellerId]['basic_delivery_time'],
                 'package_quantity' => $item->qty_in_pack ?? 1
             ]);
             $sellerGood->save();
@@ -257,10 +260,49 @@ class SellerPriceService
                     'quantity' => $quantity,
                     'additional_delivery_time' => $proposal->prognosis_days,
                     'multiplicity' => $proposal->mpq,
-                    'remark' => $proposal->vend_type . '; ' . new Carbon($proposal->vend_proposal_date)
+                    'remark' => $proposal->vend_type . '; '
+                        . (new Carbon($proposal->vend_proposal_date))->format('d-m-Y')
                 ]);
+                $sellerWarehouse->save();
+                $sellerWarehouse->sellerPrices()->delete();
+                if ($quantity > 0) {
+                    foreach ($proposal->price_qty as $price) {
+                        $sellerPrice = SellerPrice::query()->create([
+                            'seller_warehouse_id' => $sellerWarehouse->id,
+                            'min_quantity' => $price->min_qty,
+                            'max_quantity' => $price->max_qty,
+                            'value' => $price->price,
+                            'CharCode' => 'USD',
+                            'is_input' => true,
+                        ]);
+                        $ret->push([
+                            'name' => $item->item_name,
+                            'producer' => $item->item_brend,
+                            'case' => $item->package_name,
+                            'remark' => $sellerWarehouse->remark,
+                            'id' => $sellerPrice->id,
+                            'code' => $item->item_id,
+                            'goodId' => $sellerGood->good_id,
+                            'sellerId' => $sellerGood->seller_id,
+                            'packageQuantity' => $sellerGood->package_quantity,
+                            'multiplicity' => $sellerWarehouse->muliplicity,
+                            'quantity' => $quantity,
+                            'minQuantity' => $sellerPrice->min_quantity,
+                            'maxQuantity' => $sellerPrice->max_quantity,
+                            'price' => $sellerPrice->value,
+                            'CharCode' => $sellerPrice->CharCode,
+                            'isInput' => $sellerPrice->is_input,
+                            'delivery_time' => $sellerGood->basic_delivery_time
+                                + $sellerWarehouse->additional_delivery_time,
+                            'isApi' => true,
+                            'options' => null,
+                            'updatedAt' => $sellerPrice->updated_at,
+                        ]);
+                    }
+                }
             }
         }
+        return $ret->toArray();
     }
 
     private function fromDan(string $search): array
