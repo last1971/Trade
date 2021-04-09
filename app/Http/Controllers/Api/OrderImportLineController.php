@@ -133,7 +133,7 @@ class OrderImportLineController extends Controller
                 'QUAN' => $line['quantity'],
                 'PRICE' => $line['price'],
                 'SUMMAP' => $line['amount'],
-                'NAME_IN_PRICE' => $line['name'],
+                'NAME_IN_PRICE' => Str::substr($line['name'], 0, 85),
                 'STRANA' => isset($line['country']) ? $line['country'] : '',
                 'GTD' => isset($line['declaration']) ? $line['declaration'] : '',
                 'STAFF_ID' => $staffId,
