@@ -23,8 +23,9 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function () {
-    $s = new \App\Services\SellerPriceService();
-    dd($s->get('max232cpe+', 857, false));
+    dd(Str::substr('12345678', 1, 5));
+    //$s = new \App\Services\SellerPriceService();
+    //dd($s->get('max232cpe+', 857, false));
     //$s = new \App\Services\CompelApiService();
     //dd($s->apiSearchByName('MAX232CPE'));
 })->describe('Test');

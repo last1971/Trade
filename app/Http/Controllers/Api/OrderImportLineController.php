@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Maatwebsite\Excel\Facades\Excel;
+use Str;
 
 class OrderImportLineController extends Controller
 {
@@ -53,7 +54,7 @@ class OrderImportLineController extends Controller
             ->pluck('name')
             ->unique()
             ->map(function ($name) {
-                return mb_substr(
+                return Str::substr(
                     mb_ereg_replace(config('app.search_replace'), '', $name),
                     0,
                     70
@@ -139,7 +140,11 @@ class OrderImportLineController extends Controller
             ]);
             GoodName::query()->firstOrCreate([
                 'GOODSCODE' => $line['GOODSCODE'],
-                'NAME' => mb_ereg_replace(config('app.search_replace'), '', $line['name']),
+                'NAME' => Str::substr(
+                    mb_ereg_replace(config('app.search_replace'), '', $line['name']),
+                    0,
+                    70
+                )
             ]);
             $GOODSCODE = $line['GOODSCODE'];
         }
