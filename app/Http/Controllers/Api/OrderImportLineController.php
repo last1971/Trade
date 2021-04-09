@@ -53,7 +53,11 @@ class OrderImportLineController extends Controller
             ->pluck('name')
             ->unique()
             ->map(function ($name) {
-                return mb_ereg_replace(config('app.search_replace'), '', $name);
+                return mb_substr(
+                    mb_ereg_replace(config('app.search_replace'), '', $name),
+                    0,
+                    70
+                );
             })
             ->all();
         $goods = $service->index(collect([
@@ -80,13 +84,11 @@ class OrderImportLineController extends Controller
             'filterValues' => [$names],
         ]))->get();
         $rows->each(function ($row, $key) use ($goods) {
-            $good = $goods->first(function ($value) use ($row) {
-                return $value->goodNames->where(
-                    'NAME',
-                    '=',
-                    mb_ereg_replace(config('app.search_replace'), '', $row->get('name'))
-                )->first();
-            });
+            $good = $goods->first(fn($value) => $value->goodNames->where(
+                'NAME',
+                '=',
+                mb_ereg_replace(config('app.search_replace'), '', $row->get('name'))
+            )->first());
             $row->put('good', $good);
             $row->put('GOODSCODE', $good ? $good->GOODSCODE : null);
             $row->put('id', $key);
