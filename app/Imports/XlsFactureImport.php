@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Exceptions\ApiException;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -27,6 +28,11 @@ class XlsFactureImport implements WithMapping, WithHeadingRow
         'case' => ['case', 'корпус'],
     ];
 
+    /**
+     * @param mixed $row
+     * @return array
+     * @throws \Throwable
+     */
     public function map($row): array
     {
         $newRow = $this->newRow;
@@ -44,10 +50,21 @@ class XlsFactureImport implements WithMapping, WithHeadingRow
         if (!array_key_exists('quantity', $newRow)) {
             $newRow['quantity'] = 1;
         }
+        throw_if(!is_numeric($newRow['quantity']), new ApiException('Не удалось оперделить количество'));
         if (array_key_exists('multiplicity', $newRow)) {
             $newRow['quantity'] = $newRow['quantity'] * $newRow['multiplicity'];
         }
-        if (array_key_exists('amount', $newRow) && !array_key_exists('price', $newRow)) {
+        if (
+            array_key_exists('amount', $newRow)
+            &&
+            array_key_exists('price', $newRow)
+            &&
+            !is_numeric($newRow['amount'])
+            &&
+            is_numeric($newRow['price'])
+        ) {
+            $newRow['amount'] = $newRow['price'] * $newRow['quantity'];
+        } elseif (array_key_exists('amount', $newRow) && !array_key_exists('price', $newRow)) {
             $newRow['price'] = $newRow['amount'] / $newRow['quantity'];
         } elseif (!array_key_exists('amount', $newRow) && array_key_exists('price', $newRow)) {
             $newRow['amount'] = $newRow['price'] * $newRow['quantity'];
@@ -58,6 +75,8 @@ class XlsFactureImport implements WithMapping, WithHeadingRow
             $newRow['price'] = $newRow['priceWithoutVat'] * ( 1 + VAT::get(Carbon::now()) / 100);
             $newRow['amount'] = $newRow['price'] * $newRow['quantity'];
         }
+        throw_if(!is_numeric($newRow['price']), new ApiException('Не удалось оперделить цену'));
+        throw_if(!is_numeric($newRow['amount']), new ApiException('Не удалось оперделить сумму'));
         return $newRow;
     }
 }

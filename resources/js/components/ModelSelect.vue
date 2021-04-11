@@ -62,7 +62,8 @@
             errorMessages: {type: Array, default: () => []},
             noFilter: {type: Boolean, default: true},
             getValue: {type: Boolean, default: false},
-            newSearch: {type: String, default: ''}
+            newSearch: {type: String, default: ''},
+            smartName: {type: Boolean, default: false}
         },
         data() {
             return {
@@ -137,6 +138,7 @@
                     sortBy: _.isEmpty(this.sortBy) ? [this.itemText] : this.sortBy,
                     sortDesc: this.sortDesc,
                     with: this.with,
+                    smartName: this.smartName,
                 };
                 this.isLoading = true;
                 const response = await this.$store.dispatch(this.MODEL + '/ALL', options);

@@ -8,13 +8,13 @@ use PhpOffice\PhpSpreadsheet\Cell\DataType;
 
 trait HeaderNameTrait
 {
-    private $nameHeaders = ['наименование', 'название', 'имя'];
+    private $nameHeaders = ['наименование', 'название', 'имя', 'товар', 'name'];
 
-    private $quantityHeaders = ['количество', 'кол.', 'кол', 'кол-во', 'кол.-во', 'qnt', 'quan'];
+    private $quantityHeaders = ['количество', 'кол.', 'кол', 'кол-во', 'кол.-во', 'qnt', 'quan', 'quant'];
 
-    private $priceHeaders = ['цена', 'цена товара'];
+    private $priceHeaders = ['цена', 'цена товара', 'price'];
 
-    private $amountHeaders = ['сумма', 'валютная сумма'];
+    private $amountHeaders = ['сумма', 'валютная сумма', 'amount'];
 
     private $multiplicityHeaders = ['кратность', 'Цена указана за ... шт.'];
 
@@ -22,7 +22,7 @@ trait HeaderNameTrait
 
     private $declarationHeaders = ['код таможенной декларации', 'гтд'];
 
-    private $producerHeaders = ['производитель'];
+    private $producerHeaders = ['производитель', 'producer'];
 
     private $caseHeaders = ['корпус'];
 

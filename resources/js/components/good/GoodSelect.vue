@@ -12,6 +12,7 @@
         model="good"
         v-model="proxy"
         :new-search="newSearch"
+        :smart-name="smartName"
         @clearSearchName="$emit('clearSearchName')"
     >
         <template v-slot:item="{ item, maxLength }">
@@ -59,6 +60,7 @@
             disabled: {type: Boolean, default: false},
             dense: {type: Boolean, default: false},
             newSearch: {type: String, default: ''},
+            smartName: {type: Boolean, default: false}
         },
         data() {
             return {

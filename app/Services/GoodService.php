@@ -65,4 +65,19 @@ class GoodService extends ModelService
                 );
         };
     }
+
+    public function index($request)
+    {
+        $ret = parent::index($request);
+        $index = array_search('name.NAME', $request->get('filterAttributes'));
+        if ($index !== false && $request->get('smartName')) {
+            $name = mb_ereg_replace(
+                config('app.search_replace'), '', $request->get('filterValues')[$index]
+            );
+            $ret->orWhereHas('goodNames', function (Builder $query) use ($name) {
+                $query->where('NAME', 'CONTAINING', $name);
+            });
+        }
+        return $ret;
+    }
 }

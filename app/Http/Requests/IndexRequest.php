@@ -41,6 +41,7 @@ class IndexRequest extends FormRequest
             'sortBy.*' => 'string',
             'sortDesc' => 'required_with:sortBy|array',
             'sortDesc.*' => 'required_with:sortBy|in:true,false',
+            'smartName' => 'nullable|in:true,false',
         ];
     }
 
@@ -72,6 +73,10 @@ class IndexRequest extends FormRequest
                 $filterValues[$index] = mb_substr($filterValues[$index], 0, 70);
                 $this->merge(compact('filterValues'));
             }
+        }
+        if (isset($this->smartName)) {
+            $smartName = $this->smartName === 'true';
+            $this->merge(compact('smartName'));
         }
     }
 }
