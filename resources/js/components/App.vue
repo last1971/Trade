@@ -89,7 +89,7 @@
             app
             color="primary"
         >
-            <span class="white--text">ООО "ЭлкоПро" &copy; 2020</span>
+            <span class="white--text">ООО "ЭлкоПро" &copy; 2020-2021</span>
         </v-footer>
         <v-snackbar
             :color="snackbar.color"

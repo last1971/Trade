@@ -9,7 +9,7 @@
                 v-bind="attrs"
                 v-on="on"
             >
-                <v-icon>mdi-table-headers-eye</v-icon>
+                <v-icon>mdi-view-column</v-icon>
             </v-btn>
         </template>
         <v-card>
@@ -53,7 +53,8 @@ export default {
     },
     computed: {
         headers() {
-            return this.$store.getters[this.model + '/HEADERS'].filter((header) => header.value !== 'actions');
+            return this.$store.getters[this.model + '/HEADERS']
+                .filter((header) => header.value !== 'actions' && !header.notHidden);
         },
         selected: {
             get() {

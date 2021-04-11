@@ -8,16 +8,17 @@
         :with="with_"
         item-text="name.NAME"
         item-value="GOODSCODE"
-        label="Товар"
+        :label="label"
         model="good"
         v-model="proxy"
         :new-search="newSearch"
+        @clearSearchName="$emit('clearSearchName')"
     >
         <template v-slot:item="{ item, maxLength }">
-            <good-in-string v-model="item"/>
+            <good-in-string v-model="item" :rows="rows"/>
         </template>
         <template v-slot:selection="{ item }">
-            <good-in-string v-model="item"/>
+            <good-in-string v-model="item" />
         </template>
         <template v-slot:prepend>
             <v-dialog v-model="goodEdit">
@@ -75,6 +76,7 @@
                 goodEdit: false,
                 getValue: false,
                 reload: 0,
+                label: this.dense ? null : 'Товар'
             }
         },
         computed: {
@@ -99,6 +101,9 @@
                     this.getValue = !this.getValue;
                     this.reload += 1;
                 }
+            },
+            rows() {
+                return this.$vuetify.breakpoint.name === 'xl' ? 1 : 2;
             }
         },
         methods: {

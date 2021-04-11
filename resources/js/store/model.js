@@ -17,7 +17,6 @@ function queryClear(query) {
     }
 }
 
-
 const state = {
     name: '',
     keyType: Number,
@@ -122,6 +121,9 @@ const mutations = {
         const proxy = _.cloneDeep(state.headers[index]);
         proxy.hidden = !proxy.hidden;
         state.headers.splice(index, 1, proxy);
+        const headers = JSON.parse(localStorage.getItem('headers')) || {};
+        headers[state.name] = state.headers;
+        localStorage.setItem('headers', JSON.stringify(headers));
     }
 
 };

@@ -7,22 +7,22 @@
         hide-default-footer
         dense
     >
-        <template v-slot:header.actions>
+        <template v-slot:header.GOODSCODE>
             <select-headers :model="model"/>
+            Товар
         </template>
         <template v-slot:item.GOODSCODE="{ item }">
-            <good-select :new-search="item.searchName" :ref="'ac_' + item.id" v-model="item.GOODSCODE"/>
+            <good-select :new-search="item.searchName"
+                         :ref="'ac_' + item.id"
+                         v-model="item.GOODSCODE"
+                         @clearSearchName="clearSearchName(item)"
+            />
         </template>
         <template v-slot:item.name="{ item }">
-            <v-tooltip bottom v-if="!item.GOODSCODE">
-                <template v-slot:activator="{ on, attrs }">
-                    <v-btn @click="goodFocus(item)" outlined v-bind="attrs" v-on="on">
-                        < в поиск
-                    </v-btn>
-                </template>
-                <span>{{ item.name }}</span>
-            </v-tooltip>
-            <div v-else>{{ item.name }}</div>
+            <v-btn @click="goodFocus(item)" icon :disabled="!!item.GOODSCODE">
+                <v-icon>mdi-hand-pointing-left</v-icon>
+            </v-btn>
+            <span>{{ item.name }}</span>
         </template>
         <template v-slot:item.price="{ item }">{{ item.price | formatRub }}</template>
         <template v-slot:item.amount="{ item }">{{ item.amount | formatRub }}</template>
@@ -30,13 +30,13 @@
             <v-row class="py-4" justify="center" no-gutters>
                 <v-col md="1">
                     <v-btn :disabled="loading" @click="cancel" class="pa-2">
-                        <v-icon color="red">mdi-cancel</v-icon>
+                        <v-icon color="red" left>mdi-cancel</v-icon>
                         Отмена
                     </v-btn>
                 </v-col>
                 <v-col class="pl-6" md="1">
                     <v-btn :disabled="!savePossible || loading" :loading="loading" @click="save" class="pa-2">
-                        <v-icon color="green">mdi-content-save</v-icon>
+                        <v-icon color="green" left>mdi-content-save</v-icon>
                         Сохранить
                     </v-btn>
                 </v-col>
@@ -78,8 +78,19 @@
             goodFocus(item) {
                 const el = this.$refs['ac_' + item.id].$el;
                 let childData = el.querySelectorAll("input")[0];
+                //
+                var dummy = document.createElement("textarea");
+                document.body.appendChild(dummy);
+                dummy.value = item.name;
+                dummy.select();
+                document.execCommand("copy");
+                document.body.removeChild(dummy);
+                //
                 childData.focus();
                 this.$set(item, 'searchName', item.name);
+            },
+            clearSearchName(item) {
+                this.$set(item, 'searchName', null);
             },
             cancel() {
                 this.$emit('input', []);
@@ -96,7 +107,7 @@
                     .catch(() => {
                     })
                     .then(() => this.loading = false);
-            }
+            },
         }
     }
 </script>

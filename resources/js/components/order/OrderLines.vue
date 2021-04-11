@@ -88,7 +88,7 @@
                 <edit-field @save="save" attribute="PRIM" v-model="item"/>
             </template>
         </v-data-table>
-        <order-import-lines v-else :master-id="value.ID" v-model="orderImportLines" @reload="reloadOrder"/>
+        <order-import-lines v-else :master-id="value.ID" v-model="orderImportLines" @reload="reloadValue"/>
     </div>
 </template>
 
@@ -161,7 +161,7 @@
             async remove(item) {
                 try {
                     await this.$store.dispatch('ORDER-LINE/REMOVE', item.ID);
-                    await this.reloadOrder();
+                    await this.reloadValue();
                 } catch (e) {}
             },
             async reloadValue() {

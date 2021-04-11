@@ -3,22 +3,25 @@ import _ from 'lodash'
 
 let state = _.cloneDeep(model.state);
 
-state.headers = [
-    {
+state.name = 'order-import-line'
+
+const headers = JSON.parse(localStorage.getItem('headers'));
+
+state.headers = headers && headers[state.name] ?  headers[state.name] : [
+    /*{
         text: '',
         value: 'actions',
         width: 10,
         sortable: false
-    },
+    },*/
     {
         text: 'Товар',
         value: 'GOODSCODE',
-        width: '40%',
+        notHidden: true,
     },
     {
         text: 'Наименование',
         value: 'name',
-        width: '20%',
     },
     {
         text: 'Корпус',

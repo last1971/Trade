@@ -1,12 +1,12 @@
 <template>
     <v-container>
     <v-row>
-        <v-col>
+        <v-col :cols="6 * rows">
             <span>{{ value.name.NAME }}</span>
             <span v-if="value.BODY">/ {{ value.BODY }}</span>
             <span v-if="value.PRODUCER">/ {{ value.PRODUCER }}</span>
         </v-col>
-        <v-col>
+        <v-col :cols="6 * rows">
             <v-badge :color="color(quantity(value))" :content="quantity(value)">
                 есть
             </v-badge>
@@ -30,7 +30,15 @@
 <script>
     export default {
         name: "GoodInString",
-        props: ['value'],
+        props: {
+            value: {
+                type: Object,
+            },
+            rows: {
+                type: Number,
+                default: 1,
+            }
+        },
         methods: {
             quantity(item) {
                 return (

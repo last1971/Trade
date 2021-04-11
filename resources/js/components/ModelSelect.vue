@@ -68,7 +68,7 @@
             return {
                 itemIds: [],
                 isLoading: false,
-                search: '',
+                search: null,
             }
         },
         created() {
@@ -120,7 +120,10 @@
                 if (val) this.loadValue();
             },
             newSearch(val) {
-                this.search = val;
+                if (!!val) {
+                    this.search = val;
+                    this.$emit('clearSearchName');
+                }
             }
         },
         methods: {
