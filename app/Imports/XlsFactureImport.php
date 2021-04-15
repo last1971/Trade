@@ -19,8 +19,8 @@ class XlsFactureImport implements WithMapping, WithHeadingRow
         'quantity' => ['количество', 'кол.', 'кол', 'кол-во', 'кол.-во', 'qnt', 'quan', 'quantity'],
         'price' => ['цена', 'цена товара', 'price'],
         'priceWithoutVat' => ['цена без ндс', 'price without vat'],
-        'amount' => ['сумма', 'валютная сумма', 'amount'],
-        'amountWithoutVat' => ['сумма с ндс'],
+        'amount' => ['сумма', 'валютная сумма', 'amount', 'сумма с ндс'],
+        'amountWithoutVat' => ['сумма без ндс'],
         'multiplicity' => ['кратность', 'Цена указана за ... шт.'],
         'country' => ['страна происхождения', 'страна', 'country'],
         'declaration' => ['код таможенной декларации', 'гтд', 'declaration'],
@@ -69,7 +69,8 @@ class XlsFactureImport implements WithMapping, WithHeadingRow
         } elseif (!array_key_exists('amount', $newRow) && array_key_exists('price', $newRow)) {
             $newRow['amount'] = $newRow['price'] * $newRow['quantity'];
         } elseif (array_key_exists('amountWithoutVat', $newRow)) {
-            $newRow['amount'] = $newRow['amountWithoutVat'] * ( 1 + VAT::get(Carbon::now()) / 100);
+            $newRow['amount'] = str_replace( ',' , '.' ,$newRow['amountWithoutVat'])
+                * ( 1 + VAT::get(Carbon::now()) / 100);
             $newRow['price'] = $newRow['amount'] / $newRow['quantity'];
         } elseif (array_key_exists('priceWithoutVat', $newRow)) {
             $newRow['price'] = $newRow['priceWithoutVat'] * ( 1 + VAT::get(Carbon::now()) / 100);
