@@ -75,8 +75,14 @@ class XlsFactureImport implements WithMapping, WithHeadingRow
             $newRow['price'] = $newRow['priceWithoutVat'] * ( 1 + VAT::get(Carbon::now()) / 100);
             $newRow['amount'] = $newRow['price'] * $newRow['quantity'];
         }
-        throw_if(!is_numeric($newRow['price']), new ApiException('Не удалось оперделить цену'));
-        throw_if(!is_numeric($newRow['amount']), new ApiException('Не удалось оперделить сумму'));
+        throw_if(
+            isset( $newRow['price']) && !is_numeric($newRow['price']),
+            new ApiException('Не удалось оперделить цену')
+        );
+        throw_if(
+            isset( $newRow['amount']) && !is_numeric($newRow['amount']),
+            new ApiException('Не удалось оперделить сумму')
+        );
         return $newRow;
     }
 }

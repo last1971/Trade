@@ -30,7 +30,10 @@ class OrderImportLineController extends Controller
             return new CompelFactureImport();
         } elseif (strpos($file->getClientOriginalName(), 'Архивная отгрузка') === 0){
             return new PromelecFactureImport();
+        } elseif (strpos($file->getClientOriginalName(), 'Отгрузка ') === 0){
+            return new PromelecFactureImport();
         }
+
         return new XlsFactureImport();
     }
 
