@@ -58,6 +58,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'goods-list.show']);
         Permission::query()->firstOrCreate(['name' => 'goods-list.store']);
         Permission::query()->firstOrCreate(['name' => 'goods-list.*']);
+        Permission::query()->firstOrCreate(['name' => 'invoice.employee']);
         Permission::query()->firstOrCreate(['name' => 'invoice.receipt']);
         Permission::query()->firstOrCreate(['name' => 'role.index']);
         Permission::query()->firstOrCreate(['name' => 'sbis.*']);
@@ -80,7 +81,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Role::query()->firstOrCreate(['name' => 'guest']);
 
         $admin = Role::query()->firstOrCreate(['name' => 'admin']);
-        $admin->givePermissionTo([
+        $admin->syncPermissions([
             'nav.*',
             'advanced-buyer.*',
             'buyer.*',
@@ -114,7 +115,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         $retailer = Role::query()->firstOrCreate(['name' => 'retailer']);
-        $retailer->givePermissionTo([
+        $retailer->syncPermissions([
             'nav.home',
             'nav.goods',
             'nav.goods-list',
@@ -137,7 +138,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         $manager = Role::query()->firstOrCreate(['name' => 'manager']);
-        $manager->givePermissionTo([
+        $manager->syncPermissions([
             'nav.home',
             'nav.invoices',
             'nav.invoice-lines',
@@ -147,13 +148,18 @@ class RolesAndPermissionsSeeder extends Seeder
             'buyer.*',
             'category.index',
             'employee.index',
+            'employee.show',
             'exchange-rate.index',
             'firm.index',
             'firm.show',
             'firm-history.index',
             'firm-history.show',
             'good.index',
-            'invoice.*',
+            'invoice.index',
+            'invoice.pdf',
+            'invoice.show',
+            'invoice.store',
+            'invoice.update',
             'invoice-line.*',
             'name.index',
             'order.*',
@@ -165,7 +171,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         $buyer = Role::query()->firstOrCreate(['name' => 'buyer']);
-        $buyer->givePermissionTo([
+        $buyer->syncPermissions([
             'nav.invoices',
             'nav.invoice-lines',
             'nav.transfer-outs',
@@ -177,6 +183,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'firm.show',
             'firm-history.index',
             'firm-history.show',
+            'invoice.destroy',
             'invoice.index',
             'invoice.show',
             'invoice.pdf',
@@ -193,7 +200,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         $buh = Role::query()->firstOrCreate(['name' => 'buh']);
-        $buh->givePermissionTo([
+        $buh->syncPermissions([
             'nav.payments',
             'nav.invoices',
             'nav.invoice-lines',

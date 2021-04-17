@@ -9,6 +9,7 @@
         model="employee"
         v-model="proxy"
         :no-filter="false"
+        :can-empty="canEmpty"
     ></model-select>
 </template>
 
@@ -31,6 +32,10 @@
             disabled: {
                 type: Boolean,
                 default: false,
+            },
+            canEmpty: {
+                type: Boolean,
+                default: false
             },
         },
     }

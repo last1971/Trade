@@ -2,28 +2,7 @@
     <v-form class="mx-2">
         <v-row>
             <v-col cols="12" sm="auto">
-                <v-menu
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    min-width="290px"
-                    offset-y
-                    transition="scale-transition"
-                    v-model="datePicker"
-                >
-                    <template v-slot:activator="{ on }">
-                        <v-text-field
-                            :disabled="notEditable || notCan"
-                            :value="model.DATA | formatDate"
-                            label="Дата"
-                            prepend-icon="mdi-calendar-edit"
-                            readonly
-                            v-on="on"
-                        />
-                    </template>
-                    <v-date-picker @input="datePicker = false" first-day-of-week="1" v-model="model.DATA">
-
-                    </v-date-picker>
-                </v-menu>
+                <date-picker v-model="model.DATA" label="Дата" :disabled="notEditable || notCan"/>
             </v-col>
             <v-col cols="12" sm="auto">
                 <v-text-field :disabled="notEditable || notCan"
@@ -43,6 +22,7 @@
                     :disabled="notEditable || notCan"
                     v-model="model.FIRMS_HISTORY_ID"
                     :firm-id="model.FIRM_ID"
+                    :can-empty="true"
                 />
             </v-col>
             <v-col cols="12" sm="auto">
@@ -62,6 +42,9 @@
             </v-col>
             <v-col cols="12" sm="auto">
                 <invoice-status-select :disabled="notCan" v-model="model.STATUS"/>
+            </v-col>
+            <v-col cols="12" sm="auto">
+                <employee-select v-model="model.STAFF_ID" :can-empty="true" :disabled="notCanEmployeeEdit"/>
             </v-col>
             <v-col cols="12" sm="auto" v-if="!notCan">
                 <v-btn :block="!$vuetify.breakpoint.smAndUp"
@@ -129,10 +112,14 @@ import InvoicePdf from "./InvoicePdf";
 import InvoicePdfMenu from "./InvoicePdfMenu";
 import InvoiceLineAdd from "./InvoiceLineAdd";
 import FirmHistorySelect from "../FirmHistorySelect";
+import DatePicker from "../DatePicker";
+import EmployeeSelect from "../EmployeeSelect";
 
 export default {
     name: "InvoiceEdit",
     components: {
+        EmployeeSelect,
+        DatePicker,
         FirmHistorySelect,
         InvoiceLineAdd, InvoicePdfMenu, InvoicePdf, FirmSelect, InvoiceStatusSelect, BuyerSelect},
     mixins: [editMixin, utilsMixin],
@@ -160,7 +147,10 @@ export default {
         },
         notCan() {
             return !this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
-        }
+        },
+        notCanEmployeeEdit() {
+            return !this.$store.getters['AUTH/HAS_PERMISSION']('invoice.employee');
+        },
     },
     methods: {
         async receipt() {

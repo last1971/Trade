@@ -6,6 +6,7 @@ use App\Name;
 use Error;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ModelRequest extends FormRequest
 {
@@ -112,6 +113,7 @@ class ModelRequest extends FormRequest
                     'item.POKUPATCODE' => 'integer',
                     'item.PRIM' => 'nullable|string',
                     'item.IGK' => 'nullable|string',
+                    'item.STAFF_ID' => 'nullable|integer',
                 ];
                 break;
             case 'invoice.store':
@@ -123,6 +125,7 @@ class ModelRequest extends FormRequest
                     'item.POKUPATCODE' => 'integer',
                     'item.PRIM' => 'nullable|string',
                     'item.IGK' => 'nullable|string',
+                    'item.STAFF_ID' => 'nullable|integer',
                 ];
                 break;
             case 'invoice-line.store':
@@ -265,6 +268,11 @@ class ModelRequest extends FormRequest
         foreach ($this->numericAttributes as $value) {
             if (isset($item[$value]) && $item[$value] !== NULL) {
                 $item[$value] = DB::raw($item[$value]);
+            }
+        }
+        if (Str::startsWith($this->route()->getName(), 'invoice.')) {
+            if (!$this->user()->hasRole('admin') && array_key_exists('STAFF_ID', $item)) {
+                unset($item['STAFF_ID']);
             }
         }
         $this->merge(compact('item'));

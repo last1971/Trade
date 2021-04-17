@@ -14,14 +14,19 @@ class InvoicePDFRequest extends FormRequest
      */
     public function authorize()
     {
+        $name = $this->route()->getName();
+        $user = $this->user();
+        $ret = $user->can($name);
+
         $id = $this->route()->parameter('id');
         $invoice = Invoice::with('firm', 'buyer', 'firmHistory')->findOrFail(intval($id));
         $buyers = $this->user()->userBuyers;
         if ($buyers->isEmpty() || $buyers->firstWhere('buyer_id', $invoice->POKUPATCODE)) {
             $this->merge(compact('invoice'));
-            return true;
+        } else {
+            $ret = false;
         }
-        return false;
+        return $ret;
     }
 
     /**

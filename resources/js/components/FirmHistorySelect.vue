@@ -11,6 +11,7 @@
         :filter-operators="['=']"
         :filter-values="[firmId]"
         v-model="proxy"
+        :can-empty="canEmpty"
     ></model-select>
 </template>
 
@@ -36,6 +37,10 @@ export default {
         },
         firmId: {
             type: Number,
+        },
+        canEmpty: {
+            type: Boolean,
+            default: false
         }
     },
 }

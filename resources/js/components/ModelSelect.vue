@@ -6,7 +6,7 @@
         :deletable-chips="multiple"
         :dense="dense"
         :disabled="disabled"
-        :error="!proxy"
+        :error="!proxy && !canEmpty"
         :error-messages="errorMessages"
         :item-text="itemText"
         :item-value="itemValue"
@@ -63,7 +63,8 @@
             noFilter: {type: Boolean, default: true},
             getValue: {type: Boolean, default: false},
             newSearch: {type: String, default: ''},
-            smartName: {type: Boolean, default: false}
+            smartName: {type: Boolean, default: false},
+            canEmpty: {type: Boolean, default: false}
         },
         data() {
             return {

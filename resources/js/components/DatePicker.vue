@@ -10,7 +10,8 @@
         <template v-slot:activator="{ on }">
             <v-text-field
                 :value="proxy | formatDate"
-                :label="'Позже' + (isMobile ?  ' указанной Даты' : '')"
+                :label="label"
+                :disabled="disabled"
                 prepend-icon="mdi-calendar-edit"
                 v-on="on"
                 readonly
@@ -34,6 +35,14 @@ export default {
             validator: (v) => moment(v).isValid(),
         },
         isMobile: {
+            type: Boolean,
+            default: false,
+        },
+        label: {
+            type: String,
+            default: () => 'Позже' + (this.isMobile ?  ' указанной Даты' : '')
+        },
+        disabled: {
             type: Boolean,
             default: false,
         }

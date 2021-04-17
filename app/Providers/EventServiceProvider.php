@@ -38,7 +38,7 @@ class EventServiceProvider extends ServiceProvider
                 ->where('DATA', '>', Carbon::now()->firstOfYear())
                 ->max('NS')
                 ?? 1;
-            $invoice->STAFF_ID = auth()->user()->employee->ID;
+            $invoice->STAFF_ID = $invoice->STAFF_ID ?? auth()->user()->employee->ID;
         });
     }
 }

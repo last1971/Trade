@@ -75,14 +75,12 @@ class InvoiceController extends ModelController
             $lines = $invoice->invoiceLines()->with('good.name')->get();
             $atol->operator = $request->user();
             $atol->receipt(
-                $lines->map(function($line) {
-                    return [
-                        'name' => $line->good->name->NAME,
-                        'price' => $line->PRICE,
-                        'quantity' => $line->QUAN,
-                        'amount' => $line->SUMMAP
-                    ];
-                })->toArray(),
+                $lines->map(fn($line) => [
+                    'name' => $line->good->name->NAME,
+                    'price' => $line->PRICE,
+                    'quantity' => $line->QUAN,
+                    'amount' => $line->SUMMAP
+                ])->toArray(),
                 'sell',
                 'cash',
                 $invoice->buyer,
