@@ -9,7 +9,7 @@
         :multi-sort="true"
         :options.sync="options"
         :server-items-length="total"
-        loading-text="Loading... Please wait"
+        :loading-text="loadingText"
         :single-expand="true"
         item-key="REALPRICECODE"
         show-expand
@@ -22,6 +22,21 @@
                           :sort-by="options.sortBy"
                           :sort-desc="options.sortDesc"
             />
+        </template>
+        <template v-slot:header.actions>
+            <v-btn icon @click="reloadValue">
+                <v-icon>mdi-reload</v-icon>
+            </v-btn>
+        </template>
+        <template v-slot:item.actions="{ item }">
+            <v-hover
+                v-slot="{ hover }"
+                v-if="editable && !item.reservesQuantity && !item.pickUpsQuantity && !item.transferOutLinesQuantity"
+            >
+                <v-btn icon color="red" @click="remove(item)">
+                    <v-icon v-if="hover">mdi-cart-remove</v-icon>
+                </v-btn>
+            </v-hover>
         </template>
         <template v-slot:item.name.NAME="{ item }">
             <good-name v-model="item" :prim="item.good.PRIM"/>
@@ -218,7 +233,14 @@
                 this.itemIds.push(id);
                 this.total += 1;
             },
+            async remove(item) {
+                try {
+                    await this.$store.dispatch('INVOICE-LINE/REMOVE', item.REALPRICECODE);
+                    await this.reloadValue();
+                } catch (e) {}
+            },
             async reloadValue() {
+                this.loading = true;
                 const payload = {
                     id: this.value.SCODE,
                     query: {
@@ -230,6 +252,7 @@
                 };
                 const newValue = await this.$store.dispatch('INVOICE/GET', payload);
                 this.$emit('input', newValue);
+                this.loading = false;
             }
          }
     }

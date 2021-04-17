@@ -10,7 +10,7 @@ state.key = 'REALPRICECODE';
 state.fillable = ['SCODE', 'GOODSCODE', 'QUAN', 'PRICE', 'SUMMAP', 'PRIM', 'WHERE_ORDERED'];
 
 state.headers = [
-    // {text: '', value: 'actions', width: 10, sortable: false},
+     {text: '', value: 'actions', width: 10, sortable: false},
     {
         text: 'Дата',
         value: 'invoice.DATA',

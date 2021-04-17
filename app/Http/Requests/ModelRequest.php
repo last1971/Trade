@@ -81,6 +81,7 @@ class ModelRequest extends FormRequest
         switch ($this->route()->getName()) {
             case 'advanced-buyer.destroy':
             case 'order-line.destroy':
+            case 'invoice-line.destroy':
                 $rules = [];
                 break;
             case 'advanced-buyer.store':

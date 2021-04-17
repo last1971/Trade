@@ -16,7 +16,11 @@
             <tr :class="{ 'v-data-table__mobile-table-row' : isMobile }"
                 v-if="!isMobile || mobileFiltersVisible"
             >
-                <td v-if="!isMobile"></td>
+                <td v-if="!isMobile">
+                    <v-btn icon @click="updateItems(false)">
+                        <v-icon>mdi-reload</v-icon>
+                    </v-btn>
+                </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-menu
                         :close-on-content-click="false"
@@ -81,7 +85,7 @@
                 </td>
             </tr>
         </template>
-        <template v-slot:item.actions>
+        <template v-slot:header.actions>
 
         </template>
         <template v-slot:item.actions="{ item }">
