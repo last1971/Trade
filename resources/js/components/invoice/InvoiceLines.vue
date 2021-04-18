@@ -50,9 +50,11 @@
             />
         </template>
         <template v-slot:item.reservesQuantity="{ item }">
-            <div :class="reserveClass(item)">
-                {{ item.reservesQuantity }}
-            </div>
+            <reserves-modal :text="item.reservesQuantity"
+                            :text-class="reserveClass(item)"
+                            :name="item.name.NAME"
+                            v-model="item.good"
+            />
         </template>
         <template v-slot:item.pickUpsQuantity="{ item }">
             <div :class="pickUpClass(item)">
@@ -142,11 +144,14 @@
     import {mapGetters} from 'vuex';
     import GoodName from "../good/GoodName";
     import EditField from "../EditField";
+    import ReservesModal from "../ReservesModal";
 
     export default {
         name: "InvoiceLines",
         mixins: [tableMixin, utilsMixin],
-        components: {EditField, GoodName, OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},
+        components: {
+            ReservesModal,
+            EditField, GoodName, OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},
         props: {
             value: {
                 type: Object,

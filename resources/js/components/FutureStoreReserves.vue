@@ -4,8 +4,8 @@
                              :remove-headers="removeHeaders"
                              v-model="options"
     >
-        <template v-slot:top>
-            <div class="title">Необходимо для счетов</div>
+        <template v-slot:top v-if="title" >
+            <div class="title">{{ title }}</div>
         </template>
     </invoice-lines-dependent>
 </template>
@@ -20,6 +20,10 @@
             value: {
                 type: Object,
                 required: true,
+            },
+            title: {
+                type: [String, Boolean],
+                default: 'Необходимо для счетов',
             }
         },
         data() {

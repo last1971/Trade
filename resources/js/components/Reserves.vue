@@ -10,8 +10,8 @@
         loading-text="Loading... Please wait"
         :hide-default-footer="true"
     >
-        <template v-slot:top>
-            <div class="title">Резервы</div>
+        <template v-slot:top v-if="topText">
+            <div class="title">{{ topText }}</div>
         </template>
         <template v-slot:item.DATA="{ item }">
             {{ item.DATA | formatDate }}
@@ -46,6 +46,10 @@
             value: {
                 type: Object,
                 required: true,
+            },
+            topText: {
+                type: [String, Boolean],
+                default: 'Резервы',
             }
         },
         data() {
