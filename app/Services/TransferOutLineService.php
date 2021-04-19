@@ -93,4 +93,11 @@ class TransferOutLineService extends ModelService
             }
         }
     }
+
+    public function index($request)
+    {
+        $this->addUserBuyers($request, 'transferOut');
+        $this->addUserFirms($request, 'transferOut');
+        return parent::index($request);
+    }
 }

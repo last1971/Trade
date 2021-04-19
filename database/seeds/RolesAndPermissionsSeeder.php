@@ -164,6 +164,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'name.index',
             'order.*',
             'order-line.*',
+            'reserve.*',
             'sbis.*',
             'seller.*',
             'transfer-out.*',

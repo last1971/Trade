@@ -1,5 +1,12 @@
 <template>
+    <div v-if="restricted">
+        <v-text-field label="Сотрудник"
+                      :disabled="true"
+                      value="C E N S O R E D"
+        ></v-text-field>
+    </div>
     <model-select
+        v-else
         :disabled="disabled"
         :items-per-page="-1"
         :multipe="multiple"
@@ -38,6 +45,12 @@
                 default: false
             },
         },
+        computed: {
+        restricted() {
+                return !(this.$store.getters['AUTH/HAS_PERMISSION']('employee.index')
+                    && this.$store.getters['AUTH/HAS_PERMISSION']('employee.show'));
+            }
+        }
     }
 </script>
 

@@ -78,6 +78,9 @@ export default {
                 .then(() => this.loading = false)
         },
         proxyInput(val) {
+            if (this.model === 'INVOICE-LINE' && val.STATUS !== this.value.STATUS) {
+                this.updateItems(false);
+            }
             this.$emit('input', val);
         },
         async save(item) {

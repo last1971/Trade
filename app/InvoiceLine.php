@@ -74,4 +74,25 @@ class InvoiceLine extends Model
     {
         return $this->hasMany('App\PickUp', 'REALPRICECODE', 'REALPRICECODE');
     }
+
+    public function orderLinesTransit()
+    {
+        return $this->hasMany('App\OrderLine', 'GOODSCODE', 'GOODSCODE')
+            ->join('ZAKAZ_MASTER', 'ZAKAZ_MASTER.ID', '=', 'MASTER_ID')
+            ->whereIn('ZAKAZ_MASTER.STATUS', [2, 3]);
+    }
+
+    public function storeLinesTransit()
+    {
+        return $this->hasManyThrough(
+            'App\StoreLine',
+            'App\OrderLine',
+            'GOODSCODE',
+            'ZAKAZ_DETAIL_ID',
+            'GOODSCODE',
+            'ID'
+        )
+            ->join('ZAKAZ_MASTER', 'ZAKAZ_MASTER.ID', '=', 'MASTER_ID')
+            ->whereIn('ZAKAZ_MASTER.STATUS', [2, 3]);
+    }
 }

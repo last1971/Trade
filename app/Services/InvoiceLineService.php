@@ -27,6 +27,12 @@ class InvoiceLineService extends ModelService
             'transferOutLinesQuantity' => ['transferOutLines' => function (Builder $query) {
                 $query->transferOutLinesQuantity();
             }],
+            'orderLinesTransitQuantity' => ['orderLinesTransit' => function (Builder $query) {
+                $query->orderLinesQuantity();
+            }],
+            'storeLinesTransitQuantity' => ['storeLinesTransit' => function (Builder $query) {
+                $query->storeLinesQuantity();
+            }]
         ];
 
         $this->dateAttributes = ['invoice.DATA'];

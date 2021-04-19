@@ -1,5 +1,6 @@
 <template>
-    <v-dialog v-model="isActive">
+    <div v-if="restricted" :class="textClass">{{ text }}</div>
+    <v-dialog v-model="isActive" v-else>
         <template v-slot:activator="{ on }">
             <v-btn icon v-on="on" :class="textClass">
                 {{ text }}
@@ -46,7 +47,11 @@ export default {
     computed: {
         title() {
             return (this.isNotFuture ? 'Резервы ' : 'Будующие резервы ') + 'для ' + this.name
-        }
+        },
+        restricted() {
+            return !(this.$store.getters['AUTH/HAS_PERMISSION']('reserve.index')
+                && this.$store.getters['AUTH/HAS_PERMISSION']('reserve.show'));
+        },
     },
     data() {
         return {

@@ -58,6 +58,11 @@ state.headers = [
         align: 'right',
     },
     {
+        text: 'Путь',
+        value: 'orderLinesTransitQuantity',
+        align: 'right',
+    },
+    {
         text: 'Подобрано',
         value: 'pickUpsQuantity',
         align: 'right',

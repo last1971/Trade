@@ -10,9 +10,7 @@
         :options.sync="options"
         :server-items-length="total"
         :loading-text="loadingText"
-        :single-expand="true"
         item-key="REALPRICECODE"
-        show-expand
     >
         <template v-slot:top>
             <invoice-edit :value="value"
@@ -24,7 +22,7 @@
             />
         </template>
         <template v-slot:header.actions>
-            <v-btn icon @click="reloadValue">
+            <v-btn icon @click="reloadValue(true)">
                 <v-icon>mdi-reload</v-icon>
             </v-btn>
         </template>
@@ -56,15 +54,22 @@
                             v-model="item.good"
             />
         </template>
+        <template v-slot:item.orderLinesTransitQuantity="{ item }">
+            <div :class="reserveClass(item)">
+                {{ inTransit(item) }}
+            </div>
+        </template>
         <template v-slot:item.pickUpsQuantity="{ item }">
             <div :class="pickUpClass(item)">
                 {{ item.pickUpsQuantity }}
             </div>
         </template>
         <template v-slot:item.transferOutLinesQuantity="{ item }">
-            <div :class="transferOutClass(item)">
-                {{ item.transferOutLinesQuantity }}
-            </div>
+            <transfer-out-lines-modal :text="item.transferOutLinesQuantity"
+                                      :text-class="transferOutClass(item)"
+                                      :invoice-line="item"
+                                      :good="item.good"
+            />
         </template>
         <template v-slot:item.priceWithoutVat="{ item }">
             <edit-field :disabled="!editable"
@@ -145,11 +150,13 @@
     import GoodName from "../good/GoodName";
     import EditField from "../EditField";
     import ReservesModal from "../ReservesModal";
+    import TransferOutLinesModal from "../transferOut/TransferOutLinesModal";
 
     export default {
         name: "InvoiceLines",
         mixins: [tableMixin, utilsMixin],
         components: {
+            TransferOutLinesModal,
             ReservesModal,
             EditField, GoodName, OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},
         props: {
@@ -163,7 +170,11 @@
                 options: {
                     with: ['category', 'good', 'name'],
                     aggregateAttributes: [
-                        'reservesQuantity', 'pickUpsQuantity', 'transferOutLinesQuantity'
+                        'reservesQuantity',
+                        'pickUpsQuantity',
+                        'transferOutLinesQuantity',
+                        'orderLinesTransitQuantity',
+                        'storeLinesTransitQuantity',
                     ],
                     filterAttributes: [
                         'invoice.SCODE',
@@ -208,10 +219,16 @@
             }
         },
         methods: {
-            reserveClass({QUAN, reservesQuantity, pickUpsQuantity, transferOutLinesQuantity}) {
+            inTransit(item) {
+                return item.orderLinesTransitQuantity
+                    ? item.orderLinesTransitQuantity - item.storeLinesTransitQuantity
+                    : 0
+            },
+            reserveClass(item) {
+                const {QUAN, reservesQuantity, pickUpsQuantity, transferOutLinesQuantity} = item;
                 if (QUAN === transferOutLinesQuantity) return;
-                if (QUAN === pickUpsQuantity + reservesQuantity) return 'success--text';
-                if (reservesQuantity === 0) return 'red--text';
+                if (QUAN <= pickUpsQuantity + reservesQuantity + this.inTransit(item)) return 'success--text';
+                if (reservesQuantity + this.inTransit(item) < QUAN) return 'red--text';
                 return 'primary--text';
             },
             pickUpClass({QUAN, pickUpsQuantity, transferOutLinesQuantity}) {
@@ -244,7 +261,7 @@
                     await this.reloadValue();
                 } catch (e) {}
             },
-            async reloadValue() {
+            async reloadValue(reloadLines = false) {
                 this.loading = true;
                 const payload = {
                     id: this.value.SCODE,
@@ -257,6 +274,7 @@
                 };
                 const newValue = await this.$store.dispatch('INVOICE/GET', payload);
                 this.$emit('input', newValue);
+                if (reloadLines) this.updateItems(false);
                 this.loading = false;
             }
          }

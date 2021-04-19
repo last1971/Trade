@@ -61,7 +61,7 @@
                        fab
                        class="mt-2 ml-2"
                        @click="addInvoiceLine = true"
-                       :disabled="notEditable || !model.SCODE"
+                       :disabled="notEditable || !model.SCODE || value.STATUS > 0"
                 >
                     <v-icon color="primary">mdi-playlist-plus</v-icon>
                 </v-btn>
