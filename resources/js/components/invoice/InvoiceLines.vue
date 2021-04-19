@@ -55,9 +55,11 @@
             />
         </template>
         <template v-slot:item.orderLinesTransitQuantity="{ item }">
-            <div :class="reserveClass(item)">
-                {{ inTransit(item) }}
-            </div>
+             <order-line-in-way-modal :text="inTransit(item)"
+                                      :text-class="reserveClass(item)"
+                                      :name="item.name.NAME"
+                                      v-model="item.good"
+             />
         </template>
         <template v-slot:item.pickUpsQuantity="{ item }">
             <div :class="pickUpClass(item)">
@@ -151,11 +153,13 @@
     import EditField from "../EditField";
     import ReservesModal from "../ReservesModal";
     import TransferOutLinesModal from "../transferOut/TransferOutLinesModal";
+    import OrderLineInWayModal from "../order/OrderLineInWayModal";
 
     export default {
         name: "InvoiceLines",
         mixins: [tableMixin, utilsMixin],
         components: {
+            OrderLineInWayModal,
             TransferOutLinesModal,
             ReservesModal,
             EditField, GoodName, OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},

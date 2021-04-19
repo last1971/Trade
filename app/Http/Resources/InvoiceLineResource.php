@@ -27,6 +27,8 @@ class InvoiceLineResource extends JsonResource
             'reservesQuantity' => $this->reservesQuantity,
             'pickUpsQuantity' => $this->pickUpsQuantity,
             'transferOutLinesQuantity' => $this->transferOutLinesQuantity,
+            'orderLinesTransitQuantity' => $this->orderLinesTransitQuantity,
+            'storeLinesTransitQuantity' => $this->storeLinesTransitQuantity,
             'category' => new CategoryResource($this->category),
             'good' => new GoodResource($this->good),
             'name' => new NameResource($this->name),

@@ -5,12 +5,11 @@
         :loading="loading"
         :options.sync="options"
         :server-items-length="total"
-        class="elevation-1"
         hide-default-footer
         item-key="ID"
         loading-text="Loading... Please wait"
     >
-        <template v-slot:top>
+        <template v-slot:top v-if="topText">
             <div class="title ml-2">В пути(Заказах)</div>
         </template>
         <template v-slot:item.order.INVOICE_DATA="{ item }">
@@ -47,6 +46,10 @@
             invoiceLine: {
                 type: Object,
                 required: true,
+            },
+            topText: {
+                type: Boolean,
+                default: true,
             }
         },
         mixins: [tableMixin],
