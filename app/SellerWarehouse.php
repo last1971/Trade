@@ -13,13 +13,18 @@ class SellerWarehouse extends Model
 
     protected $connection = 'mysql';
 
+    protected $casts = [
+        'options' => 'json',
+    ];
+
     protected $fillable = [
         'seller_good_id',
         'code',
         'quantity',
         'additional_delivery_time',
         'multiplicity',
-        'remark'
+        'remark',
+        'options'
     ];
 
     /**

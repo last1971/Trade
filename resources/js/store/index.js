@@ -37,6 +37,7 @@ import exchangeRate from './exchangeRate';
 import payment from "./payment";
 import paymentOrder from "./paymentOrder";
 import firmHistory from "./firmHistory";
+import sellerPrice from "./sellerPrice";
 
 Vue.use(Vuex);
 
@@ -84,6 +85,7 @@ export default new Vuex.Store({
         ROLE: role,
         SBIS: sbis,
         SELLER: seller,
+        'SELLER-PRICE': sellerPrice,
         SNACKBAR: snackbar,
         'TRANSFER-OUT': transferOut,
         'TRANSFER-OUT-LINE': transferOutLine,

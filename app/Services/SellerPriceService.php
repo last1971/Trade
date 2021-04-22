@@ -142,6 +142,7 @@ class SellerPriceService
             $ret->push($line);
             if ($good->retailPrice && !empty($good->retailPrice->PRICEROZN)) {
                 $lineRozn = $line;
+                $lineRozn['id'] = Str::uuid();
                 $lineRozn['isInput'] = false;
                 $lineRozn['price'] = $good->retailPrice->PRICEROZN;
                 if (!empty($good->retailPrice->QUANMOPT) && $good->retailPrice->QUANMOPT > 1) {
@@ -156,6 +157,7 @@ class SellerPriceService
                 !empty($good->retailPrice->QUANMOPT)
             ) {
                 $lineMopt = $line;
+                $lineMopt['id'] = Str::uuid();
                 $lineMopt['isInput'] = false;
                 $lineMopt['price'] = $good->retailPrice->PRICEMOPT;
                 $lineMopt['minQuantity'] = $good->retailPrice->QUANMOPT;
@@ -177,6 +179,7 @@ class SellerPriceService
                 !empty($good->retailPrice->QUANOPT)
             ) {
                 $lineOpt = $line;
+                $lineOpt['id'] = Str::uuid();
                 $lineOpt['isInput'] = false;
                 $lineOpt['price'] = $good->retailPrice->PRICEOPT;
                 $lineOpt['minQuantity'] = $good->retailPrice->QUANOPT;
@@ -233,13 +236,14 @@ class SellerPriceService
             $sellerGood = SellerGood::query()
                 ->firstOrNew(['code' => $item->item_id, 'seller_id' => $sellerId
                 ]);
+            $packageQuantity = intval($item->qty_in_pack);
             $sellerGood->fill([
                 'name' => $item->item_name,
                 'producer' => $item->item_brend,
                 'case' => $item->package_name,
                 'is_active' => true,
                 'basic_delivery_time' => $this->aliases[$sellerId]['basic_delivery_time'],
-                'package_quantity' => $item->qty_in_pack ?? 1
+                'package_quantity' => $packageQuantity > 0 ? $packageQuantity : 1
             ]);
             $sellerGood->save();
             foreach ($item->proposals as $proposal) {
@@ -260,6 +264,7 @@ class SellerPriceService
                     'quantity' => $quantity,
                     'additional_delivery_time' => $proposal->prognosis_days,
                     'multiplicity' => $proposal->mpq,
+                    'options' => $proposal,
                     'remark' => $proposal->vend_type . '; '
                         . (new Carbon($proposal->vend_proposal_date))->format('d-m-Y')
                 ]);
@@ -285,7 +290,7 @@ class SellerPriceService
                             'goodId' => $sellerGood->good_id,
                             'sellerId' => $sellerGood->seller_id,
                             'packageQuantity' => $sellerGood->package_quantity,
-                            'multiplicity' => $sellerWarehouse->muliplicity,
+                            'multiplicity' => $sellerWarehouse->multiplicity,
                             'quantity' => $quantity,
                             'minQuantity' => $sellerPrice->min_quantity,
                             'maxQuantity' => $sellerPrice->max_quantity,
@@ -295,7 +300,7 @@ class SellerPriceService
                             'delivery_time' => $sellerGood->basic_delivery_time
                                 + $sellerWarehouse->additional_delivery_time,
                             'isApi' => true,
-                            'options' => null,
+                            'options' => $sellerWarehouse->options,
                             'updatedAt' => $sellerPrice->updated_at,
                         ]);
                     }

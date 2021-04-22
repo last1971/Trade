@@ -1,5 +1,5 @@
 <template>
-    <v-dialog v-model="isActive" v-else>
+    <v-dialog v-model="isActive">
         <template v-slot:activator="{ on }">
             <v-btn icon v-on="on" :class="textClass">
                 {{ text }}

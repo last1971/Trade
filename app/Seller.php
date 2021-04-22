@@ -16,6 +16,11 @@ class Seller extends Model
 
     protected $fillable = ['NAMEPOST', 'EMAIL', 'INN'];
 
+    protected $casts = [
+        'IS_API' => 'boolean',
+        'IS_FILE' => 'boolean',
+    ];
+
     protected $primaryKey = 'WHEREISPOSTCODE';
 
     protected $sequenceName = 'WHEREISPOSTCODE_GEN';

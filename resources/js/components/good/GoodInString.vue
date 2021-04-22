@@ -7,19 +7,20 @@
             <span v-if="value.PRODUCER">/ {{ value.PRODUCER }}</span>
         </v-col>
         <v-col :cols="6 * rows">
-            <v-badge :color="color(quantity(value))" :content="quantity(value)">
+            <v-badge :color="color(quantity(value))" :content="quantity(value)" inline>
                 есть
             </v-badge>
             <v-badge :color="color(quantity(value.reservesQuantity.toString()))"
                      :content="value.reservesQuantity.toString()"
                      class="ml-2"
+                     inline
             >
                 резерв
             </v-badge>
-            <v-badge :color="color(futureReserve(value))" :content="futureReserve(value)" class="ml-2">
+            <v-badge :color="color(futureReserve(value))" :content="futureReserve(value)" class="ml-2" inline>
                 нада
             </v-badge>
-            <v-badge :color="color(orderStep(value))" :content="orderStep(value)" class="ml-2">
+            <v-badge :color="color(orderStep(value))" :content="orderStep(value)" class="ml-2" inline>
                 порог
             </v-badge>
         </v-col>

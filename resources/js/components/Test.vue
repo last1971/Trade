@@ -1,21 +1,15 @@
 <template>
-    <div>
-        <v-text-field v-model="newSearch"/>
-        <good-select :new-search="newSearch" v-model="value"/>
-    </div>
+    <seller-prices/>
 </template>
 
 <script>
-
-
-    import GoodSelect from "./good/GoodSelect";
+    import SellerPrices from "./SellerPrices";
     export default {
         name: "Test",
-        components: {GoodSelect},
+        components: {SellerPrices},
         data() {
             return {
-                newSearch: '2sd1710',
-                value: null,
+
             }
         },
         computed: {

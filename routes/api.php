@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Api\FirmHistoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,6 +31,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('transfer-out/xml/{id}', 'Api\TransferOutController@xml')
         ->name('transfer-out.xml');
     Route::get('exchange-rate', 'Api\ExchangeRateController@index')->name('exchange-rate.index');
+    Route::get('seller-price', 'Api\SellerPriceController@index')->name('seller-price.index');
+    Route::get('seller-price/sellers', 'Api\SellerPriceController@sellers')
+        ->name('seller-price.sellers');
 
     Route::apiResources([
         'advanced-buyer' => 'Api\AdvancedBuyerController',
