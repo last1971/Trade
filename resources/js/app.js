@@ -36,6 +36,11 @@ Vue.filter('formatDateTime', function (d) {
 Vue.filter('formatRub', function (d) {
     return new Intl.NumberFormat('ru-RU', {style: 'currency', currency: 'RUB'}).format(d);
 });
+Vue.filter('formatUsd', function (d) {
+    return new Intl.NumberFormat(
+        'en-EN', {style: 'currency', currency: 'USD', minimumFractionDigits : 4 }
+    ).format(d);
+});
 Vue.filter('formatPercent', function (d) {
     return new Intl.NumberFormat('ru-RU', { style: 'percent', minimumFractionDigits: 2 }).format(d);
 });

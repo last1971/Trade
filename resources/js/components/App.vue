@@ -26,6 +26,7 @@
             app
             color="primary"
             dark
+            ref="toolbar" v-mutate="onMutate"
         >
             <v-app-bar-nav-icon @click.stop="drawer = !drawer"/>
             <v-toolbar-title>
@@ -177,6 +178,14 @@
             closeSnackbar() {
                 this.$store.commit('SNACKBAR/STATUS', false);
                 this.$store.commit('SNACKBAR/SHIFT');
+            },
+            onMutate () {
+                let height = 0
+                const toolbar = this.$refs.toolbar
+                if (toolbar) {
+                    height = `${toolbar.$el.offsetHeight}px`
+                }
+                document.documentElement.style.setProperty('--toolbarHeight', height)
             }
         }
     }

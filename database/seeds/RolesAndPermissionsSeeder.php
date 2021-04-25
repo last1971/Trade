@@ -29,6 +29,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'retail-sale-line',
         'retail-store-return',
         'seller',
+        'seller-price',
         'transfer-out',
         'transfer-out-line',
         'user'
@@ -109,6 +110,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'role.index',
             'sbis.*',
             'seller.*',
+            'seller-price.*',
             'transfer-out.*',
             'transfer-out-line.*',
             'user.*'

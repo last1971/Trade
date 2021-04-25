@@ -10,6 +10,16 @@ const getters = {
     ALL: state => state.rates,
     GET: state => CharCode => _.find(state.rates, { CharCode }),
     DATE: state => state.date,
+    TO_RUB: (state, getters) => (CharCode, price) => {
+        const rate = getters['GET'](CharCode);
+        return rate.value * price;
+    },
+    TO_USD: (state, getters) => (CharCode, price) => {
+        if (CharCode === 'USD') return price;
+        const proxy = getters['TO_RUB'](CharCode, price);
+        const usd = getters['GET']('USD');
+        return proxy / usd.value;
+    }
 }
 
 const mutations = {

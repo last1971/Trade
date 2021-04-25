@@ -12,7 +12,16 @@ class SellerPrice extends Model
 
     protected $connection = 'mysql';
 
-    protected $fillable = ['seller_warehouse_id', 'min_quantity', 'max_quantity', 'value', 'CharCode', 'is_input'];
+    protected $fillable = [
+        'seller_warehouse_id',
+        'min_quantity',
+        'max_quantity',
+        'value',
+        'CharCode',
+        'is_input',
+        'created_at',
+        'updated_at',
+    ];
 
     protected $casts = [
         'is_input' => 'boolean'

@@ -73,11 +73,13 @@ class ImportDanPrice extends Command
                         'case' => $cells[$i]['E'],
                         'producer' => $cells[$i]['F'],
                         'is_active' => true,
+                        'updated_at' => Carbon::now(),
                     ]);
-                    $good->save();
+                    $good->save([ 'timestamps' => false ]);
 
                     $warehouse = SellerWarehouse::query()->firstOrNew(['seller_good_id' => $good->id]);
                     $warehouse->quantity = $cells[$i]['I'];
+                    $warehouse->multiplicity = 1;
                     $warehouse->save();
 
                     $price = SellerPrice::query()->firstOrNew(['seller_warehouse_id' => $warehouse->id]);

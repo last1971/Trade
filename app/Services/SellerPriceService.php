@@ -20,7 +20,7 @@ class SellerPriceService
 {
     public array $aliases = [
         0    => ['function' => 'fromElco', 'trim' => true, 'ereg' => true, 'basic_delivery_time' => 0],
-        857  => ['function' => 'fromCompel', 'trim' => true, 'ereg' => false, 'basic_delivery_time' => 6],
+        857  => ['function' => 'fromCompel', 'trim' => true, 'ereg' => false, 'basic_delivery_time' => 7],
         1068 => ['function' => 'fromDan', 'trim' => true, 'ereg' => true, 'basic_delivery_time' => 3],
     ];
 
@@ -134,7 +134,8 @@ class SellerPriceService
                 'price' => $good->price,
                 'CharCode' => 'RUB',
                 'isInput' => true,
-                'delivery_time' => $this->aliases[$sellerId]['basic_delivery_time'],
+                'deliveryTime' => $this->aliases[$sellerId]['basic_delivery_time'],
+                'isSomeoneElsesWarehouse' => false,
                 'isApi' => true,
                 'options' => null,
                 'updatedAt' => Carbon::now(),
@@ -209,15 +210,16 @@ class SellerPriceService
             'goodId' => $price->sellerWarehouse->sellerGood->good_id,
             'sellerId' => $price->sellerWarehouse->sellerGood->seller_id,
             'packageQuantity' => $price->sellerWarehouse->sellerGood->package_quantity,
-            'multiplicity' => $price->sellerWarehouse->muliplicity,
+            'multiplicity' => $price->sellerWarehouse->multiplicity,
             'quantity' => $price->sellerWarehouse->quantity,
             'minQuantity' => $price->min_quantity,
             'maxQuantity' => $price->max_quantity,
             'price' => $price->value,
             'CharCode' => $price->CharCode,
             'isInput' => $price->is_input,
-            'delivery_time' => $price->sellerWarehouse->sellerGood->basic_delivery_time
+            'deliveryTime' => $price->sellerWarehouse->sellerGood->basic_delivery_time
                 + $price->sellerWarehouse->additional_delivery_time,
+            'isSomeoneElsesWarehouse' => $price->sellerWarehouse->additional_delivery_time > 0,
             'isApi' => false,
             'options' => null,
             'updatedAt' => $price->updated_at,
@@ -262,24 +264,29 @@ class SellerPriceService
                     ->firstOrNew(['seller_good_id' => $sellerGood->id, 'code' => $code]);
                 $sellerWarehouse->fill([
                     'quantity' => $quantity,
-                    'additional_delivery_time' => $proposal->prognosis_days,
+                    'additional_delivery_time' => $proposal->prognosis_days - 1,
                     'multiplicity' => $proposal->mpq,
                     'options' => $proposal,
-                    'remark' => $proposal->vend_type . '; '
-                        . (new Carbon($proposal->vend_proposal_date))->format('d-m-Y')
+                    'remark' => '',
                 ]);
                 $sellerWarehouse->save();
                 $sellerWarehouse->sellerPrices()->delete();
                 if ($quantity > 0) {
                     foreach ($proposal->price_qty as $price) {
-                        $sellerPrice = SellerPrice::query()->create([
+                        $sellerPrice = new SellerPrice();
+                        $sellerPrice->fill([
                             'seller_warehouse_id' => $sellerWarehouse->id,
                             'min_quantity' => $price->min_qty,
                             'max_quantity' => $price->max_qty,
                             'value' => $price->price,
                             'CharCode' => 'USD',
                             'is_input' => true,
+                            'created_at' => Carbon::now(),
+                            'updated_at' => $proposal->location_id === 'CENTRE'
+                                ? Carbon::now()
+                                : Carbon::parse($proposal->vend_proposal_date)
                         ]);
+                        $sellerPrice->save([ 'timestamps' =>  false ]);
                         $ret->push([
                             'name' => $item->item_name,
                             'producer' => $item->item_brend,
@@ -297,8 +304,9 @@ class SellerPriceService
                             'price' => $sellerPrice->value,
                             'CharCode' => $sellerPrice->CharCode,
                             'isInput' => $sellerPrice->is_input,
-                            'delivery_time' => $sellerGood->basic_delivery_time
+                            'deliveryTime' => $sellerGood->basic_delivery_time
                                 + $sellerWarehouse->additional_delivery_time,
+                            'isSomeoneElsesWarehouse' => $sellerWarehouse->additional_delivery_time > 0,
                             'isApi' => true,
                             'options' => $sellerWarehouse->options,
                             'updatedAt' => $sellerPrice->updated_at,
