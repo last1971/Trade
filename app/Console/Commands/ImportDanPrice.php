@@ -82,8 +82,14 @@ class ImportDanPrice extends Command
                     $warehouse->multiplicity = 1;
                     $warehouse->save();
 
-                    $price = SellerPrice::query()->firstOrNew(['seller_warehouse_id' => $warehouse->id]);
+                    $price = SellerPrice::query()
+                        ->firstOrNew(['seller_warehouse_id' => $warehouse->id, 'is_input' => true ]);
                     $price->value = $cells[$i]['H'];
+                    $price->save();
+
+                    $price = SellerPrice::query()
+                        ->firstOrNew(['seller_warehouse_id' => $warehouse->id, 'is_input' => false ]);
+                    $price->value = $cells[$i]['K'];
                     $price->save();
                 }
             }

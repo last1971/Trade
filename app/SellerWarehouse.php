@@ -24,7 +24,8 @@ class SellerWarehouse extends Model
         'additional_delivery_time',
         'multiplicity',
         'remark',
-        'options'
+        'options',
+        'sellerGood'
     ];
 
     /**

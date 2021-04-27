@@ -25,7 +25,7 @@ class SellerPriceService
     ];
 
     public array $cacheTimes = [
-        0    => 60,
+        0    => 120,
         857  => 3600,
         1068 => 86400,
     ];

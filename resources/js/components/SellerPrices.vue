@@ -266,7 +266,7 @@ export default {
                     if (seller.isFile && seller.selected.isFile) {
                         seller.loading.isFile = true;
                         handlers.push(
-                            this.$store.dispatch('SELLER-PRICE/GET', {sellerId, search})
+                            this.$store.dispatch('SELLER-PRICE/GET', {sellerId, search, isFile: true})
                                 .then(() => { seller.loading.isFile = false; })
                         )
                     }

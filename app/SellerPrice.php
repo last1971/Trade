@@ -21,6 +21,8 @@ class SellerPrice extends Model
         'is_input',
         'created_at',
         'updated_at',
+        'sellerWarehouse',
+        'id',
     ];
 
     protected $casts = [

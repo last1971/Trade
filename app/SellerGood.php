@@ -22,6 +22,7 @@ class SellerGood extends Model
         'basic_delivery_time',
         'remark',
         'package_quantity',
+        'updated_at'
     ];
 
     protected $casts = [
