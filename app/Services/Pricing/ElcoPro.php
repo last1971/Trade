@@ -6,17 +6,19 @@ namespace App\Services\Pricing;
 
 use App\Entry;
 use App\Good;
+use App\Http\Resources\SellerPriceResource;
 use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
 use App\Warehouse;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Str;
 
 class ElcoPro
 {
-    private function make(Good $good, float $price, bool $isInput): SellerPrice
+    private function make(Good $good, float $price, int $minQuantity, int $maxQuantity, bool $isInput): SellerPrice
     {
         $sellerGood= new SellerGood([
             'name' => $good->name->NAME,
@@ -40,16 +42,16 @@ class ElcoPro
         return new SellerPrice([
             'id' => Str::uuid(),
             'sellerWarehouse' => $sellerWarehouse,
-            'min_quantity' => 1,
-            'max_quantity' => 0,
-            'price' => $price,
+            'min_quantity' => $minQuantity,
+            'max_quantity' => $maxQuantity,
+            'value' => $price,
             'CharCode' => 'RUB',
             'is_input' => $isInput,
             'updated_at' => Carbon::now(),
         ]);
     }
 
-    public function __invoke(string $search): array
+    public function __invoke(string $search): ResourceCollection
     {
         //$sellerId = config('pricing.ElcoPro.sellerId');
         $goods = Good::with('name', 'retailPrice')
@@ -75,16 +77,13 @@ class ElcoPro
             ->get();
         $ret = collect();
         foreach ($goods as $good) {
-            $ret->push($this->make($good, $good->price, true));
+            $ret->push($this->make($good, $good->price, 1, 0, true));
             if ($good->retailPrice && !empty($good->retailPrice->PRICEROZN)) {
-                $lineRozn = $line;
-                $lineRozn['id'] = Str::uuid();
-                $lineRozn['isInput'] = false;
-                $lineRozn['price'] = $good->retailPrice->PRICEROZN;
+                $maxQuantity = 0;
                 if (!empty($good->retailPrice->QUANMOPT) && $good->retailPrice->QUANMOPT > 1) {
-                    $lineRozn['maxQuantity'] = $good->retailPrice->QUANMOPT - 1;
+                    $maxQuantity = $good->retailPrice->QUANMOPT - 1;
                 }
-                $ret->push($lineRozn);
+                $ret->push($this->make($good, $good->retailPrice->PRICEROZN, 1, $maxQuantity, false));
             }
             if ($good->retailPrice
                 &&
@@ -92,21 +91,19 @@ class ElcoPro
                 &&
                 !empty($good->retailPrice->QUANMOPT)
             ) {
-                $lineMopt = $line;
-                $lineMopt['id'] = Str::uuid();
-                $lineMopt['isInput'] = false;
-                $lineMopt['price'] = $good->retailPrice->PRICEMOPT;
-                $lineMopt['minQuantity'] = $good->retailPrice->QUANMOPT;
+                $maxQuantity = 0;
                 if (
                     !empty($good->retailPrice->QUANOPT)
                     &&
                     $good->retailPrice->QUANOPT > $good->retailPrice->QUANMOPT
                 ) {
-                    $lineMopt['maxQuantity'] = $good->retailPrice->QUANOPT - 1;
-                } else {
-                    $lineMopt['maxQuantity'] = $good->retailPrice->QUANMOPT;
+                    $maxQuantity = $good->retailPrice->QUANOPT - 1;
                 }
-                $ret->push($lineMopt);
+                $ret->push(
+                    $this->make(
+                        $good, $good->retailPrice->PRICEMOPT, $good->retailPrice->QUANMOPT, $maxQuantity, false
+                    )
+                );
             }
             if ($good->retailPrice
                 &&
@@ -114,14 +111,11 @@ class ElcoPro
                 &&
                 !empty($good->retailPrice->QUANOPT)
             ) {
-                $lineOpt = $line;
-                $lineOpt['id'] = Str::uuid();
-                $lineOpt['isInput'] = false;
-                $lineOpt['price'] = $good->retailPrice->PRICEOPT;
-                $lineOpt['minQuantity'] = $good->retailPrice->QUANOPT;
-                $ret->push($lineOpt);
+                $this->make(
+                    $good, $good->retailPrice->PRICEOPT, $good->retailPrice->QUANOPT, 0, false
+                );
             }
         }
-        return $ret->toArray();
+        return SellerPriceResource::collection($ret);
     }
 }

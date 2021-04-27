@@ -47,4 +47,9 @@ class SellerGood extends Model
         return $this->belongsTo('App\Good', 'GOODSCODE', 'good_id');
     }
 
+    public function sellerWarehouses()
+    {
+        return $this->hasMany('App\SellerWarehouse');
+    }
+
 }

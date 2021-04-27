@@ -34,8 +34,8 @@ class SellerPriceResource extends JsonResource
             'deliveryTime' => $this->sellerWarehouse->sellerGood->basic_delivery_time
                 + $this->sellerWarehouse->additional_delivery_time,
             'isSomeoneElsesWarehouse' => $this->sellerWarehouse->additional_delivery_time > 0,
-            'isApi' => !$request->isFile,
-            'options' => $this->options,
+            'isApi' => $request->isFile === 'false',
+            'options' => $this->sellerWarehouse->options,
             'updatedAt' => $this->updated_at,
         ];
     }

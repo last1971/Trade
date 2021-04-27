@@ -22,10 +22,11 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function () {
-    $g = new \App\SellerGood(['name' => 'test', 'case' => 'test']);
-    $w = new \App\SellerWarehouse(['code' => 'code', 'sellerGood' => $g]);
-    dd($w->sellerGood);
+Artisan::command('test1', function (\App\Services\Pricing\Compel $a) {
+    dd($a('max232cpe'));
+    // $g = new \App\SellerGood(['name' => 'test', 'case' => 'test']);
+    // $w = new \App\SellerWarehouse(['code' => 'code', 'sellerGood' => $g]);
+    // dd($w->sellerGood);
     // $s = new \App\Services\SellerPriceService();
     // dd($s->get('max232cpe+', 857, false, true));
     //$s = new \App\Services\CompelApiService();
