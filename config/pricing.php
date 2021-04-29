@@ -3,15 +3,9 @@
 use App\Services\Pricing\Compel;
 use App\Services\Pricing\DataBase;
 use App\Services\Pricing\ElcoPro;
+use App\Services\Pricing\Ruichi;
 
 return [
-    'ElcoPro' => [
-        'cacheTimes' => 120,
-        'sellerId' => 0,
-        'basicDeliveryTime' => 0,
-        'class' => ElcoPro::class,
-        'ereg' => true,
-    ],
     'Compel' => [
         'cacheTimes' => 3600,
         'sellerId' => 857,
@@ -26,4 +20,18 @@ return [
         'class' => DataBase::class,
         'ereg' => true,
     ],
+    'ElcoPro' => [
+        'cacheTimes' => 120,
+        'sellerId' => 0,
+        'basicDeliveryTime' => 0,
+        'class' => ElcoPro::class,
+        'ereg' => true,
+    ],
+    'Ruichi' => [
+        'cacheTimes' => 7200,
+        'sellerId' => (int) env('RUICHI_SELLER_ID', 2559),
+        'basicDeliveryTime' => 11,
+        'class' => Ruichi::class,
+        'ereg' => true,
+    ]
 ];
