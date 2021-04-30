@@ -1,3 +1,5 @@
+import seller from "./seller";
+
 const state = {
     data: [],
     headers: [
@@ -13,6 +15,7 @@ const state = {
     isAll: false,
     sellers: [],
     sources: new Map(),
+    selectedSellerId: null,
 };
 
 const getters = {
@@ -31,7 +34,11 @@ const getters = {
     },
     FILTERD_DATA: (state, getters) => {
         return _.filter(getters.SORTED_DATA, (price) => {
-            return (price.orderQuantity >= state.quantity || state.isAll) && price.isInput === getters.IS_INPUT;
+            return ((price.orderQuantity >= state.quantity && price.orderQuantity <= price.quantity)|| state.isAll)
+                &&
+                (state.selectedSellerId === null || state.selectedSellerId === price.sellerId)
+                &&
+                price.isInput === getters.IS_INPUT;
         })
     },
     RETAIL_PRICE: (state) => (line) => {
@@ -49,6 +56,10 @@ const getters = {
         return ret ? ret.price : 0;
     },
     SELLERS: state => state.sellers,
+    SELLER_LINES_QUANTITY: state => sellerId => {
+        return _.uniqBy(_.filter(state.data, {sellerId}), 'code').length;
+    },
+    SELECTED_SELLER_ID: state => state.selectedSellerId,
 }
 
 const mutations = {
@@ -81,6 +92,27 @@ const mutations = {
     SET_SELLERS(state, sellers) {
         state.sellers = sellers;
     },
+    SET_SELLER_API_ERROR(state, sellerId) {
+        const index = _.findIndex(state.sellers, { sellerId });
+        const seller = state.sellers[index];
+        seller.isApiError = true;
+        state.sellers.splice(index, 1, seller)
+    },
+    SELLER_SELECT(state, sellerId) {
+        state.selectedSellerId = state.selectedSellerId === sellerId ? null : sellerId;
+    },
+    CLEAR_SELLER_API_ERROR(state, sellerId) {
+        const index = _.findIndex(state.sellers, { sellerId });
+        const seller = state.sellers[index];
+        seller.isApiError = false;
+        state.sellers.splice(index, 1, seller)
+    },
+    CLEAR_ALL_API_ERRORS(state) {
+        state.sellers = state.sellers.map((seller) => {
+            seller.isApiError = false;
+            return seller;
+        });
+    },
     PUSH_SOURCE(state, payload) {
         state.sources.set(payload.id, payload.source);
     },
@@ -100,12 +132,15 @@ const actions = {
             const data = response.data.data.map((line) => {
                 line.isCache = response.data.cache;
                 line.maxQuantity = line.maxQuantity || line.quantity;
-                line.maxQuantity = line.quantity > line.maxQuantity ? line.quantity : line.maxQuantity;
+//                line.maxQuantity = line.quantity > line.maxQuantity ? line.quantity : line.maxQuantity;
                 line.orderQuantity = 1000000;
                 return line;
             });
             commit('ADD_DATA', data);
             commit('SET_QUANTITY', state.quantity);
+            if (response.data.isApiError) {
+                commit('SET_SELLER_API_ERROR', params.sellerId);
+            }
             commit('PULL_SOURCE', id);
         } catch (e) {
             if (!axios.isCancel(e)) {
@@ -117,8 +152,9 @@ const actions = {
         try {
             const response = await axios.get(getters.URL + '/sellers');
             commit('SET_SELLERS', response.data.map((v) => {
-                v.selected = { isApi: true, isFile: true }
-                v.loading = { isApi: false, isFile: false }
+                //v.selected = { isApi: true, isFile: true }
+                v.loading = false
+                v.isApiError = false;
                 return v;
             }));
         } catch (e) {

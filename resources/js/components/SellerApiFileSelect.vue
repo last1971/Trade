@@ -1,28 +1,21 @@
 <template>
-    <v-card class="m-1">
-        <v-card-subtitle class="text-center">
-            {{ seller.name }}
-        </v-card-subtitle>
-        <v-card-text>
-            <v-row>
-                <v-col v-if="seller.isApi">
-                    <v-switch v-model="value.isApi"
-                              label="АПИ"
-                              hide-details
-                              dense
-                              :loading="seller.loading.isApi"
-                    />
-                </v-col>
-                <v-col v-if="seller.isFile">
-                    <v-switch v-model="value.isFile"
-                              label="Файл"
-                              hide-details
-                              dense
-                              :loading="seller.loading.isFile"
-                    />
-                </v-col>
-            </v-row>
-        </v-card-text>
+    <v-card class="m-1" :dark="isDark">
+        <v-card-title class="text-center">
+            <v-switch v-model="seller.isApi"
+                      hide-details
+                      dense
+                      :color="color"
+                      :loading="seller.loading"
+                      @change="change"
+            >
+                <template v-slot:label>
+                    <span>{{ seller.name }}</span>
+                    <v-btn icon class="ml-1" outlined @click.stop="select" :disabled="!quantity">
+                        {{ quantity }}
+                    </v-btn>
+                </template>
+            </v-switch>
+        </v-card-title>
     </v-card>
 </template>
 
@@ -30,13 +23,29 @@
 export default {
     name: "SellerApiFileSelect",
     props: {
-        value: {
-            type: Object,
-            required: true,
-        },
         seller: {
             type: Object,
             required: true,
+        }
+    },
+    computed: {
+        quantity() {
+            return this.$store.getters['SELLER-PRICE/SELLER_LINES_QUANTITY'](this.seller.sellerId);
+        },
+        color() {
+            return this.seller.isApiError ? 'error' : 'primary';
+        },
+        isDark() {
+            return this.$store.getters['SELLER-PRICE/SELECTED_SELLER_ID'] === this.seller.sellerId;
+        }
+    },
+    methods: {
+        select() {
+            this.$store.commit('SELLER-PRICE/SELLER_SELECT', this.seller.sellerId)
+        },
+        change(v) {
+            if (v) this.$emit('seller-on', this.seller, false);
+            else this.$store.commit('SELLER-PRICE/CLEAR_SELLER_DATA', this.seller.sellerId);
         }
     }
 }

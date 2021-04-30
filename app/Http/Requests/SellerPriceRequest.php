@@ -25,18 +25,13 @@ class SellerPriceRequest extends FormRequest
     {
         return [
             'search' => 'required|string|min:3',
-            'isFile' => 'nullable|in:true,false',
             'isUpdate' => 'nullable|in:true,false',
             'sellerId' => 'required|integer',
-            'isInput' => 'nullable|in:true,false',
         ];
     }
 
     public function passedValidation()
     {
-        $isFile = $this->isFile === 'true';
-        $isUpdate = $this->isUpdate === 'true';
-        $isInput = $this->isInput === 'true';
-        $this->merge(compact('isFile', 'isInput', 'isUpdate'));
+        $this->merge( ['isUpdate' => $this->isUpdate === 'true']);
     }
 }

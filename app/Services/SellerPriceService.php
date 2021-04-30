@@ -6,7 +6,9 @@ namespace App\Services;
 
 use App\Services\Pricing\DataBase;
 use Error;
+use Exception;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class SellerPriceService
 {
@@ -36,24 +38,33 @@ class SellerPriceService
      * @return array
      * @throws \Throwable
      */
-    public function get(string $search, int $sellerId, bool $file = true, bool $update = false): array
+    public function get(string $search, int $sellerId, bool $update = false): array
     {
         $processedSearch = trim($search);
         throw_if(!$this->isSeller($sellerId), new Error('Bad Seller!'));
         throw_if(mb_strlen($processedSearch) < 3, new Error('Search string is short!'));
-        $key = 'sellerId=' . $sellerId . ';search=' . $processedSearch . ';file=' . $file;
+        $key = 'sellerId=' . $sellerId . ';search=' . $processedSearch;
         $result = array();
+        $result['isApiError'] = false;
         if (!$update && Cache::has($key)) {
             $result['data'] = Cache::get($key);
             $result['cache'] = true;
         } else {
             $seller = $this->seller($sellerId);
-            $service = $file ? new DataBase() : new $seller['class'];
-            if ($file || $seller['ereg']) {
+            $service = new $seller['class'];
+            if ($seller['ereg']) {
                 $processedSearch = mb_ereg_replace(config('app.search_replace'), '', $processedSearch);
             }
-            $result['data'] = $service($processedSearch, $sellerId);
-            Cache::put($key, $result['data'], $seller['cacheTimes']);
+            try {
+                $result['data'] = $service($processedSearch);
+                Cache::put($key, $result['data'], $seller['cacheTimes']);
+            } catch (Exception $e) {
+                $service = new DataBase();
+                $processedSearch = mb_ereg_replace(config('app.search_replace'), '', $processedSearch);
+                $result['data'] = $service($processedSearch);
+                $result['isApiError'] = true;
+                Log::error($e->getMessage());
+            }
             $result['cache'] = false;
         }
         return $result;

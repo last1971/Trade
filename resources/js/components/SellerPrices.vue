@@ -49,7 +49,7 @@
                             <v-slide-item v-for="seller in sellers"
                                           :key="seller.sellerId"
                             >
-                                <seller-api-file-select :seller="seller" v-model="seller.selected"/>
+                                <seller-api-file-select :seller="seller" @seller-on="update"/>
                             </v-slide-item>
                         </v-slide-group>
                     </v-row>
@@ -191,7 +191,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import SellerApiFileSelect from "./SellerApiFileSelect";
+import SellerApiFileSelect from "./SellerApiFileSelect.vue";
 import GoodInString from "./good/GoodInString";
 import GoodSelect from "./good/GoodSelect";
 
@@ -251,28 +251,20 @@ export default {
             if (!search || search.trim().length  < 3) return;
             try {
                 this.$store.commit('SELLER-PRICE/CLEAR_DATA');
+                this.$store.commit('SELLER-PRICE/CLEAR_ALL_API_ERRORS');
+                const selectedSellerId = this.$store.getters['SELLER-PRICE/SELECTED_SELLER_ID'];
+                this.$store.commit('SELLER-PRICE/SELLER_SELECT', selectedSellerId);
                 await Promise.all(this.handlers);
                 this.loading = true;
-                const handlers = [];
-                this.sellers.map((seller) => {
-                    const {sellerId} = seller;
-                    if (seller.isApi && seller.selected.isApi) {
-                        seller.loading.isApi = true;
-                        handlers.push(
-                            this.$store.dispatch('SELLER-PRICE/GET', {sellerId, search, isFile: false})
-                                .then(() => { seller.loading.isApi = false; })
+                this.handlers = this.sellers
+                    .filter((seller) => seller.isApi)
+                    .map((seller) => {
+                        seller.loading = true;
+                        return this.$store.dispatch('SELLER-PRICE/GET', {sellerId: seller.sellerId, search})
+                            .then(() => { seller.loading = false; }
                         )
-                    }
-                    if (seller.isFile && seller.selected.isFile) {
-                        seller.loading.isFile = true;
-                        handlers.push(
-                            this.$store.dispatch('SELLER-PRICE/GET', {sellerId, search, isFile: true})
-                                .then(() => { seller.loading.isFile = false; })
-                        )
-                    }
-                });
-                this.handlers = handlers;
-                await Promise.all(handlers);
+                    })
+                await Promise.all(this.handlers);
             } catch (e) {
                 console.log(e)
             } finally {
@@ -315,30 +307,23 @@ export default {
         await this.$store.dispatch('SELLER-PRICE/GET_SELLERS');
     },
     methods: {
-        async update(item) {
+        async update(item, isUpdate = true) {
             const { sellerId } = item;
-            this.$store.commit('SELLER-PRICE/CLEAR_SELLER_DATA', sellerId);
-            this.loading = true;
             const seller = this.seller(sellerId);
+            const { search } = this;
+            if (!seller.isApi || !search || search.trim().length  < 3) return;
+            this.$store.commit('SELLER-PRICE/CLEAR_SELLER_DATA', sellerId);
+            this.$store.commit('SELLER-PRICE/CLEAR_SELLER_API_ERROR', sellerId);
+            this.loading = true;
             try {
-                if (item.isApi) {
-                    seller.loading.isApi = true;
-                } else {
-                    seller.loading.isFile = true;
-                }
+                seller.loading = true;
                 const handler = this.$store.dispatch(
-                    'SELLER-PRICE/GET', { sellerId, search: this.search, isFile: !item.isApi, isUpdate: true }
-                ).then(() => {
-                    if (item.isApi) {
-                        seller.loading.isApi = false;
-                    } else {
-                        seller.loading.isFile = false;
-                    }
-                });
+                    'SELLER-PRICE/GET', { sellerId, search, isUpdate }
+                ).then(() => { seller.loading = false; });
                 this.handlers.push(handler);
                 await Promise.all(this.handlers);
             } catch (e) {
-
+                console.log(e);
             } finally {
                 this.loading = false;
             }

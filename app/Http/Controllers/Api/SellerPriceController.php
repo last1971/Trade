@@ -16,24 +16,23 @@ class SellerPriceController extends Controller
      */
     public function index(SellerPriceRequest $request, SellerPriceService $service)
     {
-        return $service->get($request->search, $request->sellerId, $request->isFile, $request->isUpdate);
+        return $service->get($request->search, $request->sellerId, $request->isUpdate);
     }
 
     public function sellers()
     {
         $sellers = Seller::query()
-            ->whereNotNull(['IS_API', 'IS_FILE'])
-            ->whereOr(['IS_API' => true, 'IS_FILE' => true])
-            ->select('WHEREISPOSTCODE as sellerId', 'NAMEPOST as name', 'IS_API as isApi', 'IS_FILE as isFile')
+            ->whereNotNull(['IS_API'])
+            ->whereOr(['IS_API' => true])
+            ->select('WHEREISPOSTCODE as sellerId', 'NAMEPOST as name', 'IS_API as isApi')
             ->get()
             ->toArray();
         array_unshift(
             $sellers,
             [
                 'sellerId' => 0,
-                'name' => 'ЭлкоПро/Склад',
+                'name' => 'ЭлкоПро',
                 'isApi' => 1,
-                'isFile' => 0,
             ],
         );
         return $sellers;
