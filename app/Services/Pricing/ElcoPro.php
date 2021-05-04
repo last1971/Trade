@@ -6,39 +6,43 @@ namespace App\Services\Pricing;
 
 use App\Entry;
 use App\Good;
-use App\Http\Resources\SellerPriceResource;
 use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
 use App\Warehouse;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class ElcoPro
 {
     private function make(Good $good, float $price, int $minQuantity, int $maxQuantity, bool $isInput): SellerPrice
     {
-        $sellerGood= new SellerGood([
+        $sellerGood = SellerGood::query()->firstOrNew([
+            'seller_id' => config('pricing.ElcoPro.sellerId'),
+            'good_id' => $good->GOODSCODE,
+        ]);
+        $sellerGood->fill([
             'name' => $good->name->NAME,
             'producer' => $good->PRODUCER,
             'case' => $good->BODY,
             'code' => $good->GOODSCODE,
-            'seller_id' => config('pricing.ElcoPro.sellerId'),
-            'good_id' => $good->GOODSCODE,
             'basic_delivery_time' => config('pricing.ElcoPro.basicDeliveryTime'),
             'remark' => $good->DESCRIPTION,
-            'packageQuantity' => 1,
+            'package_quantity' => 1,
         ]);
-        $sellerWarehouse = new SellerWarehouse([
-            'sellerGood' => $sellerGood,
+        $sellerGood->save();
+        $sellerWarehouse = SellerWarehouse::query()->firstOrNew(['seller_good_id' => $sellerGood->id]);
+        $sellerWarehouse->fill([
             'quantity' => $good->quantity,
             'additional_delivery_time' => 0,
             'multiplicity' => 1,
             'remark' => '',
             'options' => null,
         ]);
+        $sellerWarehouse->save();
+        $sellerWarehouse->selerGood = $sellerGood;
         return new SellerPrice([
             'id' => Str::uuid(),
             'sellerWarehouse' => $sellerWarehouse,
@@ -51,7 +55,7 @@ class ElcoPro
         ]);
     }
 
-    public function __invoke(string $search): ResourceCollection
+    public function __invoke(string $search): Collection
     {
         //$sellerId = config('pricing.ElcoPro.sellerId');
         $goods = Good::with('name', 'retailPrice')
@@ -116,6 +120,6 @@ class ElcoPro
                 );
             }
         }
-        return SellerPriceResource::collection($ret);
+        return $ret;
     }
 }

@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import store from './store/index';
-import ExampleComponent from "./components/ExampleComponent";
 import Help from "./components/Help";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -24,6 +23,7 @@ import RetailOrderLines from "./components/Retail/RetailOrderLines";
 import RetailSalesAndRefunds from "./components/Retail/RetailSalesAndRefunds";
 import ExchangeRates from "./components/ExchangeRates";
 import PaymentTabs from "./components/payment/PaymentTabs";
+import SellerPrices from "./components/seller/SellerPrices";
 
 Vue.use(VueRouter);
 
@@ -60,7 +60,7 @@ const routes = [
     {
         name: 'home',
         path: '/',
-        component: ExampleComponent,
+        component: SellerPrices,
         meta: {requiresAuth: true},
     },
     {

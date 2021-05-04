@@ -3,7 +3,7 @@
 </template>
 
 <script>
-    import SellerPrices from "./SellerPrices";
+    import SellerPrices from "./seller/SellerPrices";
     export default {
         name: "Test",
         components: {SellerPrices},

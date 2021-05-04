@@ -66,6 +66,7 @@
 
 <script>
     import authMixin from "../mixins/authMixin";
+    import moment from "moment";
 
     export default {
         name: "Login",
@@ -90,6 +91,7 @@
                     .then(() => {
                         this.user.login = '';
                         this.user.password = '';
+                        this.$store.dispatch('EXCHANGE-RATE/SET', moment().format('Y-MM-DD'))
                         this.$router.back()
                     })
                     .catch((error) => {

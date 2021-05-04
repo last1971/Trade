@@ -34,7 +34,17 @@ const getters = {
     },
     FILTERD_DATA: (state, getters) => {
         return _.filter(getters.SORTED_DATA, (price) => {
-            return ((price.orderQuantity >= state.quantity && price.orderQuantity <= price.quantity)|| state.isAll)
+            return (
+                    (
+                        price.orderQuantity >= state.quantity
+                        &&
+                        price.orderQuantity <= price.quantity
+                        &&
+                        price.minQuantity <= price.maxQuantity
+                    )
+                    ||
+                    state.isAll
+                )
                 &&
                 (state.selectedSellerId === null || state.selectedSellerId === price.sellerId)
                 &&
@@ -42,16 +52,20 @@ const getters = {
         })
     },
     RETAIL_PRICE: (state) => (line) => {
-        const ret =  _.find(state.data, (price) =>
-            !price.isInput
-            &&
-            price.minQuantity <= state.quantity
-            &&
-            price.maxQuantity >= state.quantity
-            &&
-            price.code === line.code
-            &&
-            price.sellerId === line.sellerId
+        const ret =  _.find(state.data, (price) => {
+            //if (price.minQuantity <= state.quantity) debugger;
+            return    !price.isInput
+                &&
+                price.minQuantity <= line.orderQuantity //state.quantity
+                &&
+                price.maxQuantity >= line.orderQuantity //state.quantity
+                &&
+                price.code === line.code
+                &&
+                price.sellerId === line.sellerId
+                &&
+                price.warehouseCode === line.warehouseCode
+            }
         );
         return ret ? ret.price : 0;
     },

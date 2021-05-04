@@ -65,7 +65,7 @@
 import tableMixin from "../../mixins/tableMixin";
 import utilsMixin from "../../mixins/utilsMixin";
 import DatePicker from "../DatePicker";
-import SellerSelect from "../SellerSelect";
+import SellerSelect from "../seller/SellerSelect";
 
 export default {
     name: "PaymentOrdersTab",

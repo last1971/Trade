@@ -117,4 +117,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\UserFirm');
     }
+
+    public function sellerPriceRule()
+    {
+        return $this->belongsTo(SellerPriceRule::class);
+    }
 }

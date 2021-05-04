@@ -113,7 +113,7 @@
 </template>
 
 <script>
-    import SellerSelect from "../SellerSelect";
+    import SellerSelect from "../seller/SellerSelect";
     import editMixin from "../../mixins/editMixin";
     import utilsMixin from "../../mixins/utilsMixin";
     import OrderStatusSelect from "./OrderStatusSelect";

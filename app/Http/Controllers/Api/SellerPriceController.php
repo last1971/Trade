@@ -35,6 +35,12 @@ class SellerPriceController extends Controller
                 'isApi' => 1,
             ],
         );
+        if (!request()->user()->hasPermissionTo('seller-price.full')) {
+            $sellers = array_map(function ($seller) {
+                unset($seller['name']);
+                return $seller;
+            }, $sellers);
+        }
         return $sellers;
     }
 }

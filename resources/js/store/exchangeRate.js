@@ -3,7 +3,7 @@ import moment from 'moment';
 
 const state = {
     date: moment().format('Y-MM-DD'),
-    rates: [{ CharCode: 'USD', value: 1 }, { CharCode: 'EUR', value: 1 }],
+    rates: [{ CharCode: 'USD', value: 1 }, { CharCode: 'EUR', value: 1 }, { CharCode: 'RUB', value: 1 }],
 }
 
 const getters = {
@@ -12,7 +12,7 @@ const getters = {
     DATE: state => state.date,
     TO_RUB: (state, getters) => (CharCode, price) => {
         const rate = getters['GET'](CharCode);
-        return rate.value * price;
+        return rate ? rate.value * price : 0;
     },
     TO_USD: (state, getters) => (CharCode, price) => {
         if (CharCode === 'USD') return price;

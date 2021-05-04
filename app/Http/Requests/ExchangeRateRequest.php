@@ -13,9 +13,9 @@ class ExchangeRateRequest extends FormRequest
      */
     public function authorize()
     {
-        $name = $this->route()->getName();
-        $user = $this->user();
-        return $user->can($name);
+        //$name = $this->route()->getName();
+        //$user = $this->user();
+        return true;//$user->can($name);
     }
 
     /**

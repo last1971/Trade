@@ -89,7 +89,7 @@
 <script>
 import utilsMixin from "../../mixins/utilsMixin";
 import moment from 'moment';
-import SellerSelect from "../SellerSelect";
+import SellerSelect from "../seller/SellerSelect";
 
 export default {
     name: "PaymentAdd",

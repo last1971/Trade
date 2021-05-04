@@ -3,7 +3,7 @@
         :footer-props="{
             showFirstLastPage: true,
         }"
-        :headers="headers"
+        :headers="modifiedHeaders"
         :items="items"
         :loading="loading"
         :options.sync="options"
@@ -30,18 +30,18 @@
 
                             />
                         </v-col>
-                        <v-col cols="1">
+                        <v-col v-if="hasPermission('seller-price.full')" cols="1">
                             <v-text-field label="Наценка"
                                           placeholder="Введите наценку"
                                           v-model="markup"
                                           append-icon="mdi-percent"
                             />
                         </v-col>
-                        <v-col>
+                        <v-col v-if="hasPermission('seller-price.full')">
                             <v-switch v-model="isAll" :label="isAllLabel"/>
                         </v-col>
                     </v-row>
-                    <v-row dense>
+                    <v-row v-if="hasPermission('seller-price.full')" dense>
                         <v-slide-group
                             multiple
                             show-arrows
@@ -78,70 +78,13 @@
             </v-container>
         </template>
         <template v-slot:item.name="{ item }">
-            <v-container>
-                <v-row dense>
-                    <v-col>
-                        <b>{{ showName(item) }}</b>
-                    </v-col>
-                </v-row>
-                <v-row dense>
-                    <v-col class="text-caption">
-                        {{ showRemark(item) }}
-                    </v-col>
-                </v-row>
-                <v-row dense>
-                    <v-col>
-                        <good-in-string v-if="good(item.goodId)" :value="good(item.goodId)" />
-                        <div v-else>А Н Е Т У</div>
-                    </v-col>
-                </v-row>
-            </v-container>
+            <seller-price-name :item="item" />
         </template>
         <template v-slot:item.quantity="{ item }">
-            <v-container>
-                <v-row dense>
-                    <v-col>
-                        Есть: <b>{{ item.quantity }}</b> / Берём:
-                        <v-btn icon>
-                            {{ item.orderQuantity }}
-                        </v-btn>
-                    </v-col>
-                </v-row>
-                <v-row dense>
-                    <v-col class="text-caption">
-                        Упак: {{ item.packageQuantity }} / Кратно: {{ item.multiplicity }}
-                    </v-col>
-                </v-row>
-                <v-row dense>
-                    <v-col>
-                        Min: {{ item.minQuantity }} / Max: {{ item.maxQuantity }}
-                    </v-col>
-                </v-row>
-            </v-container>
+            <seller-price-quantity :item="item" />
         </template>
         <template v-slot:item.price="{ item }">
-            <v-container>
-                <v-row dense>
-                    <v-col>
-                        <b>
-                            {{ toRub(item.CharCode, item.price) | formatRub }}
-                            ({{ toUsd(item.CharCode, item.price) | formatUsd }})
-                        </b>
-                    </v-col>
-                </v-row>
-                <v-row dense>
-                    <v-col class="text-caption">
-                        {{ toRub(item.CharCode, retailPrice(item)) | formatRub }}
-                        ({{ toUsd(item.CharCode, retailPrice(item)) | formatUsd }})
-                    </v-col>
-                </v-row>
-                <v-row dense>
-                    <v-col>
-                        {{ toRub(item.CharCode, item.price * (1 + markup / 100)) | formatRub }}
-                        ({{ toUsd(item.CharCode, item.price * (1 + markup / 100)) | formatUsd }})
-                    </v-col>
-                </v-row>
-            </v-container>
+            <seller-price-prices :item="item" :markup="markup"/>
         </template>
         <template v-slot:item.amount="{ item }">
             <v-container>
@@ -168,23 +111,7 @@
             </v-container>
         </template>
         <template v-slot:item.deliveryTime="{ item }">
-            <v-row dense>
-                <v-col>
-                    <b>{{ item.deliveryTime }} дней</b>
-                </v-col>
-            </v-row>
-            <v-row dense>
-                <v-col class="text-caption">
-                    {{ sellerRemark(item) }}
-                </v-col>
-            </v-row>
-            <v-row dense>
-                <v-col>
-                    <v-btn :disabled="!item.isCache" small plain @click="update(item)">
-                        {{ item.updatedAt | formatDateTime}}
-                    </v-btn>
-                </v-col>
-            </v-row>
+            <seller-price-delivery-time :item="item" @update="update(item)" />
         </template>
     </v-data-table>
 </template>
@@ -192,12 +119,19 @@
 <script>
 import { mapGetters } from 'vuex';
 import SellerApiFileSelect from "./SellerApiFileSelect.vue";
-import GoodInString from "./good/GoodInString";
-import GoodSelect from "./good/GoodSelect";
+import GoodInString from "../good/GoodInString";
+import GoodSelect from "../good/GoodSelect";
+import SellerPriceName from "./SellerPriceName";
+import SellerPriceQuantity from "./SellerPriceQuantity";
+import SellerPricePrices from "./SellerPricePrices";
+import SellerPriceDeliveryTime from "./SellerPriceDeliveryTime";
+import moment from "moment";
 
 export default {
     name: "SellerPrices",
-    components: {GoodSelect, GoodInString, SellerApiFileSelect},
+    components: {
+        SellerPriceDeliveryTime,
+        SellerPricePrices, SellerPriceQuantity, SellerPriceName, GoodSelect, GoodInString, SellerApiFileSelect},
     data() {
         return {
             loading: false,
@@ -206,6 +140,10 @@ export default {
             search: '',
             handlers: [],
             markup: 20,
+            buyerHeaders: [
+                'name', 'quantity', 'price', 'deliveryTime'
+            ],
+            goodPromise: Promise.resolve(),
         }
     },
     computed: {
@@ -218,7 +156,13 @@ export default {
             rate: 'EXCHANGE-RATE/GET',
             toRub: 'EXCHANGE-RATE/TO_RUB',
             toUsd: 'EXCHANGE-RATE/TO_USD',
+            hasPermission: 'AUTH/HAS_PERMISSION',
         }),
+        modifiedHeaders() {
+            return this.headers.filter((header) =>
+                this.hasPermission('seller-price.full') || this.buyerHeaders.indexOf(header.value) >= 0
+            );
+        },
         usd() {
             return this.rate('USD').value;
         },
@@ -247,6 +191,9 @@ export default {
     },
     watch: {
         search: _.debounce(async function () {
+            if (this.$store.getters['EXCHANGE-RATE/DATE'] !== moment().format('Y-MM-DD')) {
+                await this.$store.dispatch('EXCHANGE-RATE/SET', moment().format('Y-MM-DD'))
+            }
             let { search } = this;
             if (!search || search.trim().length  < 3) return;
             try {
@@ -272,12 +219,13 @@ export default {
             }
         }, 1000),
         async items(items) {
+            await this.goodPromise;
             const goodIds = _.filter(
                 _.filter(items, 'goodId').map((item) => item.goodId),
                 (id) => !this.$store.getters['GOOD/GET'](id)
             );
-            if (goodIds.length > 0) {
-                await this.$store.dispatch('GOOD/ALL', {
+            if (goodIds.length > 0 && this.hasPermission('seller-price.full')) {
+                this.goodPromise = this.$store.dispatch('GOOD/ALL', {
 
                         with: [
                             'retailPrice', 'orderStep', 'retailStore', 'warehouse', 'name', 'category', 'goodNames'
@@ -334,24 +282,6 @@ export default {
         sellerName(sellerId) {
             return this.seller(sellerId).name;
         },
-        showName(item) {
-            let ret = item.name;
-            if (item.case && item.case.trim().length > 0) ret += ' / ' + item.case;
-            if (item.producer && item.producer.trim().length > 0) ret += ' / ' + item.producer;
-            return ret;
-        },
-        good(id) {
-            return  this.$store.getters['GOOD/GET'](id);
-        },
-        showRemark(item) {
-            let ret = item.remark ? item.remark.trim() : item.remark;
-            return ret || 'Без комментариев';
-        },
-        sellerRemark(item) {
-            if (!item.options) return 'С К Л А Д';
-            if (item.options.location_id) return item.options.location_id;
-            return item.options.vend_type;
-        }
     }
 }
 </script>

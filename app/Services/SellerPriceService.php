@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\Http\Resources\SellerPriceResource;
 use App\Services\Pricing\DataBase;
 use Error;
 use Exception;
@@ -47,7 +48,7 @@ class SellerPriceService
         $result = array();
         $result['isApiError'] = false;
         if (!$update && Cache::has($key)) {
-            $result['data'] = Cache::get($key);
+            $result['data'] = SellerPriceResource::collection(Cache::get($key));
             $result['cache'] = true;
         } else {
             $seller = $this->seller($sellerId);
@@ -56,12 +57,13 @@ class SellerPriceService
                 $processedSearch = mb_ereg_replace(config('app.search_replace'), '', $processedSearch);
             }
             try {
-                $result['data'] = $service($processedSearch);
-                Cache::put($key, $result['data'], $seller['cacheTimes']);
+                $collection = $service($processedSearch);
+                $result['data'] = SellerPriceResource::collection($collection);
+                Cache::put($key, $collection, $seller['cacheTimes']);
             } catch (Exception $e) {
                 $service = new DataBase();
                 $processedSearch = mb_ereg_replace(config('app.search_replace'), '', $processedSearch);
-                $result['data'] = $service($processedSearch);
+                $result['data'] = SellerPriceResource::collection($service($processedSearch));
                 $result['isApiError'] = true;
                 Log::error($e->getMessage());
             }

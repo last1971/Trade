@@ -2,14 +2,27 @@
 
 namespace App\Http\Resources;
 
+use App\SellerPriceRule;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SellerPriceResource extends JsonResource
 {
+    private $sellerPriceRule;
+
+    public function __construct($resource)
+    {
+        $this->sellerPriceRule = request()->user()->hasPermissionTo('seller-price.full')
+            ? SellerPriceRule::query()->firstWhere('alias', 'full_rule')
+            : request()->user()->sellerPriceRule
+            ?? SellerPriceRule::query()->firstWhere('alias', 'buyer_rule');
+        parent::__construct($resource);
+    }
+
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @return array
      */
     public function toArray($request)
@@ -21,6 +34,7 @@ class SellerPriceResource extends JsonResource
             'remark' => $this->sellerWarehouse->sellerGood->remark . ' ' . $this->sellerWarehouse->remark,
             'id' => $this->id,
             'code' => $this->sellerWarehouse->sellerGood->code,
+            'warehouseCode' => $this->sellerWarehouse->code,
             'goodId' => $this->sellerWarehouse->sellerGood->good_id,
             'sellerId' => $this->sellerWarehouse->sellerGood->seller_id,
             'packageQuantity' => $this->sellerWarehouse->sellerGood->package_quantity,
@@ -28,9 +42,9 @@ class SellerPriceResource extends JsonResource
             'quantity' => $this->sellerWarehouse->quantity,
             'minQuantity' => $this->min_quantity,
             'maxQuantity' => $this->max_quantity,
-            'price' => $this->value,
+            'price' => $this->priceRule(),
             'CharCode' => $this->CharCode,
-            'isInput' => $this->is_input,
+            'isInput' => $this->isInputRule(),
             'deliveryTime' => $this->sellerWarehouse->sellerGood->basic_delivery_time
                 + $this->sellerWarehouse->additional_delivery_time,
             'isSomeoneElsesWarehouse' => $this->sellerWarehouse->additional_delivery_time > 0,
@@ -38,5 +52,33 @@ class SellerPriceResource extends JsonResource
             'options' => $this->sellerWarehouse->options,
             'updatedAt' => $this->updated_at,
         ];
+    }
+
+    private function priceRule()
+    {
+        switch ($this->sellerPriceRule->alias) {
+            case 'full_rule':
+                return $this->value;
+            default:
+                if ($this->sellerWarehouse->sellerGood->seller_id === config('pricing.Compel.sellerId')) {
+                    return $this->value * 1.15;
+                } else {
+                    return $this->is_input ? 0 : $this->value;
+                }
+        }
+    }
+
+    private function isInputRule()
+    {
+        switch ($this->sellerPriceRule->alias) {
+            case 'full_rule':
+                return $this->is_input;
+            default:
+                if ($this->sellerWarehouse->sellerGood->seller_id === config('pricing.Compel.sellerId')) {
+                    return !$this->is_input;
+                } else {
+                    return $this->is_input;
+                }
+        }
     }
 }

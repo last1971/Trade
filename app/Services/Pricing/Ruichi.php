@@ -4,13 +4,12 @@
 namespace App\Services\Pricing;
 
 
-use App\Http\Resources\SellerPriceResource;
 use App\RuichiGood;
-use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Collection;
 
 class Ruichi
 {
-    public function __invoke(string $search): ResourceCollection
+    public function __invoke(string $search): Collection
     {
         $ruichiGoods = RuichiGood::query()
             ->where('tovmark1', 'like', '%' . $search . '%')
@@ -21,6 +20,6 @@ class Ruichi
         foreach ($ruichiGoods as $ruichiGood) {
             $ret = $ret->merge($ruichiGood->sellerPrices());
         }
-        return SellerPriceResource::collection($ret);
+        return $ret;
     }
 }

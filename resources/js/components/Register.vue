@@ -61,6 +61,7 @@
 
 <script>
     import authMixin from "../mixins/authMixin";
+    import moment from "moment";
 
     export default {
         name: "Register",
@@ -79,7 +80,10 @@
         methods: {
             register() {
                 this.$store.dispatch('AUTH/REGISTER', this.user)
-                    .then(() => this.$router.push({name: 'help'}))
+                    .then(() => {
+                        this.$store.dispatch('EXCHANGE-RATE/SET', moment().format('Y-MM-DD'))
+                        this.$router.push({name: 'help'})
+                    })
                     .catch((error) => {
                         this.error = error.response.data.errors;
                     });

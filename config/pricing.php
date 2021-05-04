@@ -3,6 +3,7 @@
 use App\Services\Pricing\Compel;
 use App\Services\Pricing\DataBase;
 use App\Services\Pricing\ElcoPro;
+use App\Services\Pricing\Promelec;
 use App\Services\Pricing\Ruichi;
 
 return [
@@ -21,17 +22,24 @@ return [
         'ereg' => true,
     ],
     'ElcoPro' => [
-        'cacheTimes' => 120,
+        'cacheTimes' => 1800,
         'sellerId' => 0,
         'basicDeliveryTime' => 0,
         'class' => ElcoPro::class,
         'ereg' => true,
     ],
-    'Ruichi' => [
+    'Promelec' => [
         'cacheTimes' => 7200,
+        'sellerId' => (int) env('PROM_SELLER_ID', 860),
+        'basicDeliveryTime' => 8,
+        'class' => Promelec::class,
+        'ereg' => true,
+    ],
+    'Ruichi' => [
+        'cacheTimes' => 21600,
         'sellerId' => (int) env('RUICHI_SELLER_ID', 2559),
-        'basicDeliveryTime' => 11,
+        'basicDeliveryTime' =>11,
         'class' => Ruichi::class,
         'ereg' => true,
-    ]
+    ],
 ];

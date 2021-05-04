@@ -35,7 +35,7 @@ class RuichiGood extends Model
         ]);
         $sellerGood->fill([
             'name' => $this->tovmark,
-            'producer' => $this->ruichiWharehouses->first()->brand,
+            'producer' => $this->ruichiWharehouses->first()->brand ?? null,
             'basic_delivery_time' => config('pricing.Ruichi.basicDeliveryTime'),
             'remark' => $this->ruichiWharehouses
                 ->unique('notes')

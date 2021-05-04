@@ -3,23 +3,21 @@
 
 namespace App\Services\Pricing;
 
-
-use App\Http\Resources\SellerPriceResource;
 use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
 use App\Services\CompelApiService;
 use Carbon\Carbon;
-use Illuminate\Http\Resources\Json\ResourceCollection;
+use Illuminate\Support\Collection;
 
 class Compel
 {
-    public function __invoke(string $search): ResourceCollection
+    public function __invoke(string $search): Collection
     {
         $sellerId = config('pricing.Compel.sellerId');
         $compel = new CompelApiService();
         $ret = collect();
-        foreach ($compel->apiSearchByName($search)->result->items as $item) {
+        foreach ($compel->searchByName($search)->result->items as $item) {
             $sellerGood = SellerGood::query()
                 ->firstOrNew(['code' => $item->item_id, 'seller_id' => $sellerId
                 ]);
@@ -79,6 +77,6 @@ class Compel
                 }
             }
         }
-        return SellerPriceResource::collection($ret);
+        return $ret;
     }
 }

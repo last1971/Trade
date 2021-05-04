@@ -48,7 +48,7 @@ class CompelApiService
      * @throws CompelException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function apiSearchByName(string $name)
+    public function searchByName(string $name)
     {
         $params = [
             'user_hash'     => env('COMPEL_API_HASH'),

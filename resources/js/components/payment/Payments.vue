@@ -189,7 +189,7 @@ import utilsMixin from "../../mixins/utilsMixin";
 import moment from 'moment';
 import PaymentAdd from "./PaymentAdd";
 import EditField from "../EditField";
-import SellerSelect from "../SellerSelect";
+import SellerSelect from "../seller/SellerSelect";
 import PaymentOrders from "./PaymentOrders";
 
 export default {

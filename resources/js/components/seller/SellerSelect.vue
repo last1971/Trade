@@ -18,9 +18,9 @@
 </template>
 
 <script>
-    import utilsMixin from "../mixins/utilsMixin";
-    import ModelSelect from "./ModelSelect";
-    import Test from "./Test";
+    import utilsMixin from "../../mixins/utilsMixin";
+    import ModelSelect from "../ModelSelect";
+    import Test from "../Test";
     import SellerEditDialog from "./SellerEditDialog";
 
     export default {
