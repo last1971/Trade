@@ -35,6 +35,13 @@ return [
         'class' => Promelec::class,
         'ereg' => true,
     ],
+    'Rct' => [
+        'cacheTimes' => 86400,
+        'sellerId' => (int) env('RCT_SELLER_ID', 2341),
+        'basicDeliveryTime' => 14,
+        'class' => DataBase::class,
+        'ereg' => true,
+    ],
     'Ruichi' => [
         'cacheTimes' => 21600,
         'sellerId' => (int) env('RUICHI_SELLER_ID', 2559),

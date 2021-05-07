@@ -2,24 +2,24 @@
 
 namespace App\Console\Commands;
 
-use App\Jobs\ProcessDanPrice;
+use App\Jobs\ProcessRctPrice;
 use Illuminate\Console\Command;
 
-class ImportDanPrice extends Command
+class ImportRctPrice extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'import:dan';
+    protected $signature = 'import:rct';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Import Dan prices';
+    protected $description = 'Import Radiotechtrade prices';
 
     /**
      * Create a new command instance.
@@ -38,7 +38,7 @@ class ImportDanPrice extends Command
      */
     public function handle()
     {
-        ProcessDanPrice::dispatch();
+        ProcessRctPrice::dispatch();
         return 0;
     }
 }
