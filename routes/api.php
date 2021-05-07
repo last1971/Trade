@@ -78,6 +78,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('sbis/export', 'Api\SbisController@export')->name('sbis.export');
 
     Route::post('goods-list', 'Api\GoodsListController@store')->name('goods-list.store');
+
+    Route::put('seller-good/{sellerGood}', 'Api\SellerGoodController@update')->name('seller.good.update');
 });
 
 Route::post('login', 'Api\AuthController@login')->name('login');

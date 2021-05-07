@@ -33,6 +33,7 @@ class SellerPriceResource extends JsonResource
             'case' => $this->sellerWarehouse->sellerGood->case,
             'remark' => $this->sellerWarehouse->sellerGood->remark . ' ' . $this->sellerWarehouse->remark,
             'id' => $this->id,
+            'sellerGoodId' => $this->sellerWarehouse->sellerGood->id,
             'code' => $this->sellerWarehouse->sellerGood->code,
             'warehouseCode' => $this->sellerWarehouse->code,
             'goodId' => $this->sellerWarehouse->sellerGood->good_id,

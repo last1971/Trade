@@ -13,7 +13,7 @@ const state = {
     name: 'seller-price',
     quantity: 1,
     isAll: false,
-    sellers: [],
+    sellers: localStorage.getItem('isApiSeller') ? JSON.parse(localStorage.getItem('isApiSeller')) : [],
     sources: new Map(),
     selectedSellerId: null,
 };
@@ -106,6 +106,9 @@ const mutations = {
     SET_SELLERS(state, sellers) {
         state.sellers = sellers;
     },
+    SAVE_SELLERS(state) {
+        localStorage.setItem('isApiSeller', JSON.stringify(state.sellers));
+    },
     SET_SELLER_API_ERROR(state, sellerId) {
         const index = _.findIndex(state.sellers, { sellerId });
         const seller = state.sellers[index];
@@ -162,19 +165,24 @@ const actions = {
             }
         }
     },
-    async GET_SELLERS({commit, getters}) {
+    async GET_SELLERS({state, commit, getters}) {
         try {
             const response = await axios.get(getters.URL + '/sellers');
-            commit('SET_SELLERS', response.data.map((v) => {
-                //v.selected = { isApi: true, isFile: true }
-                v.loading = false
-                v.isApiError = false;
-                return v;
-            }));
+            if (state.sellers.length !== response.data.length) {
+                commit('SET_SELLERS', response.data.map((v) => {
+                    //v.selected = { isApi: true, isFile: true }
+                    v.loading = false
+                    v.isApiError = false;
+                    return v;
+                }));
+            }
         } catch (e) {
             commit('SNACKBAR/ERROR', e.response.data.message, {root: true});
         }
     },
+    async SAVE_SELLER_PRICE({state, getters}, item) {
+        axios.put('/api/seller-good/' + item.sellerGoodId, _.pick(item, ['goodId']));
+    }
 }
 
 export default {

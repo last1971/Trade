@@ -12,8 +12,7 @@
         </v-row>
         <v-row v-if="hasPermission" dense>
             <v-col>
-                <good-in-string v-if="good(item.goodId)" :value="good(item.goodId)" />
-                <div v-else>А Н Е Т У</div>
+                <good-in-string-select v-model="item.goodId" :disabled="disabled" @input="save"/>
             </v-col>
         </v-row>
     </v-container>
@@ -22,10 +21,17 @@
 <script>
 import GoodInString from "../good/GoodInString";
 import sellerPriceMixin from "../../mixins/sellerPriceMixin";
+import GoodSelect from "../good/GoodSelect";
+import GoodInStringSelect from "../good/GoodInStringSelect";
 export default {
     name: "SellerPriceName",
-    components: {GoodInString},
+    components: {GoodInStringSelect, GoodSelect, GoodInString},
     mixins: [sellerPriceMixin],
+    computed: {
+        disabled() {
+            return !this.$store.getters['AUTH/HAS_PERMISSION']('seller-good.update');
+        }
+    },
     methods: {
         showName(item) {
             let ret = item.name;
@@ -40,6 +46,9 @@ export default {
             let ret = item.remark ? item.remark.trim() : item.remark;
             return ret || 'Без комментариев';
         },
+        async save() {
+            await this.$store.dispatch('SELLER-PRICE/SAVE_SELLER_PRICE', this.item);
+        }
     }
 }
 </script>

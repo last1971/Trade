@@ -59,7 +59,13 @@ class SellerPriceService
             try {
                 $collection = $service($processedSearch);
                 $result['data'] = SellerPriceResource::collection($collection);
-                Cache::put($key, $collection, $seller['cacheTimes']);
+                $goodIds = $collection
+                    ->map(function($sellerPrice) {
+                        return $sellerPrice->sellerWarehouse->sellerGood->id;
+                    })
+                    ->unique()
+                    ->toArray();
+                Cache::tags($goodIds)->put($key, $collection, $seller['cacheTimes']);
             } catch (Exception $e) {
                 $service = new DataBase();
                 $processedSearch = mb_ereg_replace(config('app.search_replace'), '', $processedSearch);

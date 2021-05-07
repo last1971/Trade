@@ -44,6 +44,7 @@ export default {
             this.$store.commit('SELLER-PRICE/SELLER_SELECT', this.seller.sellerId)
         },
         change(v) {
+            this.$store.commit('SELLER-PRICE/SAVE_SELLERS');
             if (v) this.$emit('seller-on', this.seller, false);
             else this.$store.commit('SELLER-PRICE/CLEAR_SELLER_DATA', this.seller.sellerId);
         }
