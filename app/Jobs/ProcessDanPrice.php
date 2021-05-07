@@ -41,6 +41,7 @@ class ProcessDanPrice implements ShouldQueue, ShouldBeUnique
      */
     public function handle()
     {
+        Log::info('Dan price start import');
         try {
             $dan = file_get_contents("http://danomsk.ru/upload/dan_dealer.zip");
             Storage::disk('local')->put('dan.zip', $dan);
