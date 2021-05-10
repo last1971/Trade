@@ -28,7 +28,8 @@
         "ext-pdo": "*",
         "ext-sockets": "*",
         "ext-simplexml": "*",
-        "ext-zip": "*"
+        "ext-zip": "*",
+        "ext-soap": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.6",

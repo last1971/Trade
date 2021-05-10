@@ -3,6 +3,7 @@
 use App\Services\Pricing\Compel;
 use App\Services\Pricing\DataBase;
 use App\Services\Pricing\ElcoPro;
+use App\Services\Pricing\PME;
 use App\Services\Pricing\Promelec;
 use App\Services\Pricing\Ruichi;
 
@@ -27,6 +28,13 @@ return [
         'basicDeliveryTime' => 0,
         'class' => ElcoPro::class,
         'ereg' => true,
+    ],
+    'PME' => [
+        'cacheTimes' => 43200,
+        'sellerId' => (int) env('PME_SELLER_ID', 2109),
+        'basicDeliveryTime' => 18,
+        'class' => PME::class,
+        'ereg' => false,
     ],
     'Promelec' => [
         'cacheTimes' => 7200,

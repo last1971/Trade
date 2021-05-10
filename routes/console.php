@@ -22,8 +22,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\CompelApiService $r) {
-    dd($r->searchByName('idc-20f'));
+Artisan::command('test1', function (\App\Services\Pricing\PME $r) {
+    dd($r('TDA2004R'));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
