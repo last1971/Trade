@@ -175,6 +175,8 @@ const actions = {
                     localStorage.removeItem('token');
                     localStorage.removeItem('roles');
                     localStorage.removeItem('permissions');
+                    localStorage.removeItem('headers');
+                    localStorage.removeItem('isApiSeller');
                     delete axios.defaults.headers.common['Authorization'];
                     resolve();
                 })
