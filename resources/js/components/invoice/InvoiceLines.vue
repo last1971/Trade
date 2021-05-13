@@ -71,6 +71,7 @@
                                       :text-class="transferOutClass(item)"
                                       :invoice-line="item"
                                       :good="item.good"
+                                      icon
             />
         </template>
         <template v-slot:item.priceWithoutVat="{ item }">

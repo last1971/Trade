@@ -6,11 +6,9 @@
             <span v-if="value.BODY">/ {{ value.BODY }}</span>
             <span v-if="value.PRODUCER">/ {{ value.PRODUCER }}</span>
         </v-col>
-        <v-col :cols="6 * rows">
-            <v-badge :color="color(quantity(value))" :content="quantity(value)" inline>
-                есть
-            </v-badge>
-            <v-badge :color="color(quantity(value.reservesQuantity.toString()))"
+        <v-col :cols="6 * rows" class="d-flex flex-nowrap">
+            <good-quantity :good="value" />
+            <v-badge :color="color(value.reservesQuantity.toString())"
                      :content="value.reservesQuantity.toString()"
                      class="ml-2"
                      inline
@@ -29,8 +27,10 @@
 </template>
 
 <script>
+    import GoodQuantity from "./GoodQuantity";
     export default {
         name: "GoodInString",
+        components: {GoodQuantity},
         props: {
             value: {
                 type: Object,
@@ -41,11 +41,11 @@
             }
         },
         methods: {
-            quantity(item) {
+           /* quantity(item) {
                 return (
                     (item.warehouse ? item.warehouse.QUAN : 0) + (item.retailStore ? item.retailStore.QUAN : 0)
                 ).toString();
-            },
+            },*/
             futureReserve(item) {
                 return (
                     (item.invoiceLinesQuantityTransit

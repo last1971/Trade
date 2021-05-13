@@ -1,8 +1,16 @@
 <template>
-    <v-dialog v-model="isActive">
-        <template v-slot:activator="{ on }">
-            <v-btn icon v-on="on" :class="textClass">
-                {{ text }}
+    <v-dialog v-model="isActiveProxy">
+        <template v-if="withActivator" v-slot:activator="{ on }">
+            <v-btn v-on="on"
+                   :icon="icon"
+                   :x-small="xSmall"
+                   :plain="plain"
+                   :rounded="rounded"
+                   :class="textClass"
+            >
+                <slot name="button">
+                    {{ text }}
+                </slot>
             </v-btn>
         </template>
         <v-card>
@@ -18,7 +26,7 @@
                 <v-spacer/>
                 <span class="headline">{{ title }}</span>
                 <v-spacer/>
-                <v-btn @click="isActive = false" icon right>
+                <v-btn @click="isActiveProxy = false" icon right>
                     <v-icon color="red">
                         mdi-close
                     </v-icon>
@@ -79,19 +87,43 @@ export default {
         },
         text: {
             type: [String, Number],
-            required: true
+            default: 0,
         },
         textClass: {
             type: String,
             default: ''
         },
+        icon: {
+            type: Boolean,
+            default: false,
+        },
+        xSmall: {
+            type: Boolean,
+            default: false,
+        },
+        plain: {
+            type: Boolean,
+            default: false,
+        },
+        rounded: {
+            type: Boolean,
+            default: false,
+        },
+        withActivator: {
+            type: Boolean,
+            default: true,
+        },
+        isActive: {
+            type: Boolean,
+            default: false,
+        }
     },
     data() {
         return {
             isInvoiceLine: !!this.invoiceLine,
             mobileFiltersVisible: false,
             dependent: true,
-            isActive: false,
+            isActiveProxy: this.isActive,
             options: this.invoiceLine
                 ? {
                     with: ['transferOut.invoice'],
@@ -166,6 +198,12 @@ export default {
         },
     },
     watch: {
+        isActive(v) {
+            if (v) this.isActiveProxy = v;
+        },
+        isActiveProxy(v) {
+            if (!v) this.$emit('update:isActive', v);
+        },
         isInvoiceLine(v) {
             if (v) {
                 this.options = {

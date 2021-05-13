@@ -14,6 +14,9 @@ class GoodService extends ModelService
         parent::__construct(Good::class);
 
         $this->aggregateAttributes = [
+            'invoiceLinesQuantity' => ['invoiceLines' => function (Builder $query) {
+                $query->invoiceLinesQuantity();
+            }],
             'invoiceLinesQuantityTransit' => ['invoiceLinesTransit' => function (Builder $query) {
                 $query->invoiceLinesQuantity();
             }],
@@ -35,9 +38,15 @@ class GoodService extends ModelService
             'shopLinesTransitQuantity' => ['shopLinesTransit' => function (Builder $query) {
                 $query->shopLinesQuantity();
             }],
+            'storeLinesQuantity' => ['storeLines' => function (Builder $query) {
+                $query->storeLinesQuantityWithoutMaster();
+            }],
             'storeLinesTransitQuantity' => ['storeLinesTransit' => function (Builder $query) {
                 $query->storeLinesQuantity();
-            }]
+            }],
+            'transferOutLinesQuantity' => ['transferOutLines' => function (Builder $query) {
+                $query->transferOutLinesQuantity();
+            }],
         ];
 
         $this->aliases['retailStore.QUAN'] = function (Builder $query) {

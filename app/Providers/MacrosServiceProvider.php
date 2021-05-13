@@ -52,7 +52,7 @@ class MacrosServiceProvider extends ServiceProvider
             $this->select(DB::raw('count(SCODE)'));
         });
         Builder::macro('invoiceLinesQuantity', function () {
-            $this->select(DB::raw('sum(QUAN)'))
+            $this->select(DB::raw('COALESCE(sum(QUAN), 0)'))
                 ->join('S', 'S.SCODE', '=', 'REALPRICE.SCODE');
         });
 
@@ -103,6 +103,10 @@ class MacrosServiceProvider extends ServiceProvider
         Builder::macro('storeLinesQuantity', function () {
             $this->select(DB::raw('COALESCE(sum(SKLADIN.QUAN), 0)'))
                 ->join('ZAKAZ_MASTER', 'ZAKAZ_MASTER.ID', '=', 'ZAKAZ_DETAIL.MASTER_ID');
+        });
+
+        Builder::macro('storeLinesQuantityWithoutMaster', function () {
+            $this->select(DB::raw('COALESCE(sum(SKLADIN.QUAN), 0)'));
         });
 
         // For TransferLines

@@ -232,13 +232,16 @@ export default {
                         ],
                         aggregateAttributes: [
                             'reservesQuantity',
+                            'invoiceLinesQuantity',
                             'invoiceLinesQuantityTransit',
                             'reservesQuantityTransit',
                             'pickUpsTransitQuantity',
                             'retailOrderLinesNeedQuantity',
                             'orderLinesTransitQuantity',
                             'shopLinesTransitQuantity',
+                            'storeLinesQuantity',
                             'storeLinesTransitQuantity',
+                            'transferOutLinesQuantity',
                         ],
                         filterAttributes: [
                             'GOODSCODE',
@@ -290,6 +293,6 @@ export default {
 .sticky {
     position: sticky;
     top: var(--toolbarHeight);
-    z-index: 1;
+    z-index: 2;
 }
 </style>
