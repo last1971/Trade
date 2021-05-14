@@ -4,6 +4,7 @@
             app
             v-if="user && hasPermission('nav')"
             v-model="drawer"
+            expand-on-hover
         >
             <v-list dense nav>
                 <v-list-item
