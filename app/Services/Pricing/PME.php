@@ -8,34 +8,41 @@ use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
 use App\Services\PMEApiService;
+use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PME
 {
     public function __invoke(string $search): Collection
     {
-        $opts = array('http' =>
-            array(
-                'method'  => 'POST',
-                'header'  => 'Content-Type: application/soap+xml; charset=utf-8; action="http://api.mouser.com/service/SearchByKeyword"',
-                'content' => '<?xml version="1.0" encoding="UTF-8"?>
+        $mouser = [];
+        try {
+            $opts = array('http' =>
+                array(
+                    'method' => 'POST',
+                    'header' => 'Content-Type: application/soap+xml; charset=utf-8; action="http://api.mouser.com/service/SearchByKeyword"',
+                    'content' => '<?xml version="1.0" encoding="UTF-8"?>
                 <env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:ns1="http://api.mouser.com/service">
                 <env:Header><ns1:MouserHeader><ns1:AccountInfo><ns1:PartnerID>' . env('MOUSER_CLIENT_CODE') . '</ns1:PartnerID>
                 </ns1:AccountInfo></ns1:MouserHeader></env:Header><env:Body><ns1:SearchByKeyword><ns1:keyword>' . urlencode($search) . '</ns1:keyword>
                 <ns1:records>50</ns1:records><ns1:startingRecord>0</ns1:startingRecord><ns1:searchOptions>4</ns1:searchOptions></ns1:SearchByKeyword></env:Body></env:Envelope>'
-            )
-        );
-        $context  = stream_context_create($opts);
-        $result = file_get_contents('http://api.mouser.com/service/searchapi.asmx', false, $context);
-        $result  = str_replace("soap:","",$result);
-        $r = simplexml_load_string($result);
-        $mouser = [];
-        foreach ($r->Body->SearchByKeywordResponse->SearchByKeywordResult->Parts->MouserPart as $el) {
-            $mouser[(String)$el->MouserPartNumber] = [];
-            foreach ($el->PriceBreaks->Pricebreaks as $price){
-                $mouser[(String)$el->MouserPartNumber][(int)$price->Quantity] = str_replace('$','',$price->Price);
+                )
+            );
+            $context = stream_context_create($opts);
+            $result = file_get_contents('http://api.mouser.com/service/searchapi.asmx', false, $context);
+            $result = str_replace("soap:", "", $result);
+            $r = simplexml_load_string($result);
+
+            foreach ($r->Body->SearchByKeywordResponse->SearchByKeywordResult->Parts->MouserPart as $el) {
+                $mouser[(string)$el->MouserPartNumber] = [];
+                foreach ($el->PriceBreaks->Pricebreaks as $price) {
+                    $mouser[(string)$el->MouserPartNumber][(int)$price->Quantity] = str_replace('$', '', $price->Price);
+                }
             }
+        } catch (Exception $e) {
+            Log::error('Mouser error ' . $e->getMessage());
         }
         $service = new PMEApiService(
             env('PME_CLIENT_CODE'),

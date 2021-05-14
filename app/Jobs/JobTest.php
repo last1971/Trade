@@ -33,5 +33,6 @@ class JobTest implements ShouldQueue, ShouldBeUnique
     {
         //
         Log::info('JobTest');
+        $this->release();
     }
 }
