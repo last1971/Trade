@@ -15,7 +15,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
+//use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use ZipArchive;
@@ -98,9 +98,9 @@ class ProcessDanPrice implements ShouldQueue, ShouldBeUnique
         } catch (Exception $e) {
             Log::error('Dan price was errored');
             Log::error($e->getMessage());
-            Mail::raw($e->getMessage(),function($message){
-                $message->to(env('MAIL_DEV','elcopro@gmail.com'))->subject('Error in import DAN price');
-            });
+            //Mail::raw($e->getMessage(),function($message){
+            //    $message->to(env('MAIL_DEV','elcopro@gmail.com'))->subject('Error in import DAN price');
+            //});
             $this->fail($e);
         }
     }

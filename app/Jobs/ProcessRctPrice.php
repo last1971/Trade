@@ -142,6 +142,7 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
             Log::info('Rct price was imported');
             $this->release();
         } catch (Exception $e) {
+            Log::error('Rct price was errored');
             Log::error($e->getMessage());
             $this->fail($e);
         }
