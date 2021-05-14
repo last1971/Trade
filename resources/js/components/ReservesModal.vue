@@ -1,15 +1,23 @@
 <template>
     <div v-if="restricted" :class="textClass">{{ text }}</div>
-    <v-dialog v-model="isActive" v-else>
-        <template v-slot:activator="{ on }">
-            <v-btn icon v-on="on" :class="textClass">
-                {{ text }}
+    <v-dialog v-model="isActiveProxy" v-else>
+        <template v-if="withActivator" v-slot:activator="{ on }">
+            <v-btn v-on="on"
+                   :icon="icon"
+                   :x-small="xSmall"
+                   :plain="plain"
+                   :rounded="rounded"
+                   :class="textClass"
+            >
+                <slot name="button">
+                    {{ text }}
+                </slot>
             </v-btn>
         </template>
         <v-card>
             <v-card-title class="headline">
-                <v-btn @click="isNotFuture = !isNotFuture" icon left>
-                    <v-icon v-if="isNotFuture">
+                <v-btn v-if="isNotFuture === null" @click="isNotFutureProxy = !isNotFutureProxy" icon left>
+                    <v-icon v-if="isNotFutureProxy">
                         mdi-chevron-right
                     </v-icon>
                     <v-icon v-else>
@@ -19,14 +27,14 @@
                 <v-spacer/>
                 <span class="headline">{{ title }}</span>
                 <v-spacer/>
-                <v-btn @click="isActive = false" icon right>
+                <v-btn @click="isActiveProxy = false" icon right>
                     <v-icon color="red">
                         mdi-close
                     </v-icon>
                 </v-btn>
             </v-card-title>
             <v-divider></v-divider>
-            <reserves v-if="isNotFuture" :value="value" :top-text="false" class="mx-2"/>
+            <reserves v-if="isNotFutureProxy" :value="value" :top-text="false" class="mx-2"/>
             <future-reserves v-else :value="value" :top-text="false" class="mx-2"/>
         </v-card>
     </v-dialog>
@@ -39,14 +47,55 @@ export default {
     name: "ReservesModal",
     components: {FutureReserves, Reserves},
     props: {
-        value: { type: Object, required: true },
-        name: { type: String, default: '...' },
-        text: { type: [String, Number], required: true },
-        textClass: { type: String, default: '' },
+        value: {
+            type: Object,
+            required: true
+        },
+        name: {
+            type: String,
+            default: '...'
+        },
+        text: {
+            type: [String, Number],
+            default: 0,
+        },
+        textClass: {
+            type: String,
+            default: ''
+        },
+        icon: {
+            type: Boolean,
+            default: false,
+        },
+        xSmall: {
+            type: Boolean,
+            default: false,
+        },
+        plain: {
+            type: Boolean,
+            default: false,
+        },
+        rounded: {
+            type: Boolean,
+            default: false,
+        },
+        withActivator: {
+            type: Boolean,
+            default: true,
+        },
+        isActive: {
+            type: Boolean,
+            default: false,
+        },
+        isNotFuture: {
+            type: Boolean,
+            default: null,
+        }
+
     },
     computed: {
         title() {
-            return (this.isNotFuture ? 'Резервы ' : 'Будующие резервы ') + 'для ' + this.name
+            return (this.isNotFutureProxy ? 'Резервы ' : 'Будующие резервы ') + 'для ' + this.name
         },
         restricted() {
             return !(this.$store.getters['AUTH/HAS_PERMISSION']('reserve.index')
@@ -55,9 +104,17 @@ export default {
     },
     data() {
         return {
-            isActive: false,
-            isNotFuture: true,
+            isActiveProxy: this.isActive,
+            isNotFutureProxy: this.isNotFuture === null ? true: this.isNotFuture,
         }
+    },
+    watch: {
+        isActive(v) {
+            if (v) this.isActiveProxy = v;
+        },
+        isActiveProxy(v) {
+            if (!v) this.$emit('update:isActive', v);
+        },
     }
 }
 </script>

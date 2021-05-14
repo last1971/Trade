@@ -31,6 +31,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'seller',
         'seller-good',
         'seller-price',
+        'store-line',
         'transfer-out',
         'transfer-out-line',
         'user'
@@ -113,6 +114,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'seller.*',
             'seller-good.*',
             'seller-price.*',
+            'store-line.*',
             'transfer-out.*',
             'transfer-out-line.*',
             'user.*'
@@ -171,6 +173,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'reserve.*',
             'sbis.*',
             'seller.*',
+            'store-line.*',
             'transfer-out.*',
             'transfer-out-line.*',
         ]);

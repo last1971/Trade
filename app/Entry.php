@@ -25,4 +25,9 @@ class Entry extends Model
         return $this->belongsTo('App\StoreLine', 'SKLADINCODE', 'SKLADINCODE');
     }
 
+    public function seller()
+    {
+        return $this->belongsTo(Seller::class, 'WHEREISPOSTCODE', 'WHEREISPOSTCODE');
+    }
+
 }

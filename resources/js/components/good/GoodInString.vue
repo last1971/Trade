@@ -8,16 +8,23 @@
         </v-col>
         <v-col :cols="6 * rows" class="d-flex flex-nowrap">
             <good-quantity :good="value" />
-            <v-badge :color="color(value.reservesQuantity.toString())"
-                     :content="value.reservesQuantity.toString()"
-                     class="ml-2"
-                     inline
-            >
-                резерв
-            </v-badge>
-            <v-badge :color="color(futureReserve(value))" :content="futureReserve(value)" class="ml-2" inline>
-                нада
-            </v-badge>
+            <reserves-modal :value="value" x-small plain rounded :name="value.name.NAME" is-not-future>
+                <template v-slot:button>
+                    <v-badge :color="color(value.reservesQuantity.toString())"
+                             :content="value.reservesQuantity.toString()"
+                             inline
+                    >
+                        резерв
+                    </v-badge>
+                </template>
+            </reserves-modal>
+            <reserves-modal :value="value" x-small plain rounded :name="value.name.NAME" :is-not-future="false">
+                <template v-slot:button>
+                    <v-badge :color="color(futureReserve(value))" :content="futureReserve(value)" inline>
+                        нада
+                    </v-badge>
+                </template>
+            </reserves-modal>
             <v-badge :color="color(orderStep(value))" :content="orderStep(value)" class="ml-2" inline>
                 порог
             </v-badge>
@@ -28,9 +35,10 @@
 
 <script>
     import GoodQuantity from "./GoodQuantity";
+    import ReservesModal from "../ReservesModal";
     export default {
         name: "GoodInString",
-        components: {GoodQuantity},
+        components: {ReservesModal, GoodQuantity},
         props: {
             value: {
                 type: Object,

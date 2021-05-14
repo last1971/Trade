@@ -36,16 +36,16 @@
                 class="mx-2"
             >
                 <template v-slot:item.DATA="{ item }">
-                    {{ item.transferOut.DATA | formatDate }}
+                    {{ item.DATA | formatDate }}
                 </template>
                 <template v-slot:item.DATA_DOC="{ item }">
-                    {{ item.transferOut.DATA_DOC | formatDate }}
+                    {{ item.DATA_DOC | formatDate }}
                 </template>
                 <template v-slot:item.entry.PRICE="{ item }">
-                    {{ item.PRICE | formatRub }}
+                    {{ item.entry.PRICE | formatRub }}
                 </template>
                 <template v-slot:item.entry.SUMMAP="{ item }">
-                    {{ item.SUMMAP | formatRub }}
+                    {{ item.entry.PRICE * item.QUAN | formatRub }}
                 </template>
             </v-data-table>
         </v-card>
@@ -102,7 +102,7 @@ export default {
             dependent: true,
             isActiveProxy: this.isActive,
             options: {
-                with: ['entry'],
+                with: ['entry.seller'],
                 filterAttributes: [
                     'GOODSCODE',
                 ],

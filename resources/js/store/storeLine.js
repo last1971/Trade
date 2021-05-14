@@ -10,6 +10,7 @@ state.key = 'SKLADINCODE';
 state.headers = [
     {text: 'Дата', value: 'DATA', sortable: false},
     {text: 'Приход', value: 'NP', align: 'right', sortable: false},
+    {text: 'Поставщик', value: 'entry.seller.NAMEPOST', sortable: false},
     {text: 'Дата документа', value: 'DATA_DOC', sortable: false},
     {text: 'Номер', value: 'NDOC', sortable: false},
     {text: 'Кол.', value: 'QUAN', align: 'right', sortable: false},
