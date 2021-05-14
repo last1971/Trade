@@ -123,7 +123,7 @@ export default {
             return 'STORE-LINE';
         },
         name() {
-            this.good.name.NAME;
+            return this.good.name.NAME;
         },
         title() {
             return 'Приходы для ' + this.name;
