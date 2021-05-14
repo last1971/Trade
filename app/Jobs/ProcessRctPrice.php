@@ -46,16 +46,18 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
             $path = Storage::disk('local')->path('rct.xlsx');
 
             $reader = IOFactory::createReader('Xlsx');
+            Log::info('Rct createReader');
             $reader->setReadDataOnly(true);
             $sheet = $reader->load($path);
+            Log::info('Rct load reader');
             $cells = $sheet->getActiveSheet()
                 ->toArray(null, true, true, true);
-
+            Log::info('Rct active sheet');
             $sellerId = config('pricing.Rct.sellerId');
             $start = Carbon::now();
             $usd = ExchangeRate::query()->where('CharCode', 'USD')->latest()->first();
             $usdBigAmount = 15000 / $usd->value;
-
+            Log::info('Rct start for');
             for ($i = 9; $i < count($cells); $i++) {
                 if ($cells[$i]['N']) {
                     $good = SellerGood::query()
