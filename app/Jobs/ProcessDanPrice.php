@@ -50,7 +50,7 @@ class ProcessDanPrice implements ShouldQueue, ShouldBeUnique
     {
         Log::info('Dan price start import');
         try {
-/*            $dan = file_get_contents("http://danomsk.ru/upload/dan_dealer.zip");
+            $dan = file_get_contents("http://danomsk.ru/upload/dan_dealer.zip");
             Storage::disk('local')->put('dan.zip', $dan);
             $zipper = new ZipArchive();
             $path = Storage::disk('local')->path('dan.zip');
@@ -99,9 +99,9 @@ class ProcessDanPrice implements ShouldQueue, ShouldBeUnique
                 ->where('seller_id', $dan->{$dan->getKeyName()})
                 ->where('updated_at', '<', $start)
                 ->where('is_active', true)
-                ->update(['is_active' => false]);*/
+                ->update(['is_active' => false]);
             Log::info('Dan price was imported');
-            $this->release();
+            //$this->release();
         } catch (Exception $e) {
             Log::error('Dan price was errored');
             Log::error($e->getMessage());
