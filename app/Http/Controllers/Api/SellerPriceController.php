@@ -16,7 +16,7 @@ class SellerPriceController extends Controller
      */
     public function index(SellerPriceRequest $request, SellerPriceService $service)
     {
-        return $service->get($request->search, $request->sellerId, $request->isUpdate);
+        return $service->searchFromRequest($request);
     }
 
     public function sellers()

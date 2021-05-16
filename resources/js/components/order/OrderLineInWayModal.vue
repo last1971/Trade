@@ -1,8 +1,16 @@
 <template>
     <v-dialog v-model="isActive">
         <template v-slot:activator="{ on }">
-            <v-btn icon v-on="on" :class="textClass">
-                {{ text }}
+            <v-btn v-on="on"
+                   :icon="icon"
+                   :x-small="xSmall"
+                   :plain="plain"
+                   :rounded="rounded"
+                   :class="textClass"
+            >
+                <slot name="button">
+                    {{ text }}
+                </slot>
             </v-btn>
         </template>
         <v-card>
@@ -30,8 +38,24 @@ export default {
     props: {
         value: { type: Object, required: true },
         name: { type: String, default: '...' },
-        text: { type: [String, Number], required: true },
+        text: { type: [String, Number], default: 0 },
         textClass: { type: String, default: '' },
+        icon: {
+            type: Boolean,
+            default: false,
+        },
+        xSmall: {
+            type: Boolean,
+            default: false,
+        },
+        plain: {
+            type: Boolean,
+            default: false,
+        },
+        rounded: {
+            type: Boolean,
+            default: false,
+        },
     },
     computed: {
         title() {

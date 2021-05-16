@@ -221,7 +221,7 @@ export default {
         async items(items) {
             await this.goodPromise;
             const goodIds = _.filter(
-                _.filter(items, 'goodId').map((item) => item.goodId),
+                _.uniqBy(_.filter(items, 'goodId'), 'goodId').map((item) => item.goodId),
                 (id) => !this.$store.getters['GOOD/GET'](id)
             );
             if (goodIds.length > 0 && this.hasPermission('seller-price.full')) {

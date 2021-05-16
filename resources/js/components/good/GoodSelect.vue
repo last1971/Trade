@@ -1,6 +1,9 @@
 <template>
     <model-select
         :aggregate-attributes="aggregateAttributes"
+        :filter-attributes="filterAttributes"
+        :filter-operators="filterOperators"
+        :filter-values="filterValues"
         :dense="dense"
         :disabled="disabled"
         :get-value="getValue"
@@ -78,6 +81,9 @@
                     'storeLinesTransitQuantity',
                     'transferOutLinesQuantity',
                 ],
+                filterAttributes: ['HIDDEN'],
+                filterOperators: ['='],
+                filterValues: [0],
                 goodEdit: false,
                 getValue: false,
                 reload: 0,

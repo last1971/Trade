@@ -12,10 +12,7 @@ class SellerPriceResource extends JsonResource
 
     public function __construct($resource)
     {
-        $this->sellerPriceRule = request()->user()->hasPermissionTo('seller-price.full')
-            ? SellerPriceRule::query()->firstWhere('alias', 'full_rule')
-            : request()->user()->sellerPriceRule
-            ?? SellerPriceRule::query()->firstWhere('alias', 'buyer_rule');
+        $this->sellerPriceRule = SellerPriceRule::userSellerPriceRule();
         parent::__construct($resource);
     }
 
