@@ -1,11 +1,11 @@
 <template>
     <v-edit-dialog ref="dialog" :large="!disabled" @open="open" @save="save">
         <template v-slot:default>
-            <good-in-string v-if="good(value)" :value="good(value)" />
+            <good-in-string v-if="good" :value="good" />
             <v-btn v-else plain>П Р И В Я З А Т Ь</v-btn>
         </template>
         <template v-if="!disabled" v-slot:input>
-            <good-select v-model="goodId"/>
+            <good-select v-model="goodId" :new-search="newSearch"/>
         </template>
     </v-edit-dialog>
 </template>
@@ -21,6 +21,10 @@ export default {
             required: true,
             validator: prop => typeof prop === 'number' || prop === null,
         },
+        search: {
+            type: String,
+            default: '',
+        },
         disabled: {
             type: Boolean,
             default: false
@@ -31,6 +35,14 @@ export default {
             goodId: null,
         }
     },
+    computed: {
+        good() {
+            return this.$store.getters['GOOD/GET'](this.value);
+        },
+        newSearch() {
+            return this.goodId ? '' : this.search;
+        }
+    },
     mounted() {
         const el = this.$refs['dialog'].$el;
         this.$nextTick(() => {
@@ -38,9 +50,6 @@ export default {
         });
     },
     methods: {
-        good(id) {
-            return  this.$store.getters['GOOD/GET'](id);
-        },
         open() {
             this.goodId = this.value;
         },

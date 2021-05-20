@@ -20,6 +20,7 @@
         hide-selected
         placeholder="поиск"
         v-model="proxy"
+        @focus="$emit('focus')"
     >
         <template v-slot:prepend>
             <slot name="prepend"></slot>
@@ -114,7 +115,7 @@
                 const proxy = this.$store.getters[this.MODEL + '/GET'](this.value);
                 if (this.value && val === _.property(this.itemText)(proxy)) return;
                 this.getItems(val);
-            }, 1000),
+            }, 1500),
             value() {
                 this.loadValue();
             },

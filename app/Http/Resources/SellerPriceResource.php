@@ -8,14 +8,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class SellerPriceResource extends JsonResource
 {
-    private $sellerPriceRule;
-
-    public function __construct($resource)
-    {
-        $this->sellerPriceRule = SellerPriceRule::userSellerPriceRule();
-        parent::__construct($resource);
-    }
-
     /**
      * Transform the resource into an array.
      *
@@ -24,6 +16,7 @@ class SellerPriceResource extends JsonResource
      */
     public function toArray($request)
     {
+        $rule = $request->rule ?? SellerPriceRule::query()->firstWhere('alias', 'buyer_rule');
         return [
             'name' => $this->sellerWarehouse->sellerGood->name,
             'producer' => $this->sellerWarehouse->sellerGood->producer,
@@ -40,9 +33,9 @@ class SellerPriceResource extends JsonResource
             'quantity' => $this->sellerWarehouse->quantity,
             'minQuantity' => $this->min_quantity,
             'maxQuantity' => $this->max_quantity,
-            'price' => $this->priceRule(),
+            'price' => $this->priceRule($rule),
             'CharCode' => $this->CharCode,
-            'isInput' => $this->isInputRule(),
+            'isInput' => $this->isInputRule($rule),
             'deliveryTime' => $this->sellerWarehouse->sellerGood->basic_delivery_time
                 + $this->sellerWarehouse->additional_delivery_time,
             'isSomeoneElsesWarehouse' => $this->sellerWarehouse->additional_delivery_time > 0,
@@ -52,9 +45,9 @@ class SellerPriceResource extends JsonResource
         ];
     }
 
-    private function priceRule()
+    private function priceRule($rule)
     {
-        switch ($this->sellerPriceRule->alias) {
+        switch ($rule->alias) {
             case 'full_rule':
                 return $this->value;
             default:
@@ -66,9 +59,9 @@ class SellerPriceResource extends JsonResource
         }
     }
 
-    private function isInputRule()
+    private function isInputRule($rule)
     {
-        switch ($this->sellerPriceRule->alias) {
+        switch ($rule->alias) {
             case 'full_rule':
                 return $this->is_input;
             default:

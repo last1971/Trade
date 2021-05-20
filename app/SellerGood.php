@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Events\SellerGoodUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,6 +28,10 @@ class SellerGood extends Model
 
     protected $casts = [
         'is_active' => 'boolean'
+    ];
+
+    protected $dispatchesEvents = [
+        'updated' => SellerGoodUpdated::class,
     ];
 
     public function setNameAttribute(string $value)

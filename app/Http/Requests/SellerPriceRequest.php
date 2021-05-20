@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\SellerPriceRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class SellerPriceRequest extends FormRequest
@@ -32,6 +33,9 @@ class SellerPriceRequest extends FormRequest
 
     public function passedValidation()
     {
-        $this->merge( ['isUpdate' => $this->isUpdate === 'true']);
+        $this->merge([
+            'isUpdate' => $this->isUpdate === 'true',
+            'sellerPriceRule' => SellerPriceRule::userSellerPriceRule(),
+        ]);
     }
 }

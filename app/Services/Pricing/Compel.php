@@ -22,13 +22,16 @@ class Compel
                 ->firstOrNew(['code' => $item->item_id, 'seller_id' => $sellerId
                 ]);
             $packageQuantity = intval($item->qty_in_pack);
+            $packageQuantity = $packageQuantity > intval($sellerGood->package_quantity)
+                ? $packageQuantity
+                : (intval($sellerGood->package_quantity) > 0 ? $sellerGood->package_quantity : 1);
             $sellerGood->fill([
                 'name' => $item->item_name,
                 'producer' => $item->item_brend,
-                'case' => $item->package_name,
+                'case' => empty($item->package_name) ? $sellerGood->case : $item->package_name,
                 'is_active' => true,
                 'basic_delivery_time' => config('pricing.Compel.basicDeliveryTime'),
-                'package_quantity' => $packageQuantity > 0 ? $packageQuantity : 1
+                'package_quantity' => $packageQuantity,
             ]);
             $sellerGood->save();
             foreach ($item->proposals as $proposal) {

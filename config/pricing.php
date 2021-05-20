@@ -29,6 +29,13 @@ return [
         'class' => ElcoPro::class,
         'ereg' => true,
     ],
+    'Mars' => [
+        'cacheTimes' => 86400,
+        'sellerId' => 1579,
+        'basicDeliveryTime' => 12,
+        'class' => DataBase::class,
+        'ereg' => true,
+    ],
     'PME' => [
         'cacheTimes' => 43200,
         'sellerId' => (int) env('PME_SELLER_ID', 2109),
@@ -57,4 +64,5 @@ return [
         'class' => Ruichi::class,
         'ereg' => true,
     ],
+    'maxCacheTimes' => 172800,
 ];

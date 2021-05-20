@@ -22,8 +22,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\Pricing\PME $r) {
-    dd($r('TDA2004R'));
+Artisan::command('test1', function () {
+    dd(0 ?? 1);
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

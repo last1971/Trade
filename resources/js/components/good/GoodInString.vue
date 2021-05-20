@@ -14,21 +14,21 @@
                              :content="value.reservesQuantity.toString()"
                              inline
                     >
-                        резерв
+                        рез
                     </v-badge>
                 </template>
             </reserves-modal>
             <reserves-modal :value="value" x-small plain rounded :name="value.name.NAME" :is-not-future="false">
                 <template v-slot:button>
                     <v-badge :color="color(futureReserve(value).toString())" :content="futureReserve(value)" inline>
-                        нада
+                        над
                     </v-badge>
                 </template>
             </reserves-modal>
             <order-line-in-way-modal v-if="isInWay" :value="value" x-small plain rounded :name="value.name.NAME">
                 <template v-slot:button>
                     <v-badge :color="color(transitQuantity.toString())" :content="transitQuantity.toString()" inline>
-                        едетъ
+                        пут
                     </v-badge>
                 </template>
             </order-line-in-way-modal>

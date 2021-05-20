@@ -65,12 +65,12 @@ class SellerPriceService
     /**
      * @var array
      */
-    private array $goodIds = [];
+    private array $seller;
 
     /**
-     * @var array
+     * @var SellerPriceRule
      */
-    private array $seller;
+    private SellerPriceRule $rule;
 
     /**
      * @param string $search
@@ -118,10 +118,11 @@ class SellerPriceService
 
     private function checkSearchCache(): SellerPriceService
     {
-        $rule = SellerPriceRule::userSellerPriceRule();
+        $this->rule = SellerPriceRule::userSellerPriceRule();
+        request()->merge(['rule' => $this->rule]);
         $this->sellerKey = 'sellerId=' . $this->sellerId . ';search=' . $this->search;
-        $this->searchKey = 'rule=' . $rule->alias . $this->sellerKey . ';';
-        if (!$this->update && Cache::has($this->searchKey)){
+        $this->searchKey = 'rule=' . $this->rule->alias . ';' . $this->sellerKey . ';';
+        if (!$this->update && Cache::has($this->searchKey)) {
             $this->data = Cache::get($this->searchKey);
             $this->cache = true;
         }
@@ -146,11 +147,7 @@ class SellerPriceService
             : $this->search;
         try {
             $this->collection = $service($processedSearch);
-            $this->goodIds = $this->collection
-                ->map(fn($sellerPrice) => $sellerPrice->sellerWarehouse->sellerGood->id)
-                ->unique()
-                ->toArray();
-            Cache::tags($this->goodIds)->put($this->sellerKey, $this->collection, $this->seller['cacheTimes']);
+            Cache::put($this->sellerKey, $this->collection, $this->seller['cacheTimes']);
         } catch (Exception $e) {
             $service = new DataBase();
             $processedSearch = mb_ereg_replace(config('app.search_replace'), '', $processedSearch);
@@ -169,6 +166,15 @@ class SellerPriceService
         if (!$this->data) {
             $this->data = SellerPriceResource::collection($this->collection);
             Cache::put($this->searchKey, $this->data, $this->seller['cacheTimes']);
+            $this->collection
+                ->map(fn($sellerPrice) => $sellerPrice->sellerWarehouse->sellerGood->id)
+                ->unique()
+                ->each(function ($sellerGoodId) {
+                    $cachedKeys = Cache::get('sellerGoodId=' . $sellerGoodId, collect());
+                    $cachedKeys->push($this->sellerKey);
+                    $cachedKeys->push($this->searchKey);
+                    Cache::put('sellerGoodId=' . $sellerGoodId, $cachedKeys, config('pricing.maxCacheTimes'));
+                });
         }
         return [
             'data' => $this->data,

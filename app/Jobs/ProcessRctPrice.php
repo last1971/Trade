@@ -46,7 +46,6 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
      */
     public function handle()
     {
-        Log::info('Rct price start import');
         try {
             $rct = file_get_contents("http://www.rct.ru/price/all");
             Storage::disk('local')->put('rct.xlsx',$rct);
@@ -137,15 +136,12 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
                         $sellerPrice->save();
                     }
                 }
-               // Log::info('Code ' . $cells[$i]['E'] . ' success');
             }
             SellerGood::query()
                 ->where('seller_id', $sellerId)
                 ->where('updated_at', '<', $start)
                 ->where('is_active', true)
                 ->update(['is_active' => false]);
-            Log::info('Rct price was imported');
-            // $this->release();
         } catch (Exception $e) {
             Log::error('Rct price was errored');
             Log::error($e->getMessage());

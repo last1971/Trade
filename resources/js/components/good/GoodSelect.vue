@@ -14,9 +14,10 @@
         :label="label"
         model="good"
         v-model="proxy"
-        :new-search="newSearch"
+        :new-search="testName"
         :smart-name="smartName"
         @clearSearchName="$emit('clearSearchName')"
+        @focus="testName = newSearch"
     >
         <template v-slot:item="{ item, maxLength }">
             <good-in-string v-model="item" :rows="rows"/>
@@ -63,7 +64,8 @@
             disabled: {type: Boolean, default: false},
             dense: {type: Boolean, default: false},
             newSearch: {type: String, default: ''},
-            smartName: {type: Boolean, default: false}
+            smartName: {type: Boolean, default: false},
+            goodPrototype: {type: Object, default: () => {}}
         },
         data() {
             return {
@@ -87,7 +89,8 @@
                 goodEdit: false,
                 getValue: false,
                 reload: 0,
-                label: this.dense ? null : 'Товар'
+                label: this.dense ? null : 'Товар',
+                testName: null,
             }
         },
         computed: {
