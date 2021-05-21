@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/test2/{test2}', 'TestController@test');
 
+Route::get('/digi-key', function () {
+    return 'OK';
+});
+
 Route::get('/{path?}', function () {
     return view('app');
 });

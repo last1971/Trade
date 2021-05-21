@@ -5,7 +5,7 @@
             <v-btn v-else plain>П Р И В Я З А Т Ь</v-btn>
         </template>
         <template v-if="!disabled" v-slot:input>
-            <good-select v-model="goodId" :new-search="newSearch"/>
+            <good-select v-model="goodId" :new-search="newSearch" :good-prototype="newGood"/>
         </template>
     </v-edit-dialog>
 </template>
@@ -29,6 +29,10 @@ export default {
             type: Boolean,
             default: false
         },
+        newGood: {
+            type: Object,
+            default: {},
+        }
     },
     data() {
         return {

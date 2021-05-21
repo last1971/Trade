@@ -12,7 +12,12 @@
         </v-row>
         <v-row v-if="hasPermission" dense>
             <v-col>
-                <good-in-string-select v-model="item.goodId" :disabled="disabled" @input="save" :search="item.name"/>
+                <good-in-string-select v-model="item.goodId"
+                                       :disabled="disabled"
+                                       @input="save"
+                                       :search="item.name"
+                                       :new-good="item"
+                />
             </v-col>
         </v-row>
     </v-container>

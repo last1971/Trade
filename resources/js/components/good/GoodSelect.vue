@@ -42,7 +42,7 @@
                             </v-icon>
                         </v-btn>
                     </v-card-title>
-                    <good-edit @input="goodEdit = false" v-model="good"/>
+                    <good-edit @input="goodEdit = false" v-model="good" :new-name="newSearch"/>
                 </v-card>
             </v-dialog>
         </template>
@@ -107,8 +107,21 @@
             },
             good: {
                 get() {
-                    const id = this.proxy || 0;
-                    return this.$store.getters['GOOD/GET'](id);
+                    return this.proxy
+                        ? this.$store.getters['GOOD/GET'](this.proxy)
+                        : _.isEmpty(this.goodPrototype)
+                            ? this.$store.getters['GOOD/GET'](0)
+                            : {
+                                GOODSCODE: 0,
+                                NAMECODE: null,
+                                YEARP: '-',
+                                UNIT_I: 'шт.',
+                                BODY: this.goodPrototype.case,
+                                PRIM: this.goodPrototype.remark
+                                    ? this.goodPrototype.remark.substr(0, 60)
+                                    : '',
+                                PRODUCER: this.goodPrototype.producer,
+                            }
                 },
                 set(val) {
                     this.$emit('input', val.GOODSCODE);

@@ -22,8 +22,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function () {
-    dd(0 ?? 1);
+Artisan::command('test1', function (\App\Services\DigiKeyApiService $s) {
+    dd($s->gettingTheAuthorizationCodeUri());
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

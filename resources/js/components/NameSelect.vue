@@ -11,6 +11,8 @@
         model="name"
         v-model="proxy"
         @search="searching"
+        :new-search="proxyName"
+        @focus="proxyName = newSearch"
     >
         <template v-slot:prepend>
             <v-btn @click="add" class="pb-2" icon>
@@ -80,6 +82,10 @@
             errorMessages: {
                 type: Array,
                 default: () => [],
+            },
+            newSearch: {
+                type: String,
+                default: '',
             }
         },
         data() {
@@ -92,7 +98,8 @@
                 required: (v) => !!v || 'обязательный',
                 length: (v) => v.length < 71 || 'нужно сократить',
                 errors: {},
-                search: ''
+                search: '',
+                proxyName: '',
             }
         },
         computed: {

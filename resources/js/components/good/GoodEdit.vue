@@ -6,6 +6,7 @@
                          @save="nameSaved"
                          v-model="model.NAMECODE"
                          :key="nameKey"
+                         :new-search="newName"
             />
         </v-row>
         <v-row>
@@ -45,6 +46,16 @@
         name: "GoodEdit",
         components: {Leftovers, RetailPriceEdit, NameSelect, CategorySelect, OrderStepEdit},
         mixins: [editMixin],
+        props: {
+            newName: {
+                type: String,
+                default: '',
+            },
+            goodPrototype: {
+                type: Object,
+                default: () => {},
+            }
+        },
         data() {
             return {
                 NAMECODE: null,
