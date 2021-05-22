@@ -2,6 +2,7 @@
 
 use App\Services\Pricing\Compel;
 use App\Services\Pricing\DataBase;
+use App\Services\Pricing\DigiKey;
 use App\Services\Pricing\ElcoPro;
 use App\Services\Pricing\PME;
 use App\Services\Pricing\Promelec;
@@ -20,6 +21,13 @@ return [
         'sellerId' => 1068,
         'basicDeliveryTime' => 4,
         'class' => DataBase::class,
+        'ereg' => true,
+    ],
+    'DigiKey' => [
+        'cacheTimes' => 64800,
+        'sellerId' => 2660,
+        'basicDeliveryTime' => 24,
+        'class' => DigiKey::class,
         'ereg' => true,
     ],
     'ElcoPro' => [

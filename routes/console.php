@@ -22,8 +22,9 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\DigiKeyApiService $s) {
-    dd($s->keywordSearchWithRefreshToken('max232c')['Products']);
+Artisan::command('test1', function () {
+    $s = new \App\Services\DigiKeyApiService();
+    dd($s->keywordSearchWithRefreshToken('max232'));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
