@@ -23,7 +23,7 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function (\App\Services\DigiKeyApiService $s) {
-    dd($s->gettingTheAuthorizationCodeUri());
+    dd($s->keywordSearchWithRefreshToken('max232c')['Products']);
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

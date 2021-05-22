@@ -1,6 +1,8 @@
 <?php
 
+use App\Services\DigiKeyApiService;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,8 +17,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/test2/{test2}', 'TestController@test');
 
-Route::get('/digi-key', function () {
-    return 'OK';
+Route::get('/digi-key', function (Request $request, DigiKeyApiService $service) {
+    if ($request->get('code')) {
+        $service->gettingTheAccessToken($request->get('code'));
+        return 'OK';
+    }
+    return redirect($service->gettingTheAuthorizationCodeUri());
 });
 
 Route::get('/{path?}', function () {
