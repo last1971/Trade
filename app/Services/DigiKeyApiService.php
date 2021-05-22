@@ -57,7 +57,7 @@ class DigiKeyApiService
         $this->baseUri = env('DIGIKEY_ENDPOINT', 'http://localhost');
         $this->clientId = env('DIGIKEY_CLIENT_ID', '123456789abcdefg');
         $this->clientSecret = env('DIGIKEY_CLIENT_SECRET', '123456789abcdefg');
-        $this->redirectUri = env('DIGIKEY_REDIRECT', 'http://localhost/digi-key');
+        $this->redirectUri = env('DIGIKEY_REDIRECT', url()->current());
 
         $this->token = Cache::get('DIGIKEY_TOKEN', '123456789abcdefg');
         $this->refreshToken = Cache::get('DIGIKEY_REFRESH', '123456789abcdefg');
@@ -66,8 +66,6 @@ class DigiKeyApiService
             'base_uri' => $this->baseUri,
             'headers' => [
                 'Content-Type' => 'application/json',
-                //'Authorization' => 'Bearer ' . $this->token,
-                //'X-DIGIKEY-Client-Id' => $this->clientId,
             ],
         ]);
     }

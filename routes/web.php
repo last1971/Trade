@@ -20,7 +20,7 @@ Route::get('/test2/{test2}', 'TestController@test');
 Route::get('/digi-key', function (Request $request, DigiKeyApiService $service) {
     if ($request->get('code')) {
         $service->gettingTheAccessToken($request->get('code'));
-        return 'OK';
+        return redirect('/home');
     }
     return redirect($service->gettingTheAuthorizationCodeUri());
 });
