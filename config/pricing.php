@@ -25,7 +25,7 @@ return [
     ],
     'DigiKey' => [
         'cacheTimes' => 64800,
-        'sellerId' => 2660,
+        'sellerId' => (int) env('DIGIKEY_SELLER_ID', 2660),
         'basicDeliveryTime' => 24,
         'class' => DigiKey::class,
         'ereg' => true,
