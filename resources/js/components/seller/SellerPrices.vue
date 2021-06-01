@@ -46,6 +46,9 @@
                             multiple
                             show-arrows
                         >
+                            <v-slide-item v-if="hasPermission('invoice.update')">
+                                <invoice-select/>
+                            </v-slide-item>
                             <v-slide-item v-for="seller in sellers"
                                           :key="seller.sellerId"
                             >
@@ -126,10 +129,12 @@ import SellerPriceQuantity from "./SellerPriceQuantity";
 import SellerPricePrices from "./SellerPricePrices";
 import SellerPriceDeliveryTime from "./SellerPriceDeliveryTime";
 import moment from "moment";
+import InvoiceSelect from "../invoice/InvoiceSelect";
 
 export default {
     name: "SellerPrices",
     components: {
+        InvoiceSelect,
         SellerPriceDeliveryTime,
         SellerPricePrices, SellerPriceQuantity, SellerPriceName, GoodSelect, GoodInString, SellerApiFileSelect},
     data() {

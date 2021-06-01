@@ -29,4 +29,16 @@ class StoreLine extends Model
     {
         return $this->belongsTo('App\Entry', 'SKLADINCODE', 'SKLADINCODE');
     }
+
+    public function fifos()
+    {
+        return $this->hasManyThrough(
+            Fifo::class,
+            Entry::class,
+            'SKLADINCODE',
+            'PR_META_IN_ID',
+            'SKLADINCODE',
+            'ID'
+        );
+    }
 }

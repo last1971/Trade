@@ -1,15 +1,15 @@
 <template>
-    <seller-prices/>
+    <invoice-select v-model="invoice"/>
 </template>
 
 <script>
-    import SellerPrices from "./seller/SellerPrices";
+    import InvoiceSelect from "./invoice/InvoiceSelect";
     export default {
         name: "Test",
-        components: {SellerPrices},
+        components: {InvoiceSelect},
         data() {
             return {
-
+                invoice: null,
             }
         },
         computed: {

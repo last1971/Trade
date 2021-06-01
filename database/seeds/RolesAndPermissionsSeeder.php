@@ -173,6 +173,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'reserve.*',
             'sbis.*',
             'seller.*',
+            'seller-price.*',
             'store-line.*',
             'transfer-out.*',
             'transfer-out-line.*',

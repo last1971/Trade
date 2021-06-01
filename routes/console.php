@@ -23,8 +23,24 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function () {
-    $s = new \App\Services\DigiKeyApiService();
-    dd($s->keywordSearchWithRefreshToken('max232'));
+    $q = \App\StoreLine::query()->with('fifos')
+        ->where('GOODSCODE', 507933)
+        ->withSum('fifos', 'QUAN')
+        ->where('QUAN', '>', function($query) {
+            $query = $query->from('FIFO_T')
+                ->join('PR_META', 'PR_META.ID', '=', 'FIFO_T.PR_META_IN_ID')
+                ->whereColumn('PR_META.SKLADINCODE', '=', 'SKLADIN.SKLADINCODE')
+                ->selectRaw('COALESCE(SUM(FIFO_T.QUAN), 0)');
+        })
+        ->get();
+    dd($q);
+   $s = \App\StoreLine::query()->whereHas('fifos', function (Illuminate\Database\Eloquent\Builder $query) {
+       $query->select('FIFO_T.ID')
+           ->selectRaw('sum(FIFO_T.QUAN) AS sails')
+                   ->havingRaw('sum(FIFO_T.QUAN) < SKLADIN.QUAN');
+
+   })->first();
+   dd($s);
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

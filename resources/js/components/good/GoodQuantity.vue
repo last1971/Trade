@@ -4,7 +4,7 @@
             <template v-slot:activator>
                 <v-btn x-small plain rounded>
                     <v-badge :color="color(quantity(good))" :content="quantity(good)" inline>
-                        ест
+                        есть
                     </v-badge>
                 </v-btn>
             </template>

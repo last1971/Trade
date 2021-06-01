@@ -8,6 +8,18 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class SellerPriceResource extends JsonResource
 {
+    private array $fiveSaltySellers;
+
+    public function __construct($resource)
+    {
+        $this->fiveSaltySellers = [
+            config('pricing.Compel.sellerId'),
+            config('pricing.DigiKey.sellerId'),
+            config('pricing.Rct.sellerId')
+        ];
+        parent::__construct($resource);
+    }
+
     /**
      * Transform the resource into an array.
      *
@@ -51,7 +63,7 @@ class SellerPriceResource extends JsonResource
             case 'full_rule':
                 return $this->value;
             default:
-                if ($this->sellerWarehouse->sellerGood->seller_id === config('pricing.Compel.sellerId')) {
+                if (in_array($this->sellerWarehouse->sellerGood->seller_id, $this->fiveSaltySellers)) {
                     return $this->value * 1.15;
                 } else {
                     return $this->is_input ? 0 : $this->value;
@@ -65,7 +77,7 @@ class SellerPriceResource extends JsonResource
             case 'full_rule':
                 return $this->is_input;
             default:
-                if ($this->sellerWarehouse->sellerGood->seller_id === config('pricing.Compel.sellerId')) {
+                if (in_array($this->sellerWarehouse->sellerGood->seller_id, $this->fiveSaltySellers)) {
                     return !$this->is_input;
                 } else {
                     return $this->is_input;

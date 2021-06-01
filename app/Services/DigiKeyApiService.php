@@ -163,7 +163,7 @@ class DigiKeyApiService
                 ],
                 'json' => [
                     'Keywords' => $search,
-                    'RecordCount' => 10,
+                    'RecordCount' => 50,
                 ],
             ]
         );
