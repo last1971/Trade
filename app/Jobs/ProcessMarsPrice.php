@@ -89,7 +89,7 @@ class ProcessMarsPrice implements ShouldQueue, ShouldBeUnique
                         $sellerPrice->fill([
                             'min_quantity' => $s * $coeff,
                             'max_quantity' => $cells[$i]['E'] * $coeff,
-                            'value' => str_replace([',', ' '], '', $cells[$i]['G']) / $coeff,
+                            'value' => mb_ereg_replace('[^0-9.]', '', $cells[$i]['G']) / $coeff,
                             'CharCode' => 'RUB',
                             'is_input' => true,
                         ]);
