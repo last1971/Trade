@@ -84,7 +84,7 @@ class ImportMarsPrice extends Command
                     $warehouse->save();
 
                     $sellerPrice = SellerPrice::query()->firstOrNew(['seller_warehouse_id' => $warehouse->id]);
-                    dd($coeff, $cells[$i]['G'], str_replace([',', ' '], '', $cells[$i]['G']));
+                    dd($coeff, $cells[$i]['G'], mb_ereg_replace('[^0-9.]', '', $cells[$i]['G']));
                     $sellerPrice->fill([
                         'min_quantity' => $s * $coeff,
                         'max_quantity' => $cells[$i]['E'] * $coeff,
