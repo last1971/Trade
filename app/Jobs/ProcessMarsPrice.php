@@ -103,7 +103,7 @@ class ProcessMarsPrice implements ShouldQueue, ShouldBeUnique
                 ->where('is_active', true)
                 ->update(['is_active' => false]);
         } catch (Exception $e) {
-            Log::error('Dan price was errored');
+            Log::error('Mars price was errored');
             Log::error($e->getMessage());
             //Mail::raw($e->getMessage(),function($message){
             //    $message->to(env('MAIL_DEV','elcopro@gmail.com'))->subject('Error in import DAN price');
