@@ -59,7 +59,6 @@ class ProcessMarsPrice implements ShouldQueue, ShouldBeUnique
                 if (mb_strpos($cells[$i]['C'] , 'шт' ) >= 0 && $cells[$i]['C'] != null && $cells[$i]['A'] != null) {
                     $coeff = $cells[$i]['C'] === 'шт' ? 1 : 1000;
                     $s = str_replace( ',', '.', $cells[$i]['D']);
-                    dd($cells[$i]['D'], $cells[$i]['E']);
                     $pos = strpos($s, '/');
                     if ($pos > 0) {
                         $s = substr($s, 0, $pos);
