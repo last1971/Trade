@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d62a8fb95ad2a711ff218a0b21ea0a91",
+    "content-hash": "d615ba40f5786cb8ef3f96f6aeb36388",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -1292,6 +1292,58 @@
             "time": "2020-10-27T04:37:21+00:00"
         },
         {
+            "name": "imangazaliev/didom",
+            "version": "1.16.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Imangazaliev/DiDOM.git",
+                "reference": "7fc9cc1f519e5b2342c3ce00d98e53ed32b33011"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Imangazaliev/DiDOM/zipball/7fc9cc1f519e5b2342c3ce00d98e53ed32b33011",
+                "reference": "7fc9cc1f519e5b2342c3ce00d98e53ed32b33011",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-iconv": "*",
+                "php": ">=5.4"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DiDom\\": "src/DiDom/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Imangazaliev Muhammad",
+                    "email": "imangazalievm@gmail.com"
+                }
+            ],
+            "description": "Simple and fast HTML parser",
+            "homepage": "https://github.com/Imangazaliev/DiDOM",
+            "keywords": [
+                "didom",
+                "html",
+                "parser",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/Imangazaliev/DiDOM/issues",
+                "source": "https://github.com/Imangazaliev/DiDOM/tree/1.16.3"
+            },
+            "time": "2021-02-09T16:06:11+00:00"
+        },
+        {
             "name": "jenssegers/date",
             "version": "v4.0.0-beta",
             "source": {
@@ -1787,6 +1839,49 @@
                 "source": "https://github.com/laravel/ui/tree/v3.3.0"
             },
             "time": "2021-05-25T16:45:33+00:00"
+        },
+        {
+            "name": "last1971/chip-dip-parser",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/last1971/chip-dip-parser.git",
+                "reference": "2959fcd4416d25b03249b224672e92a5d8e4a56c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/last1971/chip-dip-parser/zipball/2959fcd4416d25b03249b224672e92a5d8e4a56c",
+                "reference": "2959fcd4416d25b03249b224672e92a5d8e4a56c",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.3",
+                "imangazaliev/didom": "^1.16",
+                "php": "^7.4"
+            },
+            "default-branch": true,
+            "type": "lirbrary",
+            "autoload": {
+                "psr-4": {
+                    "Last1971\\ChipDipParser\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Vladimir Lastovka",
+                    "email": "elcopro@gmail.com"
+                }
+            ],
+            "description": "Parse the website of the ChipDip company",
+            "support": {
+                "issues": "https://github.com/last1971/chip-dip-parser/issues",
+                "source": "https://github.com/last1971/chip-dip-parser/tree/master"
+            },
+            "time": "2021-06-04T16:45:43+00:00"
         },
         {
             "name": "lcobucci/clock",
@@ -10943,7 +11038,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "last1971/chip-dip-parser": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
@@ -10951,11 +11048,11 @@
         "ext-json": "*",
         "ext-mbstring": "*",
         "ext-pdo": "*",
-        "ext-sockets": "*",
         "ext-simplexml": "*",
-        "ext-zip": "*",
-        "ext-soap": "*"
+        "ext-soap": "*",
+        "ext-sockets": "*",
+        "ext-zip": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }

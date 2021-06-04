@@ -6,6 +6,8 @@ let state = _.cloneDeep(model.state);
 
 let getters = _.cloneDeep(model.getters);
 
+let mutations = _.cloneDeep(model.mutations);
+
 state.name = 'invoice';
 
 state.key = 'SCODE';
@@ -72,14 +74,22 @@ state.headers = [
     },
 ];
 
+state.currentInvoice = null;
+
 getters.PDF = state => id => {
     return 'Счет № ' + getters.GET(state)(id).NS + '.pdf'
+}
+
+getters['GET-CURRENT'] = state => state.currentInvoice;
+
+mutations['SET-CURRENT'] = function (state, currentInvoice) {
+    state.currentInvoice = currentInvoice;
 }
 
 export default {
     namespaced: true,
     state,
     getters,
-    mutations: model.mutations,
+    mutations,
     actions: model.actions,
 }

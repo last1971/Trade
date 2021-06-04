@@ -17,6 +17,14 @@ use Illuminate\Http\Request;
 
 Route::get('/test2/{test2}', 'TestController@test');
 
+Route::get('/chipdip/search/{search}', function ($search, \Last1971\ChipDipParser\ChipDipParser $parser) {
+    dd($parser->searchByName($search));
+});
+
+Route::get('/chipdip/code/{code}', function ($code, \Last1971\ChipDipParser\ChipDipParser $parser) {
+    dd($parser->searchByCode($code));
+});
+
 Route::get('/digi-key', function (Request $request, DigiKeyApiService $service) {
     if ($request->get('code')) {
         $service->gettingTheAccessToken($request->get('code'));
