@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Pricing\ChipDip;
 use App\Services\Pricing\Compel;
 use App\Services\Pricing\DataBase;
 use App\Services\Pricing\DigiKey;
@@ -9,6 +10,13 @@ use App\Services\Pricing\Promelec;
 use App\Services\Pricing\Ruichi;
 
 return [
+    'ChipDip' => [
+        'cacheTimes' => 18000,
+        'sellerId' => 1232,
+        'basicDeliveryTime' => 1,
+        'class' => ChipDip::class,
+        'ereg' => false,
+    ],
     'Compel' => [
         'cacheTimes' => 3600,
         'sellerId' => 857,
