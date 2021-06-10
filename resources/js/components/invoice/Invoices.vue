@@ -69,11 +69,13 @@
                     <v-text-field :label="isMobile ? 'Номер' : 'Равен'"
                                   :rules="[rules.isInteger]"
                                   v-model="options.filterValues[1]"
+                                  :filled="!!options.filterValues[1]"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :label="isMobile ? 'Название покупателя' : 'Начинается с'"
                                   v-model="options.filterValues[4]"
+                                  :filled="!!options.filterValues[4]"
                     />
                 </td>
                 <td v-if="!isMobile"></td>
@@ -82,6 +84,7 @@
                                   :label="isMobile ? 'Сумма больше' : 'Больше'"
                                   reverse
                                   v-model="options.filterValues[2]"
+                                  :filled="options.filterValues[2] > 0"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
@@ -89,6 +92,7 @@
                                   :label="isMobile ? 'Оплата больше' : 'Больше'"
                                   reverse
                                   v-model="options.filterValues[7]"
+                                  :filled="options.filterValues[7] > 0"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
@@ -96,6 +100,7 @@
                                   :label="isMobile ? 'Отгрузка больше' : 'Больше'"
                                   reverse
                                   v-model="options.filterValues[8]"
+                                  :filled="options.filterValues[8] > 0"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
@@ -107,21 +112,25 @@
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :label="isMobile ? 'Название фирмы' : 'Начинается с'"
                                   v-model="options.filterValues[6]"
+                                  :filled="!!options.filterValues[6]"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :label="isMobile ? 'Фамилия манагера' : 'Начинается с'"
                                   v-model="options.filterValues[5]"
+                                  :filled="!!options.filterValues[5]"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }" v-if="hasPermission">
                     <v-text-field :label="isMobile ? 'Примечание' : 'Содержит'"
                                   v-model="options.filterValues[9]"
+                                  :filled="!!options.filterValues[9]"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }" v-if="hasPermission">
                     <v-text-field :label="isMobile ? 'ИГК' : 'Содержит'"
                                   v-model="options.filterValues[10]"
+                                  :filled="!!options.filterValues[10]"
                     />
                 </td>
             </tr>
