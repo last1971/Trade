@@ -1,15 +1,15 @@
 <template>
-    <invoice-select v-model="invoice"/>
+    <delivery-time-select v-model="v"/>
 </template>
 
 <script>
-    import InvoiceSelect from "./invoice/InvoiceSelect";
+    import DeliveryTimeSelect from "./DeliveryTimeSelect";
     export default {
         name: "Test",
-        components: {InvoiceSelect},
+        components: {DeliveryTimeSelect, },
         data() {
             return {
-                invoice: null,
+                v: null,
             }
         },
         computed: {

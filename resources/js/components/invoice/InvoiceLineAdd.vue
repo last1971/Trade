@@ -59,10 +59,7 @@
             </v-row>
             <v-row>
                 <v-col>
-                    <v-text-field
-                        label="Срок"
-                        v-model="invoiceLine.PRIM"
-                    />
+                    <delivery-time-select v-model="invoiceLine.PRIM" />
                 </v-col>
                 <v-col>
                     <v-text-field
@@ -83,9 +80,10 @@
 <script>
 import GoodSelect from "../good/GoodSelect";
 import utilsMixin from "../../mixins/utilsMixin";
+import DeliveryTimeSelect from "../DeliveryTimeSelect";
 export default {
     name: "InvoiceLineAdd",
-    components: {GoodSelect},
+    components: {DeliveryTimeSelect, GoodSelect},
     mixins:[utilsMixin],
     props: {
         invoice: { type: Object, required: true },

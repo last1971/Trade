@@ -23,22 +23,13 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function () {
-    $s = new Last1971\ChipDipParser\ChipDipParser();
-    $res1 = $s->searchByName('max232cpe');
-    $res2 = collect($res1)
-        ->map(function($v1) {
-            return collect($v1['quantities'])
-                ->map(function($p1) {
-                    if (preg_match(' ~г\.([a-яА-Я-]*),.*\-(\d{1,2})~', $p1['reason'], $matches)) {
-                        return $matches;
-                    } elseif (preg_match(' ~\-(\d{1,2}).*недел.*~', $p1['reason'], $matches)) {
-                        return ['', 'Л А Б А З', $matches[1] * 7];
-                    }
-                    return ['', 'М А Г А З И Н', 0];
-                });
-        })
-        ->collapse();
-    dd($res1, $res2);
+    $res = \App\InvoiceLine::query()
+        ->where('DATA_INSERT', '>', \Carbon\Carbon::now()->subYear())
+        ->whereNotNull('PRIM')
+        ->distinct()
+        ->take(20)
+        ->get('PRIM');
+    dd($res->toArray());
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

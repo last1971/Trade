@@ -60,6 +60,7 @@
                                       :text-class="reserveClass(item)"
                                       :name="item.name.NAME"
                                       v-model="item.good"
+                                      icon
              />
         </template>
         <template v-slot:item.pickUpsQuantity="{ item }">
