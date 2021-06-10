@@ -3,7 +3,7 @@
     <model-select
         :dense="dense"
         :disabled="disabled"
-        item-text="NS"
+        item-text="buyer.SHORTNAME"
         item-value="SCODE"
         :label="label"
         model="invoice"
@@ -15,6 +15,7 @@
         :filter-values="filterValues"
         :sort-by="sortBy"
         :sort-desc="sortDesc"
+        :smart-name="true"
     >
         <template v-slot:item="{ item, maxLength }">
             <invoice-in-line :invoice="item"/>

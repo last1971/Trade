@@ -30,6 +30,9 @@ class InvoiceService extends ModelService
         $this->aliases['buyer.SHORTNAME'] = function (Builder $query) {
             $query->join('POKUPAT as buyer', 'buyer.POKUPATCODE', '=', 'S.POKUPATCODE');
         };
+        $this->aliases['buyer.INN'] = function (Builder $query) {
+            $query->join('POKUPAT as buyer', 'buyer.POKUPATCODE', '=', 'S.POKUPATCODE');
+        };
         $this->aliases['employee.FULLNAME'] = function (Builder $query) {
             $query->join('STAFF as employee', 'employee.ID', '=', 'S.STAFF_ID');
         };
@@ -42,6 +45,17 @@ class InvoiceService extends ModelService
     {
         $this->addUserBuyers($request);
         $this->addUserFirms($request);
+        $index = $request->get('filterAttributes')
+            ? array_search('buyer.SHORTNAME', $request->get('filterAttributes'))
+            : false;
+        if ($request->get('smartName') && $index !== false) {
+            $value = $request->get('filterValues')[$index];
+            $filterAttributes = $request->get('filterAttributes');
+            if (is_numeric($value)) {
+                $filterAttributes[$index] = strlen($value) < 5 ? 'NS' : 'buyer.INN';
+                $request->merge(compact('filterAttributes'));
+            }
+        }
         return parent::index($request);
     }
 }

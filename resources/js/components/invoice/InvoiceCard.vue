@@ -3,14 +3,14 @@
         <v-card-title class="text-center">
             <v-edit-dialog ref="dialog">
                 <v-container v-if="currentInvoice">
-                    <v-row class="text-subtitle-2 d-flex justify-center">
+                    <v-row class="text-caption d-flex justify-center">
                         Счет № {{ invoice.NS }} от {{ invoice.DATA | formatDate }}
                     </v-row>
                     <v-row class="text-subtitle-2 d-flex justify-center">
                         Для {{ invoice.buyer.SHORTNAME }}
                     </v-row>
                     <v-row class="text-subtitle-2 d-flex justify-center">
-                        {{ invoice.invoiceLinesCount }} строк на {{ invoice.invoiceLinesSum | formatRub }}
+                        {{ invoice.invoiceLinesCount }} строк на&nbsp;<b> {{ invoice.invoiceLinesSum | formatRub }} </b>
                     </v-row>
                 </v-container>
                 <v-container v-else>
