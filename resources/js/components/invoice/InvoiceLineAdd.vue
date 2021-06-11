@@ -33,12 +33,13 @@
                     />
                 </v-col>
                 <v-col>
-                    <v-text-field
+                    <v-combobox
                         :rules="[rules.isNumber, rules.required, rules.positive]"
-                        label="Цена с НДС"
                         v-model="invoiceLine.PRICE"
+                        :items="pricesForChoose"
+                        label="Цена с НДС"
                         @input="changePRICE"
-                    />
+                    ></v-combobox>
                 </v-col>
                 <v-col>
                     <v-text-field
@@ -87,6 +88,8 @@ export default {
     mixins:[utilsMixin],
     props: {
         invoice: { type: Object, required: true },
+        newInvoiceLine: { type: Object, default: () => {} },
+        pricesForChoose: { type: Array, defult: () => [] },
     },
     data() {
         return {
@@ -97,6 +100,7 @@ export default {
                 PRICE: null,
                 sumWithoutVat: null,
                 SUMMAP: null,
+                PRIM: null,
             },
             loading: false,
         }
@@ -149,7 +153,58 @@ export default {
             };
         }
     },
+  /*  created() {
+        if (!_.isEmpty(this.newInvoiceLine)) {
+            const { deliveryTime, goodId, orderQuantity, sellerId } = this.newInvoiceLine;
+            this.invoiceLine.PRIM = deliveryTime
+                ? deliveryTime + ' дней'
+                : deliveryTime === 0 ? 'склад' : null;
+            this.invoiceLine.QUAN = orderQuantity;
+            this.invoiceLine.GOODSCODE = goodId;
+            this.invoiceLine.WHERE_ORDERED = _.find(this.$store.getters['SELLER-PRICE/SELLERS'], { sellerId }).name;
+        }
+        if (!_.isEmpty(this.pricesForChoose)) {
+            this.invoiceLine.PRICE = _.max(this.pricesForChoose);
+            this.changePRICE();
+        }
+    },*/
+    watch: {
+        newInvoiceLine: {
+            deep: true,
+            immediate: true,
+            handler() {
+                if (!_.isEmpty(this.newInvoiceLine)) {
+                    const { deliveryTime, goodId, orderQuantity, sellerId } = this.newInvoiceLine;
+                    this.invoiceLine.PRIM = deliveryTime
+                        ? deliveryTime + ' дней'
+                        : deliveryTime === 0 ? 'склад' : null;
+                    this.invoiceLine.QUAN = orderQuantity;
+                    this.invoiceLine.GOODSCODE = goodId;
+                    this.invoiceLine.WHERE_ORDERED = _.find(this.$store.getters['SELLER-PRICE/SELLERS'], { sellerId }).name;
+                }
+                if (!_.isEmpty(this.pricesForChoose)) {
+                    this.invoiceLine.PRICE = _.max(this.pricesForChoose);
+                    this.changePRICE();
+                }
+            }
+        },
+    },
     methods: {
+        initialValues() {
+            if (!_.isEmpty(this.newInvoiceLine)) {
+                const { deliveryTime, goodId, orderQuantity, sellerId } = this.newInvoiceLine;
+                this.invoiceLine.PRIM = deliveryTime
+                    ? deliveryTime + ' дней'
+                    : deliveryTime === 0 ? 'склад' : null;
+                this.invoiceLine.QUAN = orderQuantity;
+                this.invoiceLine.GOODSCODE = goodId;
+                this.invoiceLine.WHERE_ORDERED = _.find(this.$store.getters['SELLER-PRICE/SELLERS'], { sellerId }).name;
+            }
+            if (!_.isEmpty(this.pricesForChoose)) {
+                this.invoiceLine.PRICE = _.max(this.pricesForChoose);
+                this.changePRICE();
+            }
+        },
         async save() {
             try {
                 this.loading = true;

@@ -38,12 +38,6 @@ import { mapGetters } from 'vuex';
 export default {
     name: "SellerPricePrices",
     mixins: [sellerPriceMixin],
-    props: {
-        markup: {
-            type: Number,
-            required: true,
-        }
-    },
     computed: {
         ...mapGetters({
             retailPrice: 'SELLER-PRICE/RETAIL_PRICE',

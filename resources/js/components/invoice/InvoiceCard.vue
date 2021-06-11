@@ -46,6 +46,11 @@ export default {
             return this.$store.getters['INVOICE/GET'](this.currentInvoice);
         }
     },
+    watch: {
+        invoice(v) {
+            if (v && v.STATUS > 0) this.currentInvoice = null;
+        },
+    },
     methods: {
         select() {
             this.$refs.dialog.isActive = false;

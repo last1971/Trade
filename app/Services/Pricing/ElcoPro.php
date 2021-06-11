@@ -115,8 +115,10 @@ class ElcoPro
                 &&
                 !empty($good->retailPrice->QUANOPT)
             ) {
-                $this->make(
-                    $good, $good->retailPrice->PRICEOPT, $good->retailPrice->QUANOPT, 0, false
+                $ret->push(
+                    $this->make(
+                        $good, $good->retailPrice->PRICEOPT, $good->retailPrice->QUANOPT, 0, false
+                    )
                 );
             }
         }

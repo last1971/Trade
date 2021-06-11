@@ -5,7 +5,12 @@ export default {
         item: {
             type: Object,
             required: true,
-        }
+        },
+        markup: {
+            type: [Number, String],
+            validate: (v) => !_.isNaN(_.toNumber(v)),
+            default: 0,
+        },
     },
     computed: {
         ...mapGetters({

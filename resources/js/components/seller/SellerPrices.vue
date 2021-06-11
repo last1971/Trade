@@ -84,7 +84,7 @@
             <seller-price-name :item="item" />
         </template>
         <template v-slot:item.quantity="{ item }">
-            <seller-price-quantity :item="item" />
+            <seller-price-quantity :item="item" :markup="markup"/>
         </template>
         <template v-slot:item.price="{ item }">
             <seller-price-prices :item="item" :markup="markup"/>
