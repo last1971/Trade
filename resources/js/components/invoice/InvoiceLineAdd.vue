@@ -75,6 +75,45 @@
                 </v-col>
             </v-row>
         </v-container>
+        <v-dialog
+            v-if="invoiceLineAlready"
+            v-model="isGoodAlready"
+            persistent
+            max-width="800"
+        >
+            <v-card>
+                <v-card-title>
+                    В счете уже
+                    {{ invoiceLineAlready.QUAN }}
+                    {{ invoiceLineAlready.good.UNIT_I }}
+                    {{ invoiceLineAlready.name.NAME }}
+                    по
+                    {{ invoiceLineAlready.PRICE | formatRub }}
+                    за
+                    {{ invoiceLineAlready.PRIM }}
+                </v-card-title>
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                        color="red darken-1"
+                        text
+                        @click="changeGood"
+                    >
+                        Будем менять
+                    </v-btn>
+
+                    <v-btn
+                        color="green darken-1"
+                        text
+                        @click="notChangeGood"
+                    >
+                        Оставить как есть
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-card>
 </template>
 
@@ -95,6 +134,7 @@ export default {
         return {
             invoiceLine: {
                 SCODE: this.invoice.SCODE,
+                GOODSCODE: null,
                 QUAN: null,
                 priceWithoutVat: null,
                 PRICE: null,
@@ -103,6 +143,9 @@ export default {
                 PRIM: null,
             },
             loading: false,
+            goodId: null,
+            isGoodAlready: false,
+            invoiceLineAlready: null,
         }
     },
     computed: {
@@ -153,21 +196,6 @@ export default {
             };
         }
     },
-  /*  created() {
-        if (!_.isEmpty(this.newInvoiceLine)) {
-            const { deliveryTime, goodId, orderQuantity, sellerId } = this.newInvoiceLine;
-            this.invoiceLine.PRIM = deliveryTime
-                ? deliveryTime + ' дней'
-                : deliveryTime === 0 ? 'склад' : null;
-            this.invoiceLine.QUAN = orderQuantity;
-            this.invoiceLine.GOODSCODE = goodId;
-            this.invoiceLine.WHERE_ORDERED = _.find(this.$store.getters['SELLER-PRICE/SELLERS'], { sellerId }).name;
-        }
-        if (!_.isEmpty(this.pricesForChoose)) {
-            this.invoiceLine.PRICE = _.max(this.pricesForChoose);
-            this.changePRICE();
-        }
-    },*/
     watch: {
         newInvoiceLine: {
             deep: true,
@@ -188,28 +216,49 @@ export default {
                 }
             }
         },
+        invoiceLine: {
+            deep: true,
+            immediate: true,
+            async handler() {
+                if (this.goodId !== this.invoiceLine.GOODSCODE && this.invoiceLine.GOODSCODE) {
+                    this.loading = true;
+                    try {
+                        const response = await this.$store.dispatch(
+                            'INVOICE-LINE/ALL',
+                            {
+                                with: ['category', 'good', 'name'],
+                                aggregateAttributes: [
+                                    'reservesQuantity',
+                                    'pickUpsQuantity',
+                                    'transferOutLinesQuantity',
+                                    'orderLinesTransitQuantity',
+                                    'storeLinesTransitQuantity',
+                                ],
+                                filterAttributes: ['REALPRICE.GOODSCODE', 'REALPRICE.SCODE'],
+                                filterOperators: ['=', '='],
+                                filterValues: [this.invoiceLine.GOODSCODE, this.invoiceLine.SCODE],
+                            }
+                        );
+                        if (response.total > 0) {
+                            this.invoiceLineAlready = response.copyItems[0];
+                            this.isGoodAlready = true;
+                        }
+                    } catch (e) {
+
+                    }
+                    this.loading = false;
+                } else {
+                    this.goodId = this.invoiceLine.GOODSCODE;
+                }
+            }
+        }
     },
     methods: {
-        initialValues() {
-            if (!_.isEmpty(this.newInvoiceLine)) {
-                const { deliveryTime, goodId, orderQuantity, sellerId } = this.newInvoiceLine;
-                this.invoiceLine.PRIM = deliveryTime
-                    ? deliveryTime + ' дней'
-                    : deliveryTime === 0 ? 'склад' : null;
-                this.invoiceLine.QUAN = orderQuantity;
-                this.invoiceLine.GOODSCODE = goodId;
-                this.invoiceLine.WHERE_ORDERED = _.find(this.$store.getters['SELLER-PRICE/SELLERS'], { sellerId }).name;
-            }
-            if (!_.isEmpty(this.pricesForChoose)) {
-                this.invoiceLine.PRICE = _.max(this.pricesForChoose);
-                this.changePRICE();
-            }
-        },
         async save() {
             try {
                 this.loading = true;
                 const invoiceLine = await this.$store.dispatch(
-                    'INVOICE-LINE/CREATE',
+                    this.invoiceLine.REALPRICECODE ? 'INVOICE-LINE/UPDATE' : 'INVOICE-LINE/CREATE',
                     {
                         item: this.invoiceLine,
                         options: this.options,
@@ -258,6 +307,15 @@ export default {
                 this.invoiceLine.PRICE = this.invoiceLine.SUMMAP / this.invoiceLine.QUAN;
                 this.changePRICE();
             }
+        },
+        changeGood() {
+            this.goodId = this.invoiceLine.GOODSCODE;
+            this.invoiceLine.REALPRICECODE = this.invoiceLineAlready.REALPRICECODE;
+            this.isGoodAlready = false;
+        },
+        notChangeGood() {
+            this.invoiceLine.GOODSCODE = this.goodId;
+            this.isGoodAlready = false;
         }
     },
 }

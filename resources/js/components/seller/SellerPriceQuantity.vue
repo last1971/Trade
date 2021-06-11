@@ -35,6 +35,7 @@
                               :new-invoice-line="item"
                               :prices-for-choose="pricesForChoose"
                               @close="isAddInvoiceLine = false"
+                              @closeWithReload="invoiceUpdate"
             />
         </v-dialog>
     </v-container>
@@ -78,6 +79,27 @@ export default {
             const price = toRub(item.CharCode, retailPrice(item));
             if (price > 0) ret.push(price);
             return ret;
+        }
+    },
+    methods: {
+        async invoiceUpdate() {
+            try {
+                await this.$store.dispatch(
+                    'INVOICE/GET',
+                    {
+                        id: this.$store.getters['INVOICE/GET-CURRENT'],
+                        query: {
+                            with: ['buyer', 'employee', 'firm'],
+                            aggregateAttributes: [
+                                'invoiceLinesCount', 'invoiceLinesSum', 'cashFlowsSum', 'transferOutLinesSum'
+                            ],
+                        }
+                    }
+                );
+            } catch (e) {
+
+            }
+            this.isAddInvoiceLine = false;
         }
     }
 }
