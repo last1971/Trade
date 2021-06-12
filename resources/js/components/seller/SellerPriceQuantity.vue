@@ -3,7 +3,8 @@
         <v-row dense>
             <v-col class="d-flex justify-start">
                 <span class="my-auto">Есть: <b>{{ item.quantity }}</b>&nbsp;/ Берём:</span>
-                <v-speed-dial :open-on-hover="true" direction="bottom">
+                <b v-if="!hasGood || !hasInvoice">&nbsp;{{ item.orderQuantity }}</b>
+                <v-speed-dial v-else :open-on-hover="true" direction="bottom">
                     <template v-slot:activator>
                         <v-btn plain small rounded>
                             {{ item.orderQuantity }}
@@ -30,7 +31,7 @@
                 Min: {{ item.minQuantity }} / Max: {{ item.maxQuantity }}
             </v-col>
         </v-row>
-        <v-dialog v-if="hasInvoice" v-model="isAddInvoiceLine">
+        <v-dialog v-if="hasInvoice" v-model="isAddInvoiceLine" :key="itemId">
             <invoice-line-add :invoice="invoice"
                               :new-invoice-line="item"
                               :prices-for-choose="pricesForChoose"
@@ -53,6 +54,7 @@ export default {
     data() {
         return {
             isAddInvoiceLine: false,
+            additionalKey: 0,
         }
     },
     computed: {
@@ -79,6 +81,9 @@ export default {
             const price = toRub(item.CharCode, retailPrice(item));
             if (price > 0) ret.push(price);
             return ret;
+        },
+        itemId() {
+            return this.additionalKey + '-' + this.item.id;
         }
     },
     methods: {
@@ -96,6 +101,7 @@ export default {
                         }
                     }
                 );
+                this.additionalKey += 1;
             } catch (e) {
 
             }
