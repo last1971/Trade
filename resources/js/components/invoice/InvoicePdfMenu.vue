@@ -70,8 +70,8 @@ export default {
     props: {
         value: { type: Object },
         pdfDialog: { type: Boolean, default: false },
-        sortBy: { type: Array, default: () => [] },
-        sortDesc: { type: Array, default: () => [] },
+        sortBy: { type: Array, default: () => ['REALPRICECODE'] },
+        sortDesc: { type: Array, default: () => [false] },
     },
     data() {
         return {
