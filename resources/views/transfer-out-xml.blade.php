@@ -84,6 +84,9 @@
                     />
                 </БанкРекв>
             </СвПокуп>
+            @if ($transferOut->invoice->IGK)
+                <ДопСвФХЖ1 ИдГосКон="{{ $transferOut->invoice->IGK }}"/>
+            @endif
         </СвСчФакт>
         <ТаблСчФакт>
             @foreach($transferOutLines as $line)
