@@ -23,13 +23,14 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function () {
-    $res = \App\InvoiceLine::query()
-        ->where('DATA_INSERT', '>', \Carbon\Carbon::now()->subYear())
-        ->whereNotNull('PRIM')
-        ->distinct()
-        ->take(20)
-        ->get('PRIM');
-    dd($res->toArray());
+    $s = new \App\Services\Pricing\Compel();
+    $res = $s->orders(collect([
+        'itemsPerPage' => 4,
+        'page' => 14,
+        'filterAttributes' => ['closed'],
+        'filterValues' => ['true'],
+    ]));
+    dd($res);
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

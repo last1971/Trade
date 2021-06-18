@@ -12,6 +12,12 @@ use Illuminate\Support\Collection;
 
 class Compel
 {
+    /**
+     * @param string $search
+     * @return Collection
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     public function __invoke(string $search): Collection
     {
         $sellerId = config('pricing.Compel.sellerId');

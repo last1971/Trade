@@ -16,15 +16,18 @@ class CompelApiService
      * @throws CompelException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function method(string $method, array  $params = null)
+    private function method(string $method, array  $params = [])
     {
         $client = new Client;
+
+        $queryParams = array_merge($params, ['user_hash' => env('COMPEL_API_HASH')]);
 
         $request = [
             'id' => 1,
             'method' => $method,
-            'params' => $params
+            'params' => $queryParams
         ];
+
         $res = $client->request(
             'POST',
             env('COMPEL_API_URL'),
@@ -50,11 +53,20 @@ class CompelApiService
      */
     public function searchByName(string $name)
     {
-        $params = [
-            'user_hash'     => env('COMPEL_API_HASH'),
-            'query_string'  => $name . '*',
-        ];
+        $params = ['query_string'  => $name . '*'];
         return $this->method('search_item_ext', $params);
+    }
+
+    /**
+     * @param array $params
+     * @return mixed
+     * @throws CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function orders(array $params = [])
+    {
+        $queryParams = array_merge(['order_sales_id' => 'desc'], $params);
+        return $this->method('sales_info', $queryParams);
     }
 
 }
