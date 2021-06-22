@@ -21,8 +21,9 @@ class SellerOrderService extends ModelService
     {
         $index = array_search('seller_id', $request->get('filterAttributes'));
         throw_if($index === false, new Exception('Need SellerId'));
+        $compelId = config('pricing.Compel.sellerId');
         switch ($request->get('filterValues')[$index]) {
-            case 1:
+            case $compelId:
                 $s = new CompelOrderService();
                 return $s->index($request);
             default:

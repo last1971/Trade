@@ -57,6 +57,7 @@ Route::middleware('auth:api')->group(function () {
         'retail-order-line' => 'Api\RetailOrderLineController',
         'role' => 'Api\RoleController',
         'seller' => 'Api\SellerController',
+        'seller-order' => 'Api\SellerOrderController',
         'store-line' => 'Api\StoreLineController',
         'transfer-out' => 'Api\TransferOutController',
         'transfer-out-line' => 'Api\TransferOutLineController',
