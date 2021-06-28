@@ -39,6 +39,7 @@ import paymentOrder from "./paymentOrder";
 import firmHistory from "./firmHistory";
 import sellerPrice from "./sellerPrice";
 import storeLine from "./storeLine";
+import sellerOrder from "./sellerOrder";
 
 Vue.use(Vuex);
 
@@ -87,6 +88,7 @@ export default new Vuex.Store({
         SBIS: sbis,
         SELLER: seller,
         'SELLER-PRICE': sellerPrice,
+        'SELLER-ORDER': sellerOrder,
         SNACKBAR: snackbar,
         'STORE-LINE': storeLine,
         'TRANSFER-OUT': transferOut,

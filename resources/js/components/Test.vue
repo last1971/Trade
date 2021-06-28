@@ -1,15 +1,20 @@
 <template>
-    <delivery-time-select v-model="v"/>
+    <div>
+    <seller-api-select v-model="sellerId"/>
+    <seller-order-select v-model="v" :seller-id="sellerId"/>
+    </div>
 </template>
 
 <script>
-    import DeliveryTimeSelect from "./DeliveryTimeSelect";
+    import SellerApiSelect from "./seller/SellerApiSelect";
+    import SellerOrderSelect from "./seller/SellerOrderSelect";
     export default {
         name: "Test",
-        components: {DeliveryTimeSelect, },
+        components: {SellerOrderSelect, SellerApiSelect,  },
         data() {
             return {
                 v: null,
+                sellerId: null,
             }
         },
         computed: {
