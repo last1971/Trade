@@ -122,7 +122,7 @@
                                     <br>
                                     от 26.12.2011 №1137
                                     <br>
-                                    (в ред. Постановления Правительства РФ от 19.08.2017 № 981)
+                                    (в ред. Постановления Правительства РФ от 02.04.2021 № 534)
                                 </td>
                             </tr>
                             </tbody>
@@ -187,6 +187,13 @@
                     <td width="3%" class="centred">(5)</td>
                 </tr>
                 <tr>
+                    <td>Документ об отгрузке № п/п</td>
+                    <td width="75%" class="bottom-border">
+                        1 - {{ $transferOutLines->count() }} № {{ $transferOut->NSF }} от {{(new Date($transferOut->DATA))->format('j F Y г.')}}
+                    </td>
+                    <td width="3%" class="centred">(5a)</td>
+                </tr>
+                <tr>
                     <td><b>Покупатель</b></td>
                     <td width="75%" class="bottom-border">
                         <b>{{ $transferOut->buyer->FULLNAME }}</b>
@@ -227,8 +234,8 @@
         </td>
     </tr>
     <tr class="heading">
+        <td rowspan="2" colspan="2" class="left-border right-border-double top-border" width="5%">Код товара/работ, услуг</td>
         <td rowspan="2" class="top-border right-border left-border">№ п/п</td>
-        <td rowspan="2" class="right-border-double top-border" width="5%">Код товара/работ, услуг</td>
         <td rowspan="2" class="top-border right-border" width="20%">
             Наименование товара (описание выполненных работ, оказанных услуг), имущественного права
         </td>
@@ -247,7 +254,7 @@
         </td>
         <td colspan="2" class="top-border right-border">Страна происхождения товара</td>
         <td rowspan="2" class="top-border right-border">
-            Регистрационный<br>номер<br>таможенной<br>декларации
+            Регистрационный номер декларации на товары или регстрационный номер партии товара, подлежащего прослеживаемости
         </td>
     </tr>
     <tr class="heading">
@@ -258,10 +265,10 @@
     </tr>
     <thead>
     <tr>
-        <th class="top-border right-border left-border bottom-border">А</th>
-        <th class="right-border-double top-border bottom-border">Б</th>
+        <th colspan="2" class="top-border right-border-double left-border bottom-border">А</th>
         <th class="top-border right-border bottom-border">1</th>
         <th class="top-border right-border bottom-border">1а</th>
+        <th class="top-border right-border bottom-border">1б</th>
         <th class="top-border right-border bottom-border">2</th>
         <th class="top-border right-border bottom-border">2а</th>
         <th class="top-border right-border bottom-border">3</th>
@@ -278,8 +285,8 @@
     </thead>
     @foreach($transferOutLines as $line)
         <tr>
+            <td colspan="2" class="left-border right-border-double bottom-border centred">{{ $line->good->GOODSCODE }}</td>
             <td class="left-border right-border bottom-border centred">{{ $loop->iteration }}</td>
-            <td class="right-border-double bottom-border centred">{{ $line->good->GOODSCODE }}</td>
             <td class="right-border bottom-border text-justify" style="padding: 2px">
                 {{$line->name->NAME}}
                 @if (!empty($line->good->BODY) && $body)
