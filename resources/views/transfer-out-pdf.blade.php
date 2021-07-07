@@ -187,9 +187,9 @@
                     <td width="3%" class="centred">(5)</td>
                 </tr>
                 <tr>
-                    <td>Документ об отгрузке № п/п</td>
+                    <td>Документ об отгрузке</td>
                     <td width="75%" class="bottom-border">
-                        1 - {{ $transferOutLines->count() }} № {{ $transferOut->NSF }} от {{(new Date($transferOut->DATA))->format('j F Y г.')}}
+                        № п/п 1 - {{ $transferOutLines->count() }} № {{ $transferOut->NSF }} от {{(new Date($transferOut->DATA))->format('j F Y г.')}}
                     </td>
                     <td width="3%" class="centred">(5a)</td>
                 </tr>
