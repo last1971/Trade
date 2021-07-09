@@ -84,6 +84,10 @@
                     />
                 </БанкРекв>
             </СвПокуп>
+            <ДокПодтвОтгр ДатаДокОтгр="{{ \Carbon\Carbon::create($transferOut->DATA)->format('d.m.Y') }}"
+                          НаимДокОтгр="УПД"
+                          НомДокОтгр="{{ $transferOut->NSF }}"
+            />
             @if ($transferOut->invoice->IGK)
                 <ДопСвФХЖ1 ИдГосКон="{{ $transferOut->invoice->IGK }}"/>
             @endif
