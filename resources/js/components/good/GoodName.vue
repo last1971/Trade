@@ -26,7 +26,7 @@
                 return !this.$store.getters['AUTH/HAS_PERMISSION']('good.show');
             },
             remark() {
-                return this.prim === true ? this.value.PRIM.trim() : this.prim;
+                return this.prim === true ? this.value.PRIM.trim() + ' / ' + this.value.DESCRIPTION.trim() : this.prim;
             }
         }
     }

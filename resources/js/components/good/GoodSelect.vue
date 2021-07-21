@@ -15,7 +15,7 @@
         model="good"
         v-model="proxy"
         :new-search="testName"
-        :smart-name="smartName"
+        :smart-name="proxySmartName"
         @clearSearchName="$emit('clearSearchName')"
         @focus="testName = newSearch"
     >
@@ -45,6 +45,12 @@
                     <good-edit @input="goodEdit = false" v-model="good" :new-name="newSearch"/>
                 </v-card>
             </v-dialog>
+        </template>
+        <template v-slot:append>
+            <v-btn icon left @click.stop="proxySmartName = !proxySmartName">
+                <v-icon v-if="proxySmartName">mdi-clipboard-check-outline</v-icon>
+                <v-icon v-else>mdi-clipboard-outline</v-icon>
+            </v-btn>
         </template>
     </model-select>
 </template>
@@ -91,6 +97,7 @@
                 reload: 0,
                 label: this.dense ? null : 'Товар',
                 testName: null,
+                proxySmartName: this.smartName
             }
         },
         computed: {
@@ -132,6 +139,14 @@
             rows() {
                 return this.$vuetify.breakpoint.name === 'xl' ? 1 : 2;
             }
+        },
+        watch: {
+            smartName(v) {
+                this.proxySmartName = v;
+            },
+            proxySmartName(v) {
+                this.$emit('update:smartName', v);
+            },
         },
         methods: {
             padEnd(v, l) {

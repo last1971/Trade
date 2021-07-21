@@ -25,6 +25,9 @@
         <template v-slot:prepend>
             <slot name="prepend"></slot>
         </template>
+        <template v-slot:append>
+            <slot name="append"></slot>
+        </template>
         <template v-slot:item="{ item }">
             <slot name="item" v-bind:item="item" v-bind:maxLength="maxLength">
                 {{ item[itemText] }}

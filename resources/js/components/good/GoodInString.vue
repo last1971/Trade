@@ -5,6 +5,8 @@
                 <span>{{ value.name.NAME }}</span>
                 <span v-if="value.BODY">/ {{ value.BODY }}</span>
                 <span v-if="value.PRODUCER">/ {{ value.PRODUCER }}</span>
+                <br/>
+                <div class="font-italic" style="font-size: 8px">{{ remark }}</div>
             </v-col>
             <v-col :cols="rows === 2 ? 12 : 7" class="d-flex flex-nowrap">
                 <good-quantity :good="value"/>
@@ -68,6 +70,11 @@ export default {
                 - this.value.shopLinesTransitQuantity
                 - this.value.storeLinesTransitQuantity
                 : 0
+        },
+        remark() {
+            return this.value.PRIM.trim() && this.value.DESCRIPTION.trim()
+                ? this.value.PRIM.trim() + ' / ' + this.value.DESCRIPTION.trim()
+                : this.value.PRIM.trim() ? this.value.PRIM.trim() : this.value.DESCRIPTION.trim();
         },
     },
     methods: {

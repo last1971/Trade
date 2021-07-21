@@ -37,7 +37,7 @@
             </v-hover>
         </template>
         <template v-slot:item.name.NAME="{ item }">
-            <good-name v-model="item" :prim="item.good.PRIM"/>
+            <good-name v-model="item" :prim="remark(item.good)"/>
         </template>
         <template v-slot:item.QUAN="{ item }">
             <edit-field :disabled="!editable"
@@ -226,6 +226,11 @@
             }
         },
         methods: {
+            remark(v) {
+                return v.PRIM.trim() && v.DESCRIPTION.trim()
+                    ? v.PRIM.trim() + ' / ' + v.DESCRIPTION.trim()
+                    : v.PRIM.trim() ? v.PRIM.trim() : v.DESCRIPTION.trim();
+            },
             inTransit(item) {
                 return item.orderLinesTransitQuantity
                     ? item.orderLinesTransitQuantity - item.storeLinesTransitQuantity
