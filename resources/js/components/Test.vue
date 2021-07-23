@@ -1,20 +1,17 @@
 <template>
     <div>
-    <seller-api-select v-model="sellerId"/>
-    <seller-order-select v-model="v" :seller-id="sellerId"/>
+        <good-info v-model="goodId"/>
     </div>
 </template>
 
 <script>
-    import SellerApiSelect from "./seller/SellerApiSelect";
-    import SellerOrderSelect from "./seller/SellerOrderSelect";
+    import GoodInfo from "./good/GoodInfo";
     export default {
         name: "Test",
-        components: {SellerOrderSelect, SellerApiSelect,  },
+        components: {GoodInfo,  },
         data() {
             return {
-                v: null,
-                sellerId: null,
+                goodId: 395925,
             }
         },
         computed: {

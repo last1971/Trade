@@ -7,6 +7,8 @@ state.name = 'reserve';
 
 state.key = 'RESERVCODE';
 
+state.fillable = ['QUANSKLAD'];
+
 state.headers = [
     {text: 'Дата', value: 'DATA', sortable: false},
     {text: 'Документ', value: 'SCODE', sortable: false},

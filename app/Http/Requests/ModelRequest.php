@@ -228,6 +228,9 @@ class ModelRequest extends FormRequest
                     'item.amount' => 'required|numeric',
                 ];
                 break;
+            case 'reserve.update':
+                $rules += ['item.QUANSKLAD' => 'required|integer'];
+                break;
             case 'retail-price.store':
             case 'retail-price.update':
                 $rules += $this->retailPrice();
@@ -241,6 +244,7 @@ class ModelRequest extends FormRequest
                 ];
                 break;
             case 'transfer-out-line.update':
+                $rules += [];
                 break;
             case 'user.update':
                 $rules += [

@@ -22,6 +22,8 @@ class Reserve extends Model
 
     protected $table = 'RESERVEDPOS';
 
+    protected $fillable = ['QUANSKLAD'];
+
     public function good()
     {
         return $this->belongsTo('App\Good', 'GOODSCODE', 'GOODSCODE');

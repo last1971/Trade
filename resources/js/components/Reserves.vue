@@ -32,15 +32,25 @@
                 {{ item.retailOrderLine.retailOrder.buyer.SHORTNAME }}
             </div>
         </template>
+        <template v-slot:item.QUANSKLAD="{ item }">
+            <edit-field
+                        :rules="[rules.isInteger, rules.required]"
+                        attribute="QUANSKLAD"
+                        v-model="item"
+                        @save="save"
+            />
+        </template>
     </v-data-table>
 </template>
 
 <script>
     import tableMixin from "../mixins/tableMixin";
     import utilsMixin from "../mixins/utilsMixin";
+    import EditField from "./EditField";
 
     export default {
         name: "Reserves",
+        components: {EditField},
         mixins: [tableMixin, utilsMixin],
         props: {
             value: {

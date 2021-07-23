@@ -56,12 +56,11 @@
             />
         </template>
         <template v-slot:item.orderLinesTransitQuantity="{ item }">
-             <order-line-in-way-modal :text="inTransit(item)"
-                                      :text-class="reserveClass(item)"
-                                      :name="item.name.NAME"
-                                      v-model="item.good"
-                                      icon
-             />
+            <good-info-modal :text="inTransit(item)"
+                             :text-class="reserveClass(item)"
+                             v-model="item.good.GOODSCODE"
+                             icon
+            />
         </template>
         <template v-slot:item.pickUpsQuantity="{ item }">
             <div :class="pickUpClass(item)">
@@ -132,6 +131,13 @@
                         v-model="item"
             />
         </template>
+        <template v-slot:item.WHERE_ORDERED="{ item }">
+            <edit-field :disabled="!editable"
+                        @save="save"
+                        attribute="WHERE_ORDERED"
+                        v-model="item"
+            />
+        </template>
         <template v-slot:expanded-item="{ headers, item }">
             <td :colspan="headers.length" :key="item.REALPRICECODE">
                 <expand-transfer-out-lines :invoice-line="item" class="my-2"/>
@@ -157,6 +163,7 @@
     import ReservesModal from "../ReservesModal";
     import TransferOutLinesModal from "../transferOut/TransferOutLinesModal";
     import OrderLineInWayModal from "../order/OrderLineInWayModal";
+    import GoodInfoModal from "../good/GoodInfoModal";
 
     export default {
         name: "InvoiceLines",
@@ -165,6 +172,7 @@
             OrderLineInWayModal,
             TransferOutLinesModal,
             ReservesModal,
+            GoodInfoModal,
             EditField, GoodName, OrderLineInWay, InvoiceEdit, TransferOutList, ExpandTransferOutLines},
         props: {
             value: {
