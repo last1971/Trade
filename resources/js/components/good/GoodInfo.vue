@@ -1,5 +1,5 @@
 <template>
-    <v-card class="m-2">
+    <v-card class="pt-2">
         <v-row>
             <v-col>
             <v-tabs v-model="tab" grow>
