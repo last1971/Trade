@@ -413,8 +413,8 @@
             <td width="75%" class="bottom-border">
                 Счет № {{ $transferOut->invoice->NS }}
                 от {{ (new Date($transferOut->invoice->DATA))->format('d.m.Y') }}
-                @if ($transferOut->invoice->NZ)
-                    , GPC-00000{{ $transferOut->invoice->NZ }}
+                @if ($transferOut->invoice->NZ && $transferOut->buyer->DOGOVOR)
+                    , {{ Str::replace('{NZ}', $transferOut->invoice->NZ, $transferOut->buyer->DOGOVOR) }}
                 @endif
             </td>
             <td width="1%">(8)</td>

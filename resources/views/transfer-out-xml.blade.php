@@ -134,8 +134,8 @@
                 <ОснПер ДатаОсн="{{ \Carbon\Carbon::create($transferOut->invoice->DATA)->format('d.m.Y') }}"
                         НаимОсн="Счет"
                         НомОсн="{{ $transferOut->invoice->NS }}"
-                        @if ($transferOut->invoice->NZ)
-                        ДопСвОсн="GPC-00000{{ $transferOut->invoice->NZ }}"
+                        @if ($transferOut->invoice->NZ && $transferOut->buyer->DOGOVOR)
+                        ДопСвОсн="{{ Str::replace('{NZ}', $transferOut->invoice->NZ, $transferOut->buyer->DOGOVOR) }}"
                     @endif
                 />
             </СвПер>
