@@ -416,6 +416,9 @@
                 @if ($transferOut->invoice->NZ && $transferOut->buyer->DOGOVOR)
                     , {{ Str::replace('{NZ}', $transferOut->invoice->NZ, $transferOut->buyer->DOGOVOR) }}
                 @endif
+                @if (Str::contains('NKB-00000', $transferOut->invoice->PRIM) || Str::contains('TZP-0000', $transferOut->invoice->PRIM))
+                    , {{ $transferOut->invoice->PRIM  }}
+                @endif
             </td>
             <td width="1%">(8)</td>
         </tr>
