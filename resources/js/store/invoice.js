@@ -13,7 +13,7 @@ state.name = 'invoice';
 state.key = 'SCODE';
 
 state.items = [
-    { SCODE: 0, FIRM_ID: 38, DATA: moment().format('Y-MM-DD'), STATUS: 0 }
+    { SCODE: 0, FIRM_ID: 38, DATA: moment().format('Y-MM-DD'), STATUS: 0, FIRMS_HISTORY_ID: 7 }
 ]
 
 state.fillable = ['DATA', 'NS', 'FIRM_ID', 'FIRMS_HISTORY_ID', 'POKUPATCODE', 'PRIM', 'STATUS', 'IGK', 'STAFF_ID'];

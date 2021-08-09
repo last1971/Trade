@@ -132,7 +132,8 @@ export default {
             MODEL: 'INVOICE',
             downloading: false,
             pdfDialog: false,
-            addInvoiceLine: false
+            addInvoiceLine: false,
+            firmId: undefined,
         }
     },
     computed: {
@@ -150,6 +151,19 @@ export default {
         },
         notCanEmployeeEdit() {
             return !this.$store.getters['AUTH/HAS_PERMISSION']('invoice.employee');
+        },
+    },
+    watch: {
+        model: {
+            deep: true,
+            handler(v) {
+                if (this.firmId === undefined) {
+                    this.firmId = v.FIRM_ID;
+                } else if (this.firmId !== v.FIRM_ID) {
+                    v.firmId = v.FIRM_ID;
+                    v.FIRMS_HISTORY_ID = null;
+                }
+            }
         },
     },
     methods: {
