@@ -23,14 +23,7 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function () {
-    $s = new \App\Services\Pricing\Compel();
-    $res = $s->orders(collect([
-        'itemsPerPage' => 4,
-        'page' => 14,
-        'filterAttributes' => ['closed'],
-        'filterValues' => ['true'],
-    ]));
-    dd($res);
+   dd(Str::contains( 'TZP-000046209A', 'TZP-0000'));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
