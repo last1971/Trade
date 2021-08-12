@@ -54,6 +54,11 @@
                                   label="Срок поставки"
                                   v-model="deliveryTime"
                         />
+                        <v-switch class="col-6"
+                                  inset
+                                  label="С подвалом"
+                                  v-model="withFooter"
+                        />
                         <v-btn @click="download()" class="col-2" fab>
                             <v-icon dark>mdi-download</v-icon>
                         </v-btn>
@@ -77,6 +82,7 @@ export default {
         return {
             withStamp: true,
             withVAT: true,
+            withFooter: true,
             newAccount: false,
             body: true,
             producer: true,
@@ -88,6 +94,7 @@ export default {
     created() {
         this.withStamp = this.$store.getters['AUTH/LOCAL_OPTION']('withStamp');
         this.withVAT = this.$store.getters['AUTH/LOCAL_OPTION']('withVAT');
+        this.withFooter = this.$store.getters['AUTH/LOCAL_OPTION']('withFooter');
     },
     watch: {
         withStamp(val) {
@@ -96,13 +103,28 @@ export default {
         withVAT(val) {
             this.$store.commit('AUTH/SET_LOCAL_OPTION', {withVAT: val});
         },
+        withFooter(val) {
+            this.$store.commit('AUTH/SET_LOCAL_OPTION', {withFooter: val});
+        },
     },
     methods: {
         download() {
             this.$emit('downloading', true);
             this.$emit('close');
             const
-                { withVAT, withStamp, newAccount, body, producer, category, divider, deliveryTime, sortBy, sortDesc }
+                {
+                    withVAT,
+                    withStamp,
+                    withFooter,
+                    newAccount,
+                    body,
+                    producer,
+                    category,
+                    divider,
+                    deliveryTime,
+                    sortBy,
+                    sortDesc
+                }
                 = this;
             this.$store.dispatch(
                 'INVOICE/PDF',
@@ -111,6 +133,7 @@ export default {
                     query: {
                         withVAT,
                         withStamp,
+                        withFooter,
                         newAccount,
                         body,
                         producer,
