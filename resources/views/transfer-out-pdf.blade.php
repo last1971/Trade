@@ -411,8 +411,12 @@
         <tr>
             <td>Основание передачи (сдачи)/получения приемки</td>
             <td width="75%" class="bottom-border">
-                Счет № {{ $transferOut->invoice->NS }}
-                от {{ (new Date($transferOut->invoice->DATA))->format('d.m.Y') }}
+                @if($transferOut->PRIM)
+                    {{ $transferOut->PRIM }}
+                @else
+                    Счет № {{ $transferOut->invoice->NS }}
+                    от {{ (new Date($transferOut->invoice->DATA))->format('d.m.Y') }}
+                @endif
                 @if ($transferOut->invoice->NZ && $transferOut->buyer->DOGOVOR)
                     , {{ Str::replace('{NZ}', $transferOut->invoice->NZ, $transferOut->buyer->DOGOVOR) }}
                 @endif
