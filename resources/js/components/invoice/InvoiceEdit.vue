@@ -79,7 +79,7 @@
                     <v-btn @click="download('xlsx')" fab>
                         <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>
-                    <v-btn @click="receipt" fab>
+                    <v-btn @click="receipt" fab v-if="isAdmin">
                         <v-icon color="primary">mdi-paper-roll</v-icon>
                     </v-btn>
                 </v-speed-dial>
@@ -114,6 +114,7 @@ import InvoiceLineAdd from "./InvoiceLineAdd";
 import FirmHistorySelect from "../FirmHistorySelect";
 import DatePicker from "../DatePicker";
 import EmployeeSelect from "../EmployeeSelect";
+import {mapGetters} from "vuex";
 
 export default {
     name: "InvoiceEdit",
@@ -137,6 +138,7 @@ export default {
         }
     },
     computed: {
+        ...mapGetters({ isAdmin: 'AUTH/IS_ADMIN' }),
         notEditable() {
             return this.model.transferOutLinesSum > 0;
         },

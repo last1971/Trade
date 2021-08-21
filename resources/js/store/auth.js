@@ -22,6 +22,7 @@ const state = {
 
 const getters = {
     AUTH_STATUS: state => state.status,
+    IS_ADMIN: state => state.roles.indexOf('admin') >= 0,
     IS_GUEST: state => state.roles.indexOf('guest') >= 0 && state.roles.length === 1,
     IS_LOGGEDIN: state => !!state.token,
     GET: state => state.user,
