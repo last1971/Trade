@@ -40,7 +40,7 @@
                 <td v-if="!isMobile"></td>
                 <td v-if="!isMobile && unpaid"></td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-text-field label="Номер" v-model="options.filterValues[0]"/>
+                    <v-text-field label="Номер" v-model="options.filterValues[0]" :filled="!!options.filterValues[0]"/>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <seller-select v-model="options.filterValues[1]"/>
@@ -50,6 +50,7 @@
                                   :label="isMobile ? 'Сумма больше' : 'Больше'"
                                   reverse
                                   v-model="options.filterValues[2]"
+                                  :filled="options.filterValues[2] > 0"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
@@ -57,35 +58,18 @@
                                   :label="isMobile ? 'Оплата больше' : 'Больше'"
                                   reverse
                                   v-model="options.filterValues[3]"
+                                  :filled="options.filterValues[3] > 0"
                     />
                 </td>
                 <td v-if="!isMobile"></td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-menu
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        min-width="290px"
-                        offset-y
-                        transition="scale-transition"
-                        v-model="datePicker"
-                    >
-                        <template v-slot:activator="{ on }">
-                            <v-text-field
-                                :value="options.filterValues[4] | formatDate"
-                                :label="'Раньше' + (isMobile ?  ' указанной Даты' : '')"
-                                prepend-icon="mdi-calendar-edit"
-                                readonly
-                                v-on="on"
-                            />
-                        </template>
-                        <v-date-picker @input="datePicker = false"
-                                       first-day-of-week="1"
-                                       v-model="options.filterValues[4]"
-                        />
-                    </v-menu>
+                    <date-picker v-model="options.filterValues[4]" :is-mobile="isMobile"/>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-text-field label="Примечание содержит" v-model="options.filterValues[5]"/>
+                    <v-text-field label="Примечание содержит"
+                                  v-model="options.filterValues[5]"
+                                  :filled="!!options.filterValues[5]"
+                    />
                 </td>
                 <td v-if="!isMobile"></td>
             </tr>
@@ -193,10 +177,11 @@ import PaymentAdd from "./PaymentAdd";
 import EditField from "../EditField";
 import PaymentOrders from "./PaymentOrders";
 import SellerSelect from "../seller/SellerSelect"
+import DatePicker from "../DatePicker";
 
 export default {
     name: "Payments",
-    components: {PaymentOrders, EditField, PaymentAdd, SellerSelect},
+    components: {DatePicker, PaymentOrders, EditField, PaymentAdd, SellerSelect},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {

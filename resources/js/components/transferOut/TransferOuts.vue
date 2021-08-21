@@ -49,12 +49,14 @@
                     <v-text-field :label="isMobile ? 'Номер' : 'Равен'"
                                   :rules="[rules.isInteger]"
                                   v-model="options.filterValues[1]"
+                                  :filled="!!options.filterValues[1]"
                     />
                 </td>
                 <td v-if="!isMobile"></td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :label="isMobile ? 'Название покупателя' : 'Начинается с'"
                                   v-model="options.filterValues[2]"
+                                  :filled="!!options.filterValues[2]"
                     />
                 </td>
                 <td v-if="!isMobile"></td>
@@ -63,16 +65,19 @@
                                   :rules="[rules.required, rules.isNumber]"
                                   reverse
                                   v-model="options.filterValues[3]"
+                                  :filled="options.filterValues[3] > 0"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :label="isMobile ? 'Название фирмы' : 'Начинается с'"
                                   v-model="options.filterValues[6]"
+                                  :filled="!!options.filterValues[6]"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :label="isMobile ? 'Фамилия манагера' : 'Начинается с'"
                                   v-model="options.filterValues[5]"
+                                  :filled="!!options.filterValues[5]"
                     />
                 </td>
             </tr>

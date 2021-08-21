@@ -32,38 +32,19 @@
                     </v-speed-dial>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
-                    <v-menu
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        min-width="290px"
-                        offset-y
-                        transition="scale-transition"
-                        v-model="datePicker"
-                    >
-                        <template v-slot:activator="{ on }">
-                            <v-text-field
-                                :label="'Позже' + (isMobile ?  ' указанной Даты' : '')"
-                                :value="options.filterValues[0] | formatDate"
-                                prepend-icon="mdi-calendar-edit"
-                                readonly
-                                v-on="on"
-                            />
-                        </template>
-                        <v-date-picker @input="datePicker = false"
-                                       first-day-of-week="1"
-                                       v-model="options.filterValues[0]"
-                        />
-                    </v-menu>
+                    <date-picker v-model="options.filterValues[0]" :is-mobile="isMobile"/>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :label="isMobile ? 'Номер' : 'Содержит'"
                                   :rules="[rules.isInteger]"
                                   v-model="options.filterValues[1]"
+                                  :filled="!!options.filterValues[1]"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :label="isMobile ? 'Поставщик' : 'Начинается с'"
                                   v-model="options.filterValues[2]"
+                                  :filled="!!options.filterValues[2]"
                     />
                 </td>
                 <td v-if="!isMobile"></td>
@@ -73,6 +54,7 @@
                                   :rules="[rules.required, rules.isNumber]"
                                   reverse
                                   v-model="options.filterValues[3]"
+                                  :filled="options.filterValues[3] > 0"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
@@ -80,6 +62,7 @@
                                   :rules="[rules.required, rules.isNumber]"
                                   reverse
                                   v-model="options.filterValues[4]"
+                                  :filled="options.filterValues[4] > 0"
                     />
                 </td>
                 <td v-if="!isMobile"></td>
@@ -87,11 +70,13 @@
                     <v-select :items="statuses"
                               :label="isMobile ? 'Статус' : 'Равен'"
                               v-model="options.filterValues[5]"
+                              :filled="options.filterValues[5].length > 0"
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :label="isMobile ? 'Фамилия манагера' : 'Начинается с'"
                                   v-model="options.filterValues[6]"
+                                  :filled="!!options.filterValues[6]"
                     />
                 </td>
             </tr>
@@ -151,10 +136,11 @@ import moment from "moment";
 import {mapGetters} from "vuex";
 import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
 import OrderStatusSelectInline from "./OrderStatusSelectInline";
+import DatePicker from "../DatePicker";
 
 export default {
     name: "Orders",
-    components: {OrderStatusSelectInline},
+    components: {DatePicker, OrderStatusSelectInline},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {
