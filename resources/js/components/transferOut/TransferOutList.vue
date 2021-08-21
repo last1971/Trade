@@ -8,7 +8,7 @@
                 raised
 
         >
-            <v-card-title>
+            <v-card-title class="text-subtitle-2">
                 УПД № {{ transferOut.NSF }} от {{ transferOut.DATA | formatDate }}
             </v-card-title>
             <v-card-text> {{ transferOut.transferOutLinesCount }} строк(и)
