@@ -21,6 +21,7 @@
         placeholder="поиск"
         v-model="proxy"
         @focus="$emit('focus')"
+        :filled="isNotEmpty"
     >
         <template v-slot:prepend>
             <slot name="prepend"></slot>
@@ -107,6 +108,9 @@
             },
             items() {
                 return this.$store.getters[this.MODEL + '/GET'](this.itemIds);
+            },
+            isNotEmpty() {
+                return !!(_.isArray(this.proxy) && !_.isEmpty(this.proxy)) || !!(!_.isArray(this.proxy) && this.proxy);
             }
         },
         watch: {

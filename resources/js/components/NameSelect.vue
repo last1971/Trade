@@ -14,7 +14,7 @@
         :new-search="proxyName"
         @focus="proxyName = newSearch"
     >
-        <template v-slot:prepend>
+        <template v-slot:prepend v-if="!disabled">
             <v-btn @click="add" class="pb-2" icon>
                 <v-icon color="green">mdi-content-save-edit</v-icon>
             </v-btn>

@@ -45,7 +45,7 @@
                 </v-breadcrumbs>
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-tooltip bottom v-if="user">
+            <v-tooltip bottom v-if="user && $route.name !== 'exchange-rates'">
                 <template v-slot:activator="{ on }">
                     <v-btn @click="$router.push({ name: 'exchange-rates' })" icon v-on="on">
                         <v-icon>mdi-currency-usd</v-icon>

@@ -1,8 +1,8 @@
 <template>
     <invoice-lines-dependent v-model="options">
         <template v-slot:top>
-            <v-form class="mx-2 mt-2">
-                <v-row>
+            <v-form class="mx-2 mt-2 d-inline-flex">
+
                     <category-select :dense="true"
                                      :multiple="true"
                                      class="mx-2 mt-2"
@@ -14,34 +14,12 @@
                               class="mx-2"
                               v-model="options.filterValues[1]"
                     />
-                    <v-menu
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        min-width="290px"
-                        offset-y
-                        transition="scale-transition"
-                        v-model="datePicker"
-                    >
-                        <template v-slot:activator="{ on }">
-                            <v-text-field
-                                :value="options.filterValues[2] | formatDate"
-                                label="Счет позже"
-                                prepend-icon="mdi-calendar-edit"
-                                readonly
-                                v-on="on"
-                                class="mx-2"
-                            />
-                        </template>
-                        <v-date-picker @input="datePicker = false"
-                                       first-day-of-week="1"
-                                       v-model="options.filterValues[2]"
-                        />
-                    </v-menu>
+                    <date-picker v-model="options.filterValues[2]"/>
                     <buyer-select :dense="true" :multiple="true" class="mx-2 mt-2" v-model="options.filterValues[3]"/>
                     <v-btn :loading="saving" @click="save" class="mx-2" fab icon>
                         <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>
-                </v-row>
+
             </v-form>
         </template>
     </invoice-lines-dependent>
@@ -55,11 +33,12 @@
     import BuyerSelect from "../BuyerSelect";
     import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
     import CategorySelect from "../CategorySelect";
+    import DatePicker from "../DatePicker";
 
     export default {
         name: "InvoiceLinesSearch",
         mixins: [tableOptionsRouteMixin],
-        components: {CategorySelect, BuyerSelect, InvoiceStatusSelect, InvoiceLinesDependent, UserBuyers},
+        components: {DatePicker, CategorySelect, BuyerSelect, InvoiceStatusSelect, InvoiceLinesDependent, UserBuyers},
         data() {
             return {
                 options: {

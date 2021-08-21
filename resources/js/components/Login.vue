@@ -1,12 +1,7 @@
 <template>
-    <v-container class="px-0">
-        <v-row
-            align="center"
-            justify="center"
-        >
-            <v-col
-                cols="8"
-            >
+    <v-main>
+        <v-container fill-height justify-center>
+            <v-flex class="login-form text-xs-center">
                 <v-card class="elevation-12">
                     <v-toolbar
                         color="primary"
@@ -41,27 +36,38 @@
                         </div>
                     </v-card-text>
                     <v-card-actions class="px-4 pb-4" v-if="notForgot">
-                        <v-spacer/>
-                        <v-btn :loading="loginLoading" @click="login" color="primary" type="submit">
-                            <v-icon left>mdi-login-variant</v-icon>
-                            Войти
-                        </v-btn>
-                        <v-spacer/>
-                        <v-btn :loading="forgotLoading" @click="forgot" color="secondary">
-                            <v-icon left>mdi-lock-question</v-icon>
-                            Воccтановить
-                        </v-btn>
-                        <v-btn :to="{ name: 'register' }">
-                            <v-icon left>mdi-account-plus</v-icon>
-                            Регистрация
-                        </v-btn>
+                        <v-row>
+                            <v-col>
+                                <v-btn :loading="loginLoading"
+                                       @click="login"
+                                       color="primary"
+                                       type="submit"
+                                       small
+                                       rounded
+                                       block
+                                >
+                                    <v-icon left>mdi-login-variant</v-icon>
+                                    Войти
+                                </v-btn>
+                            </v-col>
+                            <v-col>
+                                <v-btn :loading="forgotLoading" @click="forgot" color="secondary" small rounded block>
+                                    <v-icon left>mdi-lock-question</v-icon>
+                                    Воccтановить
+                                </v-btn>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-btn :to="{ name: 'register' }" small block>
+                                    <v-icon left>mdi-account-plus</v-icon>
+                                    Регистрация
+                                </v-btn>
+                            </v-col>
+                        </v-row>
                     </v-card-actions>
                 </v-card>
-            </v-col>
-        </v-row>
-    </v-container>
-
-
+            </v-flex>
+        </v-container>
+    </v-main>
 </template>
 
 <script>

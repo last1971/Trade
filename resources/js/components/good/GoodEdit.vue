@@ -7,23 +7,43 @@
                          v-model="model.NAMECODE"
                          :key="nameKey"
                          :new-search="newName"
+                         :disabled="notEditable"
             />
         </v-row>
         <v-row>
             <v-col cols="1">
-                <v-text-field :error-messages="errors['item.UNIT_I']" label="Ед.изм." v-model="model.UNIT_I"/>
+                <v-text-field
+                    :error-messages="errors['item.UNIT_I']"
+                    label="Ед.изм."
+                    v-model="model.UNIT_I"
+                    :disabled="notEditable"
+                />
             </v-col>
             <v-col cols="2">
-                <v-text-field :error-messages="errors['item.BODY']" label="Корпус" v-model="model.BODY"/>
+                <v-text-field
+                    :error-messages="errors['item.BODY']"
+                    label="Корпус"
+                    v-model="model.BODY"
+                    :disabled="notEditable"
+                />
             </v-col>
             <v-col cols="2">
-                <v-text-field :error-messages="errors['item.PRODUCER']" label="Производитель" v-model="model.PRODUCER"/>
+                <v-text-field
+                    :error-messages="errors['item.PRODUCER']"
+                    label="Производитель"
+                    v-model="model.PRODUCER"
+                    :disabled="notEditable"
+                />
             </v-col>
             <v-col cols="6">
-                <v-text-field :error-messages="errors['item.PRIM']" label="Описание" v-model="model.PRIM"/>
+                <v-text-field :error-messages="errors['item.PRIM']"
+                              label="Описание"
+                              v-model="model.PRIM"
+                              :disabled="notEditable"
+                />
             </v-col>
             <v-col cols="1">
-                <v-btn :disabled="savePossible" @click="save" fab :loading="loading">
+                <v-btn :disabled="savePossible || notEditable" @click="save" fab :loading="loading">
                     <v-icon color="green">mdi-content-save</v-icon>
                 </v-btn>
             </v-col>
@@ -68,6 +88,9 @@
             }
         },
         computed: {
+            notEditable() {
+                return !this.$store.getters['AUTH/HAS_PERMISSION']('good.update');
+            },
             retailPrice: {
                 get() {
                     return this.model.retailPrice || {PRICECODE: 0, DOLLAR: 'F', GOODSCODE: this.model.GOODSCODE}

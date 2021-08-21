@@ -1,11 +1,12 @@
 <template>
     <v-row class="m-2">
-        <v-card :key="transferOut.SFCODE"
+        <v-col v-for="transferOut in transferOuts" :key="transferOut.SFCODE" cols="2">
+        <v-card
                 :to="{ name: 'transfer-out', params: { id: transferOut.SFCODE } }"
-                class="m-2"
+
                 link
                 raised
-                v-for="transferOut in transferOuts"
+
         >
             <v-card-title>
                 УПД № {{ transferOut.NSF }} от {{ transferOut.DATA | formatDate }}
@@ -14,6 +15,7 @@
                 на сумму {{ transferOut.transferOutLinesSum | formatRub }}
             </v-card-text>
         </v-card>
+        </v-col>
     </v-row>
 </template>
 

@@ -56,7 +56,7 @@
                 options: {
                     with: ['category', 'good', 'name'],
                     filterAttributes: [
-                        'SFCODE',
+                        'REALPRICEF.SFCODE',
                     ],
                     filterOperators: ['='],
                     filterValues: [this.value.SFCODE],

@@ -185,17 +185,20 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $buyer = Role::query()->firstOrCreate(['name' => 'buyer']);
         $buyer->syncPermissions([
+            'nav.home',
             'nav.invoices',
             'nav.invoice-lines',
             'nav.transfer-outs',
             'buyer.index',
             'buyer.show',
             'category.index',
+            'category.show',
             'exchange-rate.index',
             'firm.index',
             'firm.show',
             'firm-history.index',
             'firm-history.show',
+            'good.show',
             'invoice.destroy',
             'invoice.index',
             'invoice.show',
@@ -204,6 +207,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'invoice-line.show',
             'invoice-line.xlsx',
             'name.index',
+            'name.show',
             'order-line.index',
             'transfer-out.index',
             'transfer-out.show',

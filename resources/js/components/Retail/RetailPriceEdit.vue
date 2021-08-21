@@ -7,6 +7,7 @@
                           suffix="от 1 шт."
                           type="number"
                           v-model="model.PRICEROZN"
+                          :disabled="notEditable"
             />
         </v-col>
         <v-col cols="12" sm="2">
@@ -14,6 +15,7 @@
                           :reverse="true" prefix="шт."
                           suffix="от"
                           v-model="model.QUANMOPT"
+                          :disabled="notEditable"
             />
         </v-col>
         <v-col cols="12" sm="2">
@@ -21,6 +23,7 @@
                           :reverse="true"
                           prefix="₽"
                           v-model="model.PRICEMOPT"
+                          :disabled="notEditable"
             />
         </v-col>
         <v-col cols="12" sm="2">
@@ -29,6 +32,7 @@
                           prefix="шт."
                           suffix="от"
                           v-model="model.QUANOPT"
+                          :disabled="notEditable"
             />
         </v-col>
         <v-col cols="12" sm="2">
@@ -36,10 +40,11 @@
                           :reverse="true"
                           prefix="₽"
                           v-model="model.PRICEOPT"
+                          :disabled="notEditable"
             />
         </v-col>
         <v-col cols="12" sm="1">
-            <v-btn :disabled="savePossible" @click="save" fab :loading="loading">
+            <v-btn :disabled="savePossible || notEditable" @click="save" fab :loading="loading">
                 <v-icon color="green">mdi-content-save</v-icon>
             </v-btn>
         </v-col>
@@ -58,6 +63,11 @@
                 dependent: true,
             }
         },
+        computed: {
+            notEditable() {
+                return !this.$store.getters['AUTH/HAS_PERMISSION']('retail-price.update');
+            }
+        }
     }
 </script>
 

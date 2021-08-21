@@ -31,15 +31,15 @@
                 </div>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
-                <div v-if="value.reservesQuantity">
+                <div v-if="value.reservesQuantity && hasPermission('reserve.show')">
                     <v-divider/>
                     <reserves v-model="value"/>
                 </div>
-                <div v-if="invoiceNeedQuantity">
+                <div v-if="invoiceNeedQuantity && hasPermission('reserve.show')">
                     <v-divider/>
-                    <future-reserves v-model="value"/>
+                    <future-reserves v-model="value" />
                 </div>
-                <div v-if="value.retailOrderLinesNeedQuantity">
+                <div v-if="value.retailOrderLinesNeedQuantity && hasPermission('reserve.show')">
                     <v-divider/>
                     <retail-order-lines-in-work v-model="value"/>
                 </div>
@@ -57,6 +57,7 @@
     import FutureReserves from "./FutureStoreReserves";
     import OrderLineInWay from "./order/OrderLineInWay";
     import RetailOrderLinesInWork from "./Retail/RetailOrderLinesInWork";
+    import {mapGetters} from "vuex";
 
     export default {
         name: "Leftovers",
@@ -116,7 +117,8 @@
             disabled() {
                 return !this.value.reservesQuantity && !this.transitQuantity
                     && (this.invoiceNeedQuantity + this.value.retailOrderLinesNeedQuantity === 0);
-            }
+            },
+            ...mapGetters({ hasPermission: 'AUTH/HAS_PERMISSION' }),
         }
     }
 </script>
