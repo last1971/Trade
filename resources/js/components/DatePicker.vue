@@ -40,7 +40,7 @@ export default {
         },
         label: {
             type: String,
-            default: () => 'Позже' + (this.isMobile ?  ' указанной Даты' : '')
+            default: () => 'Позже' + (this ? this.isMobile ?  ' указанной Даты' : '' : '')
         },
         disabled: {
             type: Boolean,

@@ -47,6 +47,7 @@ export default {
     data() {
         return {
             options: {
+                with: ['payment'],
                 filterAttributes: [
                     'payment_id',
                 ],

@@ -8,7 +8,7 @@
         model="seller"
         v-model="proxy"
     >
-        <template v-slot:prepend>
+        <template v-slot:prepend v-if="isEditable">
             <seller-edit-dialog v-model="proxy"/>
         </template>
         <template v-slot:item="{ item }">
@@ -40,6 +40,11 @@
                 default: false,
             },
         },
+        computed: {
+            isEditable() {
+                return  !_.isArray(this.proxy)
+            },
+        }
     }
 </script>
 

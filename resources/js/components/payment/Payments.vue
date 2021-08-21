@@ -42,7 +42,9 @@
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field label="Номер" v-model="options.filterValues[0]"/>
                 </td>
-                <td v-if="!isMobile"></td>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <seller-select v-model="options.filterValues[1]"/>
+                </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :rules="[rules.required, rules.isNumber]"
                                   :label="isMobile ? 'Сумма больше' : 'Больше'"
@@ -189,12 +191,12 @@ import utilsMixin from "../../mixins/utilsMixin";
 import moment from 'moment';
 import PaymentAdd from "./PaymentAdd";
 import EditField from "../EditField";
-import SellerSelect from "../seller/SellerSelect";
 import PaymentOrders from "./PaymentOrders";
+import SellerSelect from "../seller/SellerSelect"
 
 export default {
     name: "Payments",
-    components: {PaymentOrders, SellerSelect, EditField, PaymentAdd},
+    components: {PaymentOrders, EditField, PaymentAdd, SellerSelect},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {
@@ -205,7 +207,7 @@ export default {
                 ],
                 filterAttributes: [
                     'number',
-                    'seller.NAMEPOST',
+                    'seller_id',
                     'amount',
                     'paid',
                     'pay_before',
@@ -213,9 +215,9 @@ export default {
                     'amount',
                 ],
                 filterOperators: [
-                    'LIKE', 'LIKE', '>=', '>=', '<=', 'LIKE', '>'
+                    'LIKE', '=', '>=', '>=', '<=', 'LIKE', '>'
                 ],
-                filterValues: ['', '', 0, 0, moment().add(120, 'd').format('Y-MM-DD'), '', 'paid'],
+                filterValues: ['', null, 0, 0, moment().add(120, 'd').format('Y-MM-DD'), '', 'paid'],
             },
             model: 'PAYMENT',
             datePicker: false,
