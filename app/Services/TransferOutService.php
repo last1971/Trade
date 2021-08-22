@@ -4,12 +4,14 @@
 namespace App\Services;
 
 
+use App\Exceptions\ApiException;
 use App\TransferOut;
 use App\TransferOutLine;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use Throwable;
@@ -71,5 +73,25 @@ class TransferOutService extends ModelService
             ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows'))
             ->render();
         return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251", $output);
+    }
+
+    public function create($request)
+    {
+        $connection = DB::connection('firebird');
+        $connection->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
+        $connection->beginTransaction();
+
+        try {
+            $res = $connection->select(
+                'EXECUTE PROCEDURE CREATESF9 (?, ?, ?, ?, ?)',
+                [null, $request['SCODE'], $request['STAFF_ID'], null, 0, 0]
+            );
+            $ret = $this->index(collect(is_array($request) ? [] : $request->options))->find($res[0]->SFCODE);
+            $connection->commit();
+            return $ret;
+        } catch (\Exception $e) {
+            $connection->rollBack();
+            throw new ApiException($e->getMessage(), 400);
+        }
     }
 }

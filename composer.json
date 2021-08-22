@@ -20,7 +20,7 @@
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^1.0",
         "guzzlehttp/guzzle": "^7.0.1",
-        "harrygulliford/laravel-firebird": "^2.1",
+        "harrygulliford/laravel-firebird": "^v2.4.1",
         "jenssegers/date": "v4.0.0-beta",
         "kwn/number-to-words": "^1.9",
         "laravel/framework": "^8.0",

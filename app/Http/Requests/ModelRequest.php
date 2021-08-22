@@ -243,6 +243,11 @@ class ModelRequest extends FormRequest
                     'item.EMAIL' => 'nullable|email',
                 ];
                 break;
+            case 'transfer-out.store':
+                $rules += [
+                    'item.SCODE' => 'integer|exists:App\Invoice,SCODE'
+                ];
+                break;
             case 'transfer-out-line.update':
                 $rules += [];
                 break;

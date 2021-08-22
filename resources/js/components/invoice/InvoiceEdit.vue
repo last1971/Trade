@@ -65,6 +65,15 @@
                 >
                     <v-icon color="primary">mdi-playlist-plus</v-icon>
                 </v-btn>
+                <v-btn v-if="$vuetify.breakpoint.smAndUp"
+                       fab
+                       class="mt-2 ml-2"
+                       @click="transferOut"
+                       :disabled="value.STATUS < 3 ||value.STATUS > 4"
+                       :loading="creatingTransferOut"
+                >
+                    <v-icon color="accent">mdi-clipboard-text-play</v-icon>
+                </v-btn>
             </v-col>
             <v-col cols="12" sm="auto" v-if="$vuetify.breakpoint.smAndUp">
                 <v-speed-dial :open-on-hover="true" direction="bottom">
@@ -135,6 +144,7 @@ export default {
             pdfDialog: false,
             addInvoiceLine: false,
             firmId: undefined,
+            creatingTransferOut: false,
         }
     },
     computed: {
@@ -169,6 +179,24 @@ export default {
         },
     },
     methods: {
+        async transferOut() {
+            try {
+                this.creatingTransferOut = true;
+                const transferOut = await this.$store.dispatch('TRANSFER-OUT/CREATE', {
+                    item: { SCODE: this.value.SCODE },
+                    options: {
+                        with: ['buyer', 'employee', 'firm', 'invoice'],
+                        aggregateAttributes: [
+                            'transferOutLinesCount', 'transferOutLinesSum'
+                        ],
+                    }
+                });
+                this.$router.push({ name: 'transfer-out', params: { id: transferOut.data.SFCODE } });
+            }  catch (e) {
+
+            }
+            this.creatingTransferOut = false;
+        },
         async receipt() {
             this.downloading = true;
             await this.$store.dispatch('INVOICE/RECEIPT', this.value.SCODE)

@@ -22,8 +22,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function () {
-   dd(Str::contains( 'TZP-000046209A', 'TZP-0000'));
+Artisan::command('test1', function (\App\Services\TransferOutService $s) {
+   dd($s->create(['SCODE' => 62575, 'STAFF_ID' => 1]));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

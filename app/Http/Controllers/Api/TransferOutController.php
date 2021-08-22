@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Requests\ModelRequest;
 use App\Http\Requests\TransferOutPDFRequest;
 use App\Http\Resources\TransferOutResource;
 use App\Services\TransferOutService;
@@ -55,5 +56,14 @@ class TransferOutController extends ModelController
         );
         $pdf->setPaper('A4', 'landscape');
         return $pdf->download('transfer-out.pdf');
+    }
+
+    public function store(ModelRequest $request)
+    {
+        $request->merge([
+            'SCODE' => $request->item['SCODE'],
+            'STAFF_ID' => $request->user()->employee->ID,
+        ]);
+        return $this->service->create($request);
     }
 }
