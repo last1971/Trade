@@ -9,6 +9,8 @@ class TransferOut extends Model
     //
     public $timestamps = false;
 
+    protected $fillable = ['PRIM'];
+
     protected $connection = 'firebird';
 
     protected $primaryKey = 'SFCODE';

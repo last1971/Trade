@@ -57,7 +57,7 @@
                        @click="save"
                        class="mt-2"
                 >
-                    <v-icon v-if="$vuetify.breakpoint.smAndUp">mdi-content-save</v-icon>
+                    <v-icon v-if="$vuetify.breakpoint.smAndUp" color="success">mdi-content-save</v-icon>
                     <span v-else>Сохранить</span>
                 </v-btn>
             </v-col>

@@ -245,7 +245,12 @@ class ModelRequest extends FormRequest
                 break;
             case 'transfer-out.store':
                 $rules += [
-                    'item.SCODE' => 'integer|exists:App\Invoice,SCODE'
+                    'item.SCODE' => 'integer|exists:App\Invoice,SCODE',
+                ];
+                break;
+            case 'transfer-out.update':
+                $rules += [
+                    'item.PRIM' => 'nullable|string',
                 ];
                 break;
             case 'transfer-out-line.update':
