@@ -341,7 +341,7 @@
     <tfoot style="page-break-inside: avoid;">
     <tr>
         <td colspan="2" class="left-border right-border-double bottom-border"></td>
-        <td colspan="6" class="right-border bottom-border">
+        <td colspan="7" class="right-border bottom-border">
             <b>Всего к оплате</b>
         </td>
         <td class="right-border bottom-border text-right">
