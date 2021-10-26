@@ -7,7 +7,8 @@ const success = (commit, resp) => {
     commit('SET_TOKEN', token);
     commit('SET_USER', user);
     commit('SET_ROLES', resp.data.roles);
-    commit('SET_PERMISSIONS', resp.data.permissions)
+    commit('SET_PERMISSIONS', resp.data.permissions);
+    commit('INIT_LOCAL_OPTION');
 };
 
 const state = {
@@ -83,6 +84,24 @@ const mutations = {
     },
     SET_LOCAL_OPTION(state, option) {
         Object.assign(state.localOptions, option);
+        localStorage.setItem('options', JSON.stringify(state.localOptions));
+    },
+    INIT_LOCAL_OPTION(state) {
+        state.localOptions = {
+            invoiceBody: true,
+            invoiceCategory: true,
+            invoiceDeliveryTime: true,
+            invoiceDivider: true,
+            invoiceNewAccount: false,
+            invoiceProducer: true,
+            invoiceWithFooter: true,
+            invoiceWithStamp: true,
+            invoiceWithVAT: true,
+            transferOutBody: true,
+            transferOutProducer: true,
+            transferOutCategory: true,
+            transferOutDivider: true,
+        };
         localStorage.setItem('options', JSON.stringify(state.localOptions));
     }
 };

@@ -1,5 +1,5 @@
 <template>
-    <v-dialog max-width="400px" persistent v-model="pdfDialog">
+    <v-dialog max-width="400px" persistent v-model="pdfDialog" @keydown.esc="$emit('close')">
         <v-card>
             <v-card-title>
                 <span class="headline">Параметры счет-фактуры</span>
@@ -51,13 +51,39 @@ export default {
         value: { type: Object },
         pdfDialog: { type: Boolean, default: false },
     },
-    data() {
-        return {
-            body: true,
-            producer: true,
-            category: true,
-            divider: true,
-        }
+    computed: {
+        body: {
+            get() {
+                return this.$store.getters['AUTH/LOCAL_OPTION']('transferOutBody');
+            },
+            set(transferOutBody) {
+                this.$store.commit('AUTH/SET_LOCAL_OPTION', { transferOutBody });
+            },
+        }   ,
+        producer: {
+            get() {
+                return this.$store.getters['AUTH/LOCAL_OPTION']('transferOutProducer');
+            },
+            set(transferOutProducer) {
+                this.$store.commit('AUTH/SET_LOCAL_OPTION', { transferOutProducer });
+            },
+        },
+        category: {
+            get() {
+                return this.$store.getters['AUTH/LOCAL_OPTION']('transferOutCategory');
+            },
+            set(transferOutCategory) {
+                this.$store.commit('AUTH/SET_LOCAL_OPTION', { transferOutCategory });
+            },
+        },
+        divider: {
+            get() {
+                return this.$store.getters['AUTH/LOCAL_OPTION']('transferOutDivider');
+            },
+            set(transferOutDivider) {
+                this.$store.commit('AUTH/SET_LOCAL_OPTION', { transferOutDivider });
+            },
+        },
     },
     watch: {
         downloading() {
