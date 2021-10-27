@@ -161,7 +161,15 @@ let actions = {
             axios
                 .get(getters.URL + '/export/' + id, {params: query, responseType: 'blob'})
                 .then(response => {
-                    FileSaver.saveAs(response.data, getters.PDF(id));
+                    if (getters.NAME === 'transfer-out') {
+                        const file = new Blob(
+                            [response.data],
+                            {type: 'application/pdf'});
+                        const fileURL = URL.createObjectURL(file);
+                        window.open(fileURL);
+                    } else {
+                        FileSaver.saveAs(response.data, getters.PDF(id));
+                    }
                     resolve(response);
                 })
                 .catch((error) => {
