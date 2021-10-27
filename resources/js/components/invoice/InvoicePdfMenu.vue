@@ -1,5 +1,10 @@
 <template>
-    <v-dialog max-width="400px" persistent v-model="pdfDialog" @keydown.esc="$emit('close')">
+    <v-dialog max-width="400px"
+              persistent
+              v-model="pdfDialog"
+              @keydown.esc="$emit('close')"
+              @keydown.enter="download()"
+    >
         <v-card>
             <v-card-title>
                 <span class="headline">Параметры счета</span>
