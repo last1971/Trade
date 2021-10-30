@@ -17,7 +17,6 @@
         :new-search="testName"
         :smart-name="proxySmartName"
         @clearSearchName="$emit('clearSearchName')"
-        @focus="testName = newSearch"
     >
         <template v-slot:item="{ item, maxLength }">
             <good-in-string v-model="item" :rows="rows"/>
@@ -146,6 +145,9 @@
             },
             proxySmartName(v) {
                 this.$emit('update:smartName', v);
+            },
+            newSearch() {
+                this.testName = this.newSearch;
             },
         },
         methods: {

@@ -88,15 +88,15 @@
                 const el = this.$refs['ac_' + item.id].$el;
                 let childData = el.querySelectorAll("input")[0];
                 //
-                var dummy = document.createElement("textarea");
+                const dummy = document.createElement("textarea");
+                dummy.focus();
                 document.body.appendChild(dummy);
                 dummy.value = item.name;
                 dummy.select();
                 document.execCommand("copy");
                 document.body.removeChild(dummy);
-                //
-                childData.focus();
                 this.$set(item, 'searchName', item.name);
+                childData.focus();
             },
             clearSearchName(item) {
                 this.$set(item, 'searchName', null);
