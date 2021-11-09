@@ -171,8 +171,8 @@ class SellerPriceService
                 ->unique()
                 ->each(function ($sellerGoodId) {
                     $cachedKeys = Cache::get('sellerGoodId=' . $sellerGoodId, collect());
-                    $cachedKeys->push($this->sellerKey);
-                    $cachedKeys->push($this->searchKey);
+                    if (!$cachedKeys->contains($this->sellerKey)) $cachedKeys->push($this->sellerKey);
+                    if (!$cachedKeys->contains($this->searchKey)) $cachedKeys->push($this->searchKey);
                     Cache::put('sellerGoodId=' . $sellerGoodId, $cachedKeys, config('pricing.maxCacheTimes'));
                 });
         }
