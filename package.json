@@ -7,7 +7,7 @@
         "watch-poll": "mix watch -- --watch-options-poll=1000",
         "hot": "mix watch --hot",
         "prod": "npm run production",
-        "production": "export NODE_OPTIONS=--openssl-legacy-provider; mix --production"
+        "production": "mix --production"
     },
     "devDependencies": {
         "@mdi/font": "^5.5.55",
