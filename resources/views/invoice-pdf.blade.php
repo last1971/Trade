@@ -143,6 +143,7 @@
     <title></title>
 </head>
 <body>
+<div style="page-break-inside: avoid">
 <table>
     <tr>
         <td>
@@ -313,6 +314,7 @@
     </tr>
     </tfoot>
 </table>
+</div>
 <div class="total" style="page-break-inside: avoid">
     <p>
         Всего наименований {{ $invoice->invoiceLines->count() }}, на сумму
