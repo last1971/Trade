@@ -22,8 +22,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\TransferOutService $s) {
-   dd($s->create(['SCODE' => 62575, 'STAFF_ID' => 1]));
+Artisan::command('test1', function (\App\Services\Pricing\Electronica $s) {
+   dd(env('IS_ELECTRONICA'));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

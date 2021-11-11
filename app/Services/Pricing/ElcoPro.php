@@ -6,6 +6,7 @@ namespace App\Services\Pricing;
 
 use App\Entry;
 use App\Good;
+use App\RetailStore;
 use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
@@ -63,20 +64,43 @@ class ElcoPro
             ->whereHas('goodNames', function (Builder $query) use ($search) {
                 return $query->where('NAME', 'CONTAINING', $search);
             })
-            ->whereHas('warehouse', function (Builder $query) {
-                return $query->where('QUAN', '>', 0);
+            ->when(!env('IS_ELECTRONICA', false), function (Builder $q) {
+                return $q
+                    ->whereHas('warehouse', function (Builder $query) {
+                        return $query->where('QUAN', '>', 0);
+                    })
+                    ->addSelect([
+                        'quantity' => Warehouse::query()
+                            ->whereColumn('GOODSCODE', 'GOODS.GOODSCODE')
+                            ->selectRaw('coalesce(sum(QUAN), 0)'),
+                        'price' => Entry::query()
+                            ->whereColumn('GOODSCODE', 'GOODS.GOODSCODE')
+                            ->whereNotNull('SKLADINCODE')
+                            ->select('PRICE')
+                            ->orderByDesc('DATA')
+                            ->take(1)
+                    ]);
             })
-            ->addSelect([
-                'quantity' => Warehouse::query()
-                    ->whereColumn('GOODSCODE', 'GOODS.GOODSCODE')
-                    ->selectRaw('coalesce(sum(QUAN), 0)'),
-                'price' => Entry::query()
-                    ->whereColumn('GOODSCODE', 'GOODS.GOODSCODE')
-                    ->whereNotNull('SKLADINCODE')
-                    ->select('PRICE')
-                    ->orderByDesc('DATA')
-                    ->take(1)
-            ])
+            ->when(env('IS_ELECTRONICA', false), function (Builder $q) {
+                return $q
+                    ->whereHas('retailStore', function (Builder $query) {
+                        return $query->where('QUAN', '>', 0);
+                    })
+                    ->addSelect([
+                        'quantity' => RetailStore::query()
+                            ->whereColumn('GOODSCODE', 'GOODS.GOODSCODE')
+                            ->selectRaw('coalesce(sum(QUAN), 0)'),
+                        'price' => Entry::query()
+                            ->whereColumn('GOODSCODE', 'GOODS.GOODSCODE')
+                            ->whereNotNull('SKLADINCODE')
+                            ->select('PRICE')
+                            ->orderByDesc('DATA')
+                            ->take(1)
+                    ]);
+            })
+            //->whereHas('warehouse', function (Builder $query) {
+            //    return $query->where('QUAN', '>', 0);
+            //})
             ->take(100)
             ->get();
         $ret = collect();

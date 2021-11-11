@@ -74,7 +74,7 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
             $usdBigAmount = 15000 / $usd->value;
             for ($i = 9; $i < count($cells); $i++) {
                 if ($cells[$i]['N']) {
-                    Log::info('Code ' . $cells[$i]['E'] . ' start');
+                    // Log::info('Code ' . $cells[$i]['E'] . ' start');
                     $good = SellerGood::query()
                         ->firstOrNew(['seller_id' => $sellerId, 'code' => $cells[$i]['E']]);
                     $remark = $cells[$i]['B'] . ' / ' . $cells[$i]['D'] . ' / ' . $cells[$i]['F'];
