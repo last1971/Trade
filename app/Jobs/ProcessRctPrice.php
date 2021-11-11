@@ -7,6 +7,8 @@ use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -47,9 +49,19 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
     public function handle()
     {
         try {
-            $rct = file_get_contents("http://www.rct.ru/price/all");
-            Storage::disk('local')->put('rct.xlsx',$rct);
             $path = Storage::disk('local')->path('rct.xlsx');
+
+            Storage::delete($path);
+
+            $client = new Client();
+            $client->request(
+                'GET',
+                'https://www.rct.ru/price/all',
+                [
+                    'sink' => $path,
+                    'curl' => [ CURLOPT_SSL_CIPHER_LIST => 'DEFAULT@SECLEVEL=1' ],
+                ]
+            );
 
             $reader = IOFactory::createReader('Xlsx');
             $reader->setReadDataOnly(true);
@@ -62,7 +74,7 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
             $usdBigAmount = 15000 / $usd->value;
             for ($i = 9; $i < count($cells); $i++) {
                 if ($cells[$i]['N']) {
-                    // Log::info('Code ' . $cells[$i]['E'] . ' start');
+                    Log::info('Code ' . $cells[$i]['E'] . ' start');
                     $good = SellerGood::query()
                         ->firstOrNew(['seller_id' => $sellerId, 'code' => $cells[$i]['E']]);
                     $remark = $cells[$i]['B'] . ' / ' . $cells[$i]['D'] . ' / ' . $cells[$i]['F'];
@@ -143,6 +155,10 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
                 ->where('is_active', true)
                 ->update(['is_active' => false]);
         } catch (Exception $e) {
+            Log::error('Rct price was errored');
+            Log::error($e->getMessage());
+            $this->fail($e);
+        } catch (GuzzleException $e) {
             Log::error('Rct price was errored');
             Log::error($e->getMessage());
             $this->fail($e);

@@ -23,7 +23,7 @@ class FlushSellerPriceCache implements ShouldQueue
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param SellerGoodUpdated $event
      * @return void
      */
     public function handle(SellerGoodUpdated $event)
