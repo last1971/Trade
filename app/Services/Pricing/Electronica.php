@@ -12,7 +12,7 @@ class Electronica
      * @return Collection
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function __invoke(string $search): Collection
+    public function __invoke(string $search)
     {
         $client = new Client();
 
@@ -26,7 +26,7 @@ class Electronica
             'query' => ['sellerId' => 0, 'search' => $search],
         ]);
 
-        return collect();
+        return json_decode($response->getBody()->getContents());
     }
 
 }

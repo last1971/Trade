@@ -123,27 +123,34 @@
         },
         data: () => ({
             drawer: null,
-            menus: [
-                {id: 1, text: 'Домой', to: {name: 'home'}, icon: 'mdi-home'},
-                {
-                    id: 2,
-                    text: 'Заказы розницы',
-                    to: {name: 'retail-order-lines'},
-                    icon: 'mdi-order-alphabetical-ascending'
-                },
-                {id: 3, text: 'Товары', to: {name: 'goods'}, icon: 'mdi-chip'},
-                {id: 4, text: 'Счета', to: {name: 'invoices'}, icon: 'mdi-text-box'},
-                {id: 5, text: 'Поиск в счетах', to: {name: 'invoice-lines'}, icon: 'mdi-format-line-spacing'},
-                {id: 6, text: 'Исх.УПД', to: {name: 'transfer-outs'}, icon: 'mdi-clipboard-text-play'},
-                {id: 7, text: 'Заказы', to: {name: 'orders'}, icon: 'mdi-clipboard-arrow-left'},
-                {id: 8, text: 'СБИС', to: {name: 'sbis'}, icon: 'mdi-electron-framework'},
-                {id: 9, text: 'Покупатели+', to: {name: 'advanced-buyer'}, icon: 'mdi-account-plus'},
-                {id: 10, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
-                {id: 11, text: 'Список', to: {name: 'goods-list'}, icon: 'mdi-playlist-edit'},
-                {id: 12, text: 'Розн.продажи', to: {name: 'retail-sales'}, icon: 'mdi-store-24-hour'},
-                {id: 13, text: 'Платежи', to: {name: 'payments'}, icon: 'mdi-credit-card-settings-outline'},
-                {id: 14, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
-            ]
+            menus: process.env.MIX_IS_ELECTRONICA === 'true'
+                ? [
+                    {id: 1, text: 'Домой', to: {name: 'home'}, icon: 'mdi-home'},
+                    {
+                        id: 2,
+                        text: 'Заказы розницы',
+                        to: {name: 'retail-order-lines'},
+                        icon: 'mdi-order-alphabetical-ascending'
+                    },
+                    {id: 3, text: 'Товары', to: {name: 'goods'}, icon: 'mdi-chip'},
+                    {id: 7, text: 'Заказы', to: {name: 'orders'}, icon: 'mdi-clipboard-arrow-left'},
+                    {id: 10, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
+                    {id: 11, text: 'Список', to: {name: 'goods-list'}, icon: 'mdi-playlist-edit'},
+                    {id: 12, text: 'Розн.продажи', to: {name: 'retail-sales'}, icon: 'mdi-store-24-hour'},
+                    {id: 13, text: 'Платежи', to: {name: 'payments'}, icon: 'mdi-credit-card-settings-outline'},
+                    {id: 14, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
+                ]
+                : [
+                    {id: 1, text: 'Домой', to: {name: 'home'}, icon: 'mdi-home'},
+                    {id: 4, text: 'Счета', to: {name: 'invoices'}, icon: 'mdi-text-box'},
+                    {id: 5, text: 'Поиск в счетах', to: {name: 'invoice-lines'}, icon: 'mdi-format-line-spacing'},
+                    {id: 6, text: 'Исх.УПД', to: {name: 'transfer-outs'}, icon: 'mdi-clipboard-text-play'},
+                    {id: 7, text: 'Заказы', to: {name: 'orders'}, icon: 'mdi-clipboard-arrow-left'},
+                    {id: 8, text: 'СБИС', to: {name: 'sbis'}, icon: 'mdi-electron-framework'},
+                    {id: 9, text: 'Покупатели+', to: {name: 'advanced-buyer'}, icon: 'mdi-account-plus'},
+                    {id: 10, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
+                    {id: 14, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
+                ]
         }),
         computed: {
             ...mapGetters({

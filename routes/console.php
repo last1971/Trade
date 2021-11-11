@@ -23,7 +23,7 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function (\App\Services\Pricing\Electronica $s) {
-   dd(env('IS_ELECTRONICA'));
+   dd($s('1n4007'));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

@@ -29,7 +29,7 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
      *
      * @var int
      */
-    public $timeout = 7200;
+    public $timeout = 10800;
 
     /**
      * Create a new job instance.
