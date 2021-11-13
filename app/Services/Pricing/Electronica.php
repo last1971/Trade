@@ -24,10 +24,13 @@ class Electronica
             'Accept'        => 'application/json',
         ];
 
-        $response = $client->get('https://electronica.su/api/seller-price', [
-            'headers' => $headers,
-            'query' => ['sellerId' => 0, 'search' => $search],
-        ]);
+        $response = $client->get(
+            env('ELECTRONICA_URI', 'https://electronica.su') . 'api/seller-price',
+            [
+                'headers' => $headers,
+                'query' => ['sellerId' => 0, 'search' => $search],
+            ]
+        );
 
         $result = json_decode($response->getBody()->getContents());
 
