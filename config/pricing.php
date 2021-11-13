@@ -5,6 +5,7 @@ use App\Services\Pricing\Compel;
 use App\Services\Pricing\DataBase;
 use App\Services\Pricing\DigiKey;
 use App\Services\Pricing\ElcoPro;
+use App\Services\Pricing\Electronica;
 use App\Services\Pricing\PME;
 use App\Services\Pricing\Promelec;
 use App\Services\Pricing\Ruichi;
@@ -44,6 +45,13 @@ return [
         'basicDeliveryTime' => 0,
         'class' => ElcoPro::class,
         'ereg' => true,
+    ],
+    'Electronica' => [
+        'cacheTimes' => 1800,
+        'sellerId' => (int) env('ELECTRONICA_SELLER_ID', 2683),
+        'basicDeliveryTime' => 1,
+        'class' => Electronica::class,
+        'ereg' => false,
     ],
     'Mars' => [
         'cacheTimes' => 86400,
