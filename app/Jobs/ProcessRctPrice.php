@@ -29,7 +29,7 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
      *
      * @var int
      */
-    public $timeout = 10800;
+    public $timeout = 18000;
 
     /**
      * Create a new job instance.
@@ -49,6 +49,7 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
     public function handle()
     {
         try {
+            Log::info('Start RCT pricing');
             $path = Storage::disk('local')->path('rct.xlsx');
 
             Storage::delete($path);
@@ -72,7 +73,12 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
             $start = Carbon::now();
             $usd = ExchangeRate::query()->where('CharCode', 'USD')->latest()->first();
             $usdBigAmount = 15000 / $usd->value;
-            for ($i = 9; $i < count($cells); $i++) {
+            $count = count($cells);
+            for ($i = 9; $i < $count; $i++) {
+                // Log::info($cells[$i]['N']);
+                if ($i % 1000 === 0) {
+                    Log::info($i . ' from ' . $count);
+                }
                 if ($cells[$i]['N']) {
                     // Log::info('Code ' . $cells[$i]['E'] . ' start');
                     $good = SellerGood::query()
@@ -154,6 +160,7 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
                 ->where('updated_at', '<', $start)
                 ->where('is_active', true)
                 ->update(['is_active' => false]);
+            Log::info('Finish RCT pricing');
         } catch (Exception $e) {
             Log::error('Rct price was errored');
             Log::error($e->getMessage());

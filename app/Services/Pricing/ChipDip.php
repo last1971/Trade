@@ -18,10 +18,11 @@ class ChipDip
      */
     private function progonose(array $quantity): array
     {
+        if (preg_match(' ~\-(\d{1,2}).*недел.*~', $quantity['reason'], $matches)) {
+            return ['', 'Л А Б А З', $matches[1] * 7];
+        }
         if (preg_match(' ~г\.([a-яА-Я-]*),.*\-(\d{1,2})~', $quantity['reason'], $matches)) {
             return $matches;
-        } elseif (preg_match(' ~\-(\d{1,2}).*недел.*~', $quantity['reason'], $matches)) {
-            return ['', 'Л А Б А З', $matches[1] * 7];
         }
         return ['', 'М А Г А З И Н', 0];
     }
