@@ -30,9 +30,9 @@ class SellerGood extends Model
         'is_active' => 'boolean'
     ];
 
-    protected $dispatchesEvents = [
-        'updated' => SellerGoodUpdated::class,
-    ];
+//    protected $dispatchesEvents = [
+//        'updated' => SellerGoodUpdated::class,
+//    ];
 
     public function setNameAttribute(string $value)
     {
