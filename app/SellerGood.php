@@ -5,6 +5,7 @@ namespace App;
 use App\Events\SellerGoodUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class SellerGood extends Model
 {
@@ -33,6 +34,20 @@ class SellerGood extends Model
 //    protected $dispatchesEvents = [
 //        'updated' => SellerGoodUpdated::class,
 //    ];
+
+    protected static function booted()
+    {
+        static::saved(function ($sellerGood) {
+            $keyGoodId = 'sellerGoodId=' . $sellerGood->id;
+            if (Cache::has($keyGoodId)) {
+                $keys = Cache::get($keyGoodId);
+                $keys->each(function ($key) {
+                    Cache::forget($key);
+                });
+                Cache::forget('sellerGoodId=' . $keyGoodId);
+            }
+        });
+    }
 
     public function setNameAttribute(string $value)
     {

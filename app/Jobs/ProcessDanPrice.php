@@ -29,7 +29,7 @@ class ProcessDanPrice implements ShouldQueue, ShouldBeUnique
      *
      * @var int
      */
-    public $timeout = 7200;
+    public $timeout = 18000;
 
     /**
      * Create a new job instance.
