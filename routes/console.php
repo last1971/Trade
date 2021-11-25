@@ -22,8 +22,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\Pricing\Electronica $s) {
-   dd($s('1n4007'));
+Artisan::command('test1', function (\App\Services\Pricing\Elitan $s) {
+   dd($s('RSP-1000-24')->toArray());
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

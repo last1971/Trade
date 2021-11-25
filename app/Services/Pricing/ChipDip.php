@@ -53,9 +53,9 @@ class ChipDip
                     $prognose = $this->progonose($quantity);
 
                     $sellerWarehouse->fill([
-                        'quantity' => $quantity['quantity'],
-                        'additional_delivery_time' => $prognose[2],
-                        'multiplicity' => $line['multiple'],
+                        'quantity' => (int) $quantity['quantity'],
+                        'additional_delivery_time' => (int) $prognose[2],
+                        'multiplicity' => (int) $line['multiple'],
                         'remark' => '',
                         'options' => [
                             'location_id' => $prognose[1],
@@ -71,11 +71,11 @@ class ChipDip
                         ->map(function (array $price, $index) use ($sellerWarehouse, $pricesCount, $line) {
                             $sellerPrice = new SellerPrice([
                                 'seller_warehouse_id' => $sellerWarehouse->id,
-                                'min_quantity' => $price['min'],
+                                'min_quantity' => (int) $price['min'],
                                 'max_quantity' => $index + 1 === $pricesCount
                                     ? 0
                                     : $line['prices'][$index + 1]['min'] - 1,
-                                'value' => (float)$price['price'],
+                                'value' => (float) $price['price'],
                                 'CharCode' => $price['valute'],
                                 'is_input' => true,
                             ]);

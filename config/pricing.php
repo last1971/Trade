@@ -6,6 +6,7 @@ use App\Services\Pricing\DataBase;
 use App\Services\Pricing\DigiKey;
 use App\Services\Pricing\ElcoPro;
 use App\Services\Pricing\Electronica;
+use App\Services\Pricing\Elitan;
 use App\Services\Pricing\PME;
 use App\Services\Pricing\Promelec;
 use App\Services\Pricing\Ruichi;
@@ -51,6 +52,13 @@ return [
         'sellerId' => (int) env('ELECTRONICA_SELLER_ID', 2683),
         'basicDeliveryTime' => 1,
         'class' => Electronica::class,
+        'ereg' => false,
+    ],
+    'Elitan' => [
+        'cacheTimes' => 86400,
+        'sellerId' => (int) env('ELITAN_SELLER_ID', 1399),
+        'basicDeliveryTime' => 7,
+        'class' => Elitan::class,
         'ereg' => false,
     ],
     'Mars' => [
