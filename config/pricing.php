@@ -9,6 +9,7 @@ use App\Services\Pricing\Electronica;
 use App\Services\Pricing\Elitan;
 use App\Services\Pricing\PME;
 use App\Services\Pricing\Promelec;
+use App\Services\Pricing\RadiodetaliCom;
 use App\Services\Pricing\Ruichi;
 
 return [
@@ -81,6 +82,13 @@ return [
         'basicDeliveryTime' => 8,
         'class' => Promelec::class,
         'ereg' => true,
+    ],
+    'Radiodetali' => [
+        'cacheTimes' => 86400,
+        'sellerId' => (int) env('RADIODETALI_SELLER_ID', 858),
+        'basicDeliveryTime' => 7,
+        'class' => RadiodetaliCom::class,
+        'ereg' => false,
     ],
     'Rct' => [
         'cacheTimes' => 86400,

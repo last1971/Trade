@@ -49,7 +49,6 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
     public function handle()
     {
         try {
-            Log::info('Start RCT pricing');
             $path = Storage::disk('local')->path('rct.xlsx');
 
             Storage::delete($path);
@@ -75,12 +74,7 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
             $usdBigAmount = 15000 / $usd->value;
             $count = count($cells);
             for ($i = 9; $i < $count; $i++) {
-                // Log::info($cells[$i]['N']);
-                if ($i % 1000 === 0) {
-                    Log::info($i . ' from ' . $count);
-                }
                 if ($cells[$i]['N']) {
-                    // Log::info('Code ' . $cells[$i]['E'] . ' start');
                     $good = SellerGood::query()
                         ->firstOrNew(['seller_id' => $sellerId, 'code' => $cells[$i]['E']]);
                     $remark = $cells[$i]['B'] . ' / ' . $cells[$i]['D'] . ' / ' . $cells[$i]['F'];
@@ -160,7 +154,6 @@ class ProcessRctPrice implements ShouldQueue, ShouldBeUnique
                 ->where('updated_at', '<', $start)
                 ->where('is_active', true)
                 ->update(['is_active' => false]);
-            Log::info('Finish RCT pricing');
         } catch (Exception $e) {
             Log::error('Rct price was errored');
             Log::error($e->getMessage());

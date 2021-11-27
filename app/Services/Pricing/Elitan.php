@@ -8,6 +8,7 @@ use App\SellerWarehouse;
 use App\Services\ElitanService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use stdClass;
 
 class Elitan
@@ -35,7 +36,8 @@ class Elitan
     private function processStocks(Collection &$ret, Model $sellerGood, stdClass $data): void
     {
         foreach ($data->stock as $stock) {
-            if ($stock->blitz === '1') continue;
+            $quantity = (int) $stock->stock;
+            if ($stock->blitz === '1' || $quantity < 0) continue;
             $sellerWarehouse = SellerWarehouse::query()
                 ->firstOrNew(['seller_good_id' => $sellerGood->id, 'code' => $stock->id_stock]);
             $additionalDeliveryTime = (int) $stock->term_delay;
@@ -49,7 +51,7 @@ class Elitan
                 $locationId = 'Л А Б А З';
             }
             $sellerWarehouse->fill([
-                'quantity' => (int) $stock->stock,
+                'quantity' => (int) $quantity,
                 'additional_delivery_time' => $additionalDeliveryTime,
                 'multiplicity' => (int) ($stock->normoupakovka ?? 1),
                 'options' => [
@@ -82,7 +84,7 @@ class Elitan
                 'is_active' => true,
                 'basic_delivery_time' => config('pricing.Compel.basicDeliveryTime'),
                 'package_quantity' => $packageQuantity,
-                'remark' => $data->bignote,
+                'remark' => Str::limit($data->bignote, 395),
             ]);
             $sellerGood->save();
             $this->processStocks($ret, $sellerGood, $data);
