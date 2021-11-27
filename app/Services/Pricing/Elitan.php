@@ -20,11 +20,12 @@ class Elitan
             $maxQuantity = $index + 1 === count($stock->price)
                 ? 0
                 : $stock->price[$index + 1]->count - 1;
+            $extraCharge = 1 + (env('ELITAN_EXTRA_CHARGE', 10) / 100);
             $sellerPrice = SellerPrice::query()->create([
                 'seller_warehouse_id' =>  $sellerWarehouse->id,
                 'min_quantity' => (int) $minQuantity,
                 'max_quantity' => (int) $maxQuantity,
-                'value' => $price->price,
+                'value' => $price->price * $extraCharge,
                 'CharCode' => 'RUB',
                 'is_input' => true,
             ]);
