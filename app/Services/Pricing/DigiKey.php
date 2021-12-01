@@ -50,15 +50,17 @@ class DigiKey
                 $sellerWarehouse->sellerPrices()->delete();
                 $pricesCount = count($item['StandardPricing']);
 
+                $extraCharge = 1 + (env('DIGIKEY_EXTRA_CHARGE', 50) / 100);
+
                 return collect($item['StandardPricing'])->map(
-                    function ($price, $index) use ($sellerWarehouse, $pricesCount, $item) {
+                    function ($price, $index) use ($sellerWarehouse, $pricesCount, $item, $extraCharge) {
                         $sellerPrice = new SellerPrice([
                             'seller_warehouse_id' => $sellerWarehouse->id,
                             'min_quantity' => $price['BreakQuantity'],
                             'max_quantity' => $index + 1 === $pricesCount
                                 ? 0
                                 : $item['StandardPricing'][$index + 1]['BreakQuantity'] - 1,
-                            'value' => (float)$price['UnitPrice'] * env('DIGIKEY_COEFF', 1.5),
+                            'value' => (float)$price['UnitPrice'] * $extraCharge,
                             'CharCode' => 'USD',
                             'is_input' => true,
                         ]);

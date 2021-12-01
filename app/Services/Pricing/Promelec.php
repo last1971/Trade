@@ -9,6 +9,7 @@ use App\SellerPrice;
 use App\SellerWarehouse;
 use App\Services\PromelecApiService;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class Promelec
 {
@@ -29,7 +30,7 @@ class Promelec
                 'package_quantity' => $item->pack_quant ?? 1,
                 'remark' => $item->description ?? null,
             ]);
-            $sellerGood->save();
+            if ($sellerGood->isDirty()) $sellerGood->save();
             $sellerWarehouse = SellerWarehouse::query()->firstOrNew(['seller_good_id' => $sellerGood->id]);
             $sellerWarehouse->fill([
                 'quantity' => $item->quant,
@@ -38,7 +39,7 @@ class Promelec
                 'remark' => '',
                 'options' => null,
             ]);
-            $sellerWarehouse->save();
+            if ($sellerWarehouse->isDirty()) $sellerWarehouse->save();
             $sellerWarehouse->sellerGood = $sellerGood;
             $sellerWarehouse->sellerPrices()->delete();
             foreach ($item->pricebreaks ?? [] as $index => $pricebreak) {

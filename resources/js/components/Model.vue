@@ -16,6 +16,8 @@
 </template>
 
 <script>
+    import moment from "moment";
+
     export default {
         name: "Model",
         props: {
@@ -59,11 +61,16 @@
                 return _.toUpper(this.value);
             },
             model() {
+                //debugger;
                 if (this.$route.name !== this.value || this.key === this.$route.params.id) return this.previousValue;
                 const model =
                     this.$route.params.id !== undefined
                         ? this.$store.getters[this.MODEL + '/GET'](this.$route.params.id)
                         : null;
+                // if (this.$route.params.id === '0' && this.MODEL === 'INVOICE' && model) {
+                //    console.log('Was 0');
+                //    model.data = moment().format('Y-MM-DD');
+                // }
                 if (!model || (!this.with.reduce((sum, v) => sum && model[v] !== undefined, true) && model[this.$store.getters[this.MODEL + '/KEY']] !== 0)) {
                     this.getModel();
                 } else {

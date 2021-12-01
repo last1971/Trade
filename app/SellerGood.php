@@ -6,6 +6,7 @@ use App\Events\SellerGoodUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class SellerGood extends Model
 {
@@ -37,17 +38,24 @@ class SellerGood extends Model
 
     protected static function booted()
     {
-        static::saved(function ($sellerGood) {
-            $keyGoodId = 'sellerGoodId=' . $sellerGood->id;
-            if (Cache::has($keyGoodId)) {
-                $keys = Cache::get($keyGoodId);
-                $keys->each(function ($key) {
-                    Cache::forget($key);
-                });
-                Cache::forget('sellerGoodId=' . $keyGoodId);
-            }
+        static::saved(function (SellerGood $sellerGood) {
+            if ($sellerGood->wasChanged('good_id')) $sellerGood->clearSearchingCache();
         });
     }
+
+    public function clearSearchingCache(): bool
+    {
+        $keyGoodId = 'sellerGoodId=' . $this->id;
+        $result = Cache::has($keyGoodId);
+        if ($result) {
+            $keys = Cache::get($keyGoodId);
+            $keys->each(function ($key) {
+                Cache::forget($key);
+            });
+            Cache::forget('sellerGoodId=' . $keyGoodId);
+        }
+        return $result;
+     }
 
     public function setNameAttribute(string $value)
     {

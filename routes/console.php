@@ -22,8 +22,13 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\RadiodetaliComService $s) {
-   dd($s->search('bc847c'));
+Artisan::command('test1', function () {
+   $g = \App\SellerGood::find(1);
+   //dd($g);
+   $g->case = '123';
+   $g->save();
+   $g->good_id = 1;
+   $g->save();
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

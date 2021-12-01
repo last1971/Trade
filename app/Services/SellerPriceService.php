@@ -84,6 +84,7 @@ class SellerPriceService
         $this->sellerId = $sellerId;
         $this->update = $update;
         $this->seller = $this->seller($this->sellerId);
+        // Log::info('initialize');
         return $this;
     }
 
@@ -95,6 +96,7 @@ class SellerPriceService
     {
         throw_if(!$this->isSeller($this->sellerId), new Error('Bad Seller!'));
         throw_if(mb_strlen($this->search) < 3, new Error('Search string is short!'));
+        // Log::info('checkParameters');
         return $this;
     }
 
@@ -118,6 +120,7 @@ class SellerPriceService
 
     private function checkSearchCache(): SellerPriceService
     {
+
         $this->rule = SellerPriceRule::userSellerPriceRule();
         request()->merge(['rule' => $this->rule]);
         $this->sellerKey = 'sellerId=' . $this->sellerId . ';search=' . $this->search;
@@ -126,6 +129,7 @@ class SellerPriceService
             $this->data = Cache::get($this->searchKey);
             $this->cache = true;
         }
+        // Log::info('checkSearchCache');
         return $this;
     }
 
@@ -135,6 +139,7 @@ class SellerPriceService
             $this->collection = Cache::get($this->sellerKey);
             $this->cache = true;
         }
+        // Log::info('checkSellerCache');
         return $this;
     }
 
@@ -155,6 +160,7 @@ class SellerPriceService
             $this->isApiError = true;
             Log::error($e->getMessage());
         }
+        // Log::info('sellerQuery');
         return $this;
     }
 
@@ -176,6 +182,7 @@ class SellerPriceService
                     Cache::put('sellerGoodId=' . $sellerGoodId, $cachedKeys, config('pricing.maxCacheTimes'));
                 });
         }
+        // Log::info('response');
         return [
             'data' => $this->data,
             'cache' => $this->cache,
@@ -190,6 +197,7 @@ class SellerPriceService
      */
     public function searchFromRequest(SellerPriceRequest $request): array
     {
+        // Log::info('start');
         return $this
             ->initialize($request->search, $request->sellerId, $request->isUpdate)
             ->checkParameters()

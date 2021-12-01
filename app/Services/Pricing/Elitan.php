@@ -6,32 +6,46 @@ use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
 use App\Services\ElitanService;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use stdClass;
 
 class Elitan
 {
     private function processPrices(Collection &$ret, Model $sellerWarehouse, stdClass $stock): void
     {
+        $prices = $sellerWarehouse->sellerPrices;
+
+        $sellerWarehouse->sellerPrices()->delete();
+
         foreach (array_reverse($stock->price) as $index => $price) {
             $minQuantity = $price->count;
+
             $maxQuantity = $index + 1 === count($stock->price)
                 ? 0
                 : $stock->price[$index + 1]->count - 1;
+
             $extraCharge = 1 + (env('ELITAN_EXTRA_CHARGE', 10) / 100);
+
             $sellerPrice = SellerPrice::query()->create([
+                'id' => Uuid::uuid4()->toString(),
                 'seller_warehouse_id' =>  $sellerWarehouse->id,
                 'min_quantity' => (int) $minQuantity,
                 'max_quantity' => (int) $maxQuantity,
                 'value' => $price->price * $extraCharge,
                 'CharCode' => 'RUB',
                 'is_input' => true,
+                'updated_at' => Carbon::now(),
             ]);
             $sellerPrice->sellerWarehouse = $sellerWarehouse;
             $ret->push($sellerPrice);
+            $prices->push($sellerPrice);
         }
+        // Log::info('Prices', $prices->toArray());
     }
 
     private function processStocks(Collection &$ret, Model $sellerGood, stdClass $data): void
@@ -60,9 +74,8 @@ class Elitan
                 ],
                 'remark' => '',
             ]);
-            $sellerWarehouse->save();
+            if ($sellerWarehouse->isDirty()) $sellerWarehouse->save();
             $sellerWarehouse->sellerGood = $sellerGood;
-            $sellerWarehouse->sellerPrices()->delete();
             $this->processPrices($ret, $sellerWarehouse, $stock);
         }
     }
@@ -87,7 +100,7 @@ class Elitan
                 'package_quantity' => $packageQuantity,
                 'remark' => Str::limit($data->bignote, 395),
             ]);
-            $sellerGood->save();
+            if ($sellerGood->isDirty()) $sellerGood->save();
             $this->processStocks($ret, $sellerGood, $data);
         }
         return $ret;
