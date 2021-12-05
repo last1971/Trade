@@ -26,7 +26,8 @@ class SellerPrice extends Model
     ];
 
     protected $casts = [
-        'is_input' => 'boolean'
+        'is_input' => 'boolean',
+        'value' => 'double'
     ];
 
     public function sellerWarehouse()

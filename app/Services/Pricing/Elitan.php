@@ -2,6 +2,7 @@
 
 namespace App\Services\Pricing;
 
+use App\Jobs\ProcessUpdateSellerPrices;
 use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
@@ -16,36 +17,39 @@ use stdClass;
 
 class Elitan
 {
+    private array $exclude;
+
     private function processPrices(Collection &$ret, Model $sellerWarehouse, stdClass $stock): void
     {
-        $prices = $sellerWarehouse->sellerPrices;
+        $sellerPrices = collect();//$sellerWarehouse->sellerPrices;
+        $stockPrices = array_reverse($stock->price);
 
-        $sellerWarehouse->sellerPrices()->delete();
+        // $sellerWarehouse->sellerPrices()->delete();
 
-        foreach (array_reverse($stock->price) as $index => $price) {
-            $minQuantity = $price->count;
+        foreach ($stockPrices as $index => $stockPrice) {
+            $minQuantity = (int) $stockPrice->count;
 
-            $maxQuantity = $index + 1 === count($stock->price)
+            $maxQuantity = $index + 1 === count($stockPrices)
                 ? 0
-                : $stock->price[$index + 1]->count - 1;
+                : ((int) $stockPrices[$index + 1]->count) - 1;
 
             $extraCharge = 1 + (env('ELITAN_EXTRA_CHARGE', 10) / 100);
 
-            $sellerPrice = SellerPrice::query()->create([
+            $sellerPrice = new SellerPrice([//::query()->create([
                 'id' => Uuid::uuid4()->toString(),
                 'seller_warehouse_id' =>  $sellerWarehouse->id,
-                'min_quantity' => (int) $minQuantity,
-                'max_quantity' => (int) $maxQuantity,
-                'value' => $price->price * $extraCharge,
+                'min_quantity' => $minQuantity,
+                'max_quantity' => $maxQuantity,
+                'value' => $stockPrice->price * $extraCharge,
                 'CharCode' => 'RUB',
                 'is_input' => true,
                 'updated_at' => Carbon::now(),
             ]);
+            $sellerPrices->push(clone $sellerPrice);
             $sellerPrice->sellerWarehouse = $sellerWarehouse;
             $ret->push($sellerPrice);
-            $prices->push($sellerPrice);
         }
-        // Log::info('Prices', $prices->toArray());
+        ProcessUpdateSellerPrices::dispatch($sellerPrices, $sellerWarehouse, $this->exclude);
     }
 
     private function processStocks(Collection &$ret, Model $sellerGood, stdClass $data): void
@@ -80,8 +84,9 @@ class Elitan
         }
     }
 
-    public function __invoke(string $search): Collection
+    public function __invoke(string $search, array $exclude): Collection
     {
+        $this->exclude = $exclude;
         $service = new ElitanService();
         $response = $service->search($search);
         $sellerId = config('pricing.Elitan.sellerId');

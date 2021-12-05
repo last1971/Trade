@@ -43,17 +43,28 @@ class SellerGood extends Model
         });
     }
 
-    public function clearSearchingCache(): bool
+    public function clearSearchingCache(array $exclude = []): bool
     {
+        // Log::info('Clear', ['SellerGoodId' => $this->id, 'exclude' => $exclude ]);
         $keyGoodId = 'sellerGoodId=' . $this->id;
         $result = Cache::has($keyGoodId);
         if ($result) {
             $keys = Cache::get($keyGoodId);
-            $keys->each(function ($key) {
-                Cache::forget($key);
+            $keys->each(function ($key) use ($exclude) {
+                if (!in_array($key, $exclude)) Cache::forget($key);
             });
-            Cache::forget('sellerGoodId=' . $keyGoodId);
+            if (empty($exclude)) Cache::forget('sellerGoodId=' . $keyGoodId);
         }
+        /*
+        Log::info(
+            'State Cache',
+            [
+                $exclude[0] => Cache::has($exclude[0]),
+                $exclude[1] => Cache::has($exclude[1]),
+                'sellerGoodId' => Cache::has($keyGoodId),
+            ]
+        );
+        */
         return $result;
      }
 

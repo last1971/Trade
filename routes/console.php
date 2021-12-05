@@ -23,12 +23,7 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function () {
-   $g = \App\SellerGood::find(1);
-   //dd($g);
-   $g->case = '123';
-   $g->save();
-   $g->good_id = 1;
-   $g->save();
+    dd(Cache::get('sellerId=1399;search=KLS1-202-10-S-B'));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Http\Requests\SellerPriceRequest;
 use App\Http\Resources\SellerPriceResource;
+use App\Jobs\ProcessUpdateSellerPrices;
 use App\SellerPriceRule;
 use App\Services\Pricing\DataBase;
 use Error;
@@ -151,7 +152,7 @@ class SellerPriceService
             ? mb_ereg_replace(config('app.search_replace'), '', $this->search)
             : $this->search;
         try {
-            $this->collection = $service($processedSearch);
+            $this->collection = $service($processedSearch, [$this->searchKey, $this->sellerKey]);
             Cache::put($this->sellerKey, $this->collection, $this->seller['cacheTimes']);
         } catch (Exception $e) {
             $service = new DataBase();
@@ -160,7 +161,7 @@ class SellerPriceService
             $this->isApiError = true;
             Log::error($e->getMessage());
         }
-        // Log::info('sellerQuery');
+        Log::info('sellerQuery', ['search' => $this->search]);
         return $this;
     }
 
