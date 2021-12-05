@@ -91,7 +91,8 @@ class Elitan
         $response = $service->search($search);
         $sellerId = config('pricing.Elitan.sellerId');
         $ret = collect();
-        foreach ($response->items->data ?? [] as $data) {
+        foreach ($response->items->data ?? [] as $index => $data) {
+            if ($index === env('ELITAN_MAX_GOODS', 50)) break;
             $sellerGood = SellerGood::query()
                 ->firstOrNew(['code' => $data->Ntovara, 'seller_id' => $sellerId]);
             $nameProducer = explode('@', $data->partname);

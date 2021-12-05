@@ -4,16 +4,19 @@
 namespace App\Services\Pricing;
 
 
+use App\Jobs\ProcessUpdateSellerPrices;
 use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
 use App\Services\PromelecApiService;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Ramsey\Uuid\Uuid;
 
 class Promelec
 {
-    public function __invoke(string $search): Collection
+    public function __invoke(string $search, array $exclude): Collection
     {
         $sellerId = config('pricing.Promelec.sellerId');
         $promelec = new PromelecApiService();
@@ -41,33 +44,41 @@ class Promelec
             ]);
             if ($sellerWarehouse->isDirty()) $sellerWarehouse->save();
             $sellerWarehouse->sellerGood = $sellerGood;
-            $sellerWarehouse->sellerPrices()->delete();
+            // $sellerWarehouse->sellerPrices()->delete();
+            $sellerPrices = collect();
             foreach ($item->pricebreaks ?? [] as $index => $pricebreak) {
                 $minQuantity = $item->moq > $pricebreak->quant ? $item->moq : $pricebreak->quant;
                 $maxQuantity = $index + 1 === count($item->pricebreaks)
                     ? 0
                     : $item->pricebreaks[$index + 1]->quant - 1;
-                $sellerPrice = SellerPrice::query()->create([
+                $sellerPrice = new SellerPrice([
+                    'id' => Uuid::uuid4()->toString(),
                     'seller_warehouse_id' =>  $sellerWarehouse->id,
                     'min_quantity' => $minQuantity,
                     'max_quantity' => $maxQuantity,
                     'value' => $pricebreak->price / $item->price_unit,
                     'CharCode' => 'RUB',
                     'is_input' => true,
+                    'updated_at' => Carbon::now(),
                 ]);
+                $sellerPrices->push(clone $sellerPrice);
                 $sellerPrice->sellerWarehouse = $sellerWarehouse;
                 $ret->push($sellerPrice);
-                $sellerPrice = SellerPrice::query()->create([
+                $sellerPrice = new SellerPrice([
+                    'id' => Uuid::uuid4()->toString(),
                     'seller_warehouse_id' =>  $sellerWarehouse->id,
                     'min_quantity' => $minQuantity,
                     'max_quantity' => $maxQuantity,
                     'value' => $pricebreak->pureprice / $item->price_unit,
                     'CharCode' => 'RUB',
                     'is_input' => false,
+                    'updated_at' => Carbon::now(),
                 ]);
+                $sellerPrices->push(clone $sellerPrice);
                 $sellerPrice->sellerWarehouse = $sellerWarehouse;
                 $ret->push($sellerPrice);
             }
+            ProcessUpdateSellerPrices::dispatch($sellerPrices, $sellerWarehouse, $exclude);
             foreach ($item->vendors ?? [] as $vendor) {
                 $sellerWarehouse = SellerWarehouse::query()
                     ->firstOrNew(['seller_good_id' => $sellerGood->id, 'code' => $vendor->vendor]);
@@ -80,37 +91,45 @@ class Promelec
                         'location_id' => $vendor->delivery === 2 ? 'М А Г А З И Н' : 'Л А Б А З',
                     ],
                 ]);
-                $sellerWarehouse->save();
+                if ($sellerWarehouse->isDirty()) $sellerWarehouse->save();
                 $sellerWarehouse->sellerGood = $sellerGood;
-                $sellerWarehouse->sellerPrices()->delete();
+                // $sellerWarehouse->sellerPrices()->delete();
+                $sellerPrices = collect();
                 foreach ($vendor->pricebreaks as $index => $pricebreak) {
                     $minQuantity = $vendor->moq > $pricebreak->quant ? $vendor->moq : $pricebreak->quant;
                     $maxQuantity = $index + 1 === count($vendor->pricebreaks)
                         ? 0
                         : $vendor->pricebreaks[$index + 1]->quant - 1;
-                    $sellerPrice = SellerPrice::query()->create([
+                    $sellerPrice = new SellerPrice([
+                        'id' => Uuid::uuid4()->toString(),
                         'seller_warehouse_id' =>  $sellerWarehouse->id,
                         'min_quantity' => $minQuantity,
                         'max_quantity' => $maxQuantity,
                         'value' => $pricebreak->price,
                         'CharCode' => 'RUB',
                         'is_input' => true,
+                        'updated_at' => Carbon::now(),
                     ]);
+                    $sellerPrices->push(clone $sellerPrice);
                     $sellerPrice->sellerWarehouse = $sellerWarehouse;
                     $ret->push($sellerPrice);
                     if (!empty($pricebreak->pureprice)) {
-                        $sellerPrice = SellerPrice::query()->create([
+                        $sellerPrice = new SellerPrice([
+                            'id' => Uuid::uuid4()->toString(),
                             'seller_warehouse_id' => $sellerWarehouse->id,
                             'min_quantity' => $minQuantity,
                             'max_quantity' => $maxQuantity,
                             'value' => $pricebreak->pureprice,
                             'CharCode' => 'RUB',
                             'is_input' => false,
+                            'updated_at' => Carbon::now(),
                         ]);
+                        $sellerPrices->push(clone $sellerPrice);
                         $sellerPrice->sellerWarehouse = $sellerWarehouse;
                         $ret->push($sellerPrice);
                     }
                 }
+                ProcessUpdateSellerPrices::dispatch($sellerPrices, $sellerWarehouse, $exclude);
             }
         }
         return $ret;

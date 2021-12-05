@@ -42,7 +42,12 @@ class ProcessUpdateSellerPrices implements ShouldQueue
      */
     public function handle()
     {
-        $oldPrices = $this->sellerWarehouse->sellerPrices()->orderBy('min_quantity')->get();
+        $oldPrices = $this
+            ->sellerWarehouse
+            ->sellerPrices()
+            ->orderBy('min_quantity')
+            ->orderBy('is_input', 'DESC')
+            ->get();
         $needUpdate = $this->sellerPrices->count() !== $oldPrices->count();
         $i = 0;
         while ($i < $oldPrices->count() && !$needUpdate) {
@@ -50,15 +55,17 @@ class ProcessUpdateSellerPrices implements ShouldQueue
             $sellerPrice = $this->sellerPrices->get($i);
             $min_quantity = $oldPrice->min_quantity !== $sellerPrice->min_quantity;
             $max_quantity = $oldPrice->min_quantity !== $sellerPrice->min_quantity;
-            $oldValue = intval($oldPrice->value * 1000);
-            $sellerValue = intval($sellerPrice->value * 1000);
-            $value = $oldValue !== $sellerValue;
+            $oldValue = intval($oldPrice->value * 10000);
+            $sellerValue = intval($sellerPrice->value * 10000);
+            $value = abs($oldValue - $sellerValue) > 10;
             $needUpdate = $min_quantity || $max_quantity || $value;
             /*
             if ($needUpdate) {
                 Log::info('NeedUpdate', [
                     'Good' => $this->sellerWarehouse->sellerGood->name,
                     '$oldValue' => $oldValue,
+                    'oldInput' => $oldPrice->is_input,
+                    'sellerInput' => $sellerPrice->is_input,
                     '$sellerValue' => $sellerValue,
                     'min' => $min_quantity,
                     'max' => $max_quantity,

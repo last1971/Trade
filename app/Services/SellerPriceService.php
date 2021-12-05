@@ -161,7 +161,7 @@ class SellerPriceService
             $this->isApiError = true;
             Log::error($e->getMessage());
         }
-        Log::info('sellerQuery', ['search' => $this->search]);
+        // Log::info('sellerQuery', ['search' => $this->search]);
         return $this;
     }
 

@@ -28,6 +28,15 @@ class SellerWarehouse extends Model
         'sellerGood'
     ];
 
+    protected static function booted()
+    {
+        static::saved(function (SellerWarehouse $sellerWarehouse) {
+            if ($sellerWarehouse->wasChanged('quantity')) {
+                $sellerWarehouse->sellerGood->clearSearchingCache();
+            }
+        });
+    }
+
     /**
      * @return BelongsTo
      */
