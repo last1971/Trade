@@ -63,20 +63,33 @@ class ProcessUpdateSellerPrices implements ShouldQueue
             if ($needUpdate) {
                 Log::info('NeedUpdate', [
                     'Good' => $this->sellerWarehouse->sellerGood->name,
-                    '$oldValue' => $oldValue,
+                    'oldValue' => intval($oldPrice->value * 10000),
+                    'oldMin' => $oldPrice->min_quantity,
+                    'oldMax' => $oldPrice->max_quantity,
                     'oldInput' => $oldPrice->is_input,
+                    'sellerValue' => intval($sellerPrice->value * 10000),
+                    'sellerMin' => $sellerPrice->min_quantity,
+                    'sellerMax' => $sellerPrice->max_quantity,
                     'sellerInput' => $sellerPrice->is_input,
-                    '$sellerValue' => $sellerValue,
-                    'min' => $min_quantity,
-                    'max' => $max_quantity,
+                    'i' => $i,
                 ]);
             }
             */
             $i++;
         }
         if ($needUpdate) {
+            /*
+            Log::info(
+                'Crash',
+                [
+                    'oldPrices' => $oldPrices->map(fn($oldPrice) => $oldPrice->value)->all(),
+                    'sellerPrices' => $this->sellerPrices->map(fn($sellerPrice) => $sellerPrice->value)->all(),
+                    'sellerWarehouse' => $this->sellerWarehouse->id,
+                ]
+            );
+            */
             $this->sellerWarehouse->sellerPrices()->delete();
-            $this->sellerPrices->each(fn(SellerPrice $price) => $price->save());
+            $this->sellerPrices->each(fn(SellerPrice $price) => $price->save([ 'timestamps' =>  false ]));
             $this->sellerWarehouse->sellerGood->clearSearchingCache($this->exclude);
         }
     }

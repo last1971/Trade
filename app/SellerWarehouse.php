@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Log;
 
 class SellerWarehouse extends Model
 {
@@ -32,6 +33,7 @@ class SellerWarehouse extends Model
     {
         static::saved(function (SellerWarehouse $sellerWarehouse) {
             if ($sellerWarehouse->wasChanged('quantity')) {
+                // Log::info('Quantity change', ['quantity' => $sellerWarehouse->quantity]);
                 $sellerWarehouse->sellerGood->clearSearchingCache();
             }
         });

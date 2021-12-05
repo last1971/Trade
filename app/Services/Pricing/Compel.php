@@ -3,12 +3,15 @@
 
 namespace App\Services\Pricing;
 
+use App\Jobs\ProcessUpdateSellerPrices;
 use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
 use App\Services\CompelApiService;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Ramsey\Uuid\Uuid;
 
 class Compel
 {
@@ -18,12 +21,13 @@ class Compel
      * @throws \App\Exceptions\CompelException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function __invoke(string $search): Collection
+    public function __invoke(string $search, array $explode): Collection
     {
         $sellerId = config('pricing.Compel.sellerId');
         $compel = new CompelApiService();
         $ret = collect();
         foreach ($compel->searchByName($search)->result->items as $item) {
+            // Log::info('proposals', [$item]);
             $sellerGood = SellerGood::query()
                 ->firstOrNew(['code' => $item->item_id, 'seller_id' => $sellerId
                 ]);
@@ -39,7 +43,8 @@ class Compel
                 'basic_delivery_time' => config('pricing.Compel.basicDeliveryTime'),
                 'package_quantity' => $packageQuantity,
             ]);
-            $sellerGood->save();
+            if ($sellerGood->isDirty()) $sellerGood->save();
+            $sellerWarehouses = collect();
             foreach ($item->proposals as $proposal) {
                 /*
                  *  Количество для ДМС может браться из последней строчки прайса
@@ -50,8 +55,15 @@ class Compel
                 }
                 $code = empty(trim($proposal->location_id))
                     ? $proposal->prognosis_id . ';' . $proposal->vend_type . ';' . $proposal->vend_qty . ';'
-                    . $proposal->vend_note
+                    . $proposal->cut_tape . ';' . $proposal->vend_note
                     : null;
+                /*
+                 *   Негодяи не дают код склада, и могут быть похожие предложения,
+                 *   тоесть код совпаает, а массив цен разазцый.
+                 *   Если не выплнить рповерку то следующий массив цен обнулит предыдущий
+                 */
+                if ($sellerWarehouses->contains($code)) continue;
+                $sellerWarehouses->push($code);
                 $sellerWarehouse = SellerWarehouse::query()
                     ->firstOrNew(['seller_good_id' => $sellerGood->id, 'code' => $code]);
                 $sellerWarehouse->fill([
@@ -61,13 +73,15 @@ class Compel
                     'options' => $proposal,
                     'remark' => '',
                 ]);
-                $sellerWarehouse->save();
+                if ($sellerWarehouse->isDirty()) $sellerWarehouse->save();
                 $sellerWarehouse->sellerGood = $sellerGood;
-                $sellerWarehouse->sellerPrices()->delete();
+                // $sellerWarehouse->sellerPrices()->delete();
                 if ($quantity > 0) {
+                    $sellerPrices = collect();
                     foreach ($proposal->price_qty as $price) {
                         $sellerPrice = new SellerPrice();
                         $sellerPrice->fill([
+                            'id' => Uuid::uuid4()->toString(),
                             'seller_warehouse_id' => $sellerWarehouse->id,
                             'min_quantity' => $price->min_qty,
                             'max_quantity' => $price->max_qty,
@@ -79,10 +93,12 @@ class Compel
                                 ? Carbon::now()
                                 : Carbon::parse($proposal->vend_proposal_date)
                         ]);
-                        $sellerPrice->save([ 'timestamps' =>  false ]);
+                        $sellerPrices->push(clone $sellerPrice);
+                        // $sellerPrice->save([ 'timestamps' =>  false ]);
                         $sellerPrice->sellerWarehouse = $sellerWarehouse;
                         $ret->push($sellerPrice);
                     }
+                    ProcessUpdateSellerPrices::dispatch($sellerPrices, $sellerWarehouse, $explode);
                 }
             }
         }
