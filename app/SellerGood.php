@@ -39,7 +39,10 @@ class SellerGood extends Model
     protected static function booted()
     {
         static::saved(function (SellerGood $sellerGood) {
-            if ($sellerGood->wasChanged('good_id')) $sellerGood->clearSearchingCache();
+            if ($sellerGood->wasChanged('good_id')) {
+                // Log::info('Change GoodId', ['GoodId' => $sellerGood->good_id]);
+                $sellerGood->clearSearchingCache();
+            }
         });
     }
 

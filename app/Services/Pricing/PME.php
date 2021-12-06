@@ -4,18 +4,21 @@
 namespace App\Services\Pricing;
 
 
+use App\Jobs\ProcessUpdateSellerPrices;
 use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
 use App\Services\PMEApiService;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Ramsey\Uuid\Uuid;
 
 class PME
 {
-    public function __invoke(string $search): Collection
+    public function __invoke(string $search, array $exclude): Collection
     {
         $mouser = [];
         try {
@@ -54,6 +57,7 @@ class PME
         $partNumbers = is_array($prices->items->partNumbers)
             ? $prices->items->partNumbers
             : [$prices->items->partNumbers];
+        // Log::info("PartNumbers", $partNumbers);
         foreach ($partNumbers as $partNumber) {
             if (empty($partNumber->priceList->prices) || $partNumber->storeQty === 0) continue;
             $sellerGood = SellerGood::query()
@@ -81,52 +85,64 @@ class PME
                 'package_quantity' => $packageQuantity,
                 'remark' => $partNumber->eccn ?? null . ' ' . $partNumber->description ?? null,
             ]);
-            $sellerGood->save();
+            if ($sellerGood->isDirty()) $sellerGood->save();
 
             $sellerWarehouse = SellerWarehouse::query()->firstOrNew(['seller_good_id' => $sellerGood->id]);
             $sellerWarehouse->fill([
-                'quantity' => $partNumber->storeQty,
+                'quantity' => intval($partNumber->storeQty),
                 'additional_delivery_time' => 0,
                 'multiplicity' => $partNumber->mult ?? 1,
                 'remark' => '',
                 'options' => $partNumber->specificationList ?? null,
             ]);
-            $sellerWarehouse->save();
+            if ($sellerWarehouse->isDirty()) $sellerWarehouse->save();
             $sellerWarehouse->sellerGood = $sellerGood;
-            $sellerWarehouse->sellerPrices()->delete();
+            // $sellerWarehouse->sellerPrices()->delete();
+            $sellerPrices = collect();
             $pricesCount = count($partNumber->priceList->prices);
             for ($i = 0; $i < $pricesCount; $i++) {
                 $sellerPrice = new SellerPrice();
                 $sellerPrice->fill([
+                    'id' => Uuid::uuid4()->toString(),
                     'seller_warehouse_id' => $sellerWarehouse->id,
-                    'min_quantity' => $partNumber->priceList->prices[$i]->quantity,
-                    'max_quantity' => $i < $pricesCount - 1 ? $partNumber->priceList->prices[$i + 1]->quantity - 1 : 0,
+                    'min_quantity' => intval($partNumber->priceList->prices[$i]->quantity),
+                    'max_quantity' => $i < $pricesCount - 1
+                        ? intval($partNumber->priceList->prices[$i + 1]->quantity) - 1
+                        : 0,
                     'value' => (float) $partNumber->priceList->prices[$i]->amount,
                     'CharCode' => $partNumber->priceList->prices[$i]->currency,
                     'is_input' => true,
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now(),
                 ]);
-                $sellerPrice->save();
+                // $sellerPrice->save();
+                $sellerPrices->push(clone $sellerPrice);
                 $sellerPrice->sellerWarehouse = $sellerWarehouse;
                 $ret->push($sellerPrice);
 
                 if (!empty($mouser[$partNumber->mouserPartNumber][$partNumber->priceList->prices[$i]->quantity])) {
                     $sellerPrice = new SellerPrice();
                     $sellerPrice->fill([
+                        'id' => Uuid::uuid4()->toString(),
                         'seller_warehouse_id' => $sellerWarehouse->id,
-                        'min_quantity' => $partNumber->priceList->prices[$i]->quantity,
+                        'min_quantity' => intval($partNumber->priceList->prices[$i]->quantity),
                         'max_quantity' => $i < $pricesCount - 1
-                            ? $partNumber->priceList->prices[$i + 1]->quantity - 1
+                            ? intval($partNumber->priceList->prices[$i + 1]->quantity) - 1
                             : 0,
                         'value' => (float)
                             $mouser[$partNumber->mouserPartNumber][$partNumber->priceList->prices[$i]->quantity],
                         'CharCode' => $partNumber->priceList->prices[$i]->currency,
                         'is_input' => false,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now(),
                     ]);
-                    $sellerPrice->save();
+                    // $sellerPrice->save();
+                    $sellerPrices->push(clone $sellerPrice);
                     $sellerPrice->sellerWarehouse = $sellerWarehouse;
                     $ret->push($sellerPrice);
                 }
             }
+            ProcessUpdateSellerPrices::dispatch($sellerPrices, $sellerWarehouse, $exclude);
         }
         return $ret;
     }
