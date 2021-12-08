@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 
 class Ruichi
 {
-    public function __invoke(string $search): Collection
+    public function __invoke(string $search, array $exclude): Collection
     {
         $ruichiGoods = RuichiGood::query()
             ->where('tovmark1', 'like', '%' . $search . '%')
@@ -18,7 +18,7 @@ class Ruichi
             ->get();
         $ret = collect();
         foreach ($ruichiGoods as $ruichiGood) {
-            $ret = $ret->merge($ruichiGood->sellerPrices());
+            $ret = $ret->merge($ruichiGood->sellerPrices($exclude));
         }
         return $ret;
     }
