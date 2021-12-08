@@ -22,8 +22,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function () {
-    dd(Cache::get('sellerId=1399;search=KLS1-202-10-S-B'));
+Artisan::command('test1', function (\App\Services\PromelecApiService $s) {
+    dd($s->getVendorComment());
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

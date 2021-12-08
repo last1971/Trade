@@ -2,15 +2,19 @@
 
 namespace App\Services\Pricing;
 
+use App\Jobs\ProcessUpdateSellerPrices;
 use App\SellerGood;
 use App\SellerPrice;
 use App\SellerWarehouse;
+use App\Services\PromelecApiService;
 use App\Services\RadiodetaliComService;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Ramsey\Uuid\Uuid;
 
 class RadiodetaliCom
 {
-    public function __invoke(string $search): Collection
+    public function __invoke(string $search, array $exclude): Collection
     {
         $service = new RadiodetaliComService();
         $items = $service->search($search);
@@ -30,7 +34,7 @@ class RadiodetaliCom
                 'package_quantity' => 1,
                 'remark' => empty($item->note) ? '' : $item->note,
             ]);
-            $sellerGood->save();
+            if ($sellerGood->isDirty()) $sellerGood->save();
 
             $sellerWarehouse = SellerWarehouse::query()
                 ->firstOrNew(['seller_good_id' => $sellerGood->id, 'code' => $item->id_stock]);
@@ -43,25 +47,30 @@ class RadiodetaliCom
                     'location_id' => $item->nm_stock,
                 ],
             ]);
-            $sellerWarehouse->save();
+            if ($sellerWarehouse->isDirty()) $sellerWarehouse->save();
             $sellerWarehouse->sellerGood = $sellerGood;
-            $sellerWarehouse->sellerPrices()->delete();
+            // $sellerWarehouse->sellerPrices()->delete();
+            $sellerPrices = collect();
             foreach ($item->price_up5 as $index => $price) {
-                $minQuantity = $price->min_qty;
+                $minQuantity = intval($price->min_qty);
                 $maxQuantity = $index + 1 === count($item->price_up5)
                     ? 0
-                    : $item->price_up5[$index + 1]->min_qty - 1;
-                $sellerPrice = SellerPrice::query()->create([
+                    : intval($item->price_up5[$index + 1]->min_qty) - 1;
+                $sellerPrice = new SellerPrice([
+                    'id' => Uuid::uuid4()->toString(),
                     'seller_warehouse_id' =>  $sellerWarehouse->id,
-                    'min_quantity' => (int) $minQuantity,
-                    'max_quantity' => (int) $maxQuantity,
-                    'value' => $price->price,
+                    'min_quantity' => $minQuantity,
+                    'max_quantity' => $maxQuantity,
+                    'value' => floatval($price->price),
                     'CharCode' => $item->curr,
                     'is_input' => true,
+                    'updated_at' => Carbon::now(),
                 ]);
+                $sellerPrices->push(clone $sellerPrice);
                 $sellerPrice->sellerWarehouse = $sellerWarehouse;
                 $ret->push($sellerPrice);
             }
+            ProcessUpdateSellerPrices::dispatch($sellerPrices, $sellerWarehouse, $exclude);
         }
         return $ret;
     }

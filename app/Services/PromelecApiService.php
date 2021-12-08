@@ -58,4 +58,9 @@ class PromelecApiService
         ];
         return $this->method('items_data_find', $params);
     }
+
+    public function getVendorComment()
+    {
+        return $this->method('vendor_comment_get');
+    }
 }

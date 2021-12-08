@@ -193,7 +193,7 @@ class SellerPriceService
 
     /**
      * @param SellerPriceRequest $request
-     * @return SellerPriceService
+     * @return array
      * @throws Throwable
      */
     public function searchFromRequest(SellerPriceRequest $request): array
