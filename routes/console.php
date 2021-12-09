@@ -22,8 +22,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\PromelecApiService $s) {
-    dd($s->getVendorComment());
+Artisan::command('test1', function (\App\Services\PlatanApiService $s) {
+    dd($s->searchById([448591570, 2010070901]));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
