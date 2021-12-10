@@ -88,7 +88,9 @@ class Promelec
                     'multiplicity' => $vendor->mpq ?? 1,
                     'remark' => '',
                     'options' => [
-                        'location_id' => $vendor->delivery === 2 ? 'М А Г А З И Н' : $vendor->comment,
+                        'location_id' => $vendor->delivery === 2
+                            ? 'М А Г А З И Н'
+                            : (empty($vendor->comment) ? 'Л А Б А З' : $vendor->comment),
                     ],
                 ]);
                 if ($sellerWarehouse->isDirty()) $sellerWarehouse->save();
