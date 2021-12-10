@@ -23,7 +23,7 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function (\App\Services\PlatanApiService $s) {
-    dd($s->searchById([448591570, 2010070901]));
+    dd($s->searchById([448591570, '2014672167']), $s->searchByName('RC0805JR-07100KL'));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

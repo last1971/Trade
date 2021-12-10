@@ -7,6 +7,7 @@ use App\Services\Pricing\DigiKey;
 use App\Services\Pricing\ElcoPro;
 use App\Services\Pricing\Electronica;
 use App\Services\Pricing\Elitan;
+use App\Services\Pricing\Platan;
 use App\Services\Pricing\PME;
 use App\Services\Pricing\Promelec;
 use App\Services\Pricing\RadiodetaliCom;
@@ -74,6 +75,13 @@ return [
         'sellerId' => (int) env('PME_SELLER_ID', 2109),
         'basicDeliveryTime' => 18,
         'class' => PME::class,
+        'ereg' => false,
+    ],
+    'Platan' => [
+        'cacheTimes' => 14400,
+        'sellerId' => (int) env('PLATAN_SELLER_ID', 1557),
+        'basicDeliveryTime' => 10,
+        'class' => Platan::class,
         'ereg' => false,
     ],
     'Promelec' => [
