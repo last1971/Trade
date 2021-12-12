@@ -22,8 +22,13 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\Pricing\PME $s) {
-    dd($s('C8051F351-GM'));
+Artisan::command('test1', function () {
+    $goods = \App\SellerGood::query()
+        ->whereRelation(
+            'sellerWarehouses.sellerPrices', 'updated_at', '=', \Carbon\Carbon::now()
+        );
+
+    dd($goods->toSql(), $goods->getBindings());
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
