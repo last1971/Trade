@@ -4,6 +4,7 @@ use App\Services\Pricing\ChipDip;
 use App\Services\Pricing\Compel;
 use App\Services\Pricing\DataBase;
 use App\Services\Pricing\DigiKey;
+use App\Services\Pricing\DMS;
 use App\Services\Pricing\ElcoPro;
 use App\Services\Pricing\Electronica;
 use App\Services\Pricing\Elitan;
@@ -26,6 +27,13 @@ return [
         'sellerId' => 857,
         'basicDeliveryTime' => 7,
         'class' => Compel::class,
+        'ereg' => false,
+    ],
+    'CompelDms' => [
+        'cacheTimes' => 7200,
+        'sellerId' => 1279,
+        'basicDeliveryTime' => 7,
+        'class' => DMS::class,
         'ereg' => false,
     ],
     'Dan' => [

@@ -69,4 +69,20 @@ class CompelApiService
         return $this->method('sales_info', $queryParams);
     }
 
+    /**
+     * @param string $name
+     * @return mixed
+     * @throws CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function searchInCenter(string $name)
+    {
+        $params = [
+            'query_string'  => $name . '*',
+            'calc_price' => true,
+            'calc_qty' => true,
+        ];
+        return $this->method('search_item_name_h', $params);
+    }
+
 }

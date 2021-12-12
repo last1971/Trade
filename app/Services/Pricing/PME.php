@@ -18,7 +18,7 @@ use Ramsey\Uuid\Uuid;
 
 class PME
 {
-    public function __invoke(string $search, array $exclude): Collection
+    public function __invoke(string $search, array $exclude = []): Collection
     {
         $mouser = [];
         try {
@@ -52,6 +52,7 @@ class PME
             Storage::disk('local')->path('pmelpublic.pem')
         );
         $prices = $service->findByPartNumber($search,false);
+        // dd($prices);
         $ret = collect();
         if (empty($prices->items->partNumbers)) return $ret;
         $partNumbers = is_array($prices->items->partNumbers)
@@ -59,7 +60,13 @@ class PME
             : [$prices->items->partNumbers];
         // Log::info("PartNumbers", $partNumbers);
         foreach ($partNumbers as $partNumber) {
-            if (empty($partNumber->priceList->prices) || $partNumber->storeQty === 0) continue;
+            $quantity = intval($partNumber->storeQty);
+            $additionalDeliveryTime = 0;
+            if ($quantity === 0 && !empty($partNumber->transitQty)) {
+                $quantity = intval($partNumber->transitQty);
+                $additionalDeliveryTime = Carbon::now()->diffInDays($partNumber->transitDate);
+            }
+            if (empty($partNumber->priceList->prices) || $quantity === 0) continue;
             $sellerGood = SellerGood::query()
                 ->firstOrNew([
                     'code' => $partNumber->mouserPartNumber, 'seller_id' => config('pricing.PME.sellerId')
@@ -89,8 +96,8 @@ class PME
 
             $sellerWarehouse = SellerWarehouse::query()->firstOrNew(['seller_good_id' => $sellerGood->id]);
             $sellerWarehouse->fill([
-                'quantity' => intval($partNumber->storeQty),
-                'additional_delivery_time' => 0,
+                'quantity' => $quantity,
+                'additional_delivery_time' => $additionalDeliveryTime,
                 'multiplicity' => $partNumber->mult ?? 1,
                 'remark' => '',
                 'options' => $partNumber->specificationList ?? null,

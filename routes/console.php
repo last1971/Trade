@@ -22,8 +22,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\PlatanApiService $s) {
-    dd($s->searchById([448591570, '2014672167']), $s->searchByName('RC0805JR-07100KL'));
+Artisan::command('test1', function (\App\Services\Pricing\PME $s) {
+    dd($s('C8051F351-GM'));
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
