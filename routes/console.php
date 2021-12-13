@@ -22,13 +22,28 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function () {
-    $goods = \App\SellerGood::query()
-        ->whereRelation(
-            'sellerWarehouses.sellerPrices', 'updated_at', '=', \Carbon\Carbon::now()
-        );
-
-    dd($goods->toSql(), $goods->getBindings());
+Artisan::command('test1', function (\App\Services\Pricing\PME $s) {
+    dd($s('RC0805JR-07100KL'));
+    /*
+    $pricesQuery = SellerPrice::query()
+        ->whereDate('updated_at', '<', \Carbon\Carbon::now()->subDays(7))->select('seller_warehouse_id');
+    $warehousesQuery = \App\SellerWarehouse::query()
+        ->whereIn('id', $pricesQuery)->select('seller_good_id');
+    $goodsQuery = \App\SellerGood::query()
+        ->whereIn('id', $warehousesQuery)
+        ->where('is_active', true)
+        ->select('id');
+    $i = 0;
+    while ($goodsQuery->count() > 0) {
+        $goods = $goodsQuery
+            ->take(1000)
+            ->get()
+            ->map(fn($v) => $v->id)
+            ->toArray();
+        $i += \App\SellerGood::query()->whereIn('id', $goods)->update(['is_active' => false ]);
+        echo $i . PHP_EOL;
+    }
+    */
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
