@@ -76,6 +76,7 @@
                     <v-icon v-if="item.isApi">mdi-api</v-icon>
                     <v-icon v-else>mdi-database</v-icon>
                     <v-icon v-if="item.isSomeoneElsesWarehouse">mdi-earth</v-icon>
+                    <v-icon v-if="item.pos" color="orange">mdi-alarm-light</v-icon>
                 </v-col>
             </v-row>
             </v-container>

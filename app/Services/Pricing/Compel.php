@@ -61,6 +61,7 @@ class Compel
                 'is_active' => true,
                 'basic_delivery_time' => config('pricing.Compel.basicDeliveryTime'),
                 'package_quantity' => $packageQuantity,
+                'pos' => $item->pos,
             ]);
             if ($sellerGood->isDirty()) $sellerGood->save();
             $sellerWarehouses = collect();

@@ -43,7 +43,7 @@ class Elitan
                 'value' => $stockPrice->price * $extraCharge,
                 'CharCode' => 'RUB',
                 'is_input' => true,
-                'updated_at' => Carbon::now(),
+                'updated_at' => new Carbon($stock->DataCreateCache ?? $stock->DataCreate),
             ]);
             $sellerPrices->push(clone $sellerPrice);
             $sellerPrice->sellerWarehouse = $sellerWarehouse;

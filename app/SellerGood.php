@@ -25,11 +25,13 @@ class SellerGood extends Model
         'basic_delivery_time',
         'remark',
         'package_quantity',
-        'updated_at'
+        'updated_at',
+        'pos',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'pos' => 'boolean',
     ];
 
 //    protected $dispatchesEvents = [

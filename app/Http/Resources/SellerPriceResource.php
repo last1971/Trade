@@ -45,6 +45,7 @@ class SellerPriceResource extends JsonResource
             'quantity' => $this->sellerWarehouse->quantity,
             'minQuantity' => $this->min_quantity,
             'maxQuantity' => $this->max_quantity,
+            'pos' => $this->sellerWarehouse->sellerGood->pos,
             'price' => $this->priceRule($rule),
             'CharCode' => $this->CharCode,
             'isInput' => $this->isInputRule($rule),

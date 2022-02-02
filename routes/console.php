@@ -22,8 +22,8 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\Pricing\PME $s) {
-    dd($s('RC0805JR-07100KL'));
+Artisan::command('test1', function (\App\Services\CompelApiService $s) {
+    dd($s->searchInCenter('RES 0805 100K 5%'));
     /*
     $pricesQuery = SellerPrice::query()
         ->whereDate('updated_at', '<', \Carbon\Carbon::now()->subDays(7))->select('seller_warehouse_id');
