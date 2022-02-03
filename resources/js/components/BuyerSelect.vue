@@ -9,7 +9,11 @@
         v-model="proxy"
         :dense="dense"
         :error-messages="errorMessages"
-    ></model-select>
+    >
+        <template v-slot:item="{ item }">
+            {{ card(item) }}
+        </template>
+    </model-select>
 </template>
 
 <script>
@@ -41,6 +45,16 @@
                 default: () => [],
             }
         },
+        methods: {
+            card(item) {
+                let res = item.SHORTNAME;
+                if (item.INN) {
+                    const index = item.INN.indexOf('/');
+                    res += index >=0 ? ' / ' + item.INN.substring(0, index) : item.INN;
+                }
+                return res;
+            }
+        }
     }
 </script>
 
