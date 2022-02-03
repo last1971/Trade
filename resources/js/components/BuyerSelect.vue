@@ -13,6 +13,7 @@
         <template v-slot:item="{ item }">
             {{ card(item) }}
         </template>
+
     </model-select>
 </template>
 
