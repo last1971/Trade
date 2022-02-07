@@ -1,14 +1,14 @@
 <template>
     <div>
-        <good-info v-model="goodId"/>
+        <seller-api-file-select-new />
     </div>
 </template>
 
 <script>
-    import GoodInfo from "./good/GoodInfo";
+    import SellerApiFileSelectNew from "./seller/SellerApi/SellerApiFileSelectNew";
     export default {
         name: "Test",
-        components: {GoodInfo,  },
+        components: {SellerApiFileSelectNew, },
         data() {
             return {
                 goodId: 395925,
