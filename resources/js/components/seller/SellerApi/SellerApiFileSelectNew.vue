@@ -3,7 +3,10 @@
         <v-expansion-panel>
             <v-expansion-panel-header>
                 <v-row dense>
-                    Активных поставщиков {{ activeSellers }}
+                    <v-col v-if="!currentInvoice">Счет не выбран</v-col>
+                    <v-col v-else>Счет № {{ invoice.NS }} для {{ invoice.buyer.SHORTNAME }}</v-col>
+                    <v-col v-if="allSellers">Все {{ sellers.length }} поставщиков</v-col>
+                    <v-col v-else>Активных поставщиков {{ activeSellers }} из {{ sellers.length }}</v-col>
                 </v-row>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
@@ -16,7 +19,7 @@
                                             :seller="seller"
                                              @save-sellers="saveSellers"
                             />
-                            <seller-api-disabled @save-sellers="saveSellers" @seller-on="sellerOn"/>
+                            <seller-api-disabled v-if="!allSellers" @save-sellers="saveSellers" @seller-on="sellerOn"/>
                         </v-chip-group>
                     </v-card>
                 </div>
@@ -37,10 +40,17 @@ export default {
     computed: {
         ...mapGetters({
             sellers: 'SELLER-PRICE/SELLERS',
+            currentInvoice: 'INVOICE/GET-CURRENT',
         }),
+        invoice() {
+            return this.$store.getters['INVOICE/GET'](this.currentInvoice);
+        },
         activeSellers() {
             return this.sellers.filter((v) => v.isApi).length;
-        }
+        },
+        allSellers() {
+            return this.activeSellers === this.sellers.length;
+        },
     },
     methods: {
         saveSellers() {
