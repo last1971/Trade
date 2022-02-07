@@ -40,9 +40,10 @@ export default {
             get() {
                 return this.$store.getters['SELLER-PRICE/SELECTED_SELLER_ID'] === this.seller.sellerId;
             },
-            set(v) {
-                console.log(v);
-                this.$store.commit('SELLER-PRICE/SELLER_SELECT', this.seller.sellerId)
+            set() {
+                if (this.quantity > 0) {
+                    this.$store.commit('SELLER-PRICE/SELLER_SELECT', this.seller.sellerId)
+                }
             }
         }
     },

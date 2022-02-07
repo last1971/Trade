@@ -16,6 +16,7 @@
                                             :key="seller.sellerId"
                                             :seller="seller"
                             />
+                            <seller-api-disabled/>
                         </v-chip-group>
                     </v-card>
                 </div>
@@ -28,10 +29,11 @@
 import {mapGetters} from "vuex";
 import SellerApiChip from "./SellerApiChip";
 import InvoiceCard from '../../invoice/InvoiceCard'
+import SellerApiDisabled from "./SellerApiDisabled";
 
 export default {
     name: "SellerApiFileSelectNew",
-    components: {SellerApiChip, InvoiceCard},
+    components: {SellerApiDisabled, SellerApiChip, InvoiceCard},
     data() {
         return {
             o: false,
