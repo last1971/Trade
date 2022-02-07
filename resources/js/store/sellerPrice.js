@@ -69,7 +69,7 @@ const getters = {
         );
         return ret ? ret.price : 0;
     },
-    SELLERS: state => state.sellers,
+    SELLERS: state => _.sortBy(state.sellers, 'name'),
     SELLER_LINES_QUANTITY: state => sellerId => {
         return _.uniqBy(_.filter(state.data, {sellerId}), 'code').length;
     },

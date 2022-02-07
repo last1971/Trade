@@ -42,19 +42,7 @@
                         </v-col>
                     </v-row>
                     <v-row v-if="hasPermission('seller-price.full')" dense>
-                        <v-slide-group
-                            multiple
-                            show-arrows
-                        >
-                            <v-slide-item v-if="hasPermission('invoice.update')">
-                                <invoice-card/>
-                            </v-slide-item>
-                            <v-slide-item v-for="seller in sellers"
-                                          :key="seller.sellerId"
-                            >
-                                <seller-api-file-select :seller="seller" @seller-on="update"/>
-                            </v-slide-item>
-                        </v-slide-group>
+                        <seller-api-file-select-new @seller-on="update" />
                     </v-row>
                 </v-card-text>
             </v-card>
@@ -131,10 +119,12 @@ import SellerPricePrices from "./SellerPricePrices";
 import SellerPriceDeliveryTime from "./SellerPriceDeliveryTime";
 import moment from "moment";
 import InvoiceCard from "../invoice/InvoiceCard";
+import SellerApiFileSelectNew from "./SellerApi/SellerApiFileSelectNew";
 
 export default {
     name: "SellerPrices",
     components: {
+        SellerApiFileSelectNew,
         InvoiceCard,
         SellerPriceDeliveryTime,
         SellerPricePrices, SellerPriceQuantity, SellerPriceName, GoodSelect, GoodInString, SellerApiFileSelect},

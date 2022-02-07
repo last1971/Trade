@@ -6,7 +6,7 @@
         outlined
         close
         v-model="isFiltered"
-        @click:close="close(seller)"
+        @click:close="close"
     >
         <v-btn class="mr-1" icon outlined small :loading="seller.loading" disabled>
             {{ quantity }}
@@ -48,8 +48,10 @@ export default {
         }
     },
     methods:{
-        close(seller) {
-            seller.isApi = !seller.isApi;
+        close() {
+            this.seller.isApi = !this.seller.isApi;
+            this.$store.commit('SELLER-PRICE/CLEAR_SELLER_DATA', this.seller.sellerId);
+            this.$emit('save-sellers');
         },
     }
 }

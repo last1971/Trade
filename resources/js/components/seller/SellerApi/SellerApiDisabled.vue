@@ -15,7 +15,7 @@
                     <v-chip v-for="seller in sellers"
                             :key="seller.sellerId"
                             v-if="!seller.isApi"
-                            @click="seller.isApi = true"
+                            @click="setSellerActive(seller)"
                     >{{ seller.name }}</v-chip>
                 </v-chip-group>
             </v-card-text>
@@ -34,6 +34,13 @@ export default {
         }),
         notActiveSellers() {
             return this.sellers.filter((v) => !v.isApi).length;
+        }
+    },
+    methods: {
+        setSellerActive(seller) {
+            seller.isApi = true;
+            this.$emit('save-sellers');
+            this.$emit('seller-on', seller)
         }
     }
 }

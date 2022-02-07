@@ -4,7 +4,6 @@
             <v-expansion-panel-header>
                 <v-row dense>
                     Активных поставщиков {{ activeSellers }}
-                    <v-progress-linear v-if="false" indeterminate></v-progress-linear>
                 </v-row>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
@@ -15,8 +14,9 @@
                             <seller-api-chip v-for="seller in sellers"
                                             :key="seller.sellerId"
                                             :seller="seller"
+                                             @save-sellers="saveSellers"
                             />
-                            <seller-api-disabled/>
+                            <seller-api-disabled @save-sellers="saveSellers" @seller-on="sellerOn"/>
                         </v-chip-group>
                     </v-card>
                 </div>
@@ -34,11 +34,6 @@ import SellerApiDisabled from "./SellerApiDisabled";
 export default {
     name: "SellerApiFileSelectNew",
     components: {SellerApiDisabled, SellerApiChip, InvoiceCard},
-    data() {
-        return {
-            o: false,
-        }
-    },
     computed: {
         ...mapGetters({
             sellers: 'SELLER-PRICE/SELLERS',
@@ -48,7 +43,12 @@ export default {
         }
     },
     methods: {
-
+        saveSellers() {
+            this.$store.commit('SELLER-PRICE/SAVE_SELLERS');
+        },
+        sellerOn(seller) {
+            this.$emit('seller-on', seller, false);
+        }
     }
 }
 </script>
