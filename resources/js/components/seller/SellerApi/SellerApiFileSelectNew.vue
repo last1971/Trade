@@ -52,6 +52,17 @@ export default {
             return this.activeSellers === this.sellers.length;
         },
     },
+    watch: {
+        activeSellers() {
+            if (this.activeSellers === 0) {
+                this.sellers.forEach((seller) => {
+                    seller.isApi = true;
+                    this.sellerOn(seller)
+                });
+            }
+            this.saveSellers();
+        }
+    },
     methods: {
         saveSellers() {
             this.$store.commit('SELLER-PRICE/SAVE_SELLERS');
