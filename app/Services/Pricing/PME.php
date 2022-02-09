@@ -106,18 +106,21 @@ class PME
             $sellerWarehouse->sellerGood = $sellerGood;
             // $sellerWarehouse->sellerPrices()->delete();
             $sellerPrices = collect();
-            $pricesCount = count($partNumber->priceList->prices);
+            $itemPrices = is_array($partNumber->priceList->prices)
+                ? $partNumber->priceList->prices
+                : [$partNumber->priceList->prices];
+            $pricesCount = count($itemPrices);
             for ($i = 0; $i < $pricesCount; $i++) {
                 $sellerPrice = new SellerPrice();
                 $sellerPrice->fill([
                     'id' => Uuid::uuid4()->toString(),
                     'seller_warehouse_id' => $sellerWarehouse->id,
-                    'min_quantity' => intval($partNumber->priceList->prices[$i]->quantity),
+                    'min_quantity' => intval($itemPrices[$i]->quantity),
                     'max_quantity' => $i < $pricesCount - 1
-                        ? intval($partNumber->priceList->prices[$i + 1]->quantity) - 1
+                        ? intval($itemPrices[$i + 1]->quantity) - 1
                         : 0,
-                    'value' => (float) $partNumber->priceList->prices[$i]->amount,
-                    'CharCode' => $partNumber->priceList->prices[$i]->currency,
+                    'value' => (float) $itemPrices[$i]->amount,
+                    'CharCode' => $itemPrices[$i]->currency,
                     'is_input' => true,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),
@@ -127,18 +130,18 @@ class PME
                 $sellerPrice->sellerWarehouse = $sellerWarehouse;
                 $ret->push($sellerPrice);
 
-                if (!empty($mouser[$partNumber->mouserPartNumber][$partNumber->priceList->prices[$i]->quantity])) {
+                if (!empty($mouser[$partNumber->mouserPartNumber][$itemPrices[$i]->quantity])) {
                     $sellerPrice = new SellerPrice();
                     $sellerPrice->fill([
                         'id' => Uuid::uuid4()->toString(),
                         'seller_warehouse_id' => $sellerWarehouse->id,
-                        'min_quantity' => intval($partNumber->priceList->prices[$i]->quantity),
+                        'min_quantity' => intval($itemPrices[$i]->quantity),
                         'max_quantity' => $i < $pricesCount - 1
-                            ? intval($partNumber->priceList->prices[$i + 1]->quantity) - 1
+                            ? intval($itemPrices[$i + 1]->quantity) - 1
                             : 0,
                         'value' => (float)
-                            $mouser[$partNumber->mouserPartNumber][$partNumber->priceList->prices[$i]->quantity],
-                        'CharCode' => $partNumber->priceList->prices[$i]->currency,
+                            $mouser[$partNumber->mouserPartNumber][$itemPrices[$i]->quantity],
+                        'CharCode' => $itemPrices[$i]->currency,
                         'is_input' => false,
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now(),
