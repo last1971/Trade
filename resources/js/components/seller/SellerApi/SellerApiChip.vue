@@ -50,6 +50,8 @@ export default {
     methods:{
         close() {
             this.seller.isApi = !this.seller.isApi;
+            if (this.$store.getters['SELLER-PRICE/SELECTED_SELLER_ID'] === this.seller.sellerId)
+                this.$store.commit('SELLER-PRICE/SELLER_SELECT', this.seller.sellerId);
             this.$store.commit('SELLER-PRICE/CLEAR_SELLER_DATA', this.seller.sellerId);
             this.$emit('save-sellers');
         },
