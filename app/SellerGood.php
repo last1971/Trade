@@ -71,7 +71,7 @@ class SellerGood extends Model
         );
         */
         return $result;
-     }
+    }
 
     public function setNameAttribute(string $value)
     {

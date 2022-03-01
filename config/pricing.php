@@ -120,5 +120,12 @@ return [
         'class' => Ruichi::class,
         'ereg' => true,
     ],
+    'SeaTronic' => [
+        'cacheTimes' => 86400,
+        'sellerId' => 1992,
+        'basicDeliveryTime' => 9,
+        'class' => DataBase::class,
+        'ereg' => true,
+    ],
     'maxCacheTimes' => 172800,
 ];

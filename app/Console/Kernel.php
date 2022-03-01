@@ -6,6 +6,7 @@ use App\Jobs\ProcessDanPrice;
 use App\Jobs\ProcessMarsPrice;
 use App\Jobs\ProcessRancidPrices;
 use App\Jobs\ProcessRctPrice;
+use App\Jobs\ProcessSeaTronicPrice;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -33,6 +34,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new ProcessRancidPrices)->dailyAt('03:00');
         $schedule->job(new ProcessDanPrice)->dailyAt('21:00');
         $schedule->job(new ProcessRctPrice)->dailyAt('23:00');
+        $schedule->job(new ProcessSeaTronicPrice)->dailyAt('07:00');
     }
 
     /**
