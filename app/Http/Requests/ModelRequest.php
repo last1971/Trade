@@ -282,7 +282,7 @@ class ModelRequest extends FormRequest
         }
         foreach ($this->numericAttributes as $value) {
             if (isset($item[$value]) && $item[$value] !== NULL) {
-                $item[$value] = DB::raw($item[$value]);
+                $item[$value] = floatval($item[$value]);
             }
         }
         if (Str::startsWith($this->route()->getName(), 'invoice.')) {
