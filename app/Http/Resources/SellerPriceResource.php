@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\SellerPriceRule;
+use App\Services\SellerPriceService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -60,14 +61,16 @@ class SellerPriceResource extends JsonResource
 
     private function priceRule($rule)
     {
+        $seller = SellerPriceService::seller($this->sellerWarehouse->sellerGood->seller_id);
+        $coefficient = $seller['cbrCoefficient'] ?? 1;
         switch ($rule->alias) {
             case 'full_rule':
-                return $this->value;
+                return $this->value * $coefficient;
             default:
                 if (in_array($this->sellerWarehouse->sellerGood->seller_id, $this->fiveSaltySellers)) {
-                    return $this->value * 1.15;
+                    return $this->value * 1.15 * $coefficient;
                 } else {
-                    return $this->is_input ? 0 : $this->value;
+                    return $this->is_input ? 0 : $this->value * $coefficient;
                 }
         }
     }

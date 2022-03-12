@@ -28,6 +28,7 @@ return [
         'basicDeliveryTime' => 7,
         'class' => Compel::class,
         'ereg' => false,
+        'cbrCoefficient' => env('COMPEL_COEFFICIENT', 1)
     ],
     'CompelDms' => [
         'cacheTimes' => 7200,

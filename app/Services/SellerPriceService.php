@@ -114,7 +114,7 @@ class SellerPriceService
      * @param int $id
      * @return mixed
      */
-    private function seller(int $id)
+    public static function seller(int $id)
     {
         return collect(config('pricing'))->firstWhere('sellerId', $id);
     }
