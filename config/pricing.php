@@ -93,6 +93,13 @@ return [
         'class' => Platan::class,
         'ereg' => false,
     ],
+    'Positron' => [
+        'cacheTimes' => 86400,
+        'sellerId' => 2411,
+        'basicDeliveryTime' => 8,
+        'class' => DataBase::class,
+        'ereg' => true,
+    ],
     'Promelec' => [
         'cacheTimes' => 7200,
         'sellerId' => (int) env('PROM_SELLER_ID', 860),
