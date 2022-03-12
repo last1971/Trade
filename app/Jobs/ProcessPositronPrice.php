@@ -62,7 +62,7 @@ class ProcessPositronPrice implements ShouldQueue
             $cell = $row->getCellIterator('A', 'J');
             $name = $cell->current()->getValue();
             $cell->next();
-            $quantity = intval($cell->current()->getValue());
+            $quantity = intval(preg_replace('~\D~', '', $cell->current()->getValue()));
             $cell->next();
             $cell->next();
             $price = floatval($cell->current()->getValue());
