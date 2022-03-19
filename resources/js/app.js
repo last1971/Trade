@@ -70,6 +70,7 @@ new Vue({
                     if (this.$store.getters['AUTH/IS_GUEST']) this.$router.push({name: 'help'});
                 })
                 .catch(() => {
+                    this.$store.commit('AUTH/LOGOUT');
                     this.$router.push({name: 'login'});
                 });
         }

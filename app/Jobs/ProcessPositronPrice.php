@@ -59,25 +59,23 @@ class ProcessPositronPrice implements ShouldQueue
         $sheet = $document->getWorksheetIterator()->current();
         foreach ($sheet->getRowIterator() as $row) {
             if ($row->getRowIndex() < 2) continue;
-            $cell = $row->getCellIterator('A', 'J');
+            $cell = $row->getCellIterator('A', 'J'); //A
             $name = $cell->current()->getValue();
-            $cell->next();
+            $cell->next(); //B
             $quantity = intval(preg_replace('~\D~', '', $cell->current()->getValue()));
-            $cell->next();
-            $cell->next();
+            $cell->next(); //C
             $price = floatval($cell->current()->getValue());
-            $cell->next();
-            $multiplicity = intval($cell->current()->getValue() ?? 1);
-            $cell->next();
-            $cell->next();
+            $cell->next(); //D
             $remark = $cell->current()->getValue() ?? '';
-            $cell->next();
+            $cell->next(); //E
+            $producer = $cell->current()->getValue();
+            $cell->next(); //F
+            $cell->next(); //G
+            $cell->next(); //H
+            $cell->next(); //I
             $remark .= ' ';
             $remark .= $cell->current()->getValue() ?? '';
-            $cell->next();
-            $cell->next();
-            $producer = $cell->current()->getValue();
-
+            $multiplicity = intval($cell->current()->getValue() ?? 1);
             $good = SellerGood::query()
                 ->firstOrNew(['seller_id' => $sellerId, 'code' => $name]);
             $good->fill([
