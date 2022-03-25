@@ -60,6 +60,7 @@
 </head>
 <body>
 @foreach($transferOuts as $transferOut)
+    <div style="page-break-inside: avoid">
     <table class="main">
         <tr>
             <td class="centred left-border top-border" style="font-size: 12px;">
@@ -180,7 +181,7 @@
         </tr>
     </table>
     <br/>
-    <table class="main" style="font-size: 10px; page-break-after: always">
+    <table class="main" style="font-size: 10px;">
         <tr>
             <td colspan="4">Всего отпущено на сумму</td>
             <td colspan="4" class="left-border"></td>
@@ -241,5 +242,7 @@
             <td colspan="2"> "___" _______________ 20___ г.</td>
         </tr>
     </table>
+    <br/>
+    </div>
 @endforeach
 </body>
