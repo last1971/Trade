@@ -43,7 +43,25 @@ const actions = {
                     reject(error);
                 });
         });
-    }
+    },
+    'PACKING-LIST'({commit}, payload) {
+        return new Promise((resolve, reject) => {
+            axios
+                .post('api/sbis/packing-list', payload, { responseType: 'blob' })
+                .then((response) => {
+                    const file = new Blob(
+                        [response.data],
+                        {type: 'application/pdf'});
+                    const fileURL = URL.createObjectURL(file);
+                    window.open(fileURL);
+                    resolve(response);
+                })
+                .catch((error) => {
+                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                    reject(error);
+                });
+        });
+    },
 }
 
 export default {

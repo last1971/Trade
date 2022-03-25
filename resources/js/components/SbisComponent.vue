@@ -44,6 +44,11 @@
                     Выгрузить в СБИС
                 </v-btn>
             </v-col>
+            <v-col class="d-flex justify-center">
+                <v-btn :loading="packingListLoading" @click="packingList">
+                    Товарные накладные
+                </v-btn>
+            </v-col>
         </v-row>
     </v-container>
 </template>
@@ -63,6 +68,7 @@
                 xlsxLoading: false,
                 gtdLoading: false,
                 transferLoading: false,
+                packingListLoading: false,
             }
         },
         created() {
@@ -103,6 +109,16 @@
                     .catch(() => {
                     })
                     .then(() => this.transferLoading = false);
+            },
+            packingList() {
+                const {date, buyerId} = this;
+                this.packingListLoading = true;
+                this.$store.dispatch('SBIS/PACKING-LIST', {date, buyerId})
+                    .then(() => {
+                    })
+                    .catch(() => {
+                    })
+                    .then(() => this.packingListLoading = false);
             }
         }
     }

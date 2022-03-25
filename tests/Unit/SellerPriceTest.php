@@ -11,44 +11,21 @@ class SellerPriceTest extends TestCase
 {
     private SellerPriceService $service;
 
-    public function __construct(?string $name = null, array $data = [], $dataName = '')
+    public function setUp(): void
     {
+        parent::setUp();
         $this->service = new SellerPriceService();
-        parent::__construct($name, $data, $dataName);
     }
 
-    protected static function invokeMethod(&$object, $methodName, array $parameters = array()) {
-        $class = new ReflectionClass(get_class($object));
-        $method = $class->getMethod($methodName);
-        $method->setAccessible(true);
-        return $method->invokeArgs($object, $parameters);
-    }
-
-    public function testIsSeller()
+    public function tearDown(): void
     {
-        foreach (array_keys($this->service->aliases) as $key) {
-            $this->assertTrue($this->invokeMethod($this->service, 'isSeller', array($key)));
-        }
-        $this->assertFalse($this->invokeMethod($this->service, 'isSeller', array(1)));
-        $this->assertFalse($this->invokeMethod($this->service, 'isSeller', array(10)));
-        $this->assertFalse($this->invokeMethod($this->service, 'isSeller', array(100)));
+        parent::tearDown();
+        unset($this->service);
     }
 
-    public function testSellerCode()
+    public function testInitialize()
     {
-        foreach ($this->service->aliases as $code => $alias) {
-            $this->assertEquals(
-                $code, $this->invokeMethod($this->service, 'sellerCode', array($alias['function'])));
-        }
-    }
-
-    public function testFromSeller()
-    {
-        foreach (array_keys($this->service->aliases) as $key) {
-            $this->assertIsArray(
-                $this->invokeMethod($this->service, $this->service->aliases[$key]['function'], array('MAX232'))
-            );
-        }
+        $this->assertEquals($this->service, $this->service);
     }
 
 }

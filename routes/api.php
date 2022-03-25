@@ -78,6 +78,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('sbis/xlsx', 'Api\SbisController@xlsx')->name('sbis.xlsx');
     Route::post('sbis/clear-gtd', 'Api\SbisController@clearGtd')->name('sbis.clear-gtd');
     Route::post('sbis/export', 'Api\SbisController@export')->name('sbis.export');
+    Route::post('sbis/packing-list', 'Api\SbisController@packingList')->name('sbis.packing-list');
 
     Route::post('goods-list', 'Api\GoodsListController@store')->name('goods-list.store');
 
