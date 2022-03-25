@@ -1,7 +1,3 @@
-@php()
-ini_set('memory_limit', '140M');
-
-@endphp
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -246,7 +242,8 @@ ini_set('memory_limit', '140M');
             <td colspan="2"> "___" _______________ 20___ г.</td>
         </tr>
     </table>
-    <br/>
     </div>
+    <br/>
+    <br/>
 @endforeach
 </body>

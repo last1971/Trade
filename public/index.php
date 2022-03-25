@@ -1,5 +1,7 @@
 <?php
 
+ini_set('memory_limit', '240M');
+
 /**
  * Laravel - A PHP Framework For Web Artisans
  *
