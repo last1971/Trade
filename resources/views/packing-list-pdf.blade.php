@@ -1,3 +1,7 @@
+@php()
+ini_set('memory_limit', '140M');
+
+@endphp
 <!DOCTYPE html>
 <html lang="ru">
 <head>
