@@ -5,7 +5,7 @@
     <style>
         .main {
             width: 100%;
-            font-size: 8px;
+            font-size: 7px;
             border-spacing: 0px;
             font-family: dompdf_arial;
         }
