@@ -56,6 +56,9 @@
             padding-left: 2px;
             padding-right: 2px;
         }
+        .main-text {
+            font-size: 11px;
+        }
     </style>
 </head>
 <body>
@@ -63,42 +66,42 @@
     <div style="page-break-inside: avoid">
     <table class="main">
         <tr>
-            <td class="centred left-border top-border" style="font-size: 12px;">
+            <td class="centred left-border top-border main-text">
                 Грузоотправитель: {{ $transferOut->firm->FIRMNAME }}, ИНН {{ $transferOut->firm->INN }}
             </td>
             <td class="top-border"></td>
             <td class="centred top-border right-border left-border">Коды</td>
         </tr>
         <tr>
-            <td class="centred left-border" style="font-size: 12px;">
+            <td class="centred left-border main-text">
                 {{ $transferOut->firm->ADDRESS }}, Тел. +7-3822-511225
             </td>
             <td class="text-right">ИНН</td>
             <td class="centred right-border left-border top-border">{{ $transferOut->firm->INN }}</td>
         </tr>
         <tr>
-            <td class="centred left-border" style="font-size: 12px;">
+            <td class="centred left-border main-text">
                 Сайт: www.elcopro.ru, E-mail: info@elcopro.ru
             </td>
             <td></td>
             <td class="right-border left-border top-border"></td>
         </tr>
         <tr>
-            <td class="centred left-border top-border" style="font-size: 12px;">
+            <td class="centred left-border top-border main-text">
                 Грузополучатель: {{ $transferOut->buyer->advancedBuyer->consignee ?? $transferOut->buyer->FULLNAME }}
             </td>
             <td class="top-border text-right">ИНН</td>
             <td class="centred top-border right-border left-border">{{ $transferOut->buyer->INN }}</td>
         </tr>
         <tr>
-            <td class="centred left-border" style="font-size: 12px;">
+            <td class="centred left-border main-text">
                 Адрес доставки: {{ $transferOut->buyer->advancedBuyer->consigneeAddress ?? $transferOut->buyer->ADDRESS }}
             </td>
             <td></td>
             <td class="right-border left-border top-border"></td>
         </tr>
         <tr>
-            <td style="font-size: 10px; text-align: left" class="centred top-border">Основание</td>
+            <td style="font-size: 9px; text-align: left" class="centred top-border">Основание</td>
             <td class="text-right top-border">Счет</td>
             <td class="top-border right-border left-border">{{ $transferOut->invoice->NS }}</td>
         </tr>
@@ -109,7 +112,17 @@
                 {{ (new Date($transferOut->invoice->DATA))->format('d.m.Y') }}
             </td>
         </tr>
+        @if($transferOut->invoice->NZ && $transferOut->buyer->DOGOVOR)
+            <tr>
+                <td></td>
+                <td class="text-right">Заказ</td>
+                <td class="bottom-border right-border left-border">
+                    {{ Str::replace('{NZ}', $transferOut->invoice->NZ, $transferOut->buyer->DOGOVOR) }}
+                </td>
+            </tr>
+        @endif
     </table>
+    <br/>
     <table class="main">
         <tr>
             <td></td>
@@ -122,9 +135,9 @@
             <td width="20%"></td>
         </tr>
         <tr>
-            <td class="text-right" style="font-size: 12px;">ТОВАРНАЯ НАКЛАДНАЯ</td>
-            <td class="left-border top-border bottom-border centred" style="font-size: 12px;">{{ $transferOut->NSF }}</td>
-            <td class="left-border right-border top-border bottom-border centred" style="font-size: 12px;">
+            <td class="text-right main-text">ТОВАРНАЯ НАКЛАДНАЯ</td>
+            <td class="left-border top-border bottom-border centred main-text">{{ $transferOut->NSF }}</td>
+            <td class="left-border right-border top-border bottom-border centred main-text">
                 {{ (new Date($transferOut->DATA))->format('d.m.Y') }}
             </td>
             <td width="20%"></td>
@@ -181,7 +194,7 @@
         </tr>
     </table>
     <br/>
-    <table class="main" style="font-size: 10px;">
+    <table class="main" style="font-size: 9px; page-break-inside: avoid">
         <tr>
             <td colspan="4">Всего отпущено на сумму</td>
             <td colspan="4" class="left-border"></td>
@@ -243,7 +256,6 @@
         </tr>
     </table>
     </div>
-    <br/>
-    <br/>
+    <br/><br/><br/><br/><br/>
 @endforeach
 </body>
