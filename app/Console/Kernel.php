@@ -37,6 +37,7 @@ class Kernel extends ConsoleKernel
         $schedule->job(new ProcessRctPrice)->dailyAt('23:00');
         $schedule->job(new ProcessSeaTronicPrice)->dailyAt('07:00');
         $schedule->job(new ProcessPositronPrice)->dailyAt('08:00');
+        $schedule->command('make:searchname')->weekly()->sundays()->at('12:00');
     }
 
     /**
