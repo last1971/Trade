@@ -102,8 +102,7 @@ class ElcoPro
             ->get();
         $ret = collect();
         foreach ($goods as $good) {
-            if (!$good->price) continue;
-            $ret->push($this->make($good, $good->price, 1, 0, true));
+            $ret->push($this->make($good, $good->price ?? 0.01, 1, 0, true));
             if ($good->retailPrice && !empty($good->retailPrice->PRICEROZN)) {
                 $maxQuantity = 0;
                 if (!empty($good->retailPrice->QUANMOPT) && $good->retailPrice->QUANMOPT > 1) {

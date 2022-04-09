@@ -3,7 +3,7 @@
         <v-menu v-if="notActiveSellers > 1">
             <template v-slot:activator="{ on }">
                 <v-chip v-on="on">
-                    Не активных поставищиков - {{ notActiveSellers }}
+                    Не активных поставщиков - {{ notActiveSellers }}
                 </v-chip>
             </template>
             <v-card>

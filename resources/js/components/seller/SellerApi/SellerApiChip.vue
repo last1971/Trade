@@ -7,6 +7,7 @@
         close
         v-model="isFiltered"
         @click:close="close"
+        :color="color"
     >
         <v-btn class="mr-1" icon outlined small :loading="seller.loading" disabled>
             {{ quantity }}

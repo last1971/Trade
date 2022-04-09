@@ -57,7 +57,7 @@ class ProcessMarsPrice implements ShouldQueue, ShouldBeUnique
             $sellerId = config('pricing.Mars.sellerId');
             for ($i = 10; $i < count($cells); $i++) {
                 if (mb_strpos($cells[$i]['C'] , 'шт' ) >= 0 && $cells[$i]['C'] != null && $cells[$i]['A'] != null) {
-                    $coeff = $cells[$i]['C'] === 'шт' ? 1 : 1000;
+                    $coeff = ($cells[$i]['C'] === 'шт' ? 1 : 1000) * env('MARS_COEFF', 1);
                     $s = str_replace( ',', '.', $cells[$i]['D']);
                     $pos = strpos($s, '/');
                     if ($pos > 0) {
