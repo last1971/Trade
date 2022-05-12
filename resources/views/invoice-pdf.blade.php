@@ -179,7 +179,7 @@
         <td colspan="2" style="border-top: none; font-size: 10px;">Банк получателя</td>
         <td>Сч. №</td>
         <td style="border-top: none;">
-            {{ $invoice->firmHistory ? $invoice->firmHistory->RS : $invoice->firm->RS }}
+            {{ $invoice->firmHistory ? $invoice->firmHistory->KS : $invoice->firm->RS }}
         </td>
     </tr>
     <tr>
@@ -187,7 +187,7 @@
         <td width="30%">КПП {{ $invoice->firm->Kpp }}</td>
         <td width="10%" rowspan="3">Сч. №</td>
         <td width="35%" rowspan="3">
-            {{ $invoice->firmHistory ? $invoice->firmHistory->KS : $invoice->firm->KS }}
+            {{ $invoice->firmHistory ? $invoice->firmHistory->RS : $invoice->firm->KS }}
         </td>
     </tr>
     <tr>
