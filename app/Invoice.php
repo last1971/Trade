@@ -15,6 +15,7 @@ class Invoice extends Model
 
     protected $fillable = [
         'NS',
+        'NZ',
         'FIRM_ID',
         'FIRMS_HISTORY_ID',
         'POKUPATCODE',

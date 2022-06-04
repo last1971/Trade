@@ -73,6 +73,13 @@
                     />
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field :label="isMobile ? 'Заявка' : 'Равна'"
+                                  :rules="[rules.isInteger]"
+                                  v-model="options.filterValues[11]"
+                                  :filled="!!options.filterValues[11]"
+                    />
+                </td>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-text-field :label="isMobile ? 'Название покупателя' : 'Начинается с'"
                                   v-model="options.filterValues[4]"
                                   :filled="!!options.filterValues[4]"
@@ -218,11 +225,12 @@ export default {
                     'transferOutLinesSum',
                     'S.PRIM',
                     'IGK',
+                    'NZ'
                 ],
                 filterOperators: [
-                    '>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>=', 'CONTAIN', 'CONTAIN'
+                    '>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>=', 'CONTAIN', 'CONTAIN', '='
                 ],
-                filterValues: [moment().format('Y-MM-DD'), '', 0, [], '', '', '', 0, 0, '', ''],
+                filterValues: [moment().format('Y-MM-DD'), '', 0, [], '', '', '', 0, 0, '', '', ''],
             },
             model: 'INVOICE',
             datePicker: false,

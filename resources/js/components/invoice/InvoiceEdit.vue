@@ -18,6 +18,13 @@
                 <firm-select :disabled="notEditable || notCan" v-model="model.FIRM_ID"/>
             </v-col>
             <v-col cols="12" sm="auto">
+                <v-text-field :disabled="notEditable || notCan"
+                              :rules="[rules.isInteger]"
+                              label="Заявка"
+                              v-model="model.NZ"
+                />
+            </v-col>
+            <v-col cols="12" sm="auto">
                 <firm-history-select
                     :disabled="notEditable || notCan"
                     v-model="model.FIRMS_HISTORY_ID"
