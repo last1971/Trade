@@ -48,44 +48,44 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         //
         foreach ($this->models as $model) {
-            Permission::query()->firstOrCreate(['name' => $model . '.*']);
-            Permission::query()->firstOrCreate(['name' => $model . '.index']);
-            Permission::query()->firstOrCreate(['name' => $model . '.show']);
-            Permission::query()->firstOrCreate(['name' => $model . '.store']);
-            Permission::query()->firstOrCreate(['name' => $model . '.update']);
-            Permission::query()->firstOrCreate(['name' => $model . '.destroy']);
-            Permission::query()->firstOrCreate(['name' => $model . '.full']);
-            Permission::query()->firstOrCreate(['name' => $model . '.xlsx']);
-            Permission::query()->firstOrCreate(['name' => $model . '.pdf']);
+            Permission::query()->firstOrCreate(['name' => $model . '.*', 'guard_name' => 'api']);
+            Permission::query()->firstOrCreate(['name' => $model . '.index', 'guard_name' => 'api']);
+            Permission::query()->firstOrCreate(['name' => $model . '.show', 'guard_name' => 'api']);
+            Permission::query()->firstOrCreate(['name' => $model . '.store', 'guard_name' => 'api']);
+            Permission::query()->firstOrCreate(['name' => $model . '.update', 'guard_name' => 'api']);
+            Permission::query()->firstOrCreate(['name' => $model . '.destroy', 'guard_name' => 'api']);
+            Permission::query()->firstOrCreate(['name' => $model . '.full', 'guard_name' => 'api']);
+            Permission::query()->firstOrCreate(['name' => $model . '.xlsx', 'guard_name' => 'api']);
+            Permission::query()->firstOrCreate(['name' => $model . '.pdf', 'guard_name' => 'api']);
         }
 
-        Permission::query()->firstOrCreate(['name' => 'exchange-rate.index']);
-        Permission::query()->firstOrCreate(['name' => 'goods-list.show']);
-        Permission::query()->firstOrCreate(['name' => 'goods-list.store']);
-        Permission::query()->firstOrCreate(['name' => 'goods-list.*']);
-        Permission::query()->firstOrCreate(['name' => 'invoice.employee']);
-        Permission::query()->firstOrCreate(['name' => 'invoice.receipt']);
-        Permission::query()->firstOrCreate(['name' => 'role.index']);
-        Permission::query()->firstOrCreate(['name' => 'sbis.*']);
-        Permission::query()->firstOrCreate(['name' => 'sbis.show']);
+        Permission::query()->firstOrCreate(['name' => 'exchange-rate.index', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'goods-list.show', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'goods-list.store', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'goods-list.*', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'invoice.employee', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'invoice.receipt', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'role.index', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'sbis.*', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'sbis.show', 'guard_name' => 'api']);
 
-        Permission::query()->firstOrCreate(['name' => 'nav.*']);
-        Permission::query()->firstOrCreate(['name' => 'nav.home']);
-        Permission::query()->firstOrCreate(['name' => 'nav.goods']);
-        Permission::query()->firstOrCreate(['name' => 'nav.goods-list']);
-        Permission::query()->firstOrCreate(['name' => 'nav.invoices']);
-        Permission::query()->firstOrCreate(['name' => 'nav.invoice-lines']);
-        Permission::query()->firstOrCreate(['name' => 'nav.orders']);
-        Permission::query()->firstOrCreate(['name' => 'nav.payments']);
-        Permission::query()->firstOrCreate(['name' => 'nav.retail-order-lines']);
-        Permission::query()->firstOrCreate(['name' => 'nav.retail-sale']);
-        Permission::query()->firstOrCreate(['name' => 'nav.retail-sale-line']);
-        Permission::query()->firstOrCreate(['name' => 'nav.sbis']);
-        Permission::query()->firstOrCreate(['name' => 'nav.transfer-outs']);
+        Permission::query()->firstOrCreate(['name' => 'nav.*', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.home', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.goods', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.goods-list', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.invoices', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.invoice-lines', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.orders', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.payments', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.retail-order-lines', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.retail-sale', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.retail-sale-line', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.sbis', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.transfer-outs', 'guard_name' => 'api']);
 
-        Role::query()->firstOrCreate(['name' => 'guest']);
+        Role::query()->firstOrCreate(['name' => 'guest', 'guard_name' => 'api']);
 
-        $admin = Role::query()->firstOrCreate(['name' => 'admin']);
+        $admin = Role::query()->firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
         $admin->syncPermissions([
             'nav.*',
             'advanced-buyer.*',
@@ -124,7 +124,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'user.*'
         ]);
 
-        $retailer = Role::query()->firstOrCreate(['name' => 'retailer']);
+        $retailer = Role::query()->firstOrCreate(['name' => 'retailer', 'guard_name' => 'api']);
         $retailer->syncPermissions([
             'nav.home',
             'nav.goods',
@@ -147,7 +147,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'retail-store-return.*',
         ]);
 
-        $manager = Role::query()->firstOrCreate(['name' => 'manager']);
+        $manager = Role::query()->firstOrCreate(['name' => 'manager', 'guard_name' => 'api']);
         $manager->syncPermissions([
             'nav.home',
             'nav.invoices',
@@ -183,7 +183,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'transfer-out-line.*',
         ]);
 
-        $buyer = Role::query()->firstOrCreate(['name' => 'buyer']);
+        $buyer = Role::query()->firstOrCreate(['name' => 'buyer', 'guard_name' => 'api']);
         $buyer->syncPermissions([
             'nav.home',
             'nav.invoices',
@@ -216,7 +216,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'transfer-out-line.xlsx',
         ]);
 
-        $buh = Role::query()->firstOrCreate(['name' => 'buh']);
+        $buh = Role::query()->firstOrCreate(['name' => 'buh', 'guard_name' => 'api']);
         $buh->syncPermissions([
             'nav.payments',
             'nav.invoices',
