@@ -61,13 +61,13 @@
 <body>
 <table class="main">
     <tr>
-        <td colspan="15">
+        <td colspan="16">
             Второй экземпляр документов, просим подписать и отправить почтой по адресу: 634009, г. Томск, а/я 1361, ООО
             "ЭлкоПро"
         </td>
     </tr>
     <tr>
-        <td class="right-border-double" colspan="2" style="vertical-align: text-top;">
+        <td class="right-border-double" colspan="1" style="vertical-align: text-top;">
             Универсальный<br>
             передаточный<br>
             документ<br>
@@ -83,7 +83,7 @@
                 документ (акт)
             </p>
         </td>
-        <td colspan="14">
+        <td colspan="15">
             <table width="100%">
                 <tbody>
                 <tr>
@@ -234,8 +234,8 @@
         </td>
     </tr>
     <tr class="heading">
-        <td rowspan="2" colspan="2" class="left-border right-border-double top-border" width="5%">Код товара/работ, услуг</td>
-        <td rowspan="2" class="top-border right-border left-border">№ п/п</td>
+        <td rowspan="2" colspan="1" class="left-border right-border-double top-border" width="5%">Код товара/работ, услуг</td>
+        <td rowspan="2" class="top-border right-border">№ п/п</td>
         <td rowspan="2" class="top-border right-border" width="20%">
             Наименование товара (описание выполненных работ, оказанных услуг), имущественного права
         </td>
@@ -265,7 +265,7 @@
     </tr>
     <thead>
     <tr>
-        <th colspan="2" class="top-border right-border-double left-border bottom-border">А</th>
+        <th colspan="1" class="top-border right-border-double left-border bottom-border">А</th>
         <th class="top-border right-border bottom-border">1</th>
         <th class="top-border right-border bottom-border">1а</th>
         <th class="top-border right-border bottom-border">1б</th>
@@ -285,8 +285,8 @@
     </thead>
     @foreach($transferOutLines as $line)
         <tr>
-            <td colspan="2" class="left-border right-border-double bottom-border centred">{{ $line->good->GOODSCODE }}</td>
-            <td class="left-border right-border bottom-border centred">{{ $loop->iteration }}</td>
+            <td colspan="1" class="left-border right-border-double bottom-border centred">{{ $line->good->GOODSCODE }}</td>
+            <td class="right-border bottom-border centred">{{ $loop->iteration }}</td>
             <td class="right-border bottom-border text-justify" style="padding: 2px">
                 {{$line->name->NAME}}
                 @if (!empty($line->good->BODY) && $body)
@@ -340,7 +340,7 @@
     @endforeach
     <tfoot style="page-break-inside: avoid;">
     <tr>
-        <td colspan="2" class="left-border right-border-double bottom-border"></td>
+        <td colspan="1" class="left-border right-border-double bottom-border"></td>
         <td colspan="7" class="right-border bottom-border">
             <b>Всего к оплате</b>
         </td>
@@ -356,7 +356,7 @@
         </td>
     </tr>
     <tr>
-        <td class="right-border-double" colspan="2" style="vertical-align: text-top;">
+        <td class="right-border-double" colspan="1" style="vertical-align: text-top;">
             Документ<br>составлен на<br/>
             <span style="border-bottom: 1px solid black">&nbsp;</span>
             {{ $count  }}

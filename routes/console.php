@@ -22,28 +22,10 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');
 
-Artisan::command('test1', function (\App\Services\CompelApiService $s) {
-    dd($s->searchInCenter('RES 0805 100K 5%'));
-    /*
-    $pricesQuery = SellerPrice::query()
-        ->whereDate('updated_at', '<', \Carbon\Carbon::now()->subDays(7))->select('seller_warehouse_id');
-    $warehousesQuery = \App\SellerWarehouse::query()
-        ->whereIn('id', $pricesQuery)->select('seller_good_id');
-    $goodsQuery = \App\SellerGood::query()
-        ->whereIn('id', $warehousesQuery)
-        ->where('is_active', true)
-        ->select('id');
-    $i = 0;
-    while ($goodsQuery->count() > 0) {
-        $goods = $goodsQuery
-            ->take(1000)
-            ->get()
-            ->map(fn($v) => $v->id)
-            ->toArray();
-        $i += \App\SellerGood::query()->whereIn('id', $goods)->update(['is_active' => false ]);
-        echo $i . PHP_EOL;
-    }
-    */
+Artisan::command('test1', function () {
+    $lines = DB::connection('firebird')->select('SELECT * FROM REALPRICE where SCODE=62930');
+    //$lines = \App\InvoiceLine::query()->where('SCODE', 62930)->get();
+    dd($lines);
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
