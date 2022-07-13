@@ -231,6 +231,7 @@ export default {
                     '>=', 'LIKE', '>=', 'IN', 'CONTAIN', 'CONTAIN', 'CONTAIN', '>=', '>=', 'CONTAIN', 'CONTAIN', '='
                 ],
                 filterValues: [moment().format('Y-MM-DD'), '', 0, [], '', '', '', 0, 0, '', '', ''],
+                sortDesc: [],
             },
             model: 'INVOICE',
             datePicker: false,

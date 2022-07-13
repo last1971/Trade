@@ -61,7 +61,7 @@
             filterOperators: {type: Array, default: () => []},
             filterValues: {type: Array, default: () => []},
             sortBy: {type: Array, default: () => []},
-            sortDesc: {type: Array, default: () => [false]},
+            sortDesc: {type: Array, default: () => []},
             disabled: {type: Boolean, default: false},
             dense: {type: Boolean, default: false},
             errorMessages: {type: Array, default: () => []},
