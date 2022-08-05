@@ -8,6 +8,7 @@ use App\Services\Pricing\DMS;
 use App\Services\Pricing\ElcoPro;
 use App\Services\Pricing\Electronica;
 use App\Services\Pricing\Elitan;
+use App\Services\Pricing\GetChips;
 use App\Services\Pricing\Platan;
 use App\Services\Pricing\PME;
 use App\Services\Pricing\Promelec;
@@ -71,6 +72,13 @@ return [
         'sellerId' => (int) env('ELITAN_SELLER_ID', 1399),
         'basicDeliveryTime' => 7,
         'class' => Elitan::class,
+        'ereg' => false,
+    ],
+    'GetChips' => [
+        'cacheTimes' => 86400,
+        'sellerId' => (int) env('GETCHIPS_SELLER_ID', 2758),
+        'basicDeliveryTime' => 5,
+        'class' => GetChips::class,
         'ereg' => false,
     ],
     'Mars' => [

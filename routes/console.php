@@ -23,9 +23,9 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function () {
-    $lines = DB::connection('firebird')->select('SELECT * FROM REALPRICE where SCODE=62930');
-    //$lines = \App\InvoiceLine::query()->where('SCODE', 62930)->get();
-    dd($lines);
+    $gch = new \App\Services\Pricing\GetChips();
+    $resp = $gch('tda2003', []);
+    dd($resp);
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {
