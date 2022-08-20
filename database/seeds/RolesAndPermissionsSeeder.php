@@ -164,7 +164,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'firm.show',
             'firm-history.index',
             'firm-history.show',
-            'good.index',
+            'good.*',
             'invoice.index',
             'invoice.pdf',
             'invoice.show',

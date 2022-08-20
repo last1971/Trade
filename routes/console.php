@@ -24,7 +24,7 @@ Artisan::command('inspire', function () {
 
 Artisan::command('test1', function () {
     $gch = new \App\Services\Pricing\GetChips();
-    $resp = $gch('tda2003', []);
+    $resp = $gch('PQ108081-151MHF', []);
     dd($resp);
 })->describe('Test');
 

@@ -84,7 +84,7 @@ class TransferOutService extends ModelService
         try {
             $res = $connection->select(
                 'EXECUTE PROCEDURE CREATESF9 (?, ?, ?, ?, ?)',
-                [null, $request['SCODE'], $request['STAFF_ID'], null, 0, 0]
+                [null, $request['SCODE'], $request['STAFF_ID'], null, 0]
             );
             $ret = $this->index(collect(is_array($request) ? [] : $request->options))->find($res[0]->SFCODE);
             $connection->commit();

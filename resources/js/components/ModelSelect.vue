@@ -144,8 +144,8 @@
                     filterAttributes: _.concat(this.filterAttributes, this.itemText),
                     filterOperators: _.concat(this.filterOperators, 'CONTAIN'),
                     filterValues: _.concat(this.filterValues, val.substr(0,69)),
-                    sortBy: _.isEmpty(this.sortBy) ? [this.itemText] : this.sortBy,
-                    sortDesc: this.sortDesc,
+                    sortBy: _.isEmpty(this.sortBy) ? null : this.sortBy,
+                    sortDesc: _.isEmpty(this.sortDesc) ? null: this.sortDesc,
                     with: this.with,
                     smartName: this.smartName,
                 };
