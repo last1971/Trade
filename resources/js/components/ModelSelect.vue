@@ -181,8 +181,10 @@
                             filterAttributes: _.concat(this.filterAttributes, this.itemValue),
                             filterOperators: _.concat(this.filterOperators, 'IN'),
                             filterValues: _.concat(this.filterValues, [this.value]),
-                            sortBy: _.isEmpty(this.sortBy) ? [this.itemText] : this.sortBy,
-                            sortDesc: this.sortDesc
+                            sortBy: _.isEmpty(this.sortBy) ? null : this.sortBy,
+                            sortDesc: _.isEmpty(this.sortDesc) ? null: this.sortDesc,
+                            //sortBy: _.isEmpty(this.sortBy) ? [this.itemText] : this.sortBy,
+                            //sortDesc: this.sortDesc
                         };
                         this.$store.dispatch(this.MODEL + '/ALL', options)
                             .then((response) => {
