@@ -173,7 +173,10 @@ let actions = {
                     resolve(response);
                 })
                 .catch((error) => {
-                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                    const blob = new Blob([error.response.data], {type: 'application/json'});
+                    blob.text().then((res) => {
+                        commit('SNACKBAR/ERROR', JSON.parse(res).message, {root: true});
+                    })
                     reject(error);
                 });
         });
@@ -193,7 +196,10 @@ let actions = {
                     resolve(response);
                 })
                 .catch((error) => {
-                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                    const blob = new Blob([error.response.data], {type: 'application/json'});
+                    blob.text().then((res) => {
+                        commit('SNACKBAR/ERROR', JSON.parse(res).message, {root: true});
+                    })
                     reject(error);
                 });
         });

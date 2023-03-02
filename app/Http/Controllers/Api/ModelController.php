@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IndexRequest;
 use App\Http\Requests\ModelRequest;
@@ -34,7 +35,6 @@ class ModelController extends Controller
      */
     public function index(IndexRequest $request)
     {
-        //
         $permission = Str::before($request->route()->getName(), '.') . '.full';
         $res = $this->service->index($request)->paginate($request->itemsPerPage);
         if ($request->user()->can($permission) || !$this->resource) {
