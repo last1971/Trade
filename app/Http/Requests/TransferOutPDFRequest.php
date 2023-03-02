@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\RightCountryRule;
+use App\Rules\RightUnitRule;
 use App\TransferOut;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -53,7 +54,7 @@ class TransferOutPDFRequest extends FormRequest
             'body' => 'boolean',
             'producer' => 'boolean',
             'category' => 'boolean',
-            'divider' => ['boolean', new RightCountryRule($this->transferOut)],
+            'divider' => ['boolean', new RightCountryRule($this->transferOut), new RightUnitRule($this->transferOut)],
         ];
     }
 }

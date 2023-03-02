@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Exports\SbisExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SbisRequest;
+use App\Rules\RightCountryRule;
+use App\Rules\RightUnitRule;
 use App\Services\SbisService;
 use App\Services\TransferOutLineService;
 use App\Services\TransferOutService;
@@ -32,6 +34,9 @@ class SbisController extends Controller
             'filterOperators' => ['=', 'BETWEENDATE'],
             'filterValues' => [$request->buyerId, [$request->date, Carbon::create($request->date)->addDay()]],
         ]))->get();
+        foreach ($transferOuts as $transferOut) {
+            $this->validate($request, ['date' => [new RightUnitRule($transferOut), new RightCountryRule($transferOut)]]);
+        }
         foreach ($transferOuts as $transferOut) {
             $sbisService->exportTransferOut($transferOutService->xml(collect(compact('transferOut'))));
         }

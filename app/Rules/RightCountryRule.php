@@ -3,23 +3,18 @@
 namespace App\Rules;
 
 use App\TransferOut;
-use Illuminate\Contracts\Validation\Rule;
 
-class RightCountryRule implements Rule
+class RightCountryRule extends TransferOutRule
 {
-    private TransferOut $transferOut;
-
     private array $countryCodes;
-
-    private string $message;
-    /**
+/**
      * Create a new rule instance.
      *
      * @return void
      */
     public function __construct(TransferOut $transferOut)
     {
-        $this->transferOut = $transferOut;
+        parent::__construct($transferOut);
         $this->countryCodes = config('country_codes');
     }
 
@@ -43,15 +38,5 @@ class RightCountryRule implements Rule
             }
         }
         return $ret;
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return $this->message;
     }
 }

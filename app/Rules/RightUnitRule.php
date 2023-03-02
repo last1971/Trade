@@ -2,18 +2,21 @@
 
 namespace App\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use App\TransferOut;
+use Carbon\Carbon;
 
-class RightUnitRule implements Rule
+class RightUnitRule extends TransferOutRule
 {
+    private array $units;
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(TransferOut $transferOut)
     {
-        //
+        parent::__construct($transferOut);
+        $this->units = config('unit_codes');
     }
 
     /**
@@ -25,16 +28,16 @@ class RightUnitRule implements Rule
      */
     public function passes($attribute, $value)
     {
-        //
-    }
-
-    /**
-     * Get the validation error message.
-     *
-     * @return string
-     */
-    public function message()
-    {
-        return 'The validation error message.';
+        $ret = true;
+        /** @var TransferOut $transferOutLine */
+        foreach ($this->transferOut->transferOutLines as $transferOutLine) {
+            if (!array_key_exists(\Str::upper($transferOutLine->good->UNIT_I), $this->units)) {
+                $this->message = 'Давай в крокодилах считать будем ' . $transferOutLine->good->name->NAME .
+                ', a не в ' . $transferOutLine->good->UNIT_I;
+                $ret = false;
+                break;
+            }
+        }
+        return $ret;
     }
 }
