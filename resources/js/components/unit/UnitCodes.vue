@@ -7,6 +7,8 @@
                   :options.sync="options"
                   :server-items-length="total"
                   item-key="id"
+                  :single-expand="true"
+                  show-expand
     >
         <template v-slot:top>
             <v-card class="d-flex flex-row ma-2">
@@ -21,18 +23,26 @@
         <template v-slot:item.name="{ item }">
             <edit-field @save="save" attribute="name" v-model="item"/>
         </template>
+        <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length" :key="item.id">
+                <v-card>
+                    <unit-code-alias v-model="item" @reload="updateItems" class="my-4"/>
+                </v-card>
+            </td>
+        </template>
     </v-data-table>
 </template>
 
 <script>
-import tableMixin from "../mixins/tableMixin";
-import utilsMixin from "../mixins/utilsMixin";
-import EditField from "./EditField.vue";
+import tableMixin from "../../mixins/tableMixin";
+import utilsMixin from "../../mixins/utilsMixin";
+import EditField from "../EditField.vue";
 import UnitCodeAdd from "./UnitCodeAdd.vue";
+import UnitCodeAlias from "./UnitCodeAlias.vue";
 
 export default {
     name: "UnitCodes",
-    components: {UnitCodeAdd, EditField},
+    components: {UnitCodeAlias, UnitCodeAdd, EditField},
     mixins: [tableMixin, utilsMixin],
     data() {
         return {

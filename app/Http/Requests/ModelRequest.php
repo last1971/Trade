@@ -82,6 +82,7 @@ class ModelRequest extends FormRequest
             case 'advanced-buyer.destroy':
             case 'order-line.destroy':
             case 'invoice-line.destroy':
+            case 'unit-code-alias.destroy':
                 $rules = [];
                 break;
             case 'advanced-buyer.store':
@@ -267,6 +268,12 @@ class ModelRequest extends FormRequest
             case 'unit-code.update':
                 $rules += [
                     'item.code' => 'digits_between:3,3|unique:unit_codes,code,' . $this->route('unit_code'),
+                    'item.name' => 'string|min:1',
+                ];
+                break;
+            case 'unit-code-alias.store':
+            case 'unit-code-alias.update':
+                $rules += [
                     'item.name' => 'string|min:1',
                 ];
                 break;

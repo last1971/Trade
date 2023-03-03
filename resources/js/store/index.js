@@ -41,6 +41,7 @@ import sellerPrice from "./sellerPrice";
 import storeLine from "./storeLine";
 import sellerOrder from "./sellerOrder";
 import unitCode from "./unitCode";
+import unitCodeAlias from "./unitCodeAlias";
 
 Vue.use(Vuex);
 
@@ -96,5 +97,6 @@ export default new Vuex.Store({
         'TRANSFER-OUT-LINE': transferOutLine,
         USER: user,
         'UNIT-CODE': unitCode,
+        'UNIT-CODE-ALIAS': unitCodeAlias,
     }
 })

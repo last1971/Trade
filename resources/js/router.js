@@ -24,7 +24,7 @@ import RetailSalesAndRefunds from "./components/Retail/RetailSalesAndRefunds";
 import ExchangeRates from "./components/ExchangeRates";
 import PaymentTabs from "./components/payment/PaymentTabs";
 import SellerPrices from "./components/seller/SellerPrices";
-import UnitCodes from "./components/UnitCodes.vue";
+import UnitCodes from "./components/unit/UnitCodes.vue";
 
 Vue.use(VueRouter);
 

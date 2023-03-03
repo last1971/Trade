@@ -9,6 +9,8 @@ class UnitCodeAlias extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+
     protected $fillable = ['unit_code_id', 'name'];
 
     public function unitCode()
