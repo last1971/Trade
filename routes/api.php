@@ -62,7 +62,9 @@ Route::middleware('auth:api')->group(function () {
         'transfer-out' => 'Api\TransferOutController',
         'transfer-out-line' => 'Api\TransferOutLineController',
         'user' => 'Api\UserController',
-        'user-option' => 'Api\UserOptionController'
+        'user-option' => 'Api\UserOptionController',
+        'unit-code' => 'Api\UnitCodeController',
+        'unit-code-alias' => 'Api\UnitCodeAliasController',
     ]);
 
     Route::get('retail-sale', 'Api\RetailSaleController@index')->name('retail-sale.index');

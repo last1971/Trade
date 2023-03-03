@@ -150,6 +150,7 @@
                     {id: 8, text: 'СБИС', to: {name: 'sbis'}, icon: 'mdi-electron-framework'},
                     {id: 9, text: 'Покупатели+', to: {name: 'advanced-buyer'}, icon: 'mdi-account-plus'},
                     {id: 10, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
+                    {id: 15, text: 'Ед.изм.', to: {name: 'unit-code'}, icon: 'mdi-numeric-9-plus'},
                     {id: 14, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
                 ]
         }),

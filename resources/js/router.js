@@ -24,6 +24,7 @@ import RetailSalesAndRefunds from "./components/Retail/RetailSalesAndRefunds";
 import ExchangeRates from "./components/ExchangeRates";
 import PaymentTabs from "./components/payment/PaymentTabs";
 import SellerPrices from "./components/seller/SellerPrices";
+import UnitCodes from "./components/UnitCodes.vue";
 
 Vue.use(VueRouter);
 
@@ -155,6 +156,12 @@ const routes = [
         path: '/sbis',
         component: SbisComponent,
         meta: {requiresAuth: true, permission: 'sbis.show'},
+    },
+    {
+        name: 'unit-code',
+        path: '/unit-code',
+        component: UnitCodes,
+        meta: {requiresAuth: true, permission: 'unit-code.show'},
     },
     {
         name: 'test',

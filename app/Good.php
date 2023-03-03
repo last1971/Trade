@@ -44,14 +44,24 @@ class Good extends Model
         $this->attributes['YEARP'] = $value ?? '-';
     }
 
+    public function getUnitCodeAliasAttribute()
+    {
+        return \Cache::remember(
+            'UnitCodeAlias=' . $this->getAttributes()['UNIT_I'],
+            6000,
+            fn() => UnitCodeAlias::query()
+                ->with('unitCode')
+                ->firstWhere('name', $this->getAttributes()['UNIT_I']),
+        );
+    }
     public function getUnitCodeAttribute()
     {
-        return config('unit_codes')[trim(Str::upper($this->getAttributes()['UNIT_I']))];
+        return $this->unitCodeAlias?->unitCode->code;
     }
 
     public function getUnitNameAttribute()
     {
-        return config('unit')[$this->unitCode];
+        return $this->unitCodeAlias?->unitCode->name;
     }
 
     public function category()

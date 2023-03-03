@@ -40,6 +40,7 @@ import firmHistory from "./firmHistory";
 import sellerPrice from "./sellerPrice";
 import storeLine from "./storeLine";
 import sellerOrder from "./sellerOrder";
+import unitCode from "./unitCode";
 
 Vue.use(Vuex);
 
@@ -94,5 +95,6 @@ export default new Vuex.Store({
         'TRANSFER-OUT': transferOut,
         'TRANSFER-OUT-LINE': transferOutLine,
         USER: user,
+        'UNIT-CODE': unitCode,
     }
 })

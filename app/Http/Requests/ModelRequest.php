@@ -263,6 +263,13 @@ class ModelRequest extends FormRequest
                     'item.rules' => 'array',
                 ];
                 break;
+            case 'unit-code.store':
+            case 'unit-code.update':
+                $rules += [
+                    'item.code' => 'digits_between:3,3|unique:unit_codes,code,' . $this->route('unit_code'),
+                    'item.name' => 'string|min:1',
+                ];
+                break;
             default:
                 throw new Error('Need validation rules for ' . $this->route()->getName());
         }

@@ -36,6 +36,8 @@ class RolesAndPermissionsSeeder extends Seeder
         'store-line',
         'transfer-out',
         'transfer-out-line',
+        'unit-code',
+        'unit-code-alias',
         'user'
     ];
 
@@ -121,6 +123,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'store-line.*',
             'transfer-out.*',
             'transfer-out-line.*',
+            'unit-code.*',
+            'unit-code-alias.*',
             'user.*'
         ]);
 
