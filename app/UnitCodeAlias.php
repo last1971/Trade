@@ -17,4 +17,15 @@ class UnitCodeAlias extends Model
     {
         return $this->belongsTo(UnitCode::class);
     }
+
+    public static function rmember(string $alias)
+    {
+        return \Cache::remember(
+            'UnitCodeAlias=' . $alias,
+            6000,
+            fn() => UnitCodeAlias::query()
+                ->with('unitCode')
+                ->firstWhere('name', $alias),
+        );
+    }
 }

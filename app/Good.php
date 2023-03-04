@@ -46,13 +46,7 @@ class Good extends Model
 
     public function getUnitCodeAliasAttribute()
     {
-        return \Cache::remember(
-            'UnitCodeAlias=' . $this->getAttributes()['UNIT_I'],
-            6000,
-            fn() => UnitCodeAlias::query()
-                ->with('unitCode')
-                ->firstWhere('name', $this->getAttributes()['UNIT_I']),
-        );
+        return UnitCodeAlias::rmember($this->getAttributes()['UNIT_I']);
     }
     public function getUnitCodeAttribute()
     {

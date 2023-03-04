@@ -3,11 +3,11 @@
 namespace App\Rules;
 
 use App\TransferOut;
+use App\UnitCodeAlias;
 use Carbon\Carbon;
 
 class RightUnitRule extends TransferOutRule
 {
-    private array $units;
     /**
      * Create a new rule instance.
      *
@@ -16,7 +16,6 @@ class RightUnitRule extends TransferOutRule
     public function __construct(TransferOut $transferOut)
     {
         parent::__construct($transferOut);
-        $this->units = config('unit_codes');
     }
 
     /**
@@ -31,7 +30,8 @@ class RightUnitRule extends TransferOutRule
         $ret = true;
         /** @var TransferOut $transferOutLine */
         foreach ($this->transferOut->transferOutLines as $transferOutLine) {
-            if (!array_key_exists(\Str::upper($transferOutLine->good->UNIT_I), $this->units)) {
+            $alias = UnitCodeAlias::rmember($transferOutLine->good->UNIT_I);
+            if (!$alias) {
                 $this->message = 'Давай в крокодилах считать будем ' . $transferOutLine->good->name->NAME .
                 ', a не в ' . $transferOutLine->good->UNIT_I;
                 $ret = false;
