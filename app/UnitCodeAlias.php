@@ -18,7 +18,7 @@ class UnitCodeAlias extends Model
         return $this->belongsTo(UnitCode::class);
     }
 
-    public static function rmember(string $alias)
+    public static function remember(?string $alias)
     {
         return \Cache::remember(
             'UnitCodeAlias=' . $alias,

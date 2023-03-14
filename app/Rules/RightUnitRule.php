@@ -30,7 +30,7 @@ class RightUnitRule extends TransferOutRule
         $ret = true;
         /** @var TransferOut $transferOutLine */
         foreach ($this->transferOut->transferOutLines as $transferOutLine) {
-            $alias = UnitCodeAlias::rmember($transferOutLine->good->UNIT_I);
+            $alias = UnitCodeAlias::remember($transferOutLine->good->UNIT_I);
             if (!$alias) {
                 $this->message = 'Давай в крокодилах считать будем ' . $transferOutLine->good->name->NAME .
                 ', a не в ' . $transferOutLine->good->UNIT_I;

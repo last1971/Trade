@@ -46,7 +46,7 @@ class Good extends Model
 
     public function getUnitCodeAliasAttribute()
     {
-        return UnitCodeAlias::rmember($this->getAttributes()['UNIT_I']);
+        return UnitCodeAlias::remember($this->getAttributes()['UNIT_I']);
     }
     public function getUnitCodeAttribute()
     {
