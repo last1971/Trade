@@ -6,7 +6,7 @@ namespace App\Services;
 
 use App\Http\Requests\SellerPriceRequest;
 use App\Http\Resources\SellerPriceResource;
-use App\Jobs\ProcessUpdateSellerPrices;
+use App\Interfaces\ISellerPriceable;
 use App\SellerPriceRule;
 use App\Services\Pricing\DataBase;
 use Error;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class SellerPriceService
+class SellerPriceService implements ISellerPriceable
 {
     /**
      * @var string

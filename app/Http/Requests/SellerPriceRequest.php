@@ -27,7 +27,9 @@ class SellerPriceRequest extends FormRequest
         return [
             'search' => 'required|string|min:3',
             'isUpdate' => 'nullable|in:true,false',
-            'sellerId' => 'required|integer',
+            'sellerId' => 'required_without:sellerIds|integer',
+            'sellerIds' => 'required_without:sellerId|array',
+            'sellerIds.*' => 'integer',
         ];
     }
 

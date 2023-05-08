@@ -199,21 +199,42 @@ export default {
                 this.$store.commit('SELLER-PRICE/SELLER_SELECT', selectedSellerId);
                 await Promise.all(this.handlers);
                 this.loading = true;
-                this.handlers = this.sellers
+                const sellers = this.sellers
                     .filter((seller) => seller.isApi)
-                    .map((seller) => {
-                        seller.loading = true;
-                        return this.$store.dispatch('SELLER-PRICE/GET', {sellerId: seller.sellerId, search})
-                            .then(() => { seller.loading = false; }
-                        )
-                    })
+                    .reduce((map, seller) => {
+                        if (seller.rate < 2000) map[0].push(seller);
+                        if (seller.rate >= 2000 && seller.rate <= 5000) map[1].push(seller);
+                        if (seller.rate > 5000) map[2].push(seller);
+                        return map;
+                    }, [[], [], []]);
+                this.handlers = sellers.filter((seller) => !_.isEmpty(seller)).map((sellersArray) => {
+                    sellersArray.forEach((seller) => seller.loading = true);
+                    return this.$store.dispatch(
+                        'SELLER-PRICE/GET',
+                        {
+                            sellerIds: sellersArray.map((seller) => seller.sellerId),
+                            search
+                        }
+                    ).then(() => sellersArray.forEach((seller) => seller.loading = false))
+                });
+
+
+
+                //    this.sellers
+                //    .filter((seller) => seller.isApi)
+                    //.map((seller) => {
+                    //    seller.loading = true;
+                    //    return this.$store.dispatch('SELLER-PRICE/GET', {sellerId: [seller.sellerId], search})
+                    //        .then(() => { seller.loading = false; }
+                    //    )
+                    //})
                 await Promise.all(this.handlers);
             } catch (e) {
                 console.log(e)
             } finally {
                 this.loading = false;
             }
-        }, 1000),
+        }, 2000),
         async items(items) {
             await this.goodPromise;
             const goodIds = _.filter(
