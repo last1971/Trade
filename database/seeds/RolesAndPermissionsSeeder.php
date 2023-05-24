@@ -72,6 +72,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'sbis.show', 'guard_name' => 'api']);
 
         Permission::query()->firstOrCreate(['name' => 'nav.*', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.advanced-buyer', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.home', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.goods', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.goods-list', 'guard_name' => 'api']);
@@ -153,6 +154,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $manager = Role::query()->firstOrCreate(['name' => 'manager', 'guard_name' => 'api']);
         $manager->syncPermissions([
+            'nav.advanced-buyer',
             'nav.home',
             'nav.goods',
             'nav.goods-list',
@@ -161,6 +163,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.orders',
             'nav.sbis',
             'nav.transfer-outs',
+            'advanced-buyer.*',
             'buyer.*',
             'category.*',
             'employee.index',
