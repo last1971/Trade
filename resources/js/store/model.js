@@ -206,7 +206,15 @@ let actions = {
     },
     async RECEIPT({getters, commit}, payload) {
         try {
-            await axios.get(getters.URL + '/receipt/' + payload);
+            const response = await axios.get(
+                getters.URL + '/receipt/' + payload,
+                {responseType: 'blob'}
+            );
+           const file = new Blob(
+                [response.data],
+                {type: 'application/pdf'});
+            const fileURL = URL.createObjectURL(file);
+            window.open(fileURL);
         } catch (error) {
             commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
         }

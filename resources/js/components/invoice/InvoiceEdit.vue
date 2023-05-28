@@ -95,7 +95,7 @@
                     <v-btn @click="download('xlsx')" fab>
                         <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>
-                    <v-btn @click="receipt" fab v-if="isAdmin">
+                    <v-btn @click="receipt" fab v-if="!notCan">
                         <v-icon color="primary">mdi-paper-roll</v-icon>
                     </v-btn>
                 </v-speed-dial>

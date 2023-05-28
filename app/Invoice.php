@@ -83,4 +83,9 @@ class Invoice extends Model
             'REALPRICECODE'
         );
     }
+
+    public function pickUps()
+    {
+        return $this->hasMany('App\PickUp', 'SCODE', 'SCODE');
+    }
 }

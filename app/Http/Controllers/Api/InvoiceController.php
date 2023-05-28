@@ -69,8 +69,9 @@ class InvoiceController extends ModelController
      * @throws GuzzleException
      * @throws Throwable
      */
-    public function receipt(Invoice $invoice, IndexRequest $request, AtolService $atol)
+    public function receipt(Invoice $invoice, IndexRequest $request) //, AtolService $atol)
     {
+        /*
         try {
             $lines = $invoice->invoiceLines()->with('good.name')->get();
             $atol->operator = $request->user();
@@ -89,5 +90,17 @@ class InvoiceController extends ModelController
         } catch (\Exception $e) {
             throw new ApiException($e->getMessage());
         }
+        */
+        $pickUps  = $invoice
+            ->pickUps()
+            ->with('good.name')
+            ->whereRaw('QUANSKLADNEED - QUANSKLAD > 0')
+            ->get();
+        $employee = $request->user()->employee;
+        $pdf = PDF::loadView(
+            'stock-etik', compact('employee', 'invoice', 'pickUps')
+        );
+        $pdf->setPaper([0, 0, 219, 151]);
+        return $pdf->download('test-etik.pdf');
     }
 }
