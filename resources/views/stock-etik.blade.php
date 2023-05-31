@@ -10,33 +10,32 @@
     </head>
     <body>
         @foreach($pickUps as $pickUp)
-        <div style="page-break-after: {{ $loop->last ? 'avoid' : 'always' }}">
-            <p style="font-size: 11px; text-align: center;">{{ $invoice->firm->FIRMNAME }}</p>
-        <table style="border-spacing: 0px;">
+        <table style="border-spacing: 0px; page-break-after: {{ $loop->last ? 'avoid' : 'always' }}">
             <tbody>
-                <tr style="font-size: 9px;" >
-                    <td><b>Наименование:</b></td>
-                    <td>{{ $pickUp->good->name->NAME }}</td>
+                <tr>
+                    <td style="font-size: 10px;">Наименование:</td>
+                    <td style="font-size: 12px;"><b>{{ $pickUp->good->name->NAME }}</b></td>
                 </tr>
-                <tr style="font-size: 9px;">
-                    <td><b>Покупатель:</b></td>
-                    <td>{{ $invoice->buyer->SHORTNAME }}</td>
+                <tr>
+                    <td style="font-size: 10px;">Покупатель:</td>
+                    <td style="font-size: 12px;"><b>{{ $invoice->buyer->SHORTNAME }}</b></td>
                 </tr>
-                <tr style="font-size: 13px;">
-                    <td><b>Номер счета:</b></td>
-                    <td>{{ $invoice->NS }}</td>
+                <tr>
+                    <td style="font-size: 10px;">Номер счета:</td>
+                    <td style="font-size: 16px;"><b>{{ $invoice->NS }}</b></td>
                 </tr>
-                <tr style="font-size: 13px;">
-                    <td><b>Количество:</b></td>
-                    <td>{{ $pickUp->QUANSKLADNEED - $pickUp->QUANSKLAD }}</td>
+                <tr>
+                    <td style="font-size: 10px;">Количество:</td>
+                    <td style="font-size: 20px;"><b>{{ $pickUp->QUANSKLADNEED -
+                    $pickUp->QUANSKLAD }}</b></td>
                 </tr>
-                <tr style="font-size: 7px;">
-                    <td><b>Подобрано:</b></td>
-                    <td>{{ \Carbon\Carbon::now()->format('d.m.Y H:i') }}</td>
+                <tr>
+                    <td style="font-size: 10px;">Подобрано:</td>
+                    <td style="font-size: 10px;"><b>{{ \Carbon\Carbon::now()->format('d.m.Y H:i') }}</b></td>
                 </tr>
-                <tr style="font-size: 7px;">
-                    <td><b>Сотрудник</b></td>
-                    <td>{{ $employee->FULLNAME }}</td>
+                <tr>
+                    <td style="font-size: 10px;">Сотрудник</td>
+                    <td style="font-size: 10px;"><b>{{ $employee->FULLNAME }}</b></td>
                 </tr>
             </tbody>
         </table>
