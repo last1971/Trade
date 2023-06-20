@@ -160,10 +160,10 @@ export default {
             return this.model.transferOutLinesSum > 0;
         },
         savePossible() {
-            const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
-            const b = _.pick(_.omit(this.model, ['DATA']), this.fillable);
-            const d = this.value.DATA ? this.value.DATA.substr(0, 10) : undefined;
-            return _.isEqual(a, b) && this.model.DATA === d;
+            //const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
+            //const b = _.pick(_.omit(this.model, ['DATA']), this.fillable);
+            //const d = this.value.DATA ? this.value.DATA.substr(0, 10) : undefined;
+            return _.isEqual(this.value, this.model); //&& this.model.DATA === d;
         },
         notCan() {
             return !this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
