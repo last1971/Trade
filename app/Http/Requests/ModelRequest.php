@@ -80,6 +80,7 @@ class ModelRequest extends FormRequest
         ];
         switch ($this->route()->getName()) {
             case 'advanced-buyer.destroy':
+            case 'cash-flow.destroy':
             case 'order-line.destroy':
             case 'invoice-line.destroy':
             case 'unit-code-alias.destroy':
@@ -90,6 +91,12 @@ class ModelRequest extends FormRequest
                 $rules += [
                     'item.edo_id' => 'required|string|unique:App\AdvancedBuyer,edo_id',
                     'item.buyer_id' => 'required|integer|unique:App\AdvancedBuyer,buyer_id',
+                ];
+                break;
+            case 'cash-flow.store':
+                $rules += [
+                    'item.NPP' => 'nullable|integer|min:1',
+                    'item.MONEYSCHET' => 'required|numeric|min:0.01'
                 ];
                 break;
             case 'good.store':

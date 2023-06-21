@@ -9,6 +9,7 @@ class RolesAndPermissionsSeeder extends Seeder
     private $models = [
         'advanced-buyer',
         'buyer',
+        'cash-flow',
         'category',
         'employee',
         'firm',
@@ -93,6 +94,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.*',
             'advanced-buyer.*',
             'buyer.*',
+            'cash-flow.*',
             'category.*',
             'employee.*',
             'exchange-rate.index',

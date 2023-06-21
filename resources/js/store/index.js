@@ -42,6 +42,7 @@ import storeLine from "./storeLine";
 import sellerOrder from "./sellerOrder";
 import unitCode from "./unitCode";
 import unitCodeAlias from "./unitCodeAlias";
+import cashFlow from "./cashFlow";
 
 Vue.use(Vuex);
 
@@ -60,6 +61,7 @@ export default new Vuex.Store({
         AUTH: auth,
         BREADCRUMBS: breadcrumbs,
         BUYER: buyer,
+        'CASH-FLOW': cashFlow,
         CATEGORY: category,
         'EXCHANGE-RATE': exchangeRate,
         EMPLOYEE: employee,

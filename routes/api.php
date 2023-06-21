@@ -39,6 +39,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResources([
         'advanced-buyer' => 'Api\AdvancedBuyerController',
         'buyer' => 'Api\BuyerController',
+        'cash-flow' => 'Api\CashFlowController',
         'category' => 'Api\CategoryController',
         'employee' => 'Api\EmployeeController',
         'firm' => 'Api\FirmController',
