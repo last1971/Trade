@@ -56,7 +56,6 @@
 </template>
 
 <script>
-    import {value} from "lodash/seq";
     import DatePicker from "./DatePicker.vue";
     import utilsMixin from "../mixins/utilsMixin";
     import moment from "moment";
@@ -126,11 +125,11 @@
                     );
                     this.cashFlow = {
                         MONEYSCHET: 0,
-                        NS: value.NS,
+                        NS: this.value.NS,
                         DATA: moment().format('Y-MM-DD'),
-                        POKUPATCODE: value.POKUPATCODE,
+                        POKUPATCODE: this.value.POKUPATCODE,
                         NPP: null,
-                        SCODE: value.SCODE,
+                        SCODE: this.value.SCODE,
                         PRIM: null,
                         SFCODE1: null,
                     };
@@ -139,6 +138,7 @@
 
                 }
                 this.loading = false;
+                this.isActiveProxy = false;
             },
             change(payload) {
                 this.cashFlow.SFCODE1 = payload.SFCODE;

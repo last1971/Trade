@@ -20,7 +20,7 @@
                 <v-spacer/>
                 <span class="headline">{{ amountText }}</span>
                 <v-spacer/>
-                <cash-flow-add v-model="value" @updated="updateItems(false)" :disabled="addPossible"/>
+                <cash-flow-add v-model="value" @updated="reloadValue(true)" :disabled="addPossible"/>
                 <v-spacer/>
                 <v-btn @click="isActiveProxy = false" icon right>
                     <v-icon color="red">
@@ -165,9 +165,9 @@
                 };
                 const newValue = await this.$store.dispatch('INVOICE/GET', payload);
                 this.$emit('input', newValue);
-                if (reloadLines) this.updateItems(false);
+                if (reloadLines) await this.updateItems(false);
                 this.loading = false;
-            }
+            },
         }
     }
 
