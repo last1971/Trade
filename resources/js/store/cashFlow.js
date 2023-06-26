@@ -30,6 +30,10 @@ state.headers = [
         value: 'PRIM',
     },
     {
+        text: 'Кто занес',
+        value: 'USERNAME',
+    },
+    {
         text: 'УПД',
         value: 'transferOut.NSF',
         align: 'center',

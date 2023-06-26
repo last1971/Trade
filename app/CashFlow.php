@@ -12,7 +12,7 @@ class CashFlow extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['MONEYSCHET', 'NS', 'DATA', 'POKUPATCODE', 'NPP', 'SCODE', 'PRIM', 'SFCODE1'];
+    protected $fillable = ['MONEYSCHET', 'NS', 'DATA', 'POKUPATCODE', 'NPP', 'SCODE', 'PRIM', 'SFCODE1', 'USERNAME'];
 
     protected $connection = 'firebird';
 

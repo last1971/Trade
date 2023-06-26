@@ -91,7 +91,7 @@
             return {
                 isActiveProxy: this.isActive,
                 cashFlow: {
-                    MONEYSCHET: 0,
+                    MONEYSCHET: parseFloat(this.value.invoiceLinesSum) - parseFloat(this.value.cashFlowsSum),
                     NS: this.value.NS,
                     DATA: moment().format('Y-MM-DD'),
                     POKUPATCODE: this.value.POKUPATCODE,
@@ -101,6 +101,11 @@
                     SFCODE1: null,
                 },
                 loading: false,
+            }
+        },
+        watch:  {
+            value() {
+                this.cashFlow.MONEYSCHET = parseFloat(this.value.invoiceLinesSum) - parseFloat(this.value.cashFlowsSum);
             }
         },
         computed: {
@@ -124,7 +129,9 @@
                         },
                     );
                     this.cashFlow = {
-                        MONEYSCHET: 0,
+                        MONEYSCHET: parseFloat(this.value.invoiceLinesSum)
+                            - parseFloat(this.value.cashFlowsSum)
+                            - this.cashFlow.MONEYSCHET,
                         NS: this.value.NS,
                         DATA: moment().format('Y-MM-DD'),
                         POKUPATCODE: this.value.POKUPATCODE,
@@ -133,12 +140,12 @@
                         PRIM: null,
                         SFCODE1: null,
                     };
-                    this.$emit('updated')
+                    this.$emit('updated');
+                    this.isActiveProxy = false;
                 } catch (e) {
 
                 }
                 this.loading = false;
-                this.isActiveProxy = false;
             },
             change(payload) {
                 this.cashFlow.SFCODE1 = payload.SFCODE;

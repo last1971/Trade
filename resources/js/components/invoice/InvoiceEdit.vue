@@ -36,7 +36,10 @@
                 <v-text-field :disabled="true" :value="model.invoiceLinesSum | formatRub" label="Сумма"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <v-text-field :disabled="true" :value="model.cashFlowsSum | formatRub" label="Оплачено"/>
+                <cash-flows-modal v-model="model"
+                                  :text="model.cashFlowsSum"
+                                  x-large
+                />
             </v-col>
             <v-col cols="12" sm="auto">
                 <v-text-field :disabled="true" :value="model.transferOutLinesSum | formatRub" label="Отгружено"/>
@@ -131,10 +134,12 @@ import FirmHistorySelect from "../FirmHistorySelect";
 import DatePicker from "../DatePicker";
 import EmployeeSelect from "../EmployeeSelect";
 import {mapGetters} from "vuex";
+import CashFlowsModal from "../CashFlowsModal.vue";
 
 export default {
     name: "InvoiceEdit",
     components: {
+        CashFlowsModal,
         EmployeeSelect,
         DatePicker,
         FirmHistorySelect,

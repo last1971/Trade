@@ -8,7 +8,11 @@
                    :rounded="rounded"
                    :class="textClass"
                    :disabled="notCanCashFlow"
+                   :x-large="xLarge"
             >
+                <slot v-if="xLarge" name="prepend">
+                    <label>Оплачено</label>&nbsp
+                </slot>
                 <slot name="button">
                     {{ text | formatRub }}
                 </slot>
@@ -87,6 +91,10 @@
                 default: false,
             },
             xSmall: {
+                type: Boolean,
+                default: false,
+            },
+            xLarge: {
                 type: Boolean,
                 default: false,
             },
