@@ -3,6 +3,7 @@
 namespace App;
 
 use App\ModelTraits\InsertTrait;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class CashFlow extends Model
@@ -22,6 +23,10 @@ class CashFlow extends Model
 
     protected $table = 'SCHET';
 
+    protected function MONEYSCHET(): Attribute
+    {
+        return Attribute::set(fn($value) => floatval($value));
+    }
     public function invoice()
     {
         return $this->belongsTo('App\Invoice', 'SCODE', 'SCODE');

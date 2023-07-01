@@ -55,8 +55,25 @@
                 <template v-slot:item.DATA="{ item }">
                     {{ item.DATA | formatDate }}
                 </template>
+                <template v-slot:item.NPP="{ item }">
+                    <edit-field
+                        attribute="NPP"
+                        v-model="item"
+                        :rules="[rules.isInteger, rules.positive]"
+                        @save="save"
+                    />
+                </template>
                 <template v-slot:item.MONEYSCHET="{ item }">
-                    {{ item.MONEYSCHET | formatRub }}
+                    <edit-field
+                        attribute="MONEYSCHET"
+                        v-model="item"
+                        :rules="[rules.isNumber, rules.positive, rules.required]"
+                        @save="save"
+                    >
+                        <template v-slot:cell>
+                            {{ item.MONEYSCHET | formatRub }}
+                        </template>
+                    </edit-field>
                 </template>
             </v-data-table>
         </v-card>
@@ -68,10 +85,11 @@
     import utilsMixin from "../mixins/utilsMixin";
     import tableOptionsRouteMixin from "../mixins/tableOptionsRouteMixin";
     import CashFlowAdd from "./CashFlowAdd.vue";
+    import EditField from "./EditField.vue";
 
     export default {
         name: 'CashFlowsModal',
-        components: {CashFlowAdd},
+        components: { EditField, CashFlowAdd},
         mixins: [tableMixin, utilsMixin, tableOptionsRouteMixin],
         props: {
             value: {

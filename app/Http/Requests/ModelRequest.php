@@ -94,6 +94,7 @@ class ModelRequest extends FormRequest
                 ];
                 break;
             case 'cash-flow.store':
+            case 'cash-flow.update':
                 $rules += [
                     'item.NPP' => 'nullable|integer|min:1',
                     'item.MONEYSCHET' => 'required|numeric|min:0.01'

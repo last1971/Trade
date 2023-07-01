@@ -20,6 +20,7 @@
         <v-date-picker @input="datePicker = false"
                        first-day-of-week="1"
                        v-model="proxy"
+                       show-adjacent-months
         />
     </v-menu>
 </template>
