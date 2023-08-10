@@ -8,10 +8,12 @@ use App\Http\Requests\IndexRequest;
 use App\Http\Requests\InvoicePDFRequest;
 use App\Http\Resources\InvoiceResource;
 use App\Invoice;
+use App\PickUp;
 use App\Services\AtolService;
 use App\Services\InvoiceLineService;
 use App\Services\InvoiceService;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
 use PDF;
 use PhpOffice\PhpSpreadsheet\Writer\Exception;
@@ -93,12 +95,24 @@ class InvoiceController extends ModelController
         */
         $pickUps  = $invoice
             ->pickUps()
-            ->with('good.name')
+            ->with('good.name', 'invoiceLine.invoice.buyer')
             ->whereRaw('QUANSKLADNEED - QUANSKLAD > 0')
             ->get();
         $employee = $request->user()->employee;
         $pdf = PDF::loadView(
-            'stock-etik', compact('employee', 'invoice', 'pickUps')
+            'stock-etik', compact('employee', 'pickUps')
+        );
+        $pdf->setPaper([0, 0, 219, 151]);
+        return $pdf->download('test-etik.pdf');
+    }
+    public function etiks(Request $request)
+    {
+        $pickUps  = PickUp::with('good.name', 'invoiceLine.invoice.buyer')
+            ->whereRaw('QUANSKLADNEED - QUANSKLAD > 0')
+            ->get();
+        $employee = $request->user()->employee;
+        $pdf = PDF::loadView(
+            'stock-etik', compact('employee', 'pickUps')
         );
         $pdf->setPaper([0, 0, 219, 151]);
         return $pdf->download('test-etik.pdf');

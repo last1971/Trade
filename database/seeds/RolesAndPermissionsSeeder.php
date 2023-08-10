@@ -68,6 +68,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'goods-list.*', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'invoice.employee', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'invoice.receipt', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'invoice.etiks', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'role.index', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'sbis.*', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'sbis.show', 'guard_name' => 'api']);

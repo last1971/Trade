@@ -4,6 +4,22 @@ const state = {};
 const getters = {};
 const mutations = {};
 const actions = {
+    async ETIKS() {
+        try {
+            const response = await axios.get(
+                'api/invoice/etiks',
+                {responseType: 'blob'}
+            );
+            const file = new Blob(
+                [response.data],
+                {type: 'application/pdf'});
+            const fileURL = URL.createObjectURL(file);
+            window.open(fileURL);
+        } catch (error) {
+            commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+        }
+        return true;
+    },
     XLSX({commit}, payload) {
         return new Promise((resolve, reject) => {
             axios

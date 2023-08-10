@@ -14,15 +14,15 @@
             <tbody>
                 <tr>
                     <td style="font-size: 10px;">Наименование:</td>
-                    <td style="font-size: 12px;"><b>{{ $pickUp->good->name->NAME }}</b></td>
+                    <td style="font-size: 10px;"><b>{{ $pickUp->good->name->NAME }}</b></td>
                 </tr>
                 <tr>
                     <td style="font-size: 10px;">Покупатель:</td>
-                    <td style="font-size: 12px;"><b>{{ $invoice->buyer->SHORTNAME }}</b></td>
+                    <td style="font-size: 12px;"><b>{{ $pickUp->invoiceLine->invoice->buyer->SHORTNAME }}</b></td>
                 </tr>
                 <tr>
                     <td style="font-size: 10px;">Номер счета:</td>
-                    <td style="font-size: 16px;"><b>{{ $invoice->NS }}</b></td>
+                    <td style="font-size: 16px;"><b>{{ $pickUp->invoiceLine->invoice->NS }}</b></td>
                 </tr>
                 <tr>
                     <td style="font-size: 10px;">Количество:</td>
