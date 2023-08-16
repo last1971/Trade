@@ -102,7 +102,7 @@ class InvoiceController extends ModelController
         $pdf = PDF::loadView(
             'stock-etik', compact('employee', 'pickUps')
         );
-        $pdf->setPaper([0, 0, 215, 146]);
+        $pdf->setPaper([0, 0, 161, 110]);
         return $pdf->download('test-etik.pdf');
     }
     public function etiks(Request $request)
@@ -114,7 +114,7 @@ class InvoiceController extends ModelController
         $pdf = PDF::loadView(
             'stock-etik', compact('employee', 'pickUps')
         );
-        $pdf->setPaper([0, 0, 215, 146]);
+        $pdf->setPaper([0, 0, 161, 110]);
         return $pdf->download('test-etik.pdf');
     }
 }
