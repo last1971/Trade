@@ -13,7 +13,8 @@
         <table style="border-spacing: 0px; page-break-after: {{ $loop->last ? 'avoid' : 'always' }}">
             <tbody>
                 <tr>
-                    <td style="font-size: 10px; border-bottom: solid" colspan="2">{{ $pickUp->good->name->NAME }}</td>
+                    <td style="font-size: 10px; border-bottom: solid" colspan="2"><b>{{ $pickUp->good->name->NAME
+                    }}</b></td>
                 </tr>
                 <tr>
                     <td style="font-size: 10px;">Покупатель:</td>
@@ -26,7 +27,7 @@
                 </tr>
                 <tr>
                     <td style="font-size: 10px;">Количество:</td>
-                    <td style="font-size: 20px;"><b>{{ $pickUp->QUANSKLADNEED -
+                    <td style="font-size: 18px;"><b>{{ $pickUp->QUANSKLADNEED -
                     $pickUp->QUANSKLAD }}</b></td>
                 </tr>
                 <tr>
