@@ -420,7 +420,7 @@
                 @if ($transferOut->invoice->NZ && $transferOut->buyer->DOGOVOR)
                     , {{ Str::replace('{NZ}', $transferOut->invoice->NZ, $transferOut->buyer->DOGOVOR) }}
                 @endif
-                @if (Str::contains($transferOut->invoice->PRIM, ['NKB-00000', 'TZP-0000']))
+                @if (Str::contains($transferOut->invoice->PRIM, ['NKB-0000', 'TZP-0000', 'NTC0000']))
                     , {{ $transferOut->invoice->PRIM  }}
                 @endif
             </td>
