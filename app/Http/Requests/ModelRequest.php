@@ -7,6 +7,7 @@ use Error;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ModelRequest extends FormRequest
 {
@@ -89,8 +90,18 @@ class ModelRequest extends FormRequest
             case 'advanced-buyer.store':
             case 'advanced-buyer.update':
                 $rules += [
-                    'item.edo_id' => 'required|string|unique:App\AdvancedBuyer,edo_id',
-                    'item.buyer_id' => 'required|integer|unique:App\AdvancedBuyer,buyer_id',
+                    'item.edo_id' => [
+                        'required',
+                        'integer',
+                        Rule::unique('advanced_buyers','edo_id')
+                            ->ignore($this->route('advanced_buyer') ? $this->route('advanced_buyer') : null),
+                    ],
+                    'item.buyer_id' => [
+                        'required',
+                        'integer',
+                        Rule::unique('advanced_buyers','buyer_id')
+                            ->ignore($this->route('advanced_buyer') ? $this->route('advanced_buyer') : null),
+                    ],
                 ];
                 break;
             case 'cash-flow.store':
