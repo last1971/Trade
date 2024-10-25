@@ -194,6 +194,7 @@
                 @save="save"
                 attribute="IGK"
                 v-model="item"
+                :additional-text="pickUpTime(item)"
             />
         </template>
     </v-data-table>
@@ -273,7 +274,7 @@ export default {
         },
         hasPermission() {
             return this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
-        }
+        },
     },
     methods: {
         previousItem(item) {
@@ -294,6 +295,11 @@ export default {
                 .catch(() => {
                 })
                 .then(() => this.saving = false);
+        },
+        pickUpTime(item) {
+            return item.FINISH_PICKUP && item.START_PICKUP
+                ? 'Начали: ' + item.START_PICKUP + ', Закончили: ' + item.FINISH_PICKUP
+                : null;
         }
     },
     beforeRouteEnter(to, from, next) {
