@@ -12,6 +12,11 @@ state.fillable = ['SCODE', 'GOODSCODE', 'QUAN', 'PRICE', 'SUMMAP', 'PRIM', 'WHER
 state.headers = [
      {text: '', value: 'actions', width: 10, sortable: false},
     {
+        text: 'Артикул',
+        value: 'invoice.GOODSCODE',
+        notInvoiceLines: false,
+    },
+    {
         text: 'Дата',
         value: 'invoice.DATA',
         notInvoiceLines: true,

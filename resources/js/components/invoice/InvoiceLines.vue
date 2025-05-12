@@ -36,6 +36,9 @@
                 </v-btn>
             </v-hover>
         </template>
+        <template v-slot:item.invoice.GOODSCODE="{ item }">
+            {{ item.good.GOODSCODE }}
+        </template>
         <template v-slot:item.name.NAME="{ item }">
             <good-name v-model="item" :prim="remark(item.good)"/>
         </template>
