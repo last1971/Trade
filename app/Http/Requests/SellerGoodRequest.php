@@ -26,7 +26,7 @@ class SellerGoodRequest extends FormRequest
     public function rules()
     {
         return [
-            'goodId' => 'nullable|integer',
+            'goodId' => 'nullable',
         ];
     }
 }

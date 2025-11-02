@@ -30,6 +30,11 @@
         </v-row>
         <v-row>
             <v-col class="d-flex justify-center">
+                <v-btn :loading="etiksLoading" @click="etiks">
+                    Этикетки
+                </v-btn>
+            </v-col>
+            <v-col class="d-flex justify-center">
                 <v-btn :loading="xlsxLoading" @click="xlsx">
                     Скачать список
                 </v-btn>
@@ -66,6 +71,7 @@
                 datePicker: false,
                 buyerId: null,
                 xlsxLoading: false,
+                etiksLoading: false,
                 gtdLoading: false,
                 transferLoading: false,
                 packingListLoading: false,
@@ -80,6 +86,15 @@
             }
         },
         methods: {
+            etiks() {
+                this.etiksLoading = true;
+                this.$store.dispatch('SBIS/ETIKS')
+                    .then(() => {
+                    })
+                    .catch(() => {
+                    })
+                    .then(() => this.etiksLoading = false);
+            },
             xlsx() {
                 const {date, buyerId} = this;
                 this.xlsxLoading = true;

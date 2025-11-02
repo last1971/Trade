@@ -9,6 +9,11 @@
                     v-model="editingValue"
                 />
             </slot>
+            <v-row v-if="additionalText">
+                <v-col>
+                    <small class="grey--text">{{ additionalText }}</small>
+                </v-col>
+            </v-row>
         </template>
     </v-edit-dialog>
 </template>
@@ -20,6 +25,7 @@
             value: {type: Object, required: true},
             attribute: {type: String, required: true},
             rules: {type: Array, default: () => []},
+            additionalText: {type: String, required: false},
             disabled: {type: Boolean, default: false},
         },
         data() {

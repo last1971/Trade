@@ -39,9 +39,9 @@ export default {
     methods: {
         initialModel() {
             this.model = _.cloneDeep(this.value);
-            if (this.model.DATA) {
-                this.model.DATA = this.model.DATA.substr(0, 10);
-            }
+            //if (this.model.DATA) {
+            //    this.model.DATA = this.model.DATA.substr(0, 10);
+            //}
         },
         save() {
             this.loading = true;

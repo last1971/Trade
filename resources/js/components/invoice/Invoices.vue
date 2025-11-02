@@ -165,9 +165,10 @@
             {{ item.invoiceLinesSum | formatRub }}
         </template>
         <template v-slot:item.cashFlowsSum="{ item }">
-            <div :class="compareToColorText(item.invoiceLinesSum, item.cashFlowsSum)">
-                {{ item.cashFlowsSum | formatRub }}
-            </div>
+            <cash-flows-modal v-model="item"
+                              :text="item.cashFlowsSum"
+                              :text-class="compareToColorText(item.invoiceLinesSum, item.cashFlowsSum)"
+            />
         </template>
         <template v-slot:item.transferOutLinesSum="{ item }">
             <div :class="compareToColorText(item.invoiceLinesSum, item.transferOutLinesSum)">
@@ -181,11 +182,19 @@
                 </template>
             </invoice-status-select-inline>
         </template>
+        <template v-slot:item.PRIM="{ item }">
+            <edit-field
+                @save="save"
+                attribute="PRIM"
+                v-model="item"
+            />
+        </template>
         <template v-slot:item.IGK="{ item }">
             <edit-field
                 @save="save"
                 attribute="IGK"
                 v-model="item"
+                :additional-text="pickUpTime(item)"
             />
         </template>
     </v-data-table>
@@ -201,10 +210,11 @@ import InvoicePdf from "./InvoicePdf";
 import EditField from "../EditField";
 import InvoiceStatusSelect from "./InvoiceStatusSelect";
 import InvoiceStatusSelectInline from "./InvoiceStatusSelectInline";
+import CashFlowsModal from "../CashFlowsModal.vue";
 
 export default {
     name: "Invoices",
-    components: {InvoiceStatusSelect, EditField, InvoicePdf, InvoiceStatusSelectInline},
+    components: {CashFlowsModal, InvoiceStatusSelect, EditField, InvoicePdf, InvoiceStatusSelectInline},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {
@@ -264,7 +274,7 @@ export default {
         },
         hasPermission() {
             return this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');
-        }
+        },
     },
     methods: {
         previousItem(item) {
@@ -285,6 +295,11 @@ export default {
                 .catch(() => {
                 })
                 .then(() => this.saving = false);
+        },
+        pickUpTime(item) {
+            return item.FINISH_PICKUP && item.START_PICKUP
+                ? 'Начали: ' + item.START_PICKUP + ', Закончили: ' + item.FINISH_PICKUP
+                : null;
         }
     },
     beforeRouteEnter(to, from, next) {

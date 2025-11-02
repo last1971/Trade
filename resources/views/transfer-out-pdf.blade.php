@@ -122,7 +122,7 @@
                                     <br>
                                     от 26.12.2011 №1137
                                     <br>
-                                    (в ред. Постановления Правительства РФ от 02.04.2021 № 534)
+                                    (в ред. Постановления Правительства РФ от 16.08.2024 № 1096)
                                 </td>
                             </tr>
                             </tbody>
@@ -189,7 +189,7 @@
                 <tr>
                     <td>Документ об отгрузке</td>
                     <td width="75%" class="bottom-border">
-                        № п/п 1 - {{ $transferOutLines->count() }} № {{ $transferOut->NSF }} от {{(new Date($transferOut->DATA))->format('j F Y г.')}}
+                        УПД, № п/п 1 - {{ $transferOutLines->count() }} № {{ $transferOut->NSF }} от {{ (new Date($transferOut->DATA))->format('j F Y г.') }}
                     </td>
                     <td width="3%" class="centred">(5a)</td>
                 </tr>
@@ -420,7 +420,7 @@
                 @if ($transferOut->invoice->NZ && $transferOut->buyer->DOGOVOR)
                     , {{ Str::replace('{NZ}', $transferOut->invoice->NZ, $transferOut->buyer->DOGOVOR) }}
                 @endif
-                @if (Str::contains($transferOut->invoice->PRIM, ['NKB-00000', 'TZP-0000']))
+                @if (Str::contains($transferOut->invoice->PRIM, ['NKB-0000', 'TZP-0000', 'NTC0000', 'NTC0.MSPHQ.U']))
                     , {{ $transferOut->invoice->PRIM  }}
                 @endif
             </td>

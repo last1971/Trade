@@ -23,9 +23,8 @@ Artisan::command('inspire', function () {
 })->describe('Display an inspiring quote');
 
 Artisan::command('test1', function () {
-    $gch = new \App\Services\Pricing\GetChips();
-    $resp = $gch('PQ108081-151MHF', []);
-    dd($resp);
+    $a = new \App\Services\ElitanService();
+    $a->search('123');
 })->describe('Test');
 
 Artisan::command('clear-retail', function () {

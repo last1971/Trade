@@ -9,6 +9,7 @@ class RolesAndPermissionsSeeder extends Seeder
     private $models = [
         'advanced-buyer',
         'buyer',
+        'cash-flow',
         'category',
         'employee',
         'firm',
@@ -67,11 +68,13 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'goods-list.*', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'invoice.employee', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'invoice.receipt', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'invoice.etiks', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'role.index', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'sbis.*', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'sbis.show', 'guard_name' => 'api']);
 
         Permission::query()->firstOrCreate(['name' => 'nav.*', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.advanced-buyer', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.home', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.goods', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.goods-list', 'guard_name' => 'api']);
@@ -92,6 +95,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.*',
             'advanced-buyer.*',
             'buyer.*',
+            'cash-flow.*',
             'category.*',
             'employee.*',
             'exchange-rate.index',
@@ -153,6 +157,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $manager = Role::query()->firstOrCreate(['name' => 'manager', 'guard_name' => 'api']);
         $manager->syncPermissions([
+            'nav.advanced-buyer',
             'nav.home',
             'nav.goods',
             'nav.goods-list',
@@ -161,6 +166,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.orders',
             'nav.sbis',
             'nav.transfer-outs',
+            'advanced-buyer.*',
             'buyer.*',
             'category.*',
             'employee.index',

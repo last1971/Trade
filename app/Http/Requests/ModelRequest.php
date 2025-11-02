@@ -7,6 +7,7 @@ use Error;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ModelRequest extends FormRequest
 {
@@ -80,6 +81,7 @@ class ModelRequest extends FormRequest
         ];
         switch ($this->route()->getName()) {
             case 'advanced-buyer.destroy':
+            case 'cash-flow.destroy':
             case 'order-line.destroy':
             case 'invoice-line.destroy':
             case 'unit-code-alias.destroy':
@@ -88,8 +90,25 @@ class ModelRequest extends FormRequest
             case 'advanced-buyer.store':
             case 'advanced-buyer.update':
                 $rules += [
-                    'item.edo_id' => 'required|string|unique:App\AdvancedBuyer,edo_id',
-                    'item.buyer_id' => 'required|integer|unique:App\AdvancedBuyer,buyer_id',
+                    'item.edo_id' => [
+                        'required',
+                        'integer',
+                        Rule::unique('advanced_buyers','edo_id')
+                            ->ignore($this->route('advanced_buyer') ? $this->route('advanced_buyer') : null),
+                    ],
+                    'item.buyer_id' => [
+                        'required',
+                        'integer',
+                        Rule::unique('advanced_buyers','buyer_id')
+                            ->ignore($this->route('advanced_buyer') ? $this->route('advanced_buyer') : null),
+                    ],
+                ];
+                break;
+            case 'cash-flow.store':
+            case 'cash-flow.update':
+                $rules += [
+                    'item.NPP' => 'nullable|integer|min:1',
+                    'item.MONEYSCHET' => 'required|numeric|min:0.01'
                 ];
                 break;
             case 'good.store':

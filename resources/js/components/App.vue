@@ -126,7 +126,7 @@
             drawer: null,
             menus: process.env.MIX_IS_ELECTRONICA === 'true'
                 ? [
-                    {id: 1, text: 'Домой', to: {name: 'home'}, icon: 'mdi-home'},
+                    {id: 4, text: 'Счета', to: {name: 'invoices'}, icon: 'mdi-text-box'},
                     {
                         id: 2,
                         text: 'Заказы розницы',

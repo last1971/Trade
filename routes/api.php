@@ -23,6 +23,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('invoice/export/', 'Api\InvoiceController@export')->name('invoice.xlsx');
     Route::get('invoice/export/{id}', 'Api\InvoiceController@pdf')->name('invoice.pdf');
     Route::get('invoice/receipt/{invoice}', 'Api\InvoiceController@receipt')->name('invoice.receipt');
+    Route::get('invoice/etiks', 'Api\InvoiceController@etiks')->name('invoice.etiks');
     Route::get('invoice-line/export/', 'Api\InvoiceLineController@export')->name('invoice-line.xlsx');
     Route::get('transfer-out-line/export/', 'Api\TransferOutLineController@export')
         ->name('transfer-out-line.xlsx');
@@ -32,12 +33,14 @@ Route::middleware('auth:api')->group(function () {
         ->name('transfer-out.xml');
     Route::get('exchange-rate', 'Api\ExchangeRateController@index')->name('exchange-rate.index');
     Route::get('seller-price', 'Api\SellerPriceController@index')->name('seller-price.index');
+    Route::get('seller-price/own', 'Api\SellerPriceController@show')->name('seller-price.show');
     Route::get('seller-price/sellers', 'Api\SellerPriceController@sellers')
         ->name('seller-price.sellers');
 
     Route::apiResources([
         'advanced-buyer' => 'Api\AdvancedBuyerController',
         'buyer' => 'Api\BuyerController',
+        'cash-flow' => 'Api\CashFlowController',
         'category' => 'Api\CategoryController',
         'employee' => 'Api\EmployeeController',
         'firm' => 'Api\FirmController',

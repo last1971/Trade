@@ -36,7 +36,10 @@
                 <v-text-field :disabled="true" :value="model.invoiceLinesSum | formatRub" label="Сумма"/>
             </v-col>
             <v-col cols="12" sm="auto">
-                <v-text-field :disabled="true" :value="model.cashFlowsSum | formatRub" label="Оплачено"/>
+                <cash-flows-modal v-model="model"
+                                  :text="model.cashFlowsSum"
+                                  x-large
+                />
             </v-col>
             <v-col cols="12" sm="auto">
                 <v-text-field :disabled="true" :value="model.transferOutLinesSum | formatRub" label="Отгружено"/>
@@ -95,7 +98,7 @@
                     <v-btn @click="download('xlsx')" fab>
                         <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>
-                    <v-btn @click="receipt" fab v-if="isAdmin">
+                    <v-btn @click="receipt" fab v-if="!notCan">
                         <v-icon color="primary">mdi-paper-roll</v-icon>
                     </v-btn>
                 </v-speed-dial>
@@ -131,10 +134,12 @@ import FirmHistorySelect from "../FirmHistorySelect";
 import DatePicker from "../DatePicker";
 import EmployeeSelect from "../EmployeeSelect";
 import {mapGetters} from "vuex";
+import CashFlowsModal from "../CashFlowsModal.vue";
 
 export default {
     name: "InvoiceEdit",
     components: {
+        CashFlowsModal,
         EmployeeSelect,
         DatePicker,
         FirmHistorySelect,
@@ -160,10 +165,10 @@ export default {
             return this.model.transferOutLinesSum > 0;
         },
         savePossible() {
-            const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
-            const b = _.pick(_.omit(this.model, ['DATA']), this.fillable);
-            const d = this.value.DATA ? this.value.DATA.substr(0, 10) : undefined;
-            return _.isEqual(a, b) && this.model.DATA === d;
+            //const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
+            //const b = _.pick(_.omit(this.model, ['DATA']), this.fillable);
+            //const d = this.value.DATA ? this.value.DATA.substr(0, 10) : undefined;
+            return _.isEqual(this.value, this.model); //&& this.model.DATA === d;
         },
         notCan() {
             return !this.$store.getters['AUTH/HAS_PERMISSION']('invoice.update');

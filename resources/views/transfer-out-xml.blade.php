@@ -1,20 +1,14 @@
-<Файл ИдФайл="{{ $fileId }}" ВерсФорм="5.01" ВерсПрог="epricing.v1">
-    <СвУчДокОбор ИдОтпр="{{ $transferOut->firm->EDOID }}"
-                 ИдПок="{{ $transferOut->buyer->advancedBuyer->edo_id ?? $transferOut->buyer->Inn }}"
-    >
-        <СвОЭДОтпрСФ ИННЮЛ="7605016030" ИдЭДОСФ="2BE" НаимОрг="ООО {{ '"Компания "Тензор""' }}"/>
-    </СвУчДокОбор>
+<Файл ИдФайл="{{ $fileId }}" ВерсФорм="5.03" ВерсПрог="epricing.v1">
     <Документ ВремИнфПр="{{ \Carbon\Carbon::now('+07:00')->format('H.i.s') }}"
               ДатаИнфПр="{{ \Carbon\Carbon::now('+07:00')->format('d.m.Y') }}"
               КНД="1115131"
+              Функция="СЧФДОП"
+              ПоФактХЖ="Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
               НаимДокОпр="Счет-фактура и документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
               НаимЭконСубСост="{{ $transferOut->firm->FIRMNAME }}, ИНН/КПП {{ $transferOut->firm->getAttributes()['INN'] }}"
-              ПоФактХЖ="Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
-              Функция="СЧФДОП"
     >
-        <СвСчФакт ДатаСчФ="{{ \Carbon\Carbon::create($transferOut->DATA)->format('d.m.Y') }}"
-                  КодОКВ="643"
-                  НомерСчФ="{{ $transferOut->NSF }}"
+        <СвСчФакт ДатаДок="{{ \Carbon\Carbon::create($transferOut->DATA)->format('d.m.Y') }}"
+                  НомерДок="{{ $transferOut->NSF }}"
         >
             <СвПрод ОКПО="{{ $transferOut->firm->OKPO }}">
                 <ИдСв>
@@ -24,9 +18,8 @@
                     />
                 </ИдСв>
                 <Адрес>
-                    <АдрИнф АдрТекст="{{ $transferOut->firm->ADDRESS }}" КодСтр="643"/>
+                    <АдрИнф АдрТекст="{{ $transferOut->firm->ADDRESS }}" КодСтр="643" НаимСтран="РОССИЯ" />
                 </Адрес>
-                <Контакт Тлф="{{ $transferOut->firm->PHONES }}" ЭлПочта="{{ $transferOut->firm->EMAIL }}"/>
                 <БанкРекв
                     НомерСчета="{{ $transferOut->firmHistory ? $transferOut->firmHistory->RS : $transferOut->firm->RS }}">
                     <СвБанк
@@ -35,6 +28,10 @@
                         НаимБанк="{{ $transferOut->firmHistory ? $transferOut->firmHistory->BANK : $transferOut->firm->BANK }}"
                     />
                 </БанкРекв>
+                <Контакт>
+                    <Тлф>{{ $transferOut->firm->PHONES }}</Тлф>
+                    <ЭлПочта>{{ $transferOut->firm->EMAIL }}</ЭлПочта>
+                </Контакт>
             </СвПрод>
             <ГрузОт>
                 <ОнЖе>он же</ОнЖе>
@@ -50,15 +47,18 @@
                     <АдрИнф
                         АдрТекст="{{ $transferOut->buyer->advancedBuyer->consigneeAddress ?? $transferOut->buyer->ADDRESS }}"
                         КодСтр="643"
+                        НаимСтран="РОССИЯ"
                     />
                 </Адрес>
-                <Контакт Тлф="{{ $transferOut->buyer->PHONES }}"/>
                 <БанкРекв НомерСчета="{{ $transferOut->buyer->RSCHET1 }}">
                     <СвБанк БИК="{{ $transferOut->buyer->BIK }}"
                             КорСчет="{{ $transferOut->buyer->KS }}"
                             НаимБанк="{{ $transferOut->buyer->BANK }}"
                     />
                 </БанкРекв>
+                <Контакт>
+                    <Тлф>{{ $transferOut->buyer->PHONES }}</Тлф>
+                </Контакт>
             </ГрузПолуч>
             @foreach($cashFlows as $cf)
                 <СвПРД НомерПРД="{{ $cf->NPP }}"
@@ -74,23 +74,22 @@
                     />
                 </ИдСв>
                 <Адрес>
-                    <АдрИнф АдрТекст="{{ $transferOut->buyer->ADDRESS }}" КодСтр="643"/>
+                    <АдрИнф АдрТекст="{{ $transferOut->buyer->ADDRESS }}" КодСтр="643" НаимСтран="РОССИЯ"/>
                 </Адрес>
-                <Контакт Тлф="{{ $transferOut->buyer->PHONES }}"/>
                 <БанкРекв НомерСчета="{{ $transferOut->buyer->RSCHET1 }}">
                     <СвБанк БИК="{{ $transferOut->buyer->BIK }}"
                             КорСчет="{{ $transferOut->buyer->KS }}"
                             НаимБанк="{{ $transferOut->buyer->BANK }}"
                     />
                 </БанкРекв>
+                <Контакт>
+                    <Тлф>{{ $transferOut->buyer->PHONES }}</Тлф>
+                </Контакт>
             </СвПокуп>
             @if ($transferOut->invoice->IGK)
                 <ДопСвФХЖ1 ИдГосКон="{{ $transferOut->invoice->IGK }}"/>
             @endif
-            <ДокПодтвОтгр ДатаДокОтгр="{{ \Carbon\Carbon::create($transferOut->DATA)->format('d.m.Y') }}"
-                          НаимДокОтгр="УПД"
-                          НомДокОтгр="{{ $transferOut->NSF }}"
-            />
+            <ДенИзм КодОКВ="643" НаимОКВ="Российский рубль"/>
         </СвСчФакт>
         <ТаблСчФакт>
             @foreach($transferOutLines as $line)
@@ -99,26 +98,28 @@
                          НалСт="{{ VAT::get($transferOut->DATA) }}%"
                          НомСтр="{{ $loop->iteration }}"
                          ОКЕИ_Тов="{{ $line->good->unitCode }}"
+                         НаимЕдИзм="{{ $line->good->unitName }}"
                          СтТовБезНДС="{{ $line->amountWithoutVat }}"
                          СтТовУчНал="{{ $line->SUMMAP }}"
-                         ЦенаТов="{{ $line->priceWithoutVat }}">
+                         ЦенаТов="{{ $line->priceWithoutVat }}"
+                >
+                    @if ($line->countryNumCode)
+                        <СвДТ КодПроисх="{{ $line->countryNumCode }}" НомерДТ="{{ $line->GTD }}"/>
+                    @endif
+                    <ДопСведТов
+                        КодТов="{{ $line->GOODSCODE }}"
+                        ПрТовРаб="1"
+                    >
+                        @if ($line->countryNumCode)
+                            <КрНаимСтрПр>"{{ $line->STRANA }}"</КрНаимСтрПр>
+                        @endif
+                    </ДопСведТов>
                     <Акциз>
                         <БезАкциз>без акциза</БезАкциз>
                     </Акциз>
                     <СумНал>
                         <СумНал>{{ str_replace(',', '.', $line->SUMMAP - $line->amountWithoutVat) }}</СумНал>
                     </СумНал>
-                    @if ($line->countryNumCode)
-                        <СвТД КодПроисх="{{ $line->countryNumCode }}" НомерТД="{{ $line->GTD }}"/>
-                    @endif
-                    <ДопСведТов
-                        КодТов="{{ $line->GOODSCODE }}"
-                        @if ($line->countryNumCode)
-                        КрНаимСтрПр="{{ $line->STRANA }}"
-                        @endif
-                        НаимЕдИзм="{{ $line->good->unitName }}"
-                        ПрТовРаб="1"
-                    />
                 </СведТов>
             @endforeach
             <ВсегоОпл СтТовБезНДСВсего="{{ str_replace( ',', '.', $transferOutLines->sum('amountWithoutVat')) }}"
@@ -130,23 +131,23 @@
             </ВсегоОпл>
         </ТаблСчФакт>
         <СвПродПер>
-            <СвПер ВидОпер="Продажа" СодОпер="Товары переданы">
-                <ОснПер ДатаОсн="{{ \Carbon\Carbon::create($transferOut->invoice->DATA)->format('d.m.Y') }}"
-                        НаимОсн="Счет"
-                        НомОсн="{{ $transferOut->invoice->NS }}"
-                        @if ($transferOut->invoice->NZ && $transferOut->buyer->DOGOVOR)
-                        ДопСвОсн="{{ Str::replace('{NZ}', $transferOut->invoice->NZ, $transferOut->buyer->DOGOVOR) }}"
-                    @endif
+            <СвПер ВидОпер="Продажа" СодОпер="Товары переданы" ДатаПер="{{ \Carbon\Carbon::create($transferOut->DATA)->format('d.m.Y') }}">
+                <ОснПер РеквДатаДок="{{ \Carbon\Carbon::create($transferOut->invoice->DATA)->format('d.m.Y') }}"
+                        РеквНаимДок="Счет"
+                        РеквНомерДок="{{ $transferOut->invoice->NS }}"
                 />
+                @if ($transferOut->invoice->NZ && $transferOut->buyer->DOGOVOR)
+                    <ОснПер РеквДатаДок="{{ \Carbon\Carbon::create($transferOut->invoice->DATA)->format('d.m.Y') }}"
+                            РеквНаимДок="Заказ"
+                            РеквНомерДок="{{ Str::replace('{NZ}', $transferOut->invoice->NZ, $transferOut->buyer->DOGOVOR) }}"
+                    />
+                @endif
             </СвПер>
         </СвПродПер>
-        <Подписант ОблПолн="5" ОснПолн="Должностные обязанности" Статус="1">
-            <ЮЛ Должн="ДИРЕКТОР"
-                ИННЮЛ="{{ $transferOut->firm->Inn }}"
-                НаимОрг="{{ $transferOut->firm->FIRMNAME }}"
-            >
+        <Подписант Должн="ДИРЕКТОР" СпосПодтПолном="2">
+
                 <ФИО Имя="Михаил" Отчество="Сергеевич" Фамилия="Верхотуров"/>
-            </ЮЛ>
+
         </Подписант>
     </Документ>
 </Файл>

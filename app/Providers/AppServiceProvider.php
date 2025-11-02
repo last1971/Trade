@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Interfaces\ISellerPriceable;
+use App\Services\SellerPriceHttpService;
+use App\Services\SellerPriceService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
@@ -10,6 +13,15 @@ use URL;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * All of the container bindings that should be registered.
+     *
+     * @var array
+     */
+    public $bindings = [
+        ISellerPriceable::class => SellerPriceHttpService::class, //SellerPriceService::class,
+    ];
+
     /**
      * Register any application services.
      *
