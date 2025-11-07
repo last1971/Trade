@@ -10,18 +10,26 @@
                 </v-row>
             </v-expansion-panel-header>
             <v-expansion-panel-content>
-                <div class="d-flex">
-                    <invoice-card class="flex-grow-1 flex-shrink-0"/>
-                    <v-card class="m-1 flex-grow-0 flex-shrink-1 d-flex align-center">
-                        <v-chip-group column class="mx-3">
-                            <seller-api-chip v-for="seller in sellers"
-                                            :key="seller.sellerId"
-                                            :seller="seller"
-                                             @save-sellers="saveSellers"
-                            />
-                            <seller-api-disabled v-if="!allSellers" @save-sellers="saveSellers" @seller-on="sellerOn"/>
-                        </v-chip-group>
-                    </v-card>
+                <div class="d-flex flex-column">
+                    <div class="d-flex">
+                        <!-- Счет -->
+                        <invoice-card class="flex-grow-1 flex-shrink-0"/>
+                        
+                        <!-- Активные заказы -->
+                        <seller-orders-list class="flex-grow-1 flex-shrink-0"/>
+                        
+                        <!-- Поставщики -->
+                        <v-card class="m-1 flex-grow-0 flex-shrink-1 d-flex align-center">
+                            <v-chip-group column class="mx-3">
+                                <seller-api-chip v-for="seller in sellers"
+                                                :key="seller.sellerId"
+                                                :seller="seller"
+                                                 @save-sellers="saveSellers"
+                                />
+                                <seller-api-disabled v-if="!allSellers" @save-sellers="saveSellers" @seller-on="sellerOn"/>
+                            </v-chip-group>
+                        </v-card>
+                    </div>
                 </div>
             </v-expansion-panel-content>
         </v-expansion-panel>
@@ -33,10 +41,11 @@ import {mapGetters} from "vuex";
 import SellerApiChip from "./SellerApiChip";
 import InvoiceCard from '../../invoice/InvoiceCard'
 import SellerApiDisabled from "./SellerApiDisabled";
+import SellerOrdersList from '../SellerOrdersList';
 
 export default {
     name: "SellerApiFileSelectNew",
-    components: {SellerApiDisabled, SellerApiChip, InvoiceCard},
+    components: {SellerApiDisabled, SellerApiChip, InvoiceCard, SellerOrdersList},
     computed: {
         ...mapGetters({
             sellers: 'SELLER-PRICE/SELLERS',

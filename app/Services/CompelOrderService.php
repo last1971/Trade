@@ -42,13 +42,13 @@ class CompelOrderService
      * @throws \App\Exceptions\CompelException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function paginate(int $itemsPerPage = 20)
+    public function paginate(?int $itemsPerPage = 20)
     {
         $compel = new CompelApiService();
         $params = [];
         $current_page = $this->page;
         $params['page_num'] = $current_page;
-        $per_page = $itemsPerPage;
+        $per_page = $itemsPerPage ?? 20;
         $params['records_per_page'] = $per_page;
         if ($this->index !== false && $this->filterValues[$this->index] === 'false') {
             $params['status_filter'] = 'backorder';
@@ -57,6 +57,7 @@ class CompelOrderService
         $data = collect((array)$response->result->sales)
             ->map(fn($order) => [
                 'id' => $order->sales_id,
+                'seller_id' => config('pricing.Compel.sellerId'),
                 'date' => $order->sales_date,
                 'number' => $order->document_number,
                 'remark' => $order->comment,
