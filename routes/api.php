@@ -93,6 +93,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('seller-order/{id}/lines', 'Api\SellerOrderController@getLines')->name('seller-order.get-lines');
     Route::put('seller-order/{id}/lines', 'Api\SellerOrderController@updateLineQuantity')->name('seller-order.update-line');
     Route::delete('seller-order/{id}/lines', 'Api\SellerOrderController@deleteLine')->name('seller-order.delete-line');
+    Route::post('seller-order/{id}/send-invoice', 'Api\SellerOrderController@sendInvoice')->name('seller-order.send-invoice');
 });
 
 Route::post('login', 'Api\AuthController@login')->name('login');

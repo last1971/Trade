@@ -117,4 +117,38 @@ class SellerOrderController extends ModelController
             ], 500);
         }
     }
+
+    /**
+     * Отправка счета
+     * @param \Illuminate\Http\Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function sendInvoice(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            /** @var SellerOrderService $service */
+            $service = $this->service;
+            
+            $sellerId = $request->get('seller_id');
+            
+            if (!$sellerId) {
+                return response()->json([
+                    'message' => 'seller_id is required'
+                ], 400);
+            }
+            
+            $result = $service->sendInvoice($id, (int)$sellerId);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $result
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

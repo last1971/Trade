@@ -79,6 +79,8 @@ class CompelOrderService implements ISellerOrderService
                 'remark' => $order->comment,
                 'amount' => $order->sales_amount > 0 ? $order->sales_amount : $order->amount,
                 'closed' => false, // Все заказы открытые после фильтрации
+                'document_number' => !empty($order->document_number) ? $order->document_number : null,
+                'date_deadline' => !empty($order->date_deadline) ? $order->date_deadline : null,
             ])
             ->values(); // Переиндексация после filter
         $total = $response->result->records;
@@ -344,6 +346,22 @@ class CompelOrderService implements ISellerOrderService
         ];
         
         $response = $compel->editOrderLines($params);
+        
+        return $response->result ?? null;
+    }
+
+    /**
+     * Создание и отправка счета
+     * @param string $salesId - ID заказа
+     * @return mixed
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function sendInvoice(string $salesId)
+    {
+        $compel = new CompelApiService();
+        
+        $response = $compel->createInvoice($salesId);
         
         return $response->result ?? null;
     }

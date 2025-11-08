@@ -9,6 +9,11 @@
                             {{ order.date | formatDate }}
                             <span v-if="order.remark"> • {{ order.remark }}</span>
                         </div>
+                        <div v-if="order.document_number || order.date_deadline" class="text-caption grey--text mt-1">
+                            <span v-if="order.document_number">Номер счета: <strong>{{ order.document_number }}</strong></span>
+                            <span v-if="order.document_number && order.date_deadline"> • </span>
+                            <span v-if="order.date_deadline">Дата действия счета: <strong>{{ order.date_deadline | formatDate }}</strong></span>
+                        </div>
                     </div>
                     <v-spacer/>
                     <v-btn 
@@ -122,6 +127,15 @@
             </v-card-text>
             
             <v-card-actions>
+                <v-btn
+                    color="primary"
+                    @click="sendInvoice"
+                    :loading="sendingInvoice"
+                    :disabled="loading || !lines.length"
+                >
+                    <v-icon left>mdi-email-send</v-icon>
+                    Отправить счет
+                </v-btn>
                 <v-spacer/>
                 <v-btn text @click="close">Закрыть</v-btn>
             </v-card-actions>
@@ -166,7 +180,8 @@ export default {
             editingQuantity: 0,
             deleteDialog: false,
             lineToDelete: null,
-            deleting: false
+            deleting: false,
+            sendingInvoice: false
         }
     },
     computed: {
@@ -292,6 +307,54 @@ export default {
                 // Ошибка уже показана в экшене
             } finally {
                 this.deleting = false;
+            }
+        },
+        async sendInvoice() {
+            this.sendingInvoice = true;
+            try {
+                const response = await axios.post(
+                    `/api/seller-order/${this.order.id}/send-invoice`,
+                    null,
+                    {
+                        params: {
+                            seller_id: this.order.seller_id
+                        }
+                    }
+                );
+                
+                // Обновляем поля заказа из ответа
+                if (response.data.success && response.data.data) {
+                    const data = response.data.data;
+                    const fields = {};
+                    
+                    if (data.official_doc_num_invoice) {
+                        fields.document_number = data.official_doc_num_invoice;
+                    }
+                    
+                    if (data.date_deadline) {
+                        fields.date_deadline = data.date_deadline;
+                    }
+                    
+                    if (Object.keys(fields).length > 0) {
+                        this.$store.commit('SELLER-ORDER/UPDATE_ORDER_FIELDS', {
+                            orderId: this.order.id,
+                            fields: fields
+                        });
+                    }
+                }
+                
+                this.$store.commit('SNACKBAR/PUSH', { 
+                    text: 'Счет отправлен', 
+                    color: 'success', 
+                    status: true 
+                }, { root: true });
+            } catch (e) {
+                this.$store.commit('SNACKBAR/ERROR', 
+                    e.response?.data?.message || 'Ошибка отправки счета', 
+                    { root: true }
+                );
+            } finally {
+                this.sendingInvoice = false;
             }
         },
         close() {

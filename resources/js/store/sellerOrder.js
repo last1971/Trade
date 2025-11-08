@@ -67,6 +67,14 @@ mutations['ADD_ORDER'] = (state, { sellerId, order }) => {
     }
 };
 
+// Обновить поля заказа
+mutations['UPDATE_ORDER_FIELDS'] = (state, { orderId, fields }) => {
+    const order = state.items.find(o => o.id === orderId);
+    if (order) {
+        Object.assign(order, fields);
+    }
+};
+
 // Установить состояние загрузки строк
 mutations['SET_LINES_LOADING'] = (state, { orderId, loading }) => {
     if (!state.orderLines[orderId]) {

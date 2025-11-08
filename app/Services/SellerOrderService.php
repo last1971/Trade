@@ -156,4 +156,24 @@ class SellerOrderService extends ModelService
         
         throw new Exception('Deleting line from non-Compel orders is not implemented');
     }
+
+    /**
+     * Отправка счета
+     * @param string $orderId
+     * @param int $sellerId
+     * @return mixed
+     * @throws Exception
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function sendInvoice(string $orderId, int $sellerId)
+    {
+        $compelId = config('pricing.Compel.sellerId');
+        
+        if ($sellerId == $compelId) {
+            return $this->compelOrderService->sendInvoice($orderId);
+        }
+        
+        throw new Exception('Send invoice not implemented for this seller');
+    }
 }

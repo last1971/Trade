@@ -149,4 +149,20 @@ class CompelApiService
         return $this->method('sales_handle_edit_ext', $params);
     }
 
+    /**
+     * Создание и отправка счета
+     * @param string $salesId
+     * @return mixed
+     * @throws CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function createInvoice(string $salesId)
+    {
+        $params = [
+            'sales_id' => $salesId,
+            'send_by_email' => true,
+        ];
+        return $this->method('create_invoice', $params);
+    }
+
 }
