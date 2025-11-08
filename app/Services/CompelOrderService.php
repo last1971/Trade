@@ -89,4 +89,49 @@ class CompelOrderService
             compact('current_page', 'data', 'from', 'last_page', 'per_page', 'to', 'total')
         );
     }
+
+    /**
+     * Создание счёта в Compel
+     * @param $request
+     * @return array
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function create($request)
+    {
+        $compel = new CompelApiService();
+        
+        $data = is_array($request) ? $request : $request->item;
+        
+        $params = [];
+        
+        // Примечание к заказу (опционально)
+        if (!empty($data['comment'])) {
+            $params['comment'] = $data['comment'];
+        }
+        
+        // Флаг резервирования (по умолчанию true)
+        $params['reserve_sale'] = isset($data['reserve_sale']) ? (bool)$data['reserve_sale'] : true;
+        
+        $response = $compel->createOrder($params);
+        
+        // Compel возвращает sales_id и date_dead_line
+        $result = $response->result ?? null;
+        
+        if (!$result || !isset($result->sales_id)) {
+            throw new \Exception('Invalid response from Compel API');
+        }
+        
+        $salesId = $result->sales_id;
+        
+        return [
+            'id' => $salesId,
+            'seller_id' => config('pricing.Compel.sellerId'),
+            'date' => now()->toDateString(),
+            'number' => $salesId,
+            'remark' => $data['comment'] ?? '',
+            'amount' => 0,
+            'closed' => false,
+        ];
+    }
 }

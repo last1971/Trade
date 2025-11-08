@@ -263,6 +263,14 @@ class ModelRequest extends FormRequest
                     'item.EMAIL' => 'nullable|email',
                 ];
                 break;
+            case 'seller-order.store':
+            case 'seller-order.update':
+                $rules += [
+                    'item.seller_id' => 'required|integer',
+                    'item.comment' => 'nullable|string',
+                    'item.reserve_sale' => 'nullable|boolean',
+                ];
+                break;
             case 'transfer-out.store':
                 $rules += [
                     'item.SCODE' => 'integer|exists:App\Invoice,SCODE',

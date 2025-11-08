@@ -85,4 +85,20 @@ class CompelApiService
         return $this->method('search_item_name_h', $params);
     }
 
+    /**
+     * Создание счёта (заказа) в Compel
+     * @param array $params
+     * @return mixed
+     * @throws CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function createOrder(array $params = [])
+    {
+        // Параметры:
+        // - comment: примечание к заказу
+        // - reserve_sale: флаг резервирования всех позиций
+        // - sales_lines: массив строк заказа
+        return $this->method('make_order_ext', $params);
+    }
+
 }

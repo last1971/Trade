@@ -52,7 +52,29 @@
                 </v-list>
             </v-card-text>
             
+            <v-divider/>
+            
+            <v-card-text>
+                <v-text-field
+                    v-model="newOrderComment"
+                    label="Комментарий для нового заказа"
+                    outlined
+                    dense
+                    :disabled="creating"
+                    hint="Обязательно для создания заказа"
+                    persistent-hint
+                />
+            </v-card-text>
+            
             <v-card-actions>
+                <v-btn 
+                    color="primary"
+                    :disabled="!newOrderComment || creating"
+                    :loading="creating"
+                    @click="createOrder"
+                >
+                    Создать заказ
+                </v-btn>
                 <v-spacer/>
                 <v-btn text @click="close">Отмена</v-btn>
             </v-card-actions>
@@ -82,7 +104,9 @@ export default {
     data() {
         return {
             loading: false,
-            syncing: false
+            syncing: false,
+            creating: false,
+            newOrderComment: ''
         }
     },
     computed: {
@@ -141,6 +165,44 @@ export default {
         },
         isActive(orderId) {
             return this.activeOrderId === orderId;
+        },
+        async createOrder() {
+            if (!this.newOrderComment) {
+                return;
+            }
+            
+            this.creating = true;
+            try {
+                const response = await axios.post('/api/seller-order', {
+                    item: {
+                        seller_id: this.sellerId,
+                        comment: this.newOrderComment,
+                        reserve_sale: true
+                    }
+                });
+                
+                // Добавляем новый заказ в стор
+                this.$store.commit('SELLER-ORDER/ADD_ORDER', {
+                    sellerId: this.sellerId,
+                    order: response.data
+                });
+                
+                // Выбираем созданный заказ
+                this.$store.commit('SELLER-ORDER/SET_ACTIVE_ID', {
+                    sellerId: this.sellerId,
+                    orderId: response.data.id
+                });
+                
+                this.$store.commit('SNACKBAR/SUCCESS', `Заказ №${response.data.number} создан`, { root: true });
+                
+                // Очищаем поле и закрываем диалог
+                this.newOrderComment = '';
+                this.close();
+            } catch (e) {
+                this.$store.commit('SNACKBAR/ERROR', e.response?.data?.message || 'Ошибка создания заказа', { root: true });
+            } finally {
+                this.creating = false;
+            }
         },
         close() {
             this.dialog = false;

@@ -41,8 +41,9 @@ class CompelException extends Exception
     {
         //
         Log::alert('CompelApiExeption');
-        Log::alert($this->request);
-        Log::alert($this->response);
+        Log::alert('Request: ' . json_encode($this->request));
+        Log::alert('Response: ' . json_encode($this->response));
+        Log::alert('Error message: ' . $this->getMessage());
     }
 
     /**

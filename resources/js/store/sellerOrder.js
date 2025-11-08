@@ -50,6 +50,15 @@ mutations['REMOVE_ACTIVE_ID'] = (state, sellerId) => {
     state.activeOrderIds = newIds;
 };
 
+// Добавить заказ в список
+mutations['ADD_ORDER'] = (state, { sellerId, order }) => {
+    // Проверяем, нет ли уже такого заказа
+    const exists = state.items.find(o => o.id === order.id);
+    if (!exists) {
+        state.items.push(order);
+    }
+};
+
 // СИНХРОНИЗАЦИЯ конкретного поставщика
 actions['SYNC_SELLER'] = async ({ state, getters, commit }, sellerId) => {
     try {
