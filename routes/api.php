@@ -90,6 +90,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('seller-good/{sellerGood}', 'Api\SellerGoodController@update')->name('seller.good.update');
     
     Route::post('seller-order/{id}/lines', 'Api\SellerOrderController@addLines')->name('seller-order.add-lines');
+    Route::get('seller-order/{id}/lines', 'Api\SellerOrderController@getLines')->name('seller-order.get-lines');
 });
 
 Route::post('login', 'Api\AuthController@login')->name('login');

@@ -10,11 +10,17 @@ use Exception;
 class SellerOrderService extends ModelService
 {
     /**
+     * @var CompelOrderService
+     */
+    private $compelOrderService;
+
+    /**
      * SellerOrderService constructor.
      */
-    public function __construct()
+    public function __construct(CompelOrderService $compelOrderService = null)
     {
         parent::__construct(SellerOrder::class);
+        $this->compelOrderService = $compelOrderService ?? new CompelOrderService();
     }
 
     public function index($request)
@@ -24,8 +30,7 @@ class SellerOrderService extends ModelService
         $compelId = config('pricing.Compel.sellerId');
         switch ($request->get('filterValues')[$index]) {
             case $compelId:
-                $s = new CompelOrderService();
-                return $s->index($request);
+                return $this->compelOrderService->index($request);
             default:
                 return parent::index($request);
         }
@@ -53,8 +58,7 @@ class SellerOrderService extends ModelService
         
         // Если это Compel - делегируем в CompelOrderService
         if ($data['seller_id'] == $compelId) {
-            $s = new CompelOrderService();
-            return $s->create($request);
+            return $this->compelOrderService->create($request);
         }
         
         // Иначе стандартное сохранение в БД
@@ -81,11 +85,32 @@ class SellerOrderService extends ModelService
         
         // Если это Compel - делегируем в CompelOrderService
         if ($line['seller_id'] == $compelId) {
-            $s = new CompelOrderService();
-            return $s->addLines($orderId, [$line]);
+            return $this->compelOrderService->addLines($orderId, [$line]);
         }
         
         // Иначе стандартная логика для БД
         throw new Exception('Adding lines to non-Compel orders is not implemented');
+    }
+
+    /**
+     * Получение строк заказа поставщика
+     * @param string $orderId - ID заказа
+     * @param int $sellerId - ID поставщика
+     * @return array
+     * @throws Exception
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getLines(string $orderId, int $sellerId)
+    {
+        $compelId = config('pricing.Compel.sellerId');
+        
+        // Если это Compel - делегируем в CompelOrderService
+        if ($sellerId == $compelId) {
+            return $this->compelOrderService->getLines($orderId);
+        }
+        
+        // Иначе стандартная логика для БД
+        throw new Exception('Getting lines from non-Compel orders is not implemented');
     }
 }

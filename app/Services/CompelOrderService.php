@@ -3,8 +3,9 @@
 
 namespace App\Services;
 
+use App\Interfaces\ISellerOrderService;
 
-class CompelOrderService
+class CompelOrderService implements ISellerOrderService
 {
     /**
      * @var int
@@ -202,5 +203,77 @@ class CompelOrderService
         $response = $compel->addOrderLines($params);
         
         return $response->result ?? null;
+    }
+
+    /**
+     * Получение строк заказа Compel
+     * @param string $salesId - ID заказа
+     * @return array
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getLines(string $salesId)
+    {
+        $compel = new CompelApiService();
+        
+        $response = $compel->getOrderLines($salesId);
+        
+        $lines = collect((array)($response->result->sales_lines ?? []))
+            ->map(fn($line) => [
+                'line_id' => $line->line_id ?? null,
+                'item_id' => $line->item_id ?? null,
+                'item_name' => $line->item_name ?? '',
+                'brend' => $line->brend ?? '',
+                'package_name' => $line->package_name ?? '',
+                'sales_qty' => (int)($line->sales_qty ?? 0),
+                'price' => (float)($line->price ?? 0),
+                'amount' => (float)($line->amount ?? 0),
+                'currency_code' => $line->currency_code ?? 'USD',
+                'reserve_qty' => (int)($line->reserve_qty ?? 0),
+                'reservation_end' => $line->reservation_end ?? null,
+            ])
+            ->values()
+            ->toArray();
+        
+        return [
+            'lines' => $lines,
+            'total' => count($lines),
+        ];
+    }
+
+    /**
+     * Получение информации о заказе Compel
+     * @param string $salesId - ID заказа
+     * @return array
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getOrder(string $salesId)
+    {
+        $compel = new CompelApiService();
+        
+        $params = [
+            'sales_id' => $salesId,
+        ];
+        
+        $response = $compel->orders($params);
+        
+        // Ищем заказ с нужным ID
+        $order = collect((array)($response->result->sales ?? []))
+            ->firstWhere('sales_id', $salesId);
+        
+        if (!$order) {
+            throw new \Exception('Order not found');
+        }
+        
+        return [
+            'id' => $order->sales_id,
+            'seller_id' => config('pricing.Compel.sellerId'),
+            'date' => $order->sales_date,
+            'number' => $order->sales_id,
+            'remark' => $order->comment ?? '',
+            'amount' => $order->sales_amount > 0 ? $order->sales_amount : ($order->amount ?? 0),
+            'closed' => $order->sales_status !== 'Открытый заказ',
+        ];
     }
 }

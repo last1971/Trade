@@ -117,4 +117,21 @@ class CompelApiService
         return $this->method('sales_handle_add_ext', $params);
     }
 
+    /**
+     * Получение строк заказа
+     * @param string $salesId
+     * @return mixed
+     * @throws CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getOrderLines(string $salesId)
+    {
+        $params = [
+            'sales_id' => $salesId,
+            'skip_pagination' => true,
+            'show_reserve_qty' => true,
+        ];
+        return $this->method('sales_lines', $params);
+    }
+
 }

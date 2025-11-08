@@ -31,4 +31,32 @@ class SellerOrderController extends ModelController
             ], 500);
         }
     }
+
+    /**
+     * Получение строк заказа поставщика
+     * @param \Illuminate\Http\Request $request
+     * @param string $id - ID заказа
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getLines(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            /** @var SellerOrderService $service */
+            $service = $this->service;
+            $sellerId = $request->get('seller_id');
+            
+            if (!$sellerId) {
+                return response()->json([
+                    'message' => 'seller_id is required'
+                ], 400);
+            }
+            
+            $result = $service->getLines($id, (int)$sellerId);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
