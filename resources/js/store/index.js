@@ -43,6 +43,7 @@ import sellerOrder from "./sellerOrder";
 import unitCode from "./unitCode";
 import unitCodeAlias from "./unitCodeAlias";
 import cashFlow from "./cashFlow";
+import compel from "./compel";
 
 Vue.use(Vuex);
 
@@ -63,6 +64,7 @@ export default new Vuex.Store({
         BUYER: buyer,
         'CASH-FLOW': cashFlow,
         CATEGORY: category,
+        COMPEL: compel,
         'EXCHANGE-RATE': exchangeRate,
         EMPLOYEE: employee,
         'ERROR-MESSAGE': errorMessage,

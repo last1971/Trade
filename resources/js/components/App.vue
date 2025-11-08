@@ -197,6 +197,19 @@
                 }
                 document.documentElement.style.setProperty('--toolbarHeight', height)
             }
+        },
+        mounted() {
+            // Загружаем методы отгрузки Compel при старте приложения
+            if (this.user) {
+                this.$store.dispatch('COMPEL/LOAD_DELIVERY_MODES');
+            }
+        },
+        watch: {
+            user(newUser) {
+                if (newUser && !this.$store.getters['COMPEL/IS_DELIVERY_MODES_LOADED']) {
+                    this.$store.dispatch('COMPEL/LOAD_DELIVERY_MODES');
+                }
+            }
         }
     }
 </script>

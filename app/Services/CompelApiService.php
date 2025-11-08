@@ -165,4 +165,15 @@ class CompelApiService
         return $this->method('create_invoice', $params);
     }
 
+    /**
+     * Получение методов отгрузки
+     * @return mixed
+     * @throws CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function getDeliveryModes()
+    {
+        return $this->method('get_dlv_mode', []);
+    }
+
 }
