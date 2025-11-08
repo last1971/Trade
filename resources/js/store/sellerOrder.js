@@ -95,6 +95,27 @@ actions['SYNC_SELLER'] = async ({ state, getters, commit }, sellerId) => {
     }
 };
 
+// ДОБАВЛЕНИЕ СТРОКИ В ЗАКАЗ
+actions['ADD_LINE'] = async ({ state, getters, commit }, { sellerId, salesId, line, amountToAdd }) => {
+    try {
+        const response = await axios.post(`${getters.URL}/${salesId}/lines`, {
+            line: line
+        });
+        
+        // Обновляем сумму заказа в сторе
+        const order = state.items.find(o => o.id === salesId);
+        if (order && amountToAdd) {
+            // Прибавляем сумму добавленной позиции к общей сумме заказа
+            order.amount = (parseFloat(order.amount) || 0) + parseFloat(amountToAdd);
+        }
+        
+        return response.data;
+    } catch (error) {
+        commit('SNACKBAR/ERROR', error.response?.data?.message || 'Ошибка добавления строки', { root: true });
+        throw error;
+    }
+};
+
 export default {
     namespaced: true,
     state,

@@ -271,6 +271,16 @@ class ModelRequest extends FormRequest
                     'item.reserve_sale' => 'nullable|boolean',
                 ];
                 break;
+            case 'seller-order.add-lines':
+                $rules = [
+                    'line' => 'required|array',
+                    'line.seller_id' => 'required|integer',
+                    'line.item_id' => 'required|string',
+                    'line.qty' => 'required|integer|min:1',
+                    'line.is_reserv' => 'nullable|boolean',
+                    'line.application_area_id' => 'nullable|string',
+                ];
+                break;
             case 'transfer-out.store':
                 $rules += [
                     'item.SCODE' => 'integer|exists:App\Invoice,SCODE',

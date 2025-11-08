@@ -134,4 +134,73 @@ class CompelOrderService
             'closed' => false,
         ];
     }
+
+    /**
+     * Добавление строк в заказ Compel
+     * @param string $salesId - ID заказа
+     * @param array $lines - массив строк для добавления
+     * @param bool $reserveAll - резервировать все строки (по умолчанию true)
+     * @return mixed
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function addLines(string $salesId, array $lines, bool $reserveAll = true)
+    {
+        $compel = new CompelApiService();
+        
+        // Формируем sales_lines в формате Compel API
+        $salesLines = [];
+        foreach ($lines as $line) {
+            $isReserv = $line['is_reserv'] ?? $reserveAll;
+            
+            $salesLine = [
+                'item_id' => (string)$line['item_id'],
+                'qty' => (int)$line['qty'],
+                'is_reserv' => (bool)$isReserv,
+            ];
+            
+            // process_qty нужен только если резервируем
+            if ($isReserv) {
+                $salesLine['process_qty'] = (int)$line['qty'];
+            }
+            
+            // Заглушка для области применения (обязательное поле)
+            if (!empty($line['application_area_id'])) {
+                $salesLine['application_area_id'] = (string)$line['application_area_id'];
+            } else {
+                $salesLine['application_area_id'] = '021';
+            }
+            
+            // Дополнительные поля для ДМС (опционально)
+            if (!empty($line['item_name'])) {
+                $salesLine['item_name'] = $line['item_name'];
+            }
+            if (!empty($line['invc_brend_alias'])) {
+                $salesLine['invc_brend_alias'] = $line['invc_brend_alias'];
+            }
+            if (!empty($line['prognosis_id'])) {
+                $salesLine['prognosis_id'] = $line['prognosis_id'];
+            }
+            if (!empty($line['min_qty'])) {
+                $salesLine['min_qty'] = $line['min_qty'];
+            }
+            if (!empty($line['max_qty'])) {
+                $salesLine['max_qty'] = $line['max_qty'];
+            }
+            if (!empty($line['qty_multiples'])) {
+                $salesLine['qty_multiples'] = $line['qty_multiples'];
+            }
+            
+            $salesLines[] = $salesLine;
+        }
+        
+        $params = [
+            'sales_id' => $salesId,
+            'sales_lines' => $salesLines,
+        ];
+        
+        $response = $compel->addOrderLines($params);
+        
+        return $response->result ?? null;
+    }
 }

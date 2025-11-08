@@ -3,18 +3,18 @@
         <v-row dense>
             <v-col class="d-flex justify-start">
                 <span class="my-auto">Есть: <b>{{ item.quantity }}</b>&nbsp;/ Берём:</span>
-                <b v-if="!hasGood || !hasInvoice">&nbsp;{{ item.orderQuantity }}</b>
+                <b v-if="!canAddToInvoiceOrOrder">&nbsp;{{ item.orderQuantity }}</b>
                 <v-speed-dial v-else :open-on-hover="true" direction="bottom">
                     <template v-slot:activator>
                         <v-btn plain small rounded>
                             {{ item.orderQuantity }}
                         </v-btn>
                     </template>
-                    <v-btn v-if="hasInvoice && hasGood" small rounded @click="isAddInvoiceLine = !isAddInvoiceLine">
+                    <v-btn v-if="hasInvoice" small rounded @click="isAddInvoiceLine = !isAddInvoiceLine">
                         <v-icon left>mdi-text-box</v-icon>
                         В Счет
                     </v-btn>
-                    <v-btn v-if="hasSellerOrder" small rounded>
+                    <v-btn v-if="hasSellerOrder" small rounded @click="addToSellerOrder" :loading="addingToOrder">
                         <v-icon left>mdi-clipboard-arrow-left</v-icon>
                         В Заказ
                     </v-btn>
@@ -55,11 +55,13 @@ export default {
         return {
             isAddInvoiceLine: false,
             additionalKey: 0,
+            addingToOrder: false,
         }
     },
     computed: {
         ...mapGetters({
             retailPrice: 'SELLER-PRICE/RETAIL_PRICE',
+            getActiveOrder: 'SELLER-ORDER/GET_ACTIVE_ORDER',
         }),
         hasGood() {
             return !!this.item.goodId;
@@ -68,7 +70,13 @@ export default {
             return !!this.invoice;
         },
         hasSellerOrder() {
-            return false;
+            return !!this.activeOrder;
+        },
+        activeOrder() {
+            return this.getActiveOrder(this.item.sellerId);
+        },
+        canAddToInvoiceOrOrder() {
+            return this.hasGood && (this.hasInvoice || this.hasSellerOrder);
         },
         invoice() {
             const currentInvoice = this.$store.getters['INVOICE/GET-CURRENT'];
@@ -106,6 +114,36 @@ export default {
 
             }
             this.isAddInvoiceLine = false;
+        },
+        async addToSellerOrder() {
+            if (!this.activeOrder || !this.item.code) {
+                this.$store.commit('SNACKBAR/ERROR', 'Не удалось добавить в заказ', { root: true });
+                return;
+            }
+            
+            this.addingToOrder = true;
+            try {
+                // Вычисляем сумму добавляемой позиции в рублях
+                const amountInRub = this.toRub(this.item.CharCode, this.item.price * this.item.orderQuantity);
+                
+                // Вызываем экшен для добавления строки в заказ
+                await this.$store.dispatch('SELLER-ORDER/ADD_LINE', {
+                    sellerId: this.item.sellerId,
+                    salesId: this.activeOrder.id,
+                    amountToAdd: amountInRub,
+                    line: {
+                        seller_id: this.item.sellerId,
+                        item_id: this.item.code,
+                        qty: this.item.orderQuantity,
+                    }
+                });
+                
+                this.$store.commit('SNACKBAR/SUCCESS', 'Добавлено в заказ', { root: true });
+            } catch (e) {
+                this.$store.commit('SNACKBAR/ERROR', e.response?.data?.message || 'Ошибка добавления в заказ', { root: true });
+            } finally {
+                this.addingToOrder = false;
+            }
         }
     }
 }

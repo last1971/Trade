@@ -101,4 +101,20 @@ class CompelApiService
         return $this->method('make_order_ext', $params);
     }
 
+    /**
+     * Добавление строк в существующий заказ
+     * @param array $params
+     * @return mixed
+     * @throws CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function addOrderLines(array $params = [])
+    {
+        // Параметры:
+        // - sales_id: код заказа (обязательный)
+        // - is_reserv_all: резервировать все строки
+        // - sales_lines: массив строк для добавления
+        return $this->method('sales_handle_add_ext', $params);
+    }
+
 }

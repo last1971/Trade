@@ -88,6 +88,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('goods-list', 'Api\GoodsListController@store')->name('goods-list.store');
 
     Route::put('seller-good/{sellerGood}', 'Api\SellerGoodController@update')->name('seller.good.update');
+    
+    Route::post('seller-order/{id}/lines', 'Api\SellerOrderController@addLines')->name('seller-order.add-lines');
 });
 
 Route::post('login', 'Api\AuthController@login')->name('login');

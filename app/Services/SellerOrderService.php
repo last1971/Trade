@@ -60,4 +60,32 @@ class SellerOrderService extends ModelService
         // Иначе стандартное сохранение в БД
         return parent::create($request);
     }
+
+    /**
+     * Добавление строк в заказ поставщика
+     * @param string $orderId - ID заказа
+     * @param array $line - данные строки (должен содержать seller_id)
+     * @return array|mixed
+     * @throws Exception
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function addLines(string $orderId, array $line)
+    {
+        // Проверяем seller_id в данных строки
+        if (empty($line['seller_id'])) {
+            throw new Exception('seller_id is required');
+        }
+        
+        $compelId = config('pricing.Compel.sellerId');
+        
+        // Если это Compel - делегируем в CompelOrderService
+        if ($line['seller_id'] == $compelId) {
+            $s = new CompelOrderService();
+            return $s->addLines($orderId, [$line]);
+        }
+        
+        // Иначе стандартная логика для БД
+        throw new Exception('Adding lines to non-Compel orders is not implemented');
+    }
 }
