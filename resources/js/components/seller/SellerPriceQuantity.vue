@@ -10,11 +10,11 @@
                             {{ item.orderQuantity }}
                         </v-btn>
                     </template>
-                    <v-btn v-if="hasInvoice" small rounded @click="isAddInvoiceLine = !isAddInvoiceLine">
+                    <v-btn v-if="hasInvoice && hasGood" small rounded @click="isAddInvoiceLine = !isAddInvoiceLine">
                         <v-icon left>mdi-text-box</v-icon>
                         В Счет
                     </v-btn>
-                    <v-btn v-if="hasSellerOrder" small rounded @click="addToSellerOrder" :loading="addingToOrder">
+                    <v-btn v-if="hasSellerOrder && item.code" small rounded @click="addToSellerOrder" :disabled="addingToOrder">
                         <v-icon left>mdi-clipboard-arrow-left</v-icon>
                         В Заказ
                     </v-btn>
@@ -39,10 +39,26 @@
                               @closeWithReload="invoiceUpdate"
             />
         </v-dialog>
+        <v-dialog v-model="showConfirmDialog" max-width="500">
+            <v-card>
+                <v-card-title>Подтвердите действие на localhost</v-card-title>
+                <v-card-text>
+                    <p>Товар уже есть в заказе.</p>
+                    <p>Текущее количество: <b>{{ existingLineForUpdate ? existingLineForUpdate.sales_qty : '' }}</b></p>
+                    <p>Новое количество (или отмена для отмены): <b>{{ item.orderQuantity }}</b></p>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn text @click="cancelUpdate">Отмена</v-btn>
+                    <v-btn color="primary" @click="confirmUpdate">OK</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-container>
 </template>
 
 <script>
+import { hasIn } from "lodash";
 import sellerPriceMixin from "../../mixins/sellerPriceMixin";
 import InvoiceLineAdd from "../invoice/InvoiceLineAdd";
 import {mapGetters} from "vuex";
@@ -56,6 +72,8 @@ export default {
             isAddInvoiceLine: false,
             additionalKey: 0,
             addingToOrder: false,
+            showConfirmDialog: false,
+            existingLineForUpdate: null,
         }
     },
     computed: {
@@ -76,7 +94,10 @@ export default {
             return this.getActiveOrder(this.item.sellerId);
         },
         canAddToInvoiceOrOrder() {
-            return this.hasGood && (this.hasInvoice || this.hasSellerOrder);
+            // Для счета нужен goodId, для заказа достаточно code
+            const canAddToInvoice = this.hasGood && this.hasInvoice;
+            const canAddToOrder = this.item.code && this.hasSellerOrder;
+            return canAddToInvoice || canAddToOrder;
         },
         invoice() {
             const currentInvoice = this.$store.getters['INVOICE/GET-CURRENT'];
@@ -121,15 +142,60 @@ export default {
                 return;
             }
             
+            // Получаем строки заказа из кеша
+            const orderLines = this.$store.getters['SELLER-ORDER/GET_ORDER_LINES'](this.activeOrder.id);
+            
+            // Проверяем, есть ли уже строка с таким item_id
+            const existingLine = orderLines.lines.find(line => line.item_id === this.item.code);
+            
+            if (existingLine) {
+                // Строка существует - показываем диалог подтверждения
+                this.existingLineForUpdate = existingLine;
+                this.showConfirmDialog = true;
+            } else {
+                // Строки нет - добавляем новую
+                await this.addNewLine();
+            }
+        },
+        cancelUpdate() {
+            this.showConfirmDialog = false;
+            this.existingLineForUpdate = null;
+        },
+        async confirmUpdate() {
+            this.showConfirmDialog = false;
+            this.addingToOrder = true;
+            
+            try {
+                const newQuantity = this.item.orderQuantity;
+                const priceInRub = this.toRub(this.item.CharCode, this.item.price);
+                const oldAmount = this.existingLineForUpdate.price * this.existingLineForUpdate.sales_qty;
+                const newAmount = priceInRub * newQuantity;
+                const amountDiff = newAmount - oldAmount;
+                
+                await this.$store.dispatch('SELLER-ORDER/UPDATE_LINE_QUANTITY', {
+                    salesId: this.activeOrder.id,
+                    sellerId: this.item.sellerId,
+                    lineId: this.existingLineForUpdate.line_id,
+                    quantity: newQuantity,
+                    amountDiff: amountDiff
+                });
+                
+                this.$store.commit('SNACKBAR/PUSH', { text: 'Количество обновлено', color: 'success', status: true }, { root: true });
+            } catch (e) {
+                this.$store.commit('SNACKBAR/ERROR', e.response?.data?.message || 'Ошибка обновления количества', { root: true });
+            } finally {
+                this.addingToOrder = false;
+                this.existingLineForUpdate = null;
+            }
+        },
+        async addNewLine() {
             this.addingToOrder = true;
             try {
-                // Вычисляем сумму добавляемой позиции в рублях
                 const priceInRub = this.toRub(this.item.CharCode, this.item.price);
                 const amountInRub = priceInRub * this.item.orderQuantity;
                 
-                // Формируем данные строки для кеша
                 const lineData = {
-                    line_id: null, // будет присвоен сервером
+                    line_id: null,
                     item_id: this.item.code,
                     item_name: this.item.name || '',
                     brend: this.item.brend || '',
@@ -138,11 +204,10 @@ export default {
                     price: priceInRub,
                     amount: amountInRub,
                     currency_code: 'RUB',
-                    reserve_qty: this.item.orderQuantity, // предполагаем, что резервируется всё
+                    reserve_qty: this.item.orderQuantity,
                     reservation_end: null
                 };
                 
-                // Вызываем экшен для добавления строки в заказ
                 await this.$store.dispatch('SELLER-ORDER/ADD_LINE', {
                     sellerId: this.item.sellerId,
                     salesId: this.activeOrder.id,
