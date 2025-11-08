@@ -124,7 +124,23 @@ export default {
             this.addingToOrder = true;
             try {
                 // Вычисляем сумму добавляемой позиции в рублях
-                const amountInRub = this.toRub(this.item.CharCode, this.item.price * this.item.orderQuantity);
+                const priceInRub = this.toRub(this.item.CharCode, this.item.price);
+                const amountInRub = priceInRub * this.item.orderQuantity;
+                
+                // Формируем данные строки для кеша
+                const lineData = {
+                    line_id: null, // будет присвоен сервером
+                    item_id: this.item.code,
+                    item_name: this.item.name || '',
+                    brend: this.item.brend || '',
+                    package_name: this.item.packageName || '',
+                    sales_qty: this.item.orderQuantity,
+                    price: priceInRub,
+                    amount: amountInRub,
+                    currency_code: 'RUB',
+                    reserve_qty: this.item.orderQuantity, // предполагаем, что резервируется всё
+                    reservation_end: null
+                };
                 
                 // Вызываем экшен для добавления строки в заказ
                 await this.$store.dispatch('SELLER-ORDER/ADD_LINE', {
@@ -135,7 +151,8 @@ export default {
                         seller_id: this.item.sellerId,
                         item_id: this.item.code,
                         qty: this.item.orderQuantity,
-                    }
+                    },
+                    lineData: lineData
                 });
                 
                 this.$store.commit('SNACKBAR/SUCCESS', 'Добавлено в заказ', { root: true });

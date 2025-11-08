@@ -161,6 +161,13 @@ export default {
                 sellerId: this.sellerId,
                 orderId: orderId
             });
+            
+            // Предзагружаем строки заказа фоном
+            this.$store.dispatch('SELLER-ORDER/PRELOAD_LINES', {
+                salesId: orderId,
+                sellerId: this.sellerId
+            });
+            
             this.close();
         },
         isActive(orderId) {

@@ -202,6 +202,7 @@ class CompelOrderService implements ISellerOrderService
         
         $response = $compel->addOrderLines($params);
         
+        // API возвращает только статус, не возвращает добавленные строки
         return $response->result ?? null;
     }
 
@@ -218,20 +219,41 @@ class CompelOrderService implements ISellerOrderService
         
         $response = $compel->getOrderLines($salesId);
         
+        // Отладка: логируем первую строку из ответа
+        if (!empty($response->result->sales_lines)) {
+            \Log::info('Compel getOrderLines first line:', [
+                'sales_id' => $salesId,
+                'first_line' => $response->result->sales_lines[0] ?? null
+            ]);
+        }
+        
         $lines = collect((array)($response->result->sales_lines ?? []))
-            ->map(fn($line) => [
-                'line_id' => $line->line_id ?? null,
-                'item_id' => $line->item_id ?? null,
-                'item_name' => $line->item_name ?? '',
-                'brend' => $line->brend ?? '',
-                'package_name' => $line->package_name ?? '',
-                'sales_qty' => (int)($line->sales_qty ?? 0),
-                'price' => (float)($line->price ?? 0),
-                'amount' => (float)($line->amount ?? 0),
-                'currency_code' => $line->currency_code ?? 'USD',
-                'reserve_qty' => (int)($line->reserve_qty ?? 0),
-                'reservation_end' => $line->reservation_end ?? null,
-            ])
+            ->map(function($lineWrapper) {
+                // Compel API оборачивает каждую строку в stdClass
+                $line = is_object($lineWrapper) && property_exists($lineWrapper, 'stdClass') 
+                    ? $lineWrapper->stdClass 
+                    : $lineWrapper;
+                
+                $currencyCode = $line->currency_code ?? 'USD';
+                // Compel возвращает RUR вместо RUB
+                if ($currencyCode === 'RUR') {
+                    $currencyCode = 'RUB';
+                }
+                
+                return [
+                    'line_id' => $line->line_id ?? null,
+                    'item_id' => $line->item_id ?? null,
+                    'item_name' => $line->item_name ?? '',
+                    'brend' => $line->brend ?? '',
+                    'package_name' => $line->package_name ?? '',
+                    'sales_qty' => (int)($line->sales_qty ?? 0),
+                    'price' => (float)($line->price ?? 0),
+                    'amount' => (float)($line->amount ?? 0),
+                    'currency_code' => $currencyCode,
+                    'reserve_qty' => (int)($line->reserve_qty ?? 0),
+                    'reservation_end' => $line->reservation_end ?? null,
+                ];
+            })
             ->values()
             ->toArray();
         

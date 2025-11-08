@@ -28,6 +28,15 @@
                     <v-btn 
                         icon 
                         x-small 
+                        @click.stop="showLines"
+                        color="primary"
+                        title="Показать строки заказа"
+                    >
+                        <v-icon>mdi-format-list-bulleted</v-icon>
+                    </v-btn>
+                    <v-btn 
+                        icon 
+                        x-small 
                         @click.stop="removeOrder"
                         color="error"
                     >
@@ -43,16 +52,24 @@
             :seller-id="sellerId"
             :seller-name="sellerName"
         />
+        
+        <!-- Диалог строк заказа -->
+        <seller-order-lines-dialog
+            v-if="activeOrder"
+            v-model="showLinesDialog"
+            :order="activeOrder"
+        />
     </v-card>
 </template>
 
 <script>
 import {mapGetters} from "vuex";
 import SellerOrderSelectDialog from "./SellerOrderSelectDialog";
+import SellerOrderLinesDialog from "./SellerOrderLinesDialog";
 
 export default {
     name: "SellerOrderCard",
-    components: {SellerOrderSelectDialog},
+    components: {SellerOrderSelectDialog, SellerOrderLinesDialog},
     props: {
         sellerId: {
             type: Number,
@@ -65,7 +82,8 @@ export default {
     },
     data() {
         return {
-            showDialog: false
+            showDialog: false,
+            showLinesDialog: false
         }
     },
     computed: {
@@ -82,6 +100,9 @@ export default {
     methods: {
         openDialog() {
             this.showDialog = true;
+        },
+        showLines() {
+            this.showLinesDialog = true;
         },
         removeOrder() {
             this.$store.commit('SELLER-ORDER/REMOVE_ACTIVE_ID', this.sellerId);

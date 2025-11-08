@@ -18,6 +18,9 @@ state.headers = [];
 // ID активных заказов: { sellerId: orderId }
 state.activeOrderIds = {};
 
+// Кеш строк заказов: { orderId: { lines: [], total: 0, loading: false } }
+state.orderLines = {};
+
 // Получить заказы для поставщика
 getters['GET_BY_SELLER'] = state => sellerId => {
     return state.items.filter(order => order.seller_id === sellerId);
@@ -33,6 +36,11 @@ getters['GET_ACTIVE_ORDER'] = state => sellerId => {
     const orderId = state.activeOrderIds[sellerId];
     if (!orderId) return null;
     return state.items.find(order => order.id === orderId) || null;
+};
+
+// Получить строки заказа из кеша
+getters['GET_ORDER_LINES'] = state => orderId => {
+    return state.orderLines[orderId] || { lines: [], total: 0, loading: false };
 };
 
 // Установить активный заказ
@@ -57,6 +65,37 @@ mutations['ADD_ORDER'] = (state, { sellerId, order }) => {
     if (!exists) {
         state.items.push(order);
     }
+};
+
+// Установить состояние загрузки строк
+mutations['SET_LINES_LOADING'] = (state, { orderId, loading }) => {
+    if (!state.orderLines[orderId]) {
+        state.orderLines = {
+            ...state.orderLines,
+            [orderId]: { lines: [], total: 0, loading: false }
+        };
+    }
+    state.orderLines[orderId].loading = loading;
+};
+
+// Сохранить строки заказа в кеш
+mutations['SET_ORDER_LINES'] = (state, { orderId, lines, total }) => {
+    state.orderLines = {
+        ...state.orderLines,
+        [orderId]: { lines, total, loading: false }
+    };
+};
+
+// Добавить строку в кеш заказа
+mutations['ADD_LINE_TO_CACHE'] = (state, { orderId, line }) => {
+    if (!state.orderLines[orderId]) {
+        state.orderLines = {
+            ...state.orderLines,
+            [orderId]: { lines: [], total: 0, loading: false }
+        };
+    }
+    state.orderLines[orderId].lines.push(line);
+    state.orderLines[orderId].total = state.orderLines[orderId].lines.length;
 };
 
 // СИНХРОНИЗАЦИЯ конкретного поставщика
@@ -96,7 +135,7 @@ actions['SYNC_SELLER'] = async ({ state, getters, commit }, sellerId) => {
 };
 
 // ДОБАВЛЕНИЕ СТРОКИ В ЗАКАЗ
-actions['ADD_LINE'] = async ({ state, getters, commit }, { sellerId, salesId, line, amountToAdd }) => {
+actions['ADD_LINE'] = async ({ state, getters, commit, dispatch }, { sellerId, salesId, line, amountToAdd, lineData }) => {
     try {
         const response = await axios.post(`${getters.URL}/${salesId}/lines`, {
             line: line
@@ -109,10 +148,69 @@ actions['ADD_LINE'] = async ({ state, getters, commit }, { sellerId, salesId, li
             order.amount = (parseFloat(order.amount) || 0) + parseFloat(amountToAdd);
         }
         
+        // Если передали данные строки и операция успешна, добавляем в кеш
+        if (lineData && response.data) {
+            // Если в ответе есть line_id или другие данные - используем их
+            const resultLine = { ...lineData };
+            
+            // Если API вернул данные о добавленной строке, обновляем
+            if (response.data.line_id) {
+                resultLine.line_id = response.data.line_id;
+            }
+            if (response.data.lines && response.data.lines.length > 0) {
+                // Если вернулся массив строк, берём первую
+                const apiLine = response.data.lines[0];
+                if (apiLine.line_id) resultLine.line_id = apiLine.line_id;
+            }
+            
+            commit('ADD_LINE_TO_CACHE', { orderId: salesId, line: resultLine });
+        }
+        
         return response.data;
     } catch (error) {
         commit('SNACKBAR/ERROR', error.response?.data?.message || 'Ошибка добавления строки', { root: true });
         throw error;
+    }
+};
+
+// ПОЛУЧЕНИЕ СТРОК ЗАКАЗА (с кешированием)
+actions['GET_LINES'] = async ({ state, getters, commit }, { salesId, sellerId, forceReload = false }) => {
+    // Если не принудительная перезагрузка и есть кеш - возвращаем из кеша
+    if (!forceReload && state.orderLines[salesId] && state.orderLines[salesId].lines.length > 0) {
+        return state.orderLines[salesId];
+    }
+    
+    commit('SET_LINES_LOADING', { orderId: salesId, loading: true });
+    
+    try {
+        const response = await axios.get(`${getters.URL}/${salesId}/lines`, {
+            params: { seller_id: sellerId }
+        });
+        
+        const data = response.data;
+        
+        // Сохраняем в кеш
+        commit('SET_ORDER_LINES', {
+            orderId: salesId,
+            lines: data.lines || [],
+            total: data.total || 0
+        });
+        
+        return data;
+    } catch (error) {
+        commit('SET_LINES_LOADING', { orderId: salesId, loading: false });
+        commit('SNACKBAR/ERROR', error.response?.data?.message || 'Ошибка загрузки строк заказа', { root: true });
+        throw error;
+    }
+};
+
+// ПРЕДЗАГРУЗКА СТРОК (фоновая, без ошибок в UI)
+actions['PRELOAD_LINES'] = async ({ dispatch }, { salesId, sellerId }) => {
+    try {
+        await dispatch('GET_LINES', { salesId, sellerId, forceReload: false });
+    } catch (error) {
+        // Тихо игнорируем ошибки предзагрузки
+        console.warn('Preload lines failed:', error);
     }
 };
 
