@@ -155,7 +155,7 @@ export default {
                     lineData: lineData
                 });
                 
-                this.$store.commit('SNACKBAR/SUCCESS', 'Добавлено в заказ', { root: true });
+                this.$store.commit('SNACKBAR/PUSH', { text: 'Добавлено в заказ', color: 'success', status: true }, { root: true });
             } catch (e) {
                 this.$store.commit('SNACKBAR/ERROR', e.response?.data?.message || 'Ошибка добавления в заказ', { root: true });
             } finally {

@@ -59,4 +59,62 @@ class SellerOrderController extends ModelController
             ], 500);
         }
     }
+
+    /**
+     * Изменение количества в строке заказа
+     * @param ModelRequest $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateLineQuantity(ModelRequest $request, $id)
+    {
+        try {
+            /** @var SellerOrderService $service */
+            $service = $this->service;
+            
+            $result = $service->updateLineQuantity(
+                $id,
+                $request->input('line_id'),
+                $request->input('quantity'),
+                $request->input('seller_id')
+            );
+            
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Удаление строки заказа
+     * @param \Illuminate\Http\Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteLine(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            /** @var SellerOrderService $service */
+            $service = $this->service;
+            
+            $lineId = $request->get('line_id');
+            $sellerId = $request->get('seller_id');
+            
+            if (!$lineId || !$sellerId) {
+                return response()->json([
+                    'message' => 'line_id and seller_id are required'
+                ], 400);
+            }
+            
+            $result = $service->deleteLine($id, $lineId, (int)$sellerId);
+            
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

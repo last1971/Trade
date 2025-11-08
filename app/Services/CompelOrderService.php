@@ -219,14 +219,6 @@ class CompelOrderService implements ISellerOrderService
         
         $response = $compel->getOrderLines($salesId);
         
-        // Отладка: логируем первую строку из ответа
-        if (!empty($response->result->sales_lines)) {
-            \Log::info('Compel getOrderLines first line:', [
-                'sales_id' => $salesId,
-                'first_line' => $response->result->sales_lines[0] ?? null
-            ]);
-        }
-        
         $lines = collect((array)($response->result->sales_lines ?? []))
             ->map(function($lineWrapper) {
                 // Compel API оборачивает каждую строку в stdClass
@@ -297,5 +289,62 @@ class CompelOrderService implements ISellerOrderService
             'amount' => $order->sales_amount > 0 ? $order->sales_amount : ($order->amount ?? 0),
             'closed' => $order->sales_status !== 'Открытый заказ',
         ];
+    }
+
+    /**
+     * Изменение количества в строке заказа Compel
+     * @param string $salesId - ID заказа
+     * @param string $lineId - ID строки
+     * @param int $quantity - новое количество
+     * @return mixed
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateLineQuantity(string $salesId, string $lineId, int $quantity)
+    {
+        $compel = new CompelApiService();
+        
+        $salesLines = [[
+            'line_id' => $lineId,
+            'qty' => $quantity,
+            'process_qty' => $quantity,
+            'is_reserv' => true,
+        ]];
+        
+        $params = [
+            'sales_id' => $salesId,
+            'sales_lines' => $salesLines,
+        ];
+        
+        $response = $compel->editOrderLines($params);
+        
+        return $response->result ?? null;
+    }
+
+    /**
+     * Удаление строки заказа Compel
+     * @param string $salesId - ID заказа
+     * @param string $lineId - ID строки
+     * @return mixed
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function deleteLine(string $salesId, string $lineId)
+    {
+        $compel = new CompelApiService();
+        
+        $salesLines = [[
+            'line_id' => $lineId,
+            'close' => true,
+        ]];
+        
+        $params = [
+            'sales_id' => $salesId,
+            'sales_lines' => $salesLines,
+        ];
+        
+        $response = $compel->editOrderLines($params);
+        
+        return $response->result ?? null;
     }
 }

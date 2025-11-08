@@ -281,6 +281,13 @@ class ModelRequest extends FormRequest
                     'line.application_area_id' => 'nullable|string',
                 ];
                 break;
+            case 'seller-order.update-line':
+                $rules = [
+                    'line_id' => 'required|string',
+                    'quantity' => 'required|integer|min:1',
+                    'seller_id' => 'required|integer',
+                ];
+                break;
             case 'transfer-out.store':
                 $rules += [
                     'item.SCODE' => 'integer|exists:App\Invoice,SCODE',

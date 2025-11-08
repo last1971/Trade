@@ -113,4 +113,47 @@ class SellerOrderService extends ModelService
         // Иначе стандартная логика для БД
         throw new Exception('Getting lines from non-Compel orders is not implemented');
     }
+
+    /**
+     * Изменение количества в строке заказа
+     * @param string $orderId
+     * @param string $lineId
+     * @param int $quantity
+     * @param int $sellerId
+     * @return mixed
+     * @throws Exception
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function updateLineQuantity(string $orderId, string $lineId, int $quantity, int $sellerId)
+    {
+        $compelId = config('pricing.Compel.sellerId');
+        
+        if ($sellerId == $compelId) {
+            return $this->compelOrderService->updateLineQuantity($orderId, $lineId, $quantity);
+        }
+        
+        throw new Exception('Updating line quantity for non-Compel orders is not implemented');
+    }
+
+    /**
+     * Удаление строки заказа
+     * @param string $orderId
+     * @param string $lineId
+     * @param int $sellerId
+     * @return mixed
+     * @throws Exception
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function deleteLine(string $orderId, string $lineId, int $sellerId)
+    {
+        $compelId = config('pricing.Compel.sellerId');
+        
+        if ($sellerId == $compelId) {
+            return $this->compelOrderService->deleteLine($orderId, $lineId);
+        }
+        
+        throw new Exception('Deleting line from non-Compel orders is not implemented');
+    }
 }

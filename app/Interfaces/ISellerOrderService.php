@@ -40,5 +40,22 @@ interface ISellerOrderService
      * @return array
      */
     public function getOrder(string $salesId);
+
+    /**
+     * Изменение количества в строке заказа
+     * @param string $salesId - ID заказа
+     * @param string $lineId - ID строки
+     * @param int $quantity - новое количество
+     * @return mixed
+     */
+    public function updateLineQuantity(string $salesId, string $lineId, int $quantity);
+
+    /**
+     * Удаление строки заказа
+     * @param string $salesId - ID заказа
+     * @param string $lineId - ID строки
+     * @return mixed
+     */
+    public function deleteLine(string $salesId, string $lineId);
 }
 

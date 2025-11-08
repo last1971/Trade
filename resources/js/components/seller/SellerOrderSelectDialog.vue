@@ -151,7 +151,7 @@ export default {
             this.syncing = true;
             try {
                 await this.$store.dispatch('SELLER-ORDER/SYNC_SELLER', this.sellerId);
-                this.$store.commit('SNACKBAR/SUCCESS', 'Заказы обновлены', { root: true });
+                this.$store.commit('SNACKBAR/PUSH', { text: 'Заказы обновлены', color: 'success', status: true }, { root: true });
             } finally {
                 this.syncing = false;
             }
@@ -200,7 +200,7 @@ export default {
                     orderId: response.data.id
                 });
                 
-                this.$store.commit('SNACKBAR/SUCCESS', `Заказ №${response.data.number} создан`, { root: true });
+                this.$store.commit('SNACKBAR/PUSH', { text: `Заказ №${response.data.number} создан`, color: 'success', status: true }, { root: true });
                 
                 // Очищаем поле и закрываем диалог
                 this.newOrderComment = '';

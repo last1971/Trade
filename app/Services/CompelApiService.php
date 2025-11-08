@@ -134,4 +134,19 @@ class CompelApiService
         return $this->method('sales_lines', $params);
     }
 
+    /**
+     * Редактирование строк заказа
+     * @param array $params
+     * @return mixed
+     * @throws CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function editOrderLines(array $params = [])
+    {
+        // Параметры:
+        // - sales_id: ID заказа
+        // - sales_lines: массив строк для редактирования
+        return $this->method('sales_handle_edit_ext', $params);
+    }
+
 }

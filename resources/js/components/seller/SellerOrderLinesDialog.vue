@@ -46,6 +46,7 @@
                                 <th class="text-right">Цена</th>
                                 <th class="text-right">Сумма</th>
                                 <th>Срок резерва</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -53,7 +54,27 @@
                                 <td>{{ line.item_name }}</td>
                                 <td>{{ line.brend }}</td>
                                 <td>{{ line.package_name }}</td>
-                                <td class="text-right">{{ line.sales_qty }}</td>
+                                <td class="text-right">
+                                    <v-edit-dialog
+                                        :return-value.sync="line.sales_qty"
+                                        @save="updateQuantity(line)"
+                                        @open="editingQuantity = line.sales_qty"
+                                        large
+                                        persistent
+                                    >
+                                        <div style="cursor: pointer">{{ line.sales_qty }}</div>
+                                        <template v-slot:input>
+                                            <v-text-field
+                                                v-model.number="editingQuantity"
+                                                label="Количество"
+                                                single-line
+                                                type="number"
+                                                :min="1"
+                                                autofocus
+                                            />
+                                        </template>
+                                    </v-edit-dialog>
+                                </td>
                                 <td class="text-right">
                                     <v-chip 
                                         x-small 
@@ -73,6 +94,17 @@
                                         {{ line.reservation_end | formatDate }}
                                     </span>
                                     <span v-else class="grey--text text-caption">—</span>
+                                </td>
+                                <td>
+                                    <v-btn
+                                        icon
+                                        x-small
+                                        color="error"
+                                        @click="confirmDelete(line)"
+                                        :disabled="loading"
+                                    >
+                                        <v-icon small>mdi-delete</v-icon>
+                                    </v-btn>
                                 </td>
                             </tr>
                         </tbody>
@@ -94,6 +126,22 @@
                 <v-btn text @click="close">Закрыть</v-btn>
             </v-card-actions>
         </v-card>
+        
+        <!-- Диалог подтверждения удаления -->
+        <v-dialog v-model="deleteDialog" max-width="400">
+            <v-card>
+                <v-card-title>Удалить строку?</v-card-title>
+                <v-card-text v-if="lineToDelete">
+                    <div>{{ lineToDelete.item_name }}</div>
+                    <div class="text-caption grey--text">{{ lineToDelete.brend }}</div>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer/>
+                    <v-btn text @click="deleteDialog = false">Нет</v-btn>
+                    <v-btn color="error" text @click="deleteLine" :loading="deleting">Да</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-dialog>
 </template>
 
@@ -114,7 +162,11 @@ export default {
     },
     data() {
         return {
-            loading: false
+            loading: false,
+            editingQuantity: 0,
+            deleteDialog: false,
+            lineToDelete: null,
+            deleting: false
         }
     },
     computed: {
@@ -182,6 +234,65 @@ export default {
             }
             // Иначе конвертируем
             return this.toRub(line.currency_code, line.amount);
+        },
+        async updateQuantity(line) {
+            if (!this.editingQuantity || this.editingQuantity < 1) {
+                this.$store.commit('SNACKBAR/ERROR', 'Количество должно быть больше 0', { root: true });
+                return;
+            }
+            
+            if (this.editingQuantity === line.sales_qty) {
+                return; // Не изменилось
+            }
+            
+            this.loading = true;
+            try {
+                // Вычисляем разницу в сумме
+                const oldAmount = this.amountInRub(line);
+                const newAmount = this.priceInRub(line) * this.editingQuantity;
+                const amountDiff = newAmount - oldAmount;
+                
+                await this.$store.dispatch('SELLER-ORDER/UPDATE_LINE_QUANTITY', {
+                    salesId: this.order.id,
+                    sellerId: this.order.seller_id,
+                    lineId: line.line_id,
+                    quantity: this.editingQuantity,
+                    amountDiff: amountDiff
+                });
+                
+                this.$store.commit('SNACKBAR/PUSH', { text: 'Количество изменено', color: 'success', status: true }, { root: true });
+            } catch (e) {
+                // Ошибка уже показана в экшене
+            } finally {
+                this.loading = false;
+            }
+        },
+        confirmDelete(line) {
+            this.lineToDelete = line;
+            this.deleteDialog = true;
+        },
+        async deleteLine() {
+            if (!this.lineToDelete) return;
+            
+            this.deleting = true;
+            try {
+                const amountToSubtract = this.amountInRub(this.lineToDelete);
+                
+                await this.$store.dispatch('SELLER-ORDER/DELETE_LINE', {
+                    salesId: this.order.id,
+                    sellerId: this.order.seller_id,
+                    lineId: this.lineToDelete.line_id,
+                    amountToSubtract: amountToSubtract
+                });
+                
+                this.$store.commit('SNACKBAR/PUSH', { text: 'Строка удалена', color: 'success', status: true }, { root: true });
+                this.deleteDialog = false;
+                this.lineToDelete = null;
+            } catch (e) {
+                // Ошибка уже показана в экшене
+            } finally {
+                this.deleting = false;
+            }
         },
         close() {
             this.dialog = false;

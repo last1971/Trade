@@ -214,6 +214,70 @@ actions['PRELOAD_LINES'] = async ({ dispatch }, { salesId, sellerId }) => {
     }
 };
 
+// ИЗМЕНЕНИЕ КОЛИЧЕСТВА В СТРОКЕ
+actions['UPDATE_LINE_QUANTITY'] = async ({ state, getters, commit }, { salesId, sellerId, lineId, quantity, amountDiff }) => {
+    try {
+        const response = await axios.put(`${getters.URL}/${salesId}/lines`, {
+            line_id: lineId,
+            quantity: quantity,
+            seller_id: sellerId
+        });
+        
+        // Обновляем количество в кеше
+        if (state.orderLines[salesId]) {
+            const line = state.orderLines[salesId].lines.find(l => l.line_id === lineId);
+            if (line) {
+                line.sales_qty = quantity;
+                // Пересчитываем amount для строки
+                line.amount = line.price * quantity;
+            }
+        }
+        
+        // Обновляем сумму заказа
+        const order = state.items.find(o => o.id === salesId);
+        if (order && amountDiff !== undefined) {
+            order.amount = (parseFloat(order.amount) || 0) + parseFloat(amountDiff);
+        }
+        
+        return response.data;
+    } catch (error) {
+        commit('SNACKBAR/ERROR', error.response?.data?.message || 'Ошибка изменения количества', { root: true });
+        throw error;
+    }
+};
+
+// УДАЛЕНИЕ СТРОКИ
+actions['DELETE_LINE'] = async ({ state, getters, commit }, { salesId, sellerId, lineId, amountToSubtract }) => {
+    try {
+        const response = await axios.delete(`${getters.URL}/${salesId}/lines`, {
+            params: {
+                line_id: lineId,
+                seller_id: sellerId
+            }
+        });
+        
+        // Удаляем строку из кеша
+        if (state.orderLines[salesId]) {
+            const index = state.orderLines[salesId].lines.findIndex(l => l.line_id === lineId);
+            if (index !== -1) {
+                state.orderLines[salesId].lines.splice(index, 1);
+                state.orderLines[salesId].total = state.orderLines[salesId].lines.length;
+            }
+        }
+        
+        // Обновляем сумму заказа
+        const order = state.items.find(o => o.id === salesId);
+        if (order && amountToSubtract !== undefined) {
+            order.amount = Math.max(0, (parseFloat(order.amount) || 0) - parseFloat(amountToSubtract));
+        }
+        
+        return response.data;
+    } catch (error) {
+        commit('SNACKBAR/ERROR', error.response?.data?.message || 'Ошибка удаления строки', { root: true });
+        throw error;
+    }
+};
+
 export default {
     namespaced: true,
     state,
