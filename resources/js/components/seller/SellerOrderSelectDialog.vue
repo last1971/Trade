@@ -1,11 +1,12 @@
 <template>
-    <v-dialog v-model="dialog" max-width="600">
+    <v-dialog v-model="dialog" max-width="400">
         <v-card>
-            <v-card-title>
-                Заказы {{ sellerName }}
+            <v-card-title class="d-flex align-center">
+                <span>Заказы {{ sellerName }}</span>
                 <v-spacer/>
                 <v-btn 
                     icon 
+                    small
                     @click="sync" 
                     :loading="syncing"
                     title="Синхронизировать"
@@ -47,10 +48,6 @@
                                 {{ order.remark }}
                             </v-list-item-subtitle>
                         </v-list-item-content>
-                        
-                        <v-list-item-action v-if="order.closed">
-                            <v-chip x-small color="grey">Закрыт</v-chip>
-                        </v-list-item-action>
                     </v-list-item>
                 </v-list>
             </v-card-text>

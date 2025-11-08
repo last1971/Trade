@@ -50,20 +50,36 @@ class CompelOrderService
         $params['page_num'] = $current_page;
         $per_page = $itemsPerPage ?? 20;
         $params['records_per_page'] = $per_page;
-        if ($this->index !== false && $this->filterValues[$this->index] === 'false') {
-            $params['status_filter'] = 'backorder';
-        }
+        
+        // 1. Сортировка по дате заказа (desc)
+        $params['order_sales_date'] = 'desc';
+        
+        // 2. Фильтр по статусу - только открытые заказы (backorder)
+        $params['status_filter'] = 'backorder';
+        
         $response = $compel->orders($params);
+        
         $data = collect((array)$response->result->sales)
+            // 3. Дополнительная фильтрация:
+            // - только открытые заказы
+            // - НЕТ подобранных линий (picked_lines = false)
+            // - НЕТ DMS (has_dms = false)
+            ->filter(fn($order) => 
+                $order->sales_status === 'Открытый заказ' && 
+                $order->picked_lines === false &&
+                $order->has_dms === false
+            )
             ->map(fn($order) => [
                 'id' => $order->sales_id,
                 'seller_id' => config('pricing.Compel.sellerId'),
                 'date' => $order->sales_date,
-                'number' => $order->document_number,
+                // 4. Номер заказа = sales_id
+                'number' => $order->sales_id,
                 'remark' => $order->comment,
                 'amount' => $order->sales_amount > 0 ? $order->sales_amount : $order->amount,
-                'closed' => $order->sales_status !== 'Открытый заказ',
-            ]);
+                'closed' => false, // Все заказы открытые после фильтрации
+            ])
+            ->values(); // Переиндексация после filter
         $total = $response->result->records;
         $last_page = $response->result->pages;
         $from = ($current_page - 1) * $per_page + 1;

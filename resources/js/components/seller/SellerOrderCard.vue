@@ -16,6 +16,9 @@
                     <div v-else class="text-body-2 grey--text">
                         Выберите заказ...
                     </div>
+                    <div v-if="activeOrder && activeOrder.remark" class="text-caption grey--text">
+                        {{ activeOrder.remark }}
+                    </div>
                 </v-col>
                 <v-col v-if="activeOrder" cols="auto" class="text-right">
                     <div class="text-body-2">{{ activeOrder.amount | formatRub }}</div>
