@@ -10,31 +10,50 @@ use Exception;
 class SellerOrderService extends ModelService
 {
     /**
-     * @var CompelOrderService
+     * @var \Illuminate\Support\Collection
      */
-    private $compelOrderService;
+    private $orderServices;
 
     /**
      * SellerOrderService constructor.
      */
-    public function __construct(CompelOrderService $compelOrderService = null)
+    public function __construct(
+        CompelOrderService $compelOrderService = null,
+        PromelecOrderService $promelecOrderService = null
+    )
     {
         parent::__construct(SellerOrder::class);
-        $this->compelOrderService = $compelOrderService ?? new CompelOrderService();
+        
+        $this->orderServices = collect([
+            config('pricing.Compel.sellerId') => $compelOrderService ?? new CompelOrderService(),
+            config('pricing.Promelec.sellerId') => $promelecOrderService ?? new PromelecOrderService(),
+        ]);
     }
 
     public function index($request)
     {
         $index = array_search('seller_id', $request->get('filterAttributes'));
         throw_if($index === false, new Exception('Need SellerId'));
-        $compelId = config('pricing.Compel.sellerId');
-        switch ($request->get('filterValues')[$index]) {
-            case $compelId:
-                return $this->compelOrderService->index($request);
-            default:
-                return parent::index($request);
+        
+        $sellerId = $request->get('filterValues')[$index];
+        
+        $service = $this->orderServices->get($sellerId);
+        
+        if ($service) {
+            return $service->index($request);
         }
+        
+        return parent::index($request);
+    }
 
+    /**
+     * Вспомогательный метод для определения сервиса по seller_id
+     * @param int $sellerId
+     * @return \App\Interfaces\ISellerOrderService|null
+     */
+    private function getOrderServiceBySeller(int $sellerId)
+    {
+        return $this->orderServices->get($sellerId);
     }
 
     /**
@@ -54,11 +73,10 @@ class SellerOrderService extends ModelService
             throw new Exception('seller_id is required');
         }
         
-        $compelId = config('pricing.Compel.sellerId');
+        $service = $this->getOrderServiceBySeller($data['seller_id']);
         
-        // Если это Compel - делегируем в CompelOrderService
-        if ($data['seller_id'] == $compelId) {
-            return $this->compelOrderService->create($request);
+        if ($service) {
+            return $service->create($request);
         }
         
         // Иначе стандартное сохранение в БД
@@ -81,15 +99,14 @@ class SellerOrderService extends ModelService
             throw new Exception('seller_id is required');
         }
         
-        $compelId = config('pricing.Compel.sellerId');
+        $service = $this->getOrderServiceBySeller($line['seller_id']);
         
-        // Если это Compel - делегируем в CompelOrderService
-        if ($line['seller_id'] == $compelId) {
-            return $this->compelOrderService->addLines($orderId, [$line]);
+        if ($service) {
+            return $service->addLines($orderId, [$line]);
         }
         
         // Иначе стандартная логика для БД
-        throw new Exception('Adding lines to non-Compel orders is not implemented');
+        throw new Exception('Adding lines to orders is not implemented for this seller');
     }
 
     /**
@@ -103,15 +120,14 @@ class SellerOrderService extends ModelService
      */
     public function getLines(string $orderId, int $sellerId)
     {
-        $compelId = config('pricing.Compel.sellerId');
+        $service = $this->getOrderServiceBySeller($sellerId);
         
-        // Если это Compel - делегируем в CompelOrderService
-        if ($sellerId == $compelId) {
-            return $this->compelOrderService->getLines($orderId);
+        if ($service) {
+            return $service->getLines($orderId);
         }
         
         // Иначе стандартная логика для БД
-        throw new Exception('Getting lines from non-Compel orders is not implemented');
+        throw new Exception('Getting lines from orders is not implemented for this seller');
     }
 
     /**
@@ -127,13 +143,13 @@ class SellerOrderService extends ModelService
      */
     public function updateLineQuantity(string $orderId, string $lineId, int $quantity, int $sellerId)
     {
-        $compelId = config('pricing.Compel.sellerId');
+        $service = $this->getOrderServiceBySeller($sellerId);
         
-        if ($sellerId == $compelId) {
-            return $this->compelOrderService->updateLineQuantity($orderId, $lineId, $quantity);
+        if ($service && method_exists($service, 'updateLineQuantity')) {
+            return $service->updateLineQuantity($orderId, $lineId, $quantity);
         }
         
-        throw new Exception('Updating line quantity for non-Compel orders is not implemented');
+        throw new Exception('Updating line quantity is not implemented for this seller');
     }
 
     /**
@@ -148,13 +164,13 @@ class SellerOrderService extends ModelService
      */
     public function deleteLine(string $orderId, string $lineId, int $sellerId)
     {
-        $compelId = config('pricing.Compel.sellerId');
+        $service = $this->getOrderServiceBySeller($sellerId);
         
-        if ($sellerId == $compelId) {
-            return $this->compelOrderService->deleteLine($orderId, $lineId);
+        if ($service && method_exists($service, 'deleteLine')) {
+            return $service->deleteLine($orderId, $lineId);
         }
         
-        throw new Exception('Deleting line from non-Compel orders is not implemented');
+        throw new Exception('Deleting line is not implemented for this seller');
     }
 
     /**
@@ -168,10 +184,10 @@ class SellerOrderService extends ModelService
      */
     public function sendInvoice(string $orderId, int $sellerId)
     {
-        $compelId = config('pricing.Compel.sellerId');
+        $service = $this->getOrderServiceBySeller($sellerId);
         
-        if ($sellerId == $compelId) {
-            return $this->compelOrderService->sendInvoice($orderId);
+        if ($service && method_exists($service, 'sendInvoice')) {
+            return $service->sendInvoice($orderId);
         }
         
         throw new Exception('Send invoice not implemented for this seller');

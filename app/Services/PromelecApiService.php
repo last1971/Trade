@@ -22,7 +22,7 @@ class PromelecApiService
 
         $request = [
             'login'         => env('PROM_LOGIN'),
-            'password'      => md5(env('PROM_PASS')),
+            'password'      => env('PROM_PASS'), // Пароль уже в виде md5 хеша в .env
             'customer_id'   => env('PROM_ID'),
             'method'        => $method,
         ];
@@ -62,5 +62,28 @@ class PromelecApiService
     public function getVendorComment()
     {
         return $this->method('vendor_comment_get');
+    }
+
+    /**
+     * Получение списка счетов (заказов)
+     * @param array $params
+     * @return mixed
+     * @throws
+     */
+    public function getOrders(array $params = [])
+    {
+        return $this->method('bills_data_get', $params);
+    }
+
+    /**
+     * Получение позиций счета
+     * @param int $billId
+     * @return mixed
+     * @throws
+     */
+    public function getBillItems(int $billId)
+    {
+        $params = ['bill_id' => $billId];
+        return $this->method('bill_items_get', $params);
     }
 }

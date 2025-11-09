@@ -12,7 +12,7 @@
             />
             
             <seller-order-card
-                :seller-id="999"
+                :seller-id="860"
                 seller-name="Промэлектроника"
             />
         </v-card-text>

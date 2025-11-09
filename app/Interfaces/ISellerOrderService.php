@@ -57,5 +57,12 @@ interface ISellerOrderService
      * @return mixed
      */
     public function deleteLine(string $salesId, string $lineId);
+
+    /**
+     * Отправка счета
+     * @param string $salesId - ID заказа
+     * @return mixed
+     */
+    public function sendInvoice(string $salesId);
 }
 
