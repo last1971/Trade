@@ -306,7 +306,36 @@ class PromelecOrderService implements ISellerOrderService
      */
     public function updateLineQuantity(string $salesId, string $lineId, int $quantity)
     {
-        throw new \Exception('Updating line quantity is not supported for Promelec');
+        $params = [
+            'bill_id' => (int)$salesId,
+            'id' => $lineId,
+            'quant' => (int)$quantity,
+        ];
+
+        try {
+            $promelec = new PromelecApiService();
+            $response = $promelec->updateBillItemQuantity($params);
+
+            $items = $response;
+
+            if (is_object($response) && property_exists($response, 'result')) {
+                $items = $response->result;
+            }
+
+            if (!is_array($items)) {
+                $items = [$items];
+            }
+
+            $line = collect($items)
+                ->map(fn($item) => $this->formatBillItem($item))
+                ->first();
+
+            return [
+                'line' => $line,
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
     /**
@@ -318,7 +347,21 @@ class PromelecOrderService implements ISellerOrderService
      */
     public function deleteLine(string $salesId, string $lineId)
     {
-        throw new \Exception('Deleting line is not supported for Promelec');
+        $params = [
+            'bill_id' => (int)$salesId,
+            'id' => $lineId,
+        ];
+
+        try {
+            $promelec = new PromelecApiService();
+            $promelec->deleteBillItem($params);
+
+            return [
+                'success' => true,
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
     /**

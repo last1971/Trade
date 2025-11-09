@@ -146,7 +146,7 @@ export default {
             const orderLines = this.$store.getters['SELLER-ORDER/GET_ORDER_LINES'](this.activeOrder.id);
             
             // Проверяем, есть ли уже строка с таким item_id
-            const existingLine = orderLines.lines.find(line => line.item_id === this.item.code);
+            const existingLine = orderLines.lines.find(line => String(line.item_id) === String(this.item.code));
             
             if (existingLine) {
                 // Строка существует - показываем диалог подтверждения

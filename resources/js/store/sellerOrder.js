@@ -226,7 +226,7 @@ actions['PRELOAD_LINES'] = async ({ dispatch }, { salesId, sellerId }) => {
 actions['UPDATE_LINE_QUANTITY'] = async ({ state, getters, commit }, { salesId, sellerId, lineId, quantity, amountDiff }) => {
     try {
         const response = await axios.put(`${getters.URL}/${salesId}/lines`, {
-            line_id: lineId,
+            line_id: lineId != null ? String(lineId) : lineId,
             quantity: quantity,
             seller_id: sellerId
         });
@@ -259,7 +259,7 @@ actions['DELETE_LINE'] = async ({ state, getters, commit }, { salesId, sellerId,
     try {
         const response = await axios.delete(`${getters.URL}/${salesId}/lines`, {
             params: {
-                line_id: lineId,
+                line_id: lineId != null ? String(lineId) : lineId,
                 seller_id: sellerId
             }
         });

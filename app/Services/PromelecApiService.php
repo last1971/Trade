@@ -108,4 +108,26 @@ class PromelecApiService
     {
         return $this->method('bill_item_ins', $params);
     }
+
+    /**
+     * Изменение количества позиции счета
+     * @param array $params
+     * @return mixed
+     * @throws
+     */
+    public function updateBillItemQuantity(array $params)
+    {
+        return $this->method('bill_item_quant', $params);
+    }
+
+    /**
+     * Удаление позиции счета
+     * @param array $params
+     * @return mixed
+     * @throws
+     */
+    public function deleteBillItem(array $params)
+    {
+        return $this->method('bill_item_del', $params);
+    }
 }
