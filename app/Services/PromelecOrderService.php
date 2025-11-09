@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Interfaces\ISellerOrderService;
-use Illuminate\Support\Facades\Log;
 
 class PromelecOrderService implements ISellerOrderService
 {
@@ -33,6 +32,66 @@ class PromelecOrderService implements ISellerOrderService
         } catch (\Exception $e) {
             return $date;
         }
+    }
+
+    /**
+     * Преобразование строки счета Promelec к формату приложения
+     * @param object|array $item
+     * @return array
+     */
+    private function formatBillItem($item): array
+    {
+        if (is_array($item)) {
+            $item = (object)$item;
+        }
+
+        $quantity = (int)($item->quant ?? 0);
+        $price = (float)($item->price ?? $item->price_main ?? 0);
+        $amount = (float)($item->sum_ ?? ($price * $quantity));
+        $reservationEnd = $item->date_service_1 ?? null;
+
+        return [
+            'line_id' => $item->id ?? null,
+            'item_id' => $item->item_id ?? null,
+            'item_name' => $item->name ?? '',
+            'brend' => '',
+            'package_name' => '',
+            'sales_qty' => $quantity,
+            'price' => $price,
+            'amount' => $amount,
+            'currency_code' => 'RUB',
+            'reserve_qty' => $quantity,
+            'reservation_end' => $reservationEnd ? $this->convertDate($reservationEnd) : null,
+            'status' => $item->statusname ?? '',
+            'status_code' => $item->status ?? null,
+            'vendor_id' => $item->vendor_id ?? null,
+            'order_id' => $item->order_id ?? null,
+            'order_item_id' => $item->order_item_id ?? null,
+        ];
+    }
+
+    /**
+     * Преобразование данных счета Promelec к формату приложения
+     * @param object|array $bill
+     * @return array
+     */
+    private function formatBill($bill): array
+    {
+        if (is_array($bill)) {
+            $bill = (object)$bill;
+        }
+
+        return [
+            'id' => $bill->bill_id ?? null,
+            'seller_id' => config('pricing.Promelec.sellerId'),
+            'date' => isset($bill->date_) ? $this->convertDate($bill->date_) : null,
+            'number' => $bill->number ?? ($bill->bill_id ?? null),
+            'remark' => $bill->client_comment ?? '',
+            'amount' => $bill->sum_ ?? 0,
+            'closed' => false,
+            'document_number' => null,
+            'date_deadline' => null,
+        ];
     }
 
     /**
@@ -66,17 +125,7 @@ class PromelecOrderService implements ISellerOrderService
         
         $data = collect($response)
             ->filter(fn($bill) => $bill->customer_id == $customerId)
-            ->map(fn($bill) => [
-                'id' => $bill->bill_id,
-                'seller_id' => config('pricing.Promelec.sellerId'),
-                'date' => $this->convertDate($bill->date_),
-                'number' => $bill->number ?? $bill->bill_id,
-                'remark' => $bill->client_comment ?? '',
-                'amount' => $bill->sum_ ?? 0,
-                'closed' => false,
-                'document_number' => null,
-                'date_deadline' => null,
-            ])
+            ->map(fn($bill) => $this->formatBill($bill))
             ->values();
         
         // Простая пагинация на стороне клиента
@@ -110,22 +159,7 @@ class PromelecOrderService implements ISellerOrderService
             $response = $promelec->getBillItems((int)$orderId);
             
             $lines = collect($response)
-                ->map(function($item) {
-                    return [
-                        'line_id' => $item->id ?? null,
-                        'item_id' => $item->item_id ?? null,
-                        'item_name' => $item->name ?? '',
-                        'brend' => '',
-                        'package_name' => '',
-                        'sales_qty' => (int)($item->quant ?? 0),
-                        'price' => (float)($item->price ?? 0),
-                        'amount' => (float)($item->sum_ ?? 0),
-                        'currency_code' => 'RUB',
-                        'reserve_qty' => (int)($item->quant ?? 0),
-                        'reservation_end' => null,
-                        'status' => $item->statusname ?? '',
-                    ];
-                })
+                ->map(fn($item) => $this->formatBillItem($item))
                 ->values()
                 ->toArray();
             
@@ -159,15 +193,7 @@ class PromelecOrderService implements ISellerOrderService
             throw new \Exception('Bill not found');
         }
         
-        return [
-            'id' => $bill->bill_id,
-            'seller_id' => config('pricing.Promelec.sellerId'),
-            'date' => $this->convertDate($bill->date_),
-            'number' => $bill->number ?? $bill->bill_id,
-            'remark' => $bill->client_comment ?? '',
-            'amount' => $bill->sum_ ?? 0,
-            'closed' => false,
-        ];
+        return $this->formatBill($bill);
     }
 
     /**
@@ -178,7 +204,33 @@ class PromelecOrderService implements ISellerOrderService
      */
     public function create($request)
     {
-        throw new \Exception('Creating orders is not supported for Promelec');
+        $data = is_array($request) ? $request : ($request->item ?? []);
+
+        $clientComment = $data['client_comment']
+            ?? $data['comment']
+            ?? $data['remark']
+            ?? ($data['description'] ?? null);
+
+        $params = [];
+
+        if ($clientComment !== null) {
+            $params['client_comment'] = $clientComment;
+        }
+
+        try {
+            $promelec = new PromelecApiService();
+            $response = $promelec->createBill($params);
+
+            $bill = $response;
+
+            if (is_object($response) && property_exists($response, 'result')) {
+                $bill = $response->result;
+            }
+
+            return $this->formatBill($bill);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
     /**
@@ -191,7 +243,57 @@ class PromelecOrderService implements ISellerOrderService
      */
     public function addLines(string $salesId, array $lines, bool $reserveAll = true)
     {
-        throw new \Exception('Adding lines is not supported for Promelec');
+        if (empty($lines)) {
+            throw new \Exception('Line data is required');
+        }
+
+        $line = $lines[0];
+
+        $itemId = $line['item_id'] ?? $line['itemId'] ?? null;
+        $quantity = $line['quant'] ?? $line['qty'] ?? $line['quantity'] ?? null;
+
+        if (!$itemId || !$quantity) {
+            throw new \Exception('item_id and quantity are required for Promelec');
+        }
+
+        $params = [
+            'bill_id' => (int)$salesId,
+            'item_id' => $itemId,
+            'quant' => (int)$quantity,
+        ];
+
+        if (isset($line['vendor_id'])) {
+            $params['vendor_id'] = (int)$line['vendor_id'];
+        } elseif (isset($line['vendorId'])) {
+            $params['vendor_id'] = (int)$line['vendorId'];
+        }
+
+        try {
+            $promelec = new PromelecApiService();
+            $response = $promelec->addBillItem($params);
+
+            $items = $response;
+
+            if (is_object($response) && property_exists($response, 'result')) {
+                $items = $response->result;
+            }
+
+            if (!is_array($items)) {
+                $items = [$items];
+            }
+
+            $lines = collect($items)
+                ->map(fn($item) => $this->formatBillItem($item))
+                ->values()
+                ->toArray();
+
+            return [
+                'lines' => $lines,
+                'total' => count($lines),
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
+        }
     }
 
     /**

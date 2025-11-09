@@ -76,6 +76,17 @@ class PromelecApiService
     }
 
     /**
+     * Создание счета
+     * @param array $params
+     * @return mixed
+     * @throws
+     */
+    public function createBill(array $params = [])
+    {
+        return $this->method('bill_ins', $params);
+    }
+
+    /**
      * Получение позиций счета
      * @param int $billId
      * @return mixed
@@ -85,5 +96,16 @@ class PromelecApiService
     {
         $params = ['bill_id' => $billId];
         return $this->method('bill_items_get', $params);
+    }
+
+    /**
+     * Добавление позиции в счет
+     * @param array $params
+     * @return mixed
+     * @throws
+     */
+    public function addBillItem(array $params)
+    {
+        return $this->method('bill_item_ins', $params);
     }
 }
