@@ -27,7 +27,7 @@
                 <transfer-out-lines-dependent v-if="good" :good="good"/>
             </v-tab-item>
             <v-tab-item v-if="hasPermission('reserve.index')">>
-                <reserves-dependent v-if="good" :value="good" :name="good.name.NAME"/>
+                <reserves-dependent v-if="good && good.name" :value="good" :name="good.name.NAME"/>
             </v-tab-item>
             <v-tab-item v-if="hasPermission('store-line.index')">
                 <store-lines-dependent v-if="good" :good="good"/>

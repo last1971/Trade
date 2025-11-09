@@ -48,7 +48,7 @@ export default {
             return this.$store.getters['GOOD/GET'](this.value);
         },
         title() {
-            return  this.good ? 'Счета для ' + this.good.name.NAME : '';
+            return (this.good && this.good.name) ? 'Счета для ' + this.good.name.NAME : '';
         },
     }
 }

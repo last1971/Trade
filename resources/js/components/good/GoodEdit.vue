@@ -93,7 +93,7 @@
             },
             retailPrice: {
                 get() {
-                    return this.model.retailPrice || {PRICECODE: 0, DOLLAR: 'F', GOODSCODE: this.model.GOODSCODE}
+                    return (this.model && this.model.retailPrice) || {PRICECODE: 0, DOLLAR: 'F', GOODSCODE: this.model ? this.model.GOODSCODE : null}
                 },
                 set(val) {
                     this.model.retailPrice = val;
@@ -101,7 +101,7 @@
             },
             orderStep: {
                 get() {
-                    return this.model.orderStep || {ID: 0, GOODSCODE: this.model.GOODSCODE}
+                    return (this.model && this.model.orderStep) || {ID: 0, GOODSCODE: this.model ? this.model.GOODSCODE : null}
                 },
                 set(val) {
                     this.model.orderStep = val;
@@ -130,7 +130,7 @@
             model: {
                 deep: true,
                 handler: function (val) {
-                    if (val.NAMECODE && this.NAMECODE !== val.NAMECODE) {
+                    if (val && val.NAMECODE && this.NAMECODE !== val.NAMECODE) {
                         this.$store.dispatch('NAME/CACHE', {id: val.NAMECODE, query: {with: ['category']}})
                             .then((response) => {
                                 this.model.CATEGORYCODE = response.CATEGORYCODE;
@@ -138,10 +138,10 @@
                                 this.categoryKey += 1;
                             })
                     }
-                    if (!val.NAMECODE) {
+                    if (!val || !val.NAMECODE) {
                         this.CATEGORYCODE = null;
                     }
-                    this.NAMECODE = val.NAMECODE;
+                    this.NAMECODE = val ? val.NAMECODE : null;
                 }
             }
         },
