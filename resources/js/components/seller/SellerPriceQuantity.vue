@@ -14,7 +14,7 @@
                         <v-icon left>mdi-text-box</v-icon>
                         В Счет
                     </v-btn>
-                    <v-btn v-if="hasSellerOrder && item.code" small rounded @click="addToSellerOrder" :disabled="addingToOrder">
+                    <v-btn v-if="hasSellerOrder && item.code" small rounded @click="addToSellerOrder">
                         <v-icon left>mdi-clipboard-arrow-left</v-icon>
                         В Заказ
                     </v-btn>
@@ -71,7 +71,6 @@ export default {
         return {
             isAddInvoiceLine: false,
             additionalKey: 0,
-            addingToOrder: false,
             showConfirmDialog: false,
             existingLineForUpdate: null,
         }
@@ -163,7 +162,6 @@ export default {
         },
         async confirmUpdate() {
             this.showConfirmDialog = false;
-            this.addingToOrder = true;
             
             try {
                 const newQuantity = this.item.orderQuantity;
@@ -184,12 +182,10 @@ export default {
             } catch (e) {
                 this.$store.commit('SNACKBAR/ERROR', e.response?.data?.message || 'Ошибка обновления количества', { root: true });
             } finally {
-                this.addingToOrder = false;
                 this.existingLineForUpdate = null;
             }
         },
         async addNewLine() {
-            this.addingToOrder = true;
             try {
                 const priceInRub = this.toRub(this.item.CharCode, this.item.price);
                 const amountInRub = priceInRub * this.item.orderQuantity;
@@ -223,8 +219,6 @@ export default {
                 this.$store.commit('SNACKBAR/PUSH', { text: 'Добавлено в заказ', color: 'success', status: true }, { root: true });
             } catch (e) {
                 this.$store.commit('SNACKBAR/ERROR', e.response?.data?.message || 'Ошибка добавления в заказ', { root: true });
-            } finally {
-                this.addingToOrder = false;
             }
         }
     }

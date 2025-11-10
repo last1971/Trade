@@ -21,6 +21,9 @@ state.activeOrderIds = {};
 // Кеш строк заказов: { orderId: { lines: [], total: 0, loading: false } }
 state.orderLines = {};
 
+// Состояние добавления строки в заказ: { orderId: boolean }
+state.addingLine = {};
+
 // Получить заказы для поставщика
 getters['GET_BY_SELLER'] = state => sellerId => {
     return state.items.filter(order => order.seller_id === sellerId);
@@ -41,6 +44,11 @@ getters['GET_ACTIVE_ORDER'] = state => sellerId => {
 // Получить строки заказа из кеша
 getters['GET_ORDER_LINES'] = state => orderId => {
     return state.orderLines[orderId] || { lines: [], total: 0, loading: false };
+};
+
+// Проверить, идет ли добавление строки в заказ
+getters['IS_ADDING_LINE'] = state => orderId => {
+    return state.addingLine[orderId] || false;
 };
 
 // Установить активный заказ
@@ -101,6 +109,14 @@ mutations['CLEAR_ORDER_LINES'] = (state, orderId) => {
     state.orderLines = newOrderLines;
 };
 
+// Установить состояние добавления строки
+mutations['SET_ADDING_LINE'] = (state, { orderId, adding }) => {
+    state.addingLine = {
+        ...state.addingLine,
+        [orderId]: adding
+    };
+};
+
 // Добавить строку в кеш заказа
 mutations['ADD_LINE_TO_CACHE'] = (state, { orderId, line }) => {
     if (!state.orderLines[orderId]) {
@@ -151,6 +167,7 @@ actions['SYNC_SELLER'] = async ({ state, getters, commit }, sellerId) => {
 
 // ДОБАВЛЕНИЕ СТРОКИ В ЗАКАЗ
 actions['ADD_LINE'] = async ({ state, getters, commit, dispatch }, { sellerId, salesId, line, amountToAdd, lineData }) => {
+    commit('SET_ADDING_LINE', { orderId: salesId, adding: true });
     try {
         const response = await axios.post(`${getters.URL}/${salesId}/lines`, {
             line: line
@@ -185,6 +202,8 @@ actions['ADD_LINE'] = async ({ state, getters, commit, dispatch }, { sellerId, s
     } catch (error) {
         commit('SNACKBAR/ERROR', error.response?.data?.message || 'Ошибка добавления строки', { root: true });
         throw error;
+    } finally {
+        commit('SET_ADDING_LINE', { orderId: salesId, adding: false });
     }
 };
 

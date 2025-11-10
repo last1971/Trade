@@ -12,6 +12,9 @@
                     <div class="font-weight-bold">{{ sellerName }}</div>
                     <div v-if="activeOrder" class="text-body-2">
                         № {{ activeOrder.number }}
+                        <v-chip x-small class="ml-1" color="primary" outlined>
+                            {{ linesCount }}
+                        </v-chip>
                     </div>
                     <div v-else class="text-body-2 grey--text">
                         Выберите заказ...
@@ -25,7 +28,16 @@
                     <div class="text-caption grey--text">{{ activeOrder.date | formatDate }}</div>
                 </v-col>
                 <v-col v-if="activeOrder" cols="auto">
+                    <v-progress-circular
+                        v-if="isAddingLine"
+                        indeterminate
+                        size="20"
+                        width="2"
+                        color="primary"
+                        class="mx-1"
+                    ></v-progress-circular>
                     <v-btn 
+                        v-else
                         icon 
                         x-small 
                         @click.stop="showLines"
@@ -90,12 +102,23 @@ export default {
     computed: {
         ...mapGetters({
             getActiveOrder: 'SELLER-ORDER/GET_ACTIVE_ORDER',
+            getOrderLines: 'SELLER-ORDER/GET_ORDER_LINES',
+            isAddingLineToOrder: 'SELLER-ORDER/IS_ADDING_LINE',
         }),
         activeOrder() {
             return this.getActiveOrder(this.sellerId);
         },
         hasActiveOrder() {
             return !!this.activeOrder;
+        },
+        linesCount() {
+            if (!this.activeOrder) return 0;
+            const orderLines = this.getOrderLines(this.activeOrder.id);
+            return orderLines.total || 0;
+        },
+        isAddingLine() {
+            if (!this.activeOrder) return false;
+            return this.isAddingLineToOrder(this.activeOrder.id);
         }
     },
     methods: {
