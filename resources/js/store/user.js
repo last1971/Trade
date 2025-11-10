@@ -7,7 +7,7 @@ state.name = 'user';
 
 state.key = 'id';
 
-state.fillable = ['name', 'employeeId', 'roles', 'user_buyers', 'user_firms'];
+state.fillable = ['name', 'employeeId', 'roles', 'user_buyers', 'user_firms', 'compel_hash'];
 
 state.headers = [
     // {text: '', value: 'actions', width: 10, sortable: false},
@@ -37,6 +37,11 @@ state.headers = [
     {
         text: 'Фирмы',
         value: 'userFirms',
+        sortable: false,
+    },
+    {
+        text: 'Compel Hash',
+        value: 'compel_hash',
         sortable: false,
     }
 

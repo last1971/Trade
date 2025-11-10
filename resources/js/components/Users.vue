@@ -27,6 +27,9 @@
         <template v-slot:item.userFirms="{ item }">
             <user-firms @input="save(item)" v-model="item.user_firms"/>
         </template>
+        <template v-slot:item.compel_hash="{ item }">
+            <v-text-field @change="save(item)" v-model="item.compel_hash"/>
+        </template>
     </v-data-table>
 </template>
 

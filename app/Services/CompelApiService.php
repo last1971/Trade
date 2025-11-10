@@ -20,7 +20,7 @@ class CompelApiService
     {
         $client = new Client;
 
-        $queryParams = array_merge($params, ['user_hash' => env('COMPEL_API_HASH')]);
+        $queryParams = array_merge($params, ['user_hash' => auth()->user()->compel_hash ?? env('COMPEL_API_HASH')]);
 
         $request = [
             'id' => 1,
