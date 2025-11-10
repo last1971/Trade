@@ -132,7 +132,7 @@
                     @click="sendInvoice"
                     :loading="sendingInvoice"
                     :disabled="loading || !lines.length"
-                    v-if="isCompel"
+                    v-if="showSendInvoiceButton"
                 >
                     <v-icon left>mdi-email-send</v-icon>
                     Отправить счет
@@ -142,6 +142,16 @@
                     @click="openShipDialog"
                     :disabled="loading || !lines.length"
                     v-if="isCompel"
+                >
+                    <v-icon left>mdi-truck-delivery</v-icon>
+                    Отгрузить
+                </v-btn>
+                <v-btn
+                    color="success"
+                    @click="shipPromelecOrder"
+                    :loading="shippingPromelec"
+                    :disabled="loading || !lines.length"
+                    v-if="isPromelec"
                 >
                     <v-icon left>mdi-truck-delivery</v-icon>
                     Отгрузить
@@ -198,7 +208,8 @@ export default {
             deleteDialog: false,
             lineToDelete: null,
             deleting: false,
-            sendingInvoice: false
+            sendingInvoice: false,
+            shippingPromelec: false
         }
     },
     computed: {
@@ -228,6 +239,14 @@ export default {
         isCompel() {
             // Compel seller_id = 857
             return this.order.seller_id === 857;
+        },
+        isPromelec() {
+            // Promelec seller_id = 860
+            return this.order.seller_id === 860;
+        },
+        showSendInvoiceButton() {
+            // Показываем кнопку для Compel и Promelec
+            return this.isCompel || this.isPromelec;
         }
     },
     watch: {
@@ -343,9 +362,34 @@ export default {
                     }
                 );
                 
-                // Обновляем поля заказа из ответа
                 if (response.data.success && response.data.data) {
                     const data = response.data.data;
+                    
+                    // Если это PDF в base64 (Promelec) - открываем в новой вкладке
+                    if (data.type === 'pdf' && data.pdf) {
+                        const blob = this.base64ToBlob(data.pdf, 'application/pdf');
+                        const url = URL.createObjectURL(blob);
+                        window.open(url, '_blank');
+                        this.$store.commit('SNACKBAR/PUSH', { 
+                            text: 'Счет открыт в новой вкладке', 
+                            color: 'success', 
+                            status: true 
+                        }, { root: true });
+                        return;
+                    }
+                    
+                    // Если это ссылка - открываем в новой вкладке
+                    if (data.type === 'link' && data.url) {
+                        window.open(data.url, '_blank');
+                        this.$store.commit('SNACKBAR/PUSH', { 
+                            text: 'Счет открыт в новой вкладке', 
+                            color: 'success', 
+                            status: true 
+                        }, { root: true });
+                        return;
+                    }
+                    
+                    // Иначе обновляем поля заказа (Compel)
                     const fields = {};
                     
                     if (data.official_doc_num_invoice) {
@@ -362,13 +406,13 @@ export default {
                             fields: fields
                         });
                     }
+                    
+                    this.$store.commit('SNACKBAR/PUSH', { 
+                        text: 'Счет отправлен', 
+                        color: 'success', 
+                        status: true 
+                    }, { root: true });
                 }
-                
-                this.$store.commit('SNACKBAR/PUSH', { 
-                    text: 'Счет отправлен', 
-                    color: 'success', 
-                    status: true 
-                }, { root: true });
             } catch (e) {
                 this.$store.commit('SNACKBAR/ERROR', 
                     e.response?.data?.message || 'Ошибка отправки счета', 
@@ -389,6 +433,45 @@ export default {
             this.$emit('order-shipped', orderId);
             // Закрываем диалог строк
             this.close();
+        },
+        base64ToBlob(base64, contentType) {
+            const byteCharacters = atob(base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            return new Blob([byteArray], { type: contentType });
+        },
+        async shipPromelecOrder() {
+            this.shippingPromelec = true;
+            try {
+                const response = await axios.post(
+                    `/api/seller-order/${this.order.id}/ship`,
+                    {
+                        seller_id: this.order.seller_id
+                    }
+                );
+                
+                if (response.data.success) {
+                    this.$store.commit('SNACKBAR/PUSH', {
+                        text: 'Заказ успешно отгружен',
+                        color: 'success',
+                        status: true
+                    }, { root: true });
+                    
+                    // Удаляем заказ из списка (статус изменился)
+                    this.$emit('order-shipped', this.order.id);
+                    this.close();
+                } else {
+                    throw new Error(response.data.message || 'Ошибка отгрузки');
+                }
+            } catch (error) {
+                const message = error.response?.data?.message || error.message || 'Ошибка отгрузки';
+                this.$store.commit('SNACKBAR/ERROR', message, { root: true });
+            } finally {
+                this.shippingPromelec = false;
+            }
         }
     }
 }

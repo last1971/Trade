@@ -26,7 +26,8 @@ class PromelecApiService
             'customer_id'   => env('PROM_ID'),
             'method'        => $method,
         ];
-        $request = $params ? array_merge($params, $request) : $request;
+        $request = $params ? array_merge($request, $params) : $request;
+        
         $res = $client->request(
             'POST',
             env('PROM_API_URL'),
@@ -84,6 +85,51 @@ class PromelecApiService
     public function createBill(array $params = [])
     {
         return $this->method('bill_ins', $params);
+    }
+
+    /**
+     * Получение PDF документа счета
+     * @param int $billId
+     * @return string - содержимое PDF файла
+     * @throws
+     */
+    public function getBillDocument(int $billId)
+    {
+        $client = new Client;
+
+        $request = [
+            'login'         => env('PROM_LOGIN'),
+            'password'      => env('PROM_PASS'),
+            'customer_id'   => env('PROM_ID'),
+            'method'        => 'bill_document_get',
+            'bill_id'       => $billId,
+        ];
+        
+        $res = $client->request(
+            'POST',
+            env('PROM_API_URL'),
+            [
+                'json'   => $request
+            ]
+        );
+
+        return $res->getBody()->getContents();
+    }
+
+    /**
+     * Установка статуса счета (отгрузка)
+     * @param int $billId
+     * @param int $status
+     * @return mixed
+     * @throws
+     */
+    public function setBillStatus(int $billId, int $status = 2)
+    {
+        $params = [
+            'bill_id' => $billId,
+            'status' => $status,
+        ];
+        return $this->method('bill_Items_Status_Set', $params);
     }
 
     /**

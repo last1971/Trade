@@ -365,27 +365,46 @@ class PromelecOrderService implements ISellerOrderService
     }
 
     /**
-     * Отправка счета (заглушка - Promelec не поддерживает)
-     * @param string $salesId - ID заказа
-     * @return mixed
+     * Получение PDF счета для Promelec в base64
+     * @param string $salesId - ID заказа (bill_id)
+     * @return array ['pdf' => string, 'type' => 'pdf']
      * @throws \Exception
      */
     public function sendInvoice(string $salesId)
     {
-        throw new \Exception('Send invoice is not supported for Promelec');
+        try {
+            $promelec = new PromelecApiService();
+            $pdfContent = $promelec->getBillDocument((int)$salesId);
+            
+            // Возвращаем PDF в base64
+            return [
+                'pdf' => base64_encode($pdfContent),
+                'type' => 'pdf',
+                'filename' => 'bill_' . $salesId . '.pdf'
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception('Error getting bill document: ' . $e->getMessage());
+        }
     }
 
     /**
-     * Отгрузка заказа (заглушка - Promelec не поддерживает)
-     * @param string $salesId - ID заказа
-     * @param string|null $customerDeliveryTypeId - ID способа доставки
-     * @param string|null $dateDeadline - дата действия (формат YYYY-MM-DD)
+     * Отгрузка заказа для Promelec
+     * @param string $salesId - ID заказа (bill_id)
+     * @param string|null $customerDeliveryTypeId - не используется
+     * @param string|null $dateDeadline - не используется
      * @return mixed
      * @throws \Exception
      */
     public function shipOrder(string $salesId, ?string $customerDeliveryTypeId, ?string $dateDeadline)
     {
-        throw new \Exception('Ship order is not supported for Promelec');
+        try {
+            $promelec = new PromelecApiService();
+            $response = $promelec->setBillStatus((int)$salesId, 2);
+            
+            return $response;
+        } catch (\Exception $e) {
+            throw new \Exception('Error shipping order: ' . $e->getMessage());
+        }
     }
 }
 
