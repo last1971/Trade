@@ -1,6 +1,47 @@
 const state = {
-    deliveryModes: [],
-    deliveryModesLoaded: false
+    deliveryModes: [        
+        {
+            id: '5641730329',
+            delivery_mode: 'РФ DPD Economy',
+            warehouse_area: 'CCV0030',
+            shipping_schedule: 'Пятница',
+            payment_terms: 'Доставка в отдельном заказе',
+            address: '344002, Россия, Ростовская обл, г Ростов-на-Дону, Крыловской пер, д 10/13, кв 55'
+        },
+        {
+            id: '5646674832',
+            delivery_mode: 'РФ DPD Economy',
+            warehouse_area: 'CCV0030',
+            shipping_schedule: 'Пятница',
+            payment_terms: 'Доставка в отдельном заказе',
+            address: '634050, Томская обл, г Томск, ул Розы Люксембург, д 19'
+        },
+        {
+            id: '5643140578',
+            delivery_mode: 'РФ DPD Express',
+            warehouse_area: 'CCV0030',
+            shipping_schedule: 'Пятница',
+            payment_terms: 'Доставка в отдельном заказе',
+            address: '344002, Россия, Ростовская обл, г Ростов-на-Дону, Крыловской пер, д 10/13, кв 55'
+        },
+        {
+            id: '5646674831',
+            delivery_mode: 'РФ DPD Express',
+            warehouse_area: 'CCV0030',
+            shipping_schedule: 'Пятница',
+            payment_terms: 'Доставка в отдельном заказе',
+            address: '634050, Томская обл, г Томск, ул Розы Люксембург, д 19'
+        },
+        {
+            id: '5646674833',
+            delivery_mode: 'РФ DPD OPTIMUM',
+            warehouse_area: 'CCV0030',
+            shipping_schedule: 'Пятница',
+            payment_terms: 'Доставка в отдельном заказе',
+            address: '634050, Томская обл, г Томск, ул Розы Люксембург, д 19'
+        }
+    ],
+    deliveryModesLoaded: true
 };
 
 const getters = {
@@ -15,28 +56,7 @@ const mutations = {
     }
 };
 
-const actions = {
-    async LOAD_DELIVERY_MODES({ commit, state }) {
-        // Если уже загружены, не загружаем повторно
-        if (state.deliveryModesLoaded) {
-            return state.deliveryModes;
-        }
-
-        try {
-            const response = await axios.get('/api/compel/delivery-modes');
-            
-            if (response.data.success) {
-                commit('SET_DELIVERY_MODES', response.data.data);
-                return response.data.data;
-            }
-            
-            return [];
-        } catch (e) {
-            console.error('Error loading Compel delivery modes:', e);
-            return [];
-        }
-    }
-};
+const actions = {};
 
 export default {
     namespaced: true,

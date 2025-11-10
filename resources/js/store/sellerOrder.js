@@ -94,6 +94,13 @@ mutations['SET_ORDER_LINES'] = (state, { orderId, lines, total }) => {
     };
 };
 
+// Очистить строки заказа из кеша
+mutations['CLEAR_ORDER_LINES'] = (state, orderId) => {
+    const newOrderLines = { ...state.orderLines };
+    delete newOrderLines[orderId];
+    state.orderLines = newOrderLines;
+};
+
 // Добавить строку в кеш заказа
 mutations['ADD_LINE_TO_CACHE'] = (state, { orderId, line }) => {
     if (!state.orderLines[orderId]) {

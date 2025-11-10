@@ -58,6 +58,7 @@
             v-if="activeOrder"
             v-model="showLinesDialog"
             :order="activeOrder"
+            @order-shipped="handleOrderShipped"
         />
     </v-card>
 </template>
@@ -106,6 +107,12 @@ export default {
         },
         removeOrder() {
             this.$store.commit('SELLER-ORDER/REMOVE_ACTIVE_ID', this.sellerId);
+        },
+        handleOrderShipped(orderId) {
+            // Удаляем заказ из активных
+            this.$store.commit('SELLER-ORDER/REMOVE_ACTIVE_ID', this.sellerId);
+            // Удаляем строки заказа из кеша
+            this.$store.commit('SELLER-ORDER/CLEAR_ORDER_LINES', orderId);
         }
     }
 }

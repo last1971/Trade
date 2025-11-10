@@ -94,6 +94,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('seller-order/{id}/lines', 'Api\SellerOrderController@updateLineQuantity')->name('seller-order.update-line');
     Route::delete('seller-order/{id}/lines', 'Api\SellerOrderController@deleteLine')->name('seller-order.delete-line');
     Route::post('seller-order/{id}/send-invoice', 'Api\SellerOrderController@sendInvoice')->name('seller-order.send-invoice');
+    Route::post('seller-order/{id}/ship', 'Api\SellerOrderController@shipOrder')->name('seller-order.ship');
     
     Route::get('compel/delivery-modes', 'Api\CompelController@getDeliveryModes')->name('compel.delivery-modes');
 });

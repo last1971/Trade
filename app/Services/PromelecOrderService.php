@@ -374,5 +374,18 @@ class PromelecOrderService implements ISellerOrderService
     {
         throw new \Exception('Send invoice is not supported for Promelec');
     }
+
+    /**
+     * Отгрузка заказа (заглушка - Promelec не поддерживает)
+     * @param string $salesId - ID заказа
+     * @param string|null $customerDeliveryTypeId - ID способа доставки
+     * @param string|null $dateDeadline - дата действия (формат YYYY-MM-DD)
+     * @return mixed
+     * @throws \Exception
+     */
+    public function shipOrder(string $salesId, ?string $customerDeliveryTypeId, ?string $dateDeadline)
+    {
+        throw new \Exception('Ship order is not supported for Promelec');
+    }
 }
 

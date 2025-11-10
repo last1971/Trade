@@ -176,4 +176,24 @@ class CompelApiService
         return $this->method('get_dlv_mode', []);
     }
 
+    /**
+     * Отгрузка заказа
+     * @param string $salesId
+     * @param string $customerDeliveryTypeId
+     * @param string $dateDeadline
+     * @return mixed
+     * @throws CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function shipOrder(string $salesId, string $customerDeliveryTypeId, string $dateDeadline)
+    {
+        $params = [
+            'sales_id' => $salesId,
+            'is_pick_all' => true,
+            'customer_delivery_type_id' => $customerDeliveryTypeId,
+            'date_dead_line' => $dateDeadline,
+        ];
+        return $this->method('sales_handle_edit_ext', $params);
+    }
+
 }

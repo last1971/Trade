@@ -116,6 +116,8 @@ class CompelOrderService implements ISellerOrderService
         // Флаг резервирования (по умолчанию true)
         $params['reserve_sale'] = isset($data['reserve_sale']) ? (bool)$data['reserve_sale'] : true;
         
+        $params['auto_credit'] = true;
+        
         $response = $compel->createOrder($params);
         
         // Compel возвращает sales_id и date_dead_line
@@ -362,6 +364,29 @@ class CompelOrderService implements ISellerOrderService
         $compel = new CompelApiService();
         
         $response = $compel->createInvoice($salesId);
+        
+        return $response->result ?? null;
+    }
+
+    /**
+     * Отгрузка заказа
+     * @param string $salesId - ID заказа
+     * @param string|null $customerDeliveryTypeId - ID способа доставки
+     * @param string|null $dateDeadline - дата действия (формат YYYY-MM-DD)
+     * @return mixed
+     * @throws \Exception
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function shipOrder(string $salesId, ?string $customerDeliveryTypeId, ?string $dateDeadline)
+    {
+        if (!$customerDeliveryTypeId || !$dateDeadline) {
+            throw new \Exception('customer_delivery_type_id and date_deadline are required for Compel');
+        }
+        
+        $compel = new CompelApiService();
+        
+        $response = $compel->shipOrder($salesId, $customerDeliveryTypeId, $dateDeadline);
         
         return $response->result ?? null;
     }

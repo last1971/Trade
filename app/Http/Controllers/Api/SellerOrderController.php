@@ -151,4 +151,41 @@ class SellerOrderController extends ModelController
             ], 500);
         }
     }
+
+    /**
+     * Отгрузка заказа
+     * @param \Illuminate\Http\Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function shipOrder(\Illuminate\Http\Request $request, $id)
+    {
+        try {
+            /** @var SellerOrderService $service */
+            $service = $this->service;
+            
+            $sellerId = $request->get('seller_id');
+            
+            if (!$sellerId) {
+                return response()->json([
+                    'message' => 'seller_id is required'
+                ], 400);
+            }
+            
+            $customerDeliveryTypeId = $request->get('customer_delivery_type_id');
+            $dateDeadline = $request->get('date_deadline');
+            
+            $result = $service->shipOrder($id, (int)$sellerId, $customerDeliveryTypeId, $dateDeadline);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $result
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

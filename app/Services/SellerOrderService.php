@@ -192,4 +192,26 @@ class SellerOrderService extends ModelService
         
         throw new Exception('Send invoice not implemented for this seller');
     }
+
+    /**
+     * Отгрузка заказа
+     * @param string $orderId
+     * @param int $sellerId
+     * @param string|null $customerDeliveryTypeId
+     * @param string|null $dateDeadline
+     * @return mixed
+     * @throws Exception
+     * @throws \App\Exceptions\CompelException
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    public function shipOrder(string $orderId, int $sellerId, ?string $customerDeliveryTypeId, ?string $dateDeadline)
+    {
+        $service = $this->getOrderServiceBySeller($sellerId);
+        
+        if ($service && method_exists($service, 'shipOrder')) {
+            return $service->shipOrder($orderId, $customerDeliveryTypeId, $dateDeadline);
+        }
+        
+        throw new Exception('Ship order not implemented for this seller');
+    }
 }

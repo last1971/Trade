@@ -64,5 +64,14 @@ interface ISellerOrderService
      * @return mixed
      */
     public function sendInvoice(string $salesId);
+
+    /**
+     * Отгрузка заказа
+     * @param string $salesId - ID заказа
+     * @param string|null $customerDeliveryTypeId - ID способа доставки
+     * @param string|null $dateDeadline - дата действия (формат YYYY-MM-DD)
+     * @return mixed
+     */
+    public function shipOrder(string $salesId, ?string $customerDeliveryTypeId, ?string $dateDeadline);
 }
 

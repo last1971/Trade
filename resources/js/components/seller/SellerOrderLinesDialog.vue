@@ -132,9 +132,19 @@
                     @click="sendInvoice"
                     :loading="sendingInvoice"
                     :disabled="loading || !lines.length"
+                    v-if="isCompel"
                 >
                     <v-icon left>mdi-email-send</v-icon>
                     Отправить счет
+                </v-btn>
+                <v-btn
+                    color="success"
+                    @click="openShipDialog"
+                    :disabled="loading || !lines.length"
+                    v-if="isCompel"
+                >
+                    <v-icon left>mdi-truck-delivery</v-icon>
+                    Отгрузить
                 </v-btn>
                 <v-spacer/>
                 <v-btn text @click="close">Закрыть</v-btn>
@@ -156,14 +166,21 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        
+        <!-- Диалог отгрузки -->
+        <ship-order-dialog ref="shipDialog" @shipped="handleShipped" />
     </v-dialog>
 </template>
 
 <script>
 import {mapGetters} from "vuex";
+import ShipOrderDialog from "./ShipOrderDialog";
 
 export default {
     name: "SellerOrderLinesDialog",
+    components: {
+        ShipOrderDialog
+    },
     props: {
         value: {
             type: Boolean,
@@ -207,6 +224,10 @@ export default {
             return this.lines.reduce((sum, line) => {
                 return sum + this.amountInRub(line);
             }, 0);
+        },
+        isCompel() {
+            // Compel seller_id = 857
+            return this.order.seller_id === 857;
         }
     },
     watch: {
@@ -359,6 +380,15 @@ export default {
         },
         close() {
             this.dialog = false;
+        },
+        openShipDialog() {
+            this.$refs.shipDialog.open(this.order);
+        },
+        handleShipped(orderId) {
+            // Удаляем заказ из списка
+            this.$emit('order-shipped', orderId);
+            // Закрываем диалог строк
+            this.close();
         }
     }
 }
