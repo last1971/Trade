@@ -26,7 +26,7 @@
                         Компэл № {{ compelOrder.number }} от
                         {{ compelOrder.date | formatDate }}                        
                     </v-col>
-                    <v-col v-if="compelOrder">
+                    <v-col v-if="promelecOrder">
                         Пром № {{ promelecOrder.number }} от
                         {{ promelecOrder.date | formatDate }}
                     </v-col>
