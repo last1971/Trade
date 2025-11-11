@@ -2,30 +2,29 @@
     <v-expansion-panels>
         <v-expansion-panel>
             <v-expansion-panel-header>
-                <v-row dense>
+                <v-row dense align="center">
                     <v-col v-if="!currentInvoice || !invoice"
                         >Счет не выбран</v-col
                     >
                     <v-col v-else>
-                        <span>
-                            Счет № {{ invoice.NS }} для
-                            {{ invoice.buyer.SHORTNAME }}
-                        </span>
+                        Счет № {{ invoice.NS }} для
+                        {{ invoice.buyer.SHORTNAME }}
                         <v-btn
+                            icon
                             small
                             color="primary"
-                            text
+                            title="Открыть счет"
                             :to="{
                                 name: 'invoice',
                                 params: { id: currentInvoice },
                             }"
                         >
-                            Открыть счёт
+                            <v-icon small>mdi-open-in-new</v-icon>
                         </v-btn>
                     </v-col>
-                    <v-col v-if="compelOrder">
+                    <v-col v-if="compelOrder">                        
                         Компэл № {{ compelOrder.number }} от
-                        {{ compelOrder.date | formatDate }}
+                        {{ compelOrder.date | formatDate }}                        
                     </v-col>
                     <v-col v-if="compelOrder">
                         Пром № {{ promelecOrder.number }} от
