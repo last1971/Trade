@@ -12,19 +12,46 @@
                         <v-btn
                             icon
                             small
-                            color="primary"
                             title="Открыть счет"
                             :to="{
                                 name: 'invoice',
                                 params: { id: currentInvoice },
                             }"
                         >
-                            <v-icon small>mdi-open-in-new</v-icon>
+                            <v-icon>mdi-open-in-new</v-icon>
                         </v-btn>
+                        <v-btn
+                            icon
+                            small
+                            :loading="pdfDownloading"
+                            title="Скачать PDF"
+                            @click.stop="openPdfMenu"
+                        >
+                            <v-icon color="red">mdi-adobe-acrobat</v-icon>
+                        </v-btn>
+
+                        <v-btn
+                            icon
+                            small
+                            color="error"
+                            title="Убрать счёт"
+                            @click.stop="
+                                $store.commit('INVOICE/SET-CURRENT', null)
+                            "
+                        >
+                            <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                        <invoice-pdf-menu
+                            v-if="invoice"
+                            :value="invoice"
+                            :pdf-dialog="pdfDialog"
+                            @close="pdfDialog = false"
+                            @downloading="setPdfDownloading"
+                        />
                     </v-col>
-                    <v-col v-if="compelOrder">                        
+                    <v-col v-if="compelOrder">
                         Компэл № {{ compelOrder.number }} от
-                        {{ compelOrder.date | formatDate }}                        
+                        {{ compelOrder.date | formatDate }}
                     </v-col>
                     <v-col v-if="promelecOrder">
                         Пром № {{ promelecOrder.number }} от
@@ -79,6 +106,7 @@ import SellerApiChip from "./SellerApiChip";
 import InvoiceCard from "../../invoice/InvoiceCard";
 import SellerApiDisabled from "./SellerApiDisabled";
 import SellerOrdersList from "../SellerOrdersList";
+import InvoicePdfMenu from "../../invoice/InvoicePdfMenu";
 import invoice from "../../../store/invoice";
 
 export default {
@@ -87,7 +115,14 @@ export default {
         SellerApiDisabled,
         SellerApiChip,
         InvoiceCard,
+        InvoicePdfMenu,
         SellerOrdersList,
+    },
+    data() {
+        return {
+            pdfDialog: false,
+            pdfDownloading: false,
+        };
     },
     created() {
         this.tryLoadInvoice(this.currentInvoice);
@@ -159,6 +194,14 @@ export default {
                     },
                 });
             }
+        },
+        openPdfMenu() {
+            if (this.invoice) {
+                this.pdfDialog = true;
+            }
+        },
+        setPdfDownloading(val) {
+            this.pdfDownloading = val;
         },
     },
 };
