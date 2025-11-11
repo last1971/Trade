@@ -136,7 +136,9 @@ export default {
             this.$store.commit('SELLER-ORDER/REMOVE_ACTIVE_ID', this.sellerId);
             // Удаляем строки заказа из кеша
             this.$store.commit('SELLER-ORDER/CLEAR_ORDER_LINES', orderId);
-        }
+            // Удаляем заказ
+            this.$store.commit('SELLER-ORDER/REMOVE_ORDER', orderId);
+        }   
     }
 }
 </script>

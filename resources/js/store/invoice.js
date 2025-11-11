@@ -1,6 +1,8 @@
 import model from './model'
 import _ from 'lodash'
 import moment from 'moment'
+import createLocalStorageSync from '../helpers/localStorage';
+const currentInvoiceStorage = createLocalStorageSync('current_invoice_id');
 
 let state = _.cloneDeep(model.state);
 
@@ -78,7 +80,7 @@ state.headers = [
     },
 ];
 
-state.currentInvoice = null;
+state.currentInvoice = currentInvoiceStorage.get(null);
 
 getters.PDF = state => id => {
     return 'Счет № ' + getters.GET(state)(id).NS + '.pdf'
@@ -88,6 +90,7 @@ getters['GET-CURRENT'] = state => state.currentInvoice;
 
 mutations['SET-CURRENT'] = function (state, currentInvoice) {
     state.currentInvoice = currentInvoice;
+    currentInvoiceStorage.set(currentInvoice);
 }
 
 export default {

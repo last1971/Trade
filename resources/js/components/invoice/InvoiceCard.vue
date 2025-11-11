@@ -2,7 +2,7 @@
     <v-card class="m-1">
         <v-card-title class="text-center">
             <v-edit-dialog ref="dialog">
-                <v-container v-if="currentInvoice">
+                <v-container v-if="invoice">
                     <v-row class="text-caption d-flex justify-center">
                         Счет № {{ invoice.NS }} от {{ invoice.DATA | formatDate }}
                     </v-row>
@@ -43,6 +43,9 @@ export default {
             }
         },
         invoice() {
+            if (!this.currentInvoice) {
+                return null;
+            }
             return this.$store.getters['INVOICE/GET'](this.currentInvoice);
         }
     },

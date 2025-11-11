@@ -186,6 +186,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'sbis.*',
             'seller.*',
             'seller-good.*',
+            'seller-order.*',
+            'seller-order-line.*',        
             'seller-price.*',
             'store-line.*',
             'transfer-out.*',

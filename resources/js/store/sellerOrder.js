@@ -1,5 +1,6 @@
 import model from './model'
 import _ from 'lodash'
+import createLocalStorageSync from '../helpers/localStorage';
 
 let state = _.cloneDeep(model.state);
 
@@ -15,8 +16,10 @@ state.key = 'id';
 
 state.headers = [];
 
+
+const activeOrderIdsSync = createLocalStorageSync('seller_order_active_ids');
 // ID активных заказов: { sellerId: orderId }
-state.activeOrderIds = {};
+state.activeOrderIds = activeOrderIdsSync.get();
 
 // Кеш строк заказов: { orderId: { lines: [], total: 0, loading: false } }
 state.orderLines = {};
@@ -57,6 +60,7 @@ mutations['SET_ACTIVE_ID'] = (state, { sellerId, orderId }) => {
         ...state.activeOrderIds,
         [sellerId]: orderId
     };
+    activeOrderIdsSync.set(state.activeOrderIds);
 };
 
 // Убрать активный заказ
@@ -64,6 +68,7 @@ mutations['REMOVE_ACTIVE_ID'] = (state, sellerId) => {
     const newIds = { ...state.activeOrderIds };
     delete newIds[sellerId];
     state.activeOrderIds = newIds;
+    activeOrderIdsSync.set(state.activeOrderIds);
 };
 
 // Добавить заказ в список
@@ -107,6 +112,12 @@ mutations['CLEAR_ORDER_LINES'] = (state, orderId) => {
     const newOrderLines = { ...state.orderLines };
     delete newOrderLines[orderId];
     state.orderLines = newOrderLines;
+};
+
+// Удалить заказ полностью (из списка)
+mutations['REMOVE_ORDER'] = (state, orderId) => {
+   const newItems = state.items.filter((item) => item.id !== orderId);
+   state.items = newItems;
 };
 
 // Установить состояние добавления строки

@@ -124,7 +124,25 @@ class PromelecOrderService implements ISellerOrderService
         $customerId = env('PROM_ID');
         
         $data = collect($response)
-            ->filter(fn($bill) => $bill->customer_id == $customerId)
+            ->filter(function ($bill) use ($customerId) {
+                if ($bill->customer_id != $customerId) {
+                    return false;
+                }
+
+                $attributes = get_object_vars($bill);
+
+                $hasQuant = array_key_exists('quant', $attributes);
+                $hasExtendedQuant = array_filter(
+                    array_keys($attributes),
+                    static fn($key) => preg_match('/^quant\d+$/', $key)
+                );
+
+                return $hasQuant && empty($hasExtendedQuant);
+            })
+            ->sortByDesc(static function ($bill) {
+                $date = \DateTime::createFromFormat('d.m.Y', $bill->date_ ?? '');
+                return $date ? $date->getTimestamp() : 0;
+            })
             ->map(fn($bill) => $this->formatBill($bill))
             ->values();
         
