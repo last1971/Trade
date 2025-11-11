@@ -6,10 +6,31 @@
                     <v-col v-if="!currentInvoice || !invoice"
                         >Счет не выбран</v-col
                     >
-                    <v-col v-else
-                        >Счет № {{ invoice.NS }} для
-                        {{ invoice.buyer.SHORTNAME }}</v-col
-                    >
+                    <v-col v-else>
+                        <span>
+                            Счет № {{ invoice.NS }} для
+                            {{ invoice.buyer.SHORTNAME }}
+                        </span>
+                        <v-btn
+                            small
+                            color="primary"
+                            text
+                            :to="{
+                                name: 'invoice',
+                                params: { id: currentInvoice },
+                            }"
+                        >
+                            Открыть счёт
+                        </v-btn>
+                    </v-col>
+                    <v-col v-if="compelOrder">
+                        Компэл № {{ compelOrder.number }} от
+                        {{ compelOrder.date | formatDate }}
+                    </v-col>
+                    <v-col v-if="compelOrder">
+                        Пром № {{ promelecOrder.number }} от
+                        {{ promelecOrder.date | formatDate }}
+                    </v-col>
                     <v-col v-if="allSellers"
                         >Все {{ sellers.length }} поставщиков</v-col
                     >
@@ -73,14 +94,27 @@ export default {
         this.tryLoadInvoice(this.currentInvoice);
         const sellerIds = [857, 860]; // Compel и Promelec
         Promise.all(
-           sellerIds.map(id => this.$store.dispatch('SELLER-ORDER/SYNC_SELLER', id))
-       ).catch(() => {/* обработка ошибок, если нужна */});
+            sellerIds.map((id) =>
+                this.$store.dispatch("SELLER-ORDER/SYNC_SELLER", id)
+            )
+        ).catch(() => {
+            /* обработка ошибок, если нужна */
+        });
     },
     computed: {
         ...mapGetters({
             sellers: "SELLER-PRICE/SELLERS",
+            getActiveOrder: "SELLER-ORDER/GET_ACTIVE_ORDER",
             currentInvoice: "INVOICE/GET-CURRENT",
         }),
+        compelOrder() {
+            const order = this.getActiveOrder(857); // seller_id Compel
+            return order || null;
+        },
+        promelecOrder() {
+            const order = this.getActiveOrder(860); // seller_id Compel
+            return order || null;
+        },
         invoice() {
             return (
                 this.$store.getters["INVOICE/GET"](this.currentInvoice) || null
