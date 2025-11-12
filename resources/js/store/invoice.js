@@ -14,9 +14,7 @@ state.name = 'invoice';
 
 state.key = 'SCODE';
 
-state.items = [
-    { SCODE: 0, FIRM_ID: 38, DATA: moment().format('Y-MM-DD'), STATUS: 0, FIRMS_HISTORY_ID: 7 }
-]
+state.items = [];
 
 state.fillable = ['DATA', 'NS', 'NZ', 'FIRM_ID', 'FIRMS_HISTORY_ID', 'POKUPATCODE', 'PRIM', 'STATUS', 'IGK', 'STAFF_ID'];
 
@@ -81,6 +79,23 @@ state.headers = [
 ];
 
 state.currentInvoice = currentInvoiceStorage.get(null);
+
+getters['GET'] = (state, getters) => (id) => {
+    if (id === 0 || id === '0') {
+        return getters['GET_NEW_INVOICE'];
+    }
+    return model.getters.GET(state)(id);
+};
+
+getters['GET_NEW_INVOICE'] = () => {
+    return {
+        SCODE: 0,
+        FIRM_ID: 38,
+        DATA: moment().format('Y-MM-DD'),
+        STATUS: 0,
+        FIRMS_HISTORY_ID: 7
+    };
+};
 
 getters.PDF = state => id => {
     return 'Счет № ' + getters.GET(state)(id).NS + '.pdf'
