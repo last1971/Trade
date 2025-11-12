@@ -19,6 +19,7 @@ class VatHelper
     public static function get(string $data = null)
     {
         if (new Carbon($data) < new Carbon('2019-01-01')) return 18;
-        return 20;
+        if (new Carbon($data) < new Carbon('2026-01-01')) return 20;
+        return 22;
     }
 }

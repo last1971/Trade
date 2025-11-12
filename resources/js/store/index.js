@@ -52,7 +52,8 @@ export default new Vuex.Store({
     getters: {
         VAT: (date) => {
             if (new Date(date) < new Date('2019-01-01')) return 18;
-            return 20;
+            if (new Date(date) < new Date('2026-01-01')) return 20;
+            return 22;
         }
     },
     mutations: {},
