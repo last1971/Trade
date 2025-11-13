@@ -28,14 +28,16 @@ class AuthController extends Controller
      */
     public function login(AuthRequest $request)
     {
-        $user = User::query()->whereEmail($request->email)->first();
+        $user = User::query()->with('userFirms.firm')->whereEmail($request->email)->first();
         $status = 200;
         if ($user) {
             if (Hash::check($request->password, $user->password)) {
                 $token = $user->createToken('Personal')->accessToken;
+                $userData = $user->only(['name', 'email']);
+                $userData['user_firms'] = $user->userFirms;
                 $response = [
                     'token' => $token,
-                    'user' => $user->only(['name', 'email']),
+                    'user' => $userData,
                     'roles' => $user->getRoleNames(),
                     'permissions' => $user->getAllPermissions()->pluck('name'),
                 ];
@@ -65,10 +67,13 @@ class AuthController extends Controller
         $request->merge(['password' => Hash::make($request->password)]);
         $user = User::query()->create($request->all());
         $user->assignRole('guest');
+        $user->load('userFirms.firm');
         $token = $user->createToken('Personal')->accessToken;
+        $userData = $user->only(['name', 'email']);
+        $userData['user_firms'] = $user->userFirms;
         $response = [
             'token' => $token,
-            'user' => $user->only(['name', 'email']),
+            'user' => $userData,
             'roles' => $user->getRoleNames(),
             'permissions' => $user->getAllPermissions()->pluck('name'),
         ];
@@ -93,10 +98,14 @@ class AuthController extends Controller
      */
     public function refresh()
     {
+        $user = request()->user()->load('userFirms.firm');
+        $userData = $user->only(['name', 'email']);
+        $userData['user_firms'] = $user->userFirms;
+
         return response()->json([
-            'user' => request()->user()->only(['name', 'email']),
-            'roles' => request()->user()->getRoleNames(),
-            'permissions' => request()->user()->getAllPermissions()->pluck('name'),
+            'user' => $userData,
+            'roles' => $user->getRoleNames(),
+            'permissions' => $user->getAllPermissions()->pluck('name'),
         ]);
     }
 
@@ -187,10 +196,13 @@ class AuthController extends Controller
         } else {
             $passwordReset->user->fill(['password' => Hash::make($request->password)])->save();
             $passwordReset->user->notify(new PasswordChangeNotification());
+            $passwordReset->user->load('userFirms.firm');
             $token = $passwordReset->user->createToken('Personal')->accessToken;
+            $userData = $passwordReset->user->only(['name', 'email']);
+            $userData['user_firms'] = $passwordReset->user->userFirms;
             $response = [
                 'token' => $token,
-                'user' => $passwordReset->user->only(['name', 'email']),
+                'user' => $userData,
                 'roles' => $passwordReset->user->getRoleNames(),
                 'permissions' => $passwordReset->user->getAllPermissions()->pluck('name'),
             ];
