@@ -10,6 +10,39 @@ use GuzzleHttp\Client;
 class PromelecApiService
 {
     /**
+     * Получение customer_id на основе фирм авторизованного пользователя
+     * @return int
+     */
+    public function getCustomerId(): int
+    {
+        $customerIds = config('pricing.Promelec.customerIds', [
+            38 => 88053,
+            31 => 71695,
+        ]);
+
+        // Получаем авторизованного пользователя
+        $user = request()->user();
+
+        // Если пользователь не авторизован или нет фирм, возвращаем значение по умолчанию
+        if (!$user || !$user->userFirms || $user->userFirms->isEmpty()) {
+            return $customerIds[38];
+        }
+
+        // Получаем список FIRM_ID пользователя
+        $userFirmIds = $user->userFirms->pluck('firm.FIRM_ID')->filter()->toArray();
+
+        // Проверяем наличие firm_id в порядке приоритета
+        foreach ($customerIds as $firmId => $customerId) {
+            if (in_array($firmId, $userFirmIds)) {
+                return $customerId;
+            }
+        }
+
+        // Если ничего не найдено, возвращаем значение по умолчанию
+        return $customerIds[38];
+    }
+
+    /**
      * @param $method string
      * @param $params array
      * @return \stdClass
@@ -23,7 +56,7 @@ class PromelecApiService
         $request = [
             'login'         => env('PROM_LOGIN'),
             'password'      => env('PROM_PASS'), // Пароль уже в виде md5 хеша в .env
-            'customer_id'   => env('PROM_ID'),
+            'customer_id'   => $this->getCustomerId(),
             'method'        => $method,
         ];
         $request = $params ? array_merge($request, $params) : $request;
@@ -100,7 +133,7 @@ class PromelecApiService
         $request = [
             'login'         => env('PROM_LOGIN'),
             'password'      => env('PROM_PASS'),
-            'customer_id'   => env('PROM_ID'),
+            'customer_id'   => $this->getCustomerId(),
             'method'        => 'bill_document_get',
             'bill_id'       => $billId,
         ];

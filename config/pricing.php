@@ -115,6 +115,10 @@ return [
         'basicDeliveryTime' => 8,
         'class' => Promelec::class,
         'ereg' => true,
+        'customerIds' => [
+            38 => 88053,  // Фирма 38 → customer_id 88053
+            31 => 71695,  // Фирма 31 → customer_id 71695
+        ],
     ],
     'Radiodetali' => [
         'cacheTimes' => 86400,

@@ -114,15 +114,15 @@ class PromelecOrderService implements ISellerOrderService
     public function paginate(?int $itemsPerPage = 20)
     {
         $promelec = new PromelecApiService();
-        
+
         $params = [
             'status' => 1 // Только открытые счета
         ];
-        
+
         $response = $promelec->getOrders($params);
-        
-        $customerId = env('PROM_ID');
-        
+
+        $customerId = $promelec->getCustomerId();
+
         $data = collect($response)
             ->filter(function ($bill) use ($customerId) {
                 if ($bill->customer_id != $customerId) {
