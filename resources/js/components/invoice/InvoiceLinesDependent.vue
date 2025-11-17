@@ -45,13 +45,13 @@
             </div>
         </template>
         <template v-slot:item.priceWithoutVat="{ item }">
-            {{ item.SUMMAP / (100 + vat) * 100 / item.QUAN | formatRub }}
+            {{ item.SUMMAP / (100 + vat(item)) * 100 / item.QUAN | formatRub }}
         </template>
         <template v-slot:item.PRICE="{ item }">
             {{ item.PRICE | formatRub }}
         </template>
         <template v-slot:item.sumWithoutVat="{ item }">
-            {{ item.SUMMAP / (100 + vat) * 100 | formatRub }}
+            {{ item.SUMMAP / (100 + vat(item)) * 100 | formatRub }}
         </template>
         <template v-slot:item.SUMMAP="{ item }">
             {{ item.SUMMAP | formatRub }}
@@ -71,7 +71,7 @@
     import OrderLineInWay from "../order/OrderLineInWay";
     import ExpandTransferOutLines from "../ExpandTransferOutLines";
     import GoodName from "../good/GoodName";
-    import {mapGetters} from 'vuex';
+    import getVAT from "../../helpers/vatHelper";
 
     export default {
         name: "InvoiceLinesDependent",
@@ -111,7 +111,6 @@
                     this.$emit('input', val);
                 }
             },
-            ...mapGetters({vat: 'VAT'}),
             mutatedHeaders() {
                 return this.headers.filter(
                     (header) => this.removeHeaders.find((rh) => rh === header.value) === undefined
@@ -135,6 +134,9 @@
                 if (transferOutLinesQuantity === 0) return 'red--text';
                 if (QUAN === transferOutLinesQuantity) return 'success--text';
                 return 'primary--text';
+            },
+            vat(item) {
+                return getVAT(item.invoice.DATA);
             }
 
         }

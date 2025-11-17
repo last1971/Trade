@@ -160,7 +160,7 @@
     import InvoiceEdit from "./InvoiceEdit";
     import utilsMixin from "../../mixins/utilsMixin";
     import OrderLineInWay from "../order/OrderLineInWay";
-    import {mapGetters} from 'vuex';
+    import getVAT from "../../helpers/vatHelper";
     import GoodName from "../good/GoodName";
     import EditField from "../EditField";
     import ReservesModal from "../ReservesModal";
@@ -219,7 +219,9 @@
                     return v;
                 })
             },
-            ...mapGetters({vat: 'VAT'}),
+            vat() {
+                return getVAT(this.value.DATA);
+            },
             QUANRules() {
                 return [this.rules.isInteger, this.rules.required, this.rules.positive]
             },

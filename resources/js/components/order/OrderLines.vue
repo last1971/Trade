@@ -99,7 +99,7 @@
     import GoodName from "../good/GoodName";
     import OrderImportLines from "./OrderImportLines";
     import EditField from "../EditField";
-    import {mapGetters} from "vuex";
+    import getVAT from "../../helpers/vatHelper";
 
     export default {
         name: "OrderLines",
@@ -145,7 +145,9 @@
                     return v;
                 })
             },
-            ...mapGetters({vat: 'VAT'}),
+            vat() {
+                return getVAT(this.value.DATA);
+            },
         },
         methods: {
             inQuantityColor(item) {
