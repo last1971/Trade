@@ -49,13 +49,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {},
-    getters: {
-        VAT: (date) => {
-            if (new Date(date) < new Date('2019-01-01')) return 18;
-            if (new Date(date) < new Date('2026-01-01')) return 20;
-            return 22;
-        }
-    },
+    getters: {},
     mutations: {},
     actions: {},
     modules: {

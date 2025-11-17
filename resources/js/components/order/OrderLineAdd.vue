@@ -91,6 +91,7 @@
 <script>
 import GoodSelect from '../good/GoodSelect'
 import utilsMixin from "../../mixins/utilsMixin";
+import getVAT from "../../helpers/vatHelper";
 export default {
     name: "OrderLineAdd",
     components: { GoodSelect },
@@ -192,13 +193,13 @@ export default {
         },
         changePriceWithoutVat() {
             if (this.isRightPriceWithoutVat) {
-                this.orderLine.PRICE = this.orderLine.priceWithoutVat * (1 + this.$store.getters['VAT'] / 100);
+                this.orderLine.PRICE = this.orderLine.priceWithoutVat * (1 + getVAT(this.order.DATA) / 100);
                 this.changeQUAN();
             }
         },
         changePRICE() {
             if (this.isRightPRICE) {
-                this.orderLine.priceWithoutVat = this.orderLine.PRICE / (1 + this.$store.getters['VAT'] / 100);
+                this.orderLine.priceWithoutVat = this.orderLine.PRICE / (1 + getVAT(this.order.DATA) / 100);
                 this.changeQUAN();
             }
         },

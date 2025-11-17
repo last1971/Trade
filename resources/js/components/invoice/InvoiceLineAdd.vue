@@ -121,6 +121,7 @@
 import GoodSelect from "../good/GoodSelect";
 import utilsMixin from "../../mixins/utilsMixin";
 import DeliveryTimeSelect from "../DeliveryTimeSelect";
+import getVAT from "../../helpers/vatHelper";
 export default {
     name: "InvoiceLineAdd",
     components: {DeliveryTimeSelect, GoodSelect},
@@ -286,13 +287,13 @@ export default {
         },
         changePriceWithoutVat() {
             if (this.isRightPriceWithoutVat) {
-                this.invoiceLine.PRICE = this.invoiceLine.priceWithoutVat * (1 + this.$store.getters['VAT'] / 100);
+                this.invoiceLine.PRICE = this.invoiceLine.priceWithoutVat * (1 + getVAT(this.invoice.DATA) / 100);
                 this.changeQUAN();
             }
         },
         changePRICE() {
             if (this.isRightPRICE) {
-                this.invoiceLine.priceWithoutVat = this.invoiceLine.PRICE / (1 + this.$store.getters['VAT'] / 100);
+                this.invoiceLine.priceWithoutVat = this.invoiceLine.PRICE / (1 + getVAT(this.invoice.DATA) / 100);
                 this.changeQUAN();
             }
         },
