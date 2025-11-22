@@ -81,4 +81,17 @@ class SellerPriceHttpService implements ISellerPriceable
             return $item;
         }, $sellers);
     }
+
+    public function getRawResponse(array $ids): array
+    {
+        $response = $this->client->post(
+            'good/raw-response',
+            [
+                'json' => [
+                    'ids' => $ids
+                ],
+            ]
+        );
+        return json_decode($response->getBody()->getContents(), true);
+    }
 }

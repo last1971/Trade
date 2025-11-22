@@ -15,6 +15,11 @@ class SellerOrderService extends ModelService
     private $orderServices;
 
     /**
+     * @var \App\Interfaces\ISellerOrderService
+     */
+    private $defaultService;
+
+    /**
      * SellerOrderService constructor.
      */
     public function __construct(
@@ -23,27 +28,32 @@ class SellerOrderService extends ModelService
     )
     {
         parent::__construct(SellerOrder::class);
-        
+
         $this->orderServices = collect([
             config('pricing.Compel.sellerId') => $compelOrderService ?? new CompelOrderService(),
             config('pricing.Promelec.sellerId') => $promelecOrderService ?? new PromelecOrderService(),
+            config('pricing.CompelDms.sellerId') => new CompelDmsOrderService(),
         ]);
+
+        // Для всех остальных поставщиков (ГетЧипс, ДАН и т.д.) используем Firebird
+        $this->defaultService = new FirebirdOrderService();
     }
 
     public function index($request)
     {
         $index = array_search('seller_id', $request->get('filterAttributes'));
         throw_if($index === false, new Exception('Need SellerId'));
-        
+
         $sellerId = $request->get('filterValues')[$index];
-        
+
         $service = $this->orderServices->get($sellerId);
-        
+
         if ($service) {
             return $service->index($request);
         }
-        
-        return parent::index($request);
+
+        // Для всех остальных используем defaultService (Firebird)
+        return $this->defaultService->index($request);
     }
 
     /**
@@ -53,7 +63,7 @@ class SellerOrderService extends ModelService
      */
     private function getOrderServiceBySeller(int $sellerId)
     {
-        return $this->orderServices->get($sellerId);
+        return $this->orderServices->get($sellerId) ?? $this->defaultService;
     }
 
     /**

@@ -83,20 +83,20 @@
                 <v-row dense>
                     <v-col>
                         <b>
-                            {{ toRub(item.CharCode, item.price * item.orderQuantity) | formatRub }}
+                            {{ toRub(item.CharCode, item.price * item.orderQuantity, item.sellerId) | formatRub }}
                             ({{ toUsd(item.CharCode, item.price * item.orderQuantity) | formatUsd }})
                         </b>
                     </v-col>
                 </v-row>
                 <v-row dense>
                     <v-col class="text-caption">
-                        {{ toRub(item.CharCode, retailPrice(item) * item.orderQuantity) | formatRub }}
+                        {{ toRub(item.CharCode, retailPrice(item) * item.orderQuantity, item.sellerId) | formatRub }}
                         ({{ toUsd(item.CharCode, retailPrice(item) * item.orderQuantity) | formatUsd }})
                     </v-col>
                 </v-row>
                 <v-row dense>
                     <v-col>
-                        {{ toRub(item.CharCode, item.price * item.orderQuantity * (1 + markup / 100))  | formatRub }}
+                        {{ toRub(item.CharCode, item.price * item.orderQuantity * (1 + markup / 100), item.sellerId)  | formatRub }}
                         ({{ toUsd(item.CharCode, item.price * item.orderQuantity * (1 + markup / 100)) | formatUsd }})
                     </v-col>
                 </v-row>

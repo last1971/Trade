@@ -98,6 +98,7 @@
                         this.user.login = '';
                         this.user.password = '';
                         this.$store.dispatch('EXCHANGE-RATE/SET', moment().format('Y-MM-DD'))
+                        this.$store.dispatch('CONFIG/LOAD')
                         this.$router.back()
                     })
                     .catch((error) => {

@@ -29,7 +29,7 @@ const getters = {
     SORTED_DATA: (state, getters, rootState, rootGetters) => {
         return _.sortBy(
             state.data,
-            (line) => line.orderQuantity * rootGetters['EXCHANGE-RATE/TO_RUB'](line.CharCode, line.price)
+            (line) => line.orderQuantity * rootGetters['EXCHANGE-RATE/TO_RUB'](line.CharCode, line.price, line.sellerId)
         );
     },
     FILTERD_DATA: (state, getters) => {

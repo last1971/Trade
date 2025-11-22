@@ -1,0 +1,4 @@
+{
+  "php.validate.executablePath": "/Users/last/Projects/Trade/.vscode/php",
+  "php.validate.run": "onSave"
+}

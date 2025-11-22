@@ -10,9 +10,11 @@ const getters = {
     ALL: state => state.rates,
     GET: state => CharCode => _.find(state.rates, { CharCode }),
     DATE: state => state.date,
-    TO_RUB: (state, getters) => (CharCode, price) => {
+    TO_RUB: (state, getters, rootState) => (CharCode, price, sellerId = null) => {
         const rate = getters['GET'](CharCode);
-        return rate ? rate.value * price : 0;
+        const priceInRub = rate ? rate.value * price : 0;
+        const coefficient = sellerId ? (rootState.CONFIG.priceCoefficients[sellerId] || 1) : 1;
+        return priceInRub * coefficient;
     },
     TO_USD: (state, getters) => (CharCode, price) => {
         if (CharCode === 'USD') return price;

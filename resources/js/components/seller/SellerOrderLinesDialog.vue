@@ -237,16 +237,16 @@ export default {
             }, 0);
         },
         isCompel() {
-            // Compel seller_id = 857
-            return this.order.seller_id === 857;
+            // Compel (857) и CompelDms (1279) используют openShipDialog
+            return [857, 1279].includes(this.order.seller_id);
         },
         isPromelec() {
-            // Promelec seller_id = 860
-            return this.order.seller_id === 860;
+            // Все остальные поставщики используют простую отгрузку
+            return ![857, 1279].includes(this.order.seller_id);
         },
         showSendInvoiceButton() {
-            // Показываем кнопку для Compel и Promelec
-            return this.isCompel || this.isPromelec;
+            // Показываем кнопку для всех поставщиков
+            return true;
         }
     },
     watch: {
@@ -277,15 +277,15 @@ export default {
         priceInRub(line) {
             // Если уже в рублях - возвращаем как есть
             if (line.currency_code === 'RUB') {
-                return line.price;
+                return parseFloat(line.price) || 0;
             }
             // Иначе конвертируем
-            return this.toRub(line.currency_code, line.price);
+            return this.toRub(line.currency_code, line.price, this.order.seller_id);
         },
         amountInRub(line) {
             // Если уже в рублях - возвращаем как есть
             if (line.currency_code === 'RUB') {
-                return line.amount;
+                return parseFloat(line.amount) || 0;
             }
             // Иначе конвертируем
             return this.toRub(line.currency_code, line.amount);
@@ -364,53 +364,72 @@ export default {
                 
                 if (response.data.success && response.data.data) {
                     const data = response.data.data;
-                    
+
+                    // Если это Excel в base64 (Firebird) - скачиваем файл
+                    if (data.type === 'excel' && data.excel) {
+                        const blob = this.base64ToBlob(data.excel, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = data.filename || 'order.xlsx';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                        this.$store.commit('SNACKBAR/PUSH', {
+                            text: 'Файл заказа скачан',
+                            color: 'success',
+                            status: true
+                        }, { root: true });
+                        return;
+                    }
+
                     // Если это PDF в base64 (Promelec) - открываем в новой вкладке
                     if (data.type === 'pdf' && data.pdf) {
                         const blob = this.base64ToBlob(data.pdf, 'application/pdf');
                         const url = URL.createObjectURL(blob);
                         window.open(url, '_blank');
-                        this.$store.commit('SNACKBAR/PUSH', { 
-                            text: 'Счет открыт в новой вкладке', 
-                            color: 'success', 
-                            status: true 
+                        this.$store.commit('SNACKBAR/PUSH', {
+                            text: 'Счет открыт в новой вкладке',
+                            color: 'success',
+                            status: true
                         }, { root: true });
                         return;
                     }
-                    
+
                     // Если это ссылка - открываем в новой вкладке
                     if (data.type === 'link' && data.url) {
                         window.open(data.url, '_blank');
-                        this.$store.commit('SNACKBAR/PUSH', { 
-                            text: 'Счет открыт в новой вкладке', 
-                            color: 'success', 
-                            status: true 
+                        this.$store.commit('SNACKBAR/PUSH', {
+                            text: 'Счет открыт в новой вкладке',
+                            color: 'success',
+                            status: true
                         }, { root: true });
                         return;
                     }
-                    
+
                     // Иначе обновляем поля заказа (Compel)
                     const fields = {};
-                    
+
                     if (data.official_doc_num_invoice) {
                         fields.document_number = data.official_doc_num_invoice;
                     }
-                    
+
                     if (data.date_deadline) {
                         fields.date_deadline = data.date_deadline;
                     }
-                    
+
                     if (Object.keys(fields).length > 0) {
                         this.$store.commit('SELLER-ORDER/UPDATE_ORDER_FIELDS', {
                             orderId: this.order.id,
                             fields: fields
                         });
                     }
-                    
-                    this.$store.commit('SNACKBAR/PUSH', { 
-                        text: 'Счет отправлен', 
-                        color: 'success', 
-                        status: true 
+
+                    this.$store.commit('SNACKBAR/PUSH', {
+                        text: 'Счет отправлен',
+                        color: 'success',
+                        status: true
                     }, { root: true });
                 }
             } catch (e) {

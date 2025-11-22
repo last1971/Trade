@@ -139,11 +139,8 @@ class SellerOrderController extends ModelController
             }
             
             $result = $service->sendInvoice($id, (int)$sellerId);
-            
-            return response()->json([
-                'success' => true,
-                'data' => $result
-            ]);
+
+            return response()->json($result);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

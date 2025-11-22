@@ -1,0 +1,11 @@
+#!/bin/bash
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ARGS=()
+for ARG in "$@"; do
+    if [[ "$ARG" == "$PROJECT_ROOT"* ]]; then
+        # Replace host path with container path
+        ARG="/var/www${ARG#$PROJECT_ROOT}"
+    fi
+    ARGS+=("$ARG")
+done
+docker exec -i laradock-workspace-1 php "${ARGS[@]}"

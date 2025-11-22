@@ -126,14 +126,20 @@ export default {
     },
     created() {
         this.tryLoadInvoice(this.currentInvoice);
-        const sellerIds = [857, 860]; // Compel и Promelec
-        Promise.all(
-            sellerIds.map((id) =>
-                this.$store.dispatch("SELLER-ORDER/SYNC_SELLER", id)
-            )
-        ).catch(() => {
-            /* обработка ошибок, если нужна */
-        });
+
+        // Загружаем заказы для всех поставщиков у которых есть активные ID
+        const activeOrderIds = this.$store.state['SELLER-ORDER'].activeOrderIds || {};
+        const sellerIdsToLoad = Object.keys(activeOrderIds).map(id => parseInt(id));
+
+        if (sellerIdsToLoad.length > 0) {
+            Promise.all(
+                sellerIdsToLoad.map((id) =>
+                    this.$store.dispatch("SELLER-ORDER/SYNC_SELLER", id)
+                )
+            ).catch(() => {
+                /* обработка ошибок, если нужна */
+            });
+        }
     },
     computed: {
         ...mapGetters({

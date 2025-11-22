@@ -183,7 +183,7 @@ export default {
                 const response = await axios.post('/api/seller-order', {
                     item: {
                         seller_id: this.sellerId,
-                        comment: this.newOrderComment,
+                        remark: this.newOrderComment,
                         reserve_sale: true
                     }
                 });

@@ -44,6 +44,7 @@ import unitCode from "./unitCode";
 import unitCodeAlias from "./unitCodeAlias";
 import cashFlow from "./cashFlow";
 import compel from "./compel";
+import config from "./config";
 
 Vue.use(Vuex);
 
@@ -60,6 +61,7 @@ export default new Vuex.Store({
         'CASH-FLOW': cashFlow,
         CATEGORY: category,
         COMPEL: compel,
+        CONFIG: config,
         'EXCHANGE-RATE': exchangeRate,
         EMPLOYEE: employee,
         'ERROR-MESSAGE': errorMessage,

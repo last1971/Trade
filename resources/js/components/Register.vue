@@ -82,6 +82,7 @@
                 this.$store.dispatch('AUTH/REGISTER', this.user)
                     .then(() => {
                         this.$store.dispatch('EXCHANGE-RATE/SET', moment().format('Y-MM-DD'))
+                        this.$store.dispatch('CONFIG/LOAD')
                         this.$router.push({name: 'help'})
                     })
                     .catch((error) => {

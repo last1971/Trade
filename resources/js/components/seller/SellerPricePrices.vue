@@ -3,28 +3,28 @@
         <v-row dense>
             <v-col>
                 <b>
-                    {{ toRub(item.CharCode, item.price) | formatRub }}
+                    {{ toRub(item.CharCode, item.price, item.sellerId) | formatRub }}
                     ({{ toUsd(item.CharCode, item.price) | formatUsd }})
                 </b>
             </v-col>
         </v-row>
         <v-row v-if="hasPermission" dense>
             <v-col class="text-caption">
-                {{ toRub(item.CharCode, retailPrice(item)) | formatRub }}
+                {{ toRub(item.CharCode, retailPrice(item), item.sellerId) | formatRub }}
                 ({{ toUsd(item.CharCode, retailPrice(item)) | formatUsd }})
             </v-col>
         </v-row>
         <v-row v-else dense>
             <v-col class="text-caption">
                 <b>
-                    {{ toRub(item.CharCode, item.price * item.orderQuantity) | formatRub }}
+                    {{ toRub(item.CharCode, item.price * item.orderQuantity, item.sellerId) | formatRub }}
                     ({{ toUsd(item.CharCode, item.price * item.orderQuantity) | formatUsd }})
                 </b>
             </v-col>
         </v-row>
         <v-row v-if="hasPermission" dense>
             <v-col>
-                {{ toRub(item.CharCode, item.price * (1 + markup / 100)) | formatRub }}
+                {{ toRub(item.CharCode, item.price * (1 + markup / 100), item.sellerId) | formatRub }}
                 ({{ toUsd(item.CharCode, item.price * (1 + markup / 100)) | formatUsd }})
             </v-col>
         </v-row>

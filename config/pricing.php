@@ -29,7 +29,7 @@ return [
         'basicDeliveryTime' => 7,
         'class' => Compel::class,
         'ereg' => false,
-        'cbrCoefficient' => env('COMPEL_COEFFICIENT', 1),
+        'cbrCoefficient' => env('COMPEL_COEFFICIENT', 1.02),
     ],
     'CompelDms' => [
         'cacheTimes' => 7200,
@@ -37,7 +37,7 @@ return [
         'basicDeliveryTime' => 7,
         'class' => DMS::class,
         'ereg' => false,
-        'cbrCoefficient' => env('COMPEL_COEFFICIENT', 1),
+        'cbrCoefficient' => env('COMPEL_COEFFICIENT', 1.02),
     ],
     'Dan' => [
         'cacheTimes' => 86400,

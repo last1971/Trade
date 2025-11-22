@@ -190,12 +190,12 @@ actions['ADD_LINE'] = async ({ state, getters, commit, dispatch }, { sellerId, s
             // Прибавляем сумму добавленной позиции к общей сумме заказа
             order.amount = (parseFloat(order.amount) || 0) + parseFloat(amountToAdd);
         }
-        
+
         // Если передали данные строки и операция успешна, добавляем в кеш
         if (lineData && response.data) {
             // Если в ответе есть line_id или другие данные - используем их
             const resultLine = { ...lineData };
-            
+
             // Если API вернул данные о добавленной строке, обновляем
             if (response.data.line_id) {
                 resultLine.line_id = response.data.line_id;
@@ -205,10 +205,10 @@ actions['ADD_LINE'] = async ({ state, getters, commit, dispatch }, { sellerId, s
                 const apiLine = response.data.lines[0];
                 if (apiLine.line_id) resultLine.line_id = apiLine.line_id;
             }
-            
+
             commit('ADD_LINE_TO_CACHE', { orderId: salesId, line: resultLine });
         }
-        
+
         return response.data;
     } catch (error) {
         commit('SNACKBAR/ERROR', error.response?.data?.message || 'Ошибка добавления строки', { root: true });
@@ -233,7 +233,7 @@ actions['GET_LINES'] = async ({ state, getters, commit }, { salesId, sellerId, f
         });
         
         const data = response.data;
-        
+
         // Сохраняем в кеш
         commit('SET_ORDER_LINES', {
             orderId: salesId,

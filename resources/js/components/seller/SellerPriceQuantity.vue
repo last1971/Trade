@@ -105,8 +105,8 @@ export default {
         pricesForChoose() {
             const ret = [];
             const { item, toRub, retailPrice, markup } = this;
-            ret.push(toRub(item.CharCode, item.price * (1 + markup / 100)));
-            const price = toRub(item.CharCode, retailPrice(item));
+            ret.push(toRub(item.CharCode, item.price * (1 + markup / 100), item.sellerId));
+            const price = toRub(item.CharCode, retailPrice(item), item.sellerId);
             if (price > 0) ret.push(price);
             return ret;
         },
@@ -143,10 +143,20 @@ export default {
             
             // Получаем строки заказа из кеша
             const orderLines = this.$store.getters['SELLER-ORDER/GET_ORDER_LINES'](this.activeOrder.id);
-            
-            // Проверяем, есть ли уже строка с таким item_id
-            const existingLine = orderLines.lines.find(line => String(line.item_id) === String(this.item.code));
-            
+
+            // Проверяем, есть ли уже строка с таким item_id или good_id
+            const existingLine = orderLines.lines.find(line => {
+                // Для API поставщиков (Compel, Promelec) сравниваем по item_id
+                if (line.item_id) {
+                    return String(line.item_id) === String(this.item.code);
+                }
+                // Для Firebird поставщиков сравниваем по good_id
+                if (line.good_id && this.item.goodId) {
+                    return String(line.good_id) === String(this.item.goodId);
+                }
+                return false;
+            });
+
             if (existingLine) {
                 // Строка существует - показываем диалог подтверждения
                 this.existingLineForUpdate = existingLine;
@@ -162,10 +172,10 @@ export default {
         },
         async confirmUpdate() {
             this.showConfirmDialog = false;
-            
+
             try {
                 const newQuantity = this.item.orderQuantity;
-                const priceInRub = this.toRub(this.item.CharCode, this.item.price);
+                const priceInRub = this.toRub(this.item.CharCode, this.item.price, this.item.sellerId);
                 const oldAmount = this.existingLineForUpdate.price * this.existingLineForUpdate.sales_qty;
                 const newAmount = priceInRub * newQuantity;
                 const amountDiff = newAmount - oldAmount;
@@ -187,14 +197,14 @@ export default {
         },
         async addNewLine() {
             try {
-                const priceInRub = this.toRub(this.item.CharCode, this.item.price);
+                const priceInRub = this.toRub(this.item.CharCode, this.item.price, this.item.sellerId);
                 const amountInRub = priceInRub * this.item.orderQuantity;
                 
                 const lineData = {
                     line_id: null,
                     item_id: this.item.code,
                     item_name: this.item.name || '',
-                    brend: this.item.brend || '',
+                    brend: this.item.producer || this.item.brend || '',
                     package_name: this.item.packageName || '',
                     sales_qty: this.item.orderQuantity,
                     price: priceInRub,
@@ -203,7 +213,7 @@ export default {
                     reserve_qty: this.item.orderQuantity,
                     reservation_end: null
                 };
-                
+
                 await this.$store.dispatch('SELLER-ORDER/ADD_LINE', {
                     sellerId: this.item.sellerId,
                     salesId: this.activeOrder.id,
@@ -211,7 +221,11 @@ export default {
                     line: {
                         seller_id: this.item.sellerId,
                         item_id: this.item.code,
+                        item_name: this.item.name,
                         qty: this.item.orderQuantity,
+                        price: priceInRub,
+                        good_id: this.item.goodId || null,
+                        price_data: this.item,
                     },
                     lineData: lineData
                 });

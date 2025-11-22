@@ -31,6 +31,7 @@ Route::middleware('auth:api')->group(function () {
         ->name('transfer-out.pdf');
     Route::get('transfer-out/xml/{id}', 'Api\TransferOutController@xml')
         ->name('transfer-out.xml');
+    Route::get('config', 'Api\ConfigController@index')->name('config.index');
     Route::get('exchange-rate', 'Api\ExchangeRateController@index')->name('exchange-rate.index');
     Route::get('seller-price', 'Api\SellerPriceController@index')->name('seller-price.index');
     Route::get('seller-price/own', 'Api\SellerPriceController@show')->name('seller-price.show');
