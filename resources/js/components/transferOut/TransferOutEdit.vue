@@ -89,6 +89,7 @@
 </template>
 
 <script>
+    import moment from 'moment';
     import utilsMixin from "../../mixins/utilsMixin";
     import BuyerSelect from "../BuyerSelect";
     import FirmSelect from "../FirmSelect";
@@ -126,7 +127,9 @@
                         download = this.$store.dispatch('TRANSFER-OUT/PDF', this.value.SFCODE);
                         break;
                     case 'xlsx':
+                        const date = moment(this.value.DATA).format('DD.MM.YYYY');
                         download = this.$store.dispatch('TRANSFER-OUT-LINE/SAVE', {
+                            filename: `УПД № ${this.value.NSF} от ${date}.xlsx`,
                             with: ['category', 'good', 'name', 'transferOut.buyer'],
                             filterAttributes: [
                                 'SFCODE',

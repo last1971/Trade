@@ -228,11 +228,16 @@ let actions = {
     SAVE({state, getters, commit}, payload) {
         return new Promise((resolve, reject) => {
             const query = _.cloneDeep(payload);
+            const customFilename = query.filename;
+            delete query.filename;
             queryClear(query);
             axios
                 .get(getters.URL + '/export', {params: query, responseType: 'blob'})
                 .then((response) => {
-                    FileSaver.saveAs(response.data, state.name + '.xlsx');
+                    // Используем переданное имя файла или дефолтное
+                    let filename = customFilename || state.name + '.xlsx';
+
+                    FileSaver.saveAs(response.data, filename);
                     resolve(response);
                 })
                 .catch((error) => {

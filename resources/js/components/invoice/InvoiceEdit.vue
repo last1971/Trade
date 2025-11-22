@@ -159,6 +159,7 @@
 </template>
 
 <script>
+import moment from 'moment';
 import BuyerSelect from "../BuyerSelect";
 import utilsMixin from "../../mixins/utilsMixin";
 import InvoiceStatusSelect from "./InvoiceStatusSelect";
@@ -270,6 +271,7 @@ export default {
             this.downloading = true;
             this.pdfDialog = false;
             const { withVAT, withStamp, newAccount } = this;
+            const date = moment(this.value.DATA).format('DD.MM.YYYY');
             const download =
                 type === "pdf"
                     ? this.$store.dispatch("INVOICE/PDF", {
@@ -277,6 +279,7 @@ export default {
                           query: { withVAT, withStamp, newAccount },
                       })
                     : this.$store.dispatch("INVOICE-LINE/SAVE", {
+                          filename: `Счет № ${this.value.NS} от ${date}.xlsx`,
                           with: ["category", "good", "name"],
                           filterAttributes: ["invoice.SCODE"],
                           filterOperators: ["="],
