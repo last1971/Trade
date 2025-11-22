@@ -54,10 +54,10 @@ class SellerOrderLinesExport implements FromCollection, WithHeadings, WithColumn
 
         return [
             $index,
-            $row->good->ARTICUL ?? '',
+            $row->PRIM ?? ($row->good->ARTICUL ?? ''),
             $row->NAME_IN_PRICE,
             $row->QUAN,
-            $row->PRIM ?? '',
+            '',
         ];
     }
 }

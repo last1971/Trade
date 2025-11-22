@@ -157,7 +157,7 @@ class FirebirdOrderService implements ISellerOrderService
                 'SUMMAP' => $amount,
                 'NAME_IN_PRICE' => $line['item_name'] ?? '',
                 'STAFF_ID' => auth()->user()->employee_id ?? null,
-                'PRIM' => $line['remark'] ?? '',
+                'PRIM' => $line['item_id'] ?? '',
             ]);
 
             $createdLines[] = [
@@ -193,14 +193,13 @@ class FirebirdOrderService implements ISellerOrderService
             'lines' => $lines->map(function($line) {
                 return [
                     'line_id' => $line->ID,
-                    'item_id' => null,
+                    'item_id' => $line->PRIM ?? null,
                     'item_name' => $line->NAME_IN_PRICE,
                     'sales_qty' => $line->QUAN,
                     'good_id' => $line->GOODSCODE,
                     'price' => $line->PRICE ?? 0,
                     'amount' => $line->SUMMAP ?? 0,
                     'currency_code' => 'RUB',
-                    'remark' => $line->PRIM,
                 ];
             })->toArray(),
             'total' => $lines->count(),

@@ -43,6 +43,7 @@
                     <template v-slot:default>
                         <thead>
                             <tr>
+                                <th>Код</th>
                                 <th>Наименование</th>
                                 <th>Производитель</th>
                                 <th>Корпус</th>
@@ -56,6 +57,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="line in lines" :key="line.line_id">
+                                <td>{{ line.item_id }}</td>
                                 <td>{{ line.item_name }}</td>
                                 <td>{{ line.brend }}</td>
                                 <td>{{ line.package_name }}</td>
