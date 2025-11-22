@@ -26,6 +26,18 @@ class TransferOutController extends ModelController
             }, $file);
     }
 
+    public function pdfToken($id)
+    {
+        // Генерируем одноразовый токен на 5 минут
+        $token = \Illuminate\Support\Str::random(64);
+        \Illuminate\Support\Facades\Cache::put('pdf_token_' . $token, [
+            'user_id' => auth()->id(),
+            'transfer_out_id' => $id,
+        ], now()->addMinutes(5));
+
+        return response()->json(['token' => $token]);
+    }
+
     public function pdf(TransferOutPDFRequest $request)
     {
         $transferOut = $request->transferOut;
@@ -55,7 +67,16 @@ class TransferOutController extends ModelController
             )
         );
         $pdf->setPaper('A4', 'landscape');
-        return $pdf->download('transfer-out.pdf');
+
+        $date = $transferOut->DATDOK instanceof \DateTime
+            ? $transferOut->DATDOK->format('d.m.Y')
+            : \Carbon\Carbon::parse($transferOut->DATDOK)->format('d.m.Y');
+
+        $filename = 'УПД № ' . $transferOut->NSF . ' от ' . $date . '.pdf';
+
+        return $pdf->stream($filename, [
+            'Content-Disposition' => 'inline; filename="' . $filename . '"'
+        ]);
     }
 
     public function store(ModelRequest $request)

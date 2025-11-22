@@ -27,6 +27,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('invoice-line/export/', 'Api\InvoiceLineController@export')->name('invoice-line.xlsx');
     Route::get('transfer-out-line/export/', 'Api\TransferOutLineController@export')
         ->name('transfer-out-line.xlsx');
+    Route::get('transfer-out/pdf-token/{id}', 'Api\TransferOutController@pdfToken')
+        ->name('transfer-out.pdf.token');
     Route::get('transfer-out/export/{id}', 'Api\TransferOutController@pdf')
         ->name('transfer-out.pdf');
     Route::get('transfer-out/xml/{id}', 'Api\TransferOutController@xml')

@@ -158,27 +158,32 @@ let actions = {
         const query = typeof payload === 'object' ? payload.query : {};
         queryClear(query);
         return new Promise((resolve, reject) => {
-            axios
-                .get(getters.URL + '/export/' + id, {params: query, responseType: 'blob'})
-                .then(response => {
-                    if (getters.NAME === 'transfer-out') {
-                        const file = new Blob(
-                            [response.data],
-                            {type: 'application/pdf'});
-                        const fileURL = URL.createObjectURL(file);
-                        window.open(fileURL);
-                    } else {
-                        FileSaver.saveAs(response.data, getters.PDF(id));
-                    }
-                    resolve(response);
-                })
-                .catch((error) => {
-                    const blob = new Blob([error.response.data], {type: 'application/json'});
-                    blob.text().then((res) => {
-                        commit('SNACKBAR/ERROR', JSON.parse(res).message, {root: true});
+            if (getters.NAME === 'transfer-out') {
+                // Для transfer-out получаем токен и открываем прямую ссылку
+                axios.get(getters.URL + '/pdf-token/' + id)
+                    .then(response => {
+                        const token = response.data.token;
+                        const params = new URLSearchParams({...query, token}).toString();
+                        const url = `/pdf/transfer-out/${id}?${params}`;
+                        window.open(url, '_blank');
+                        resolve(response);
                     })
-                    reject(error);
-                });
+                    .catch(reject);
+            } else {
+                axios
+                    .get(getters.URL + '/export/' + id, {params: query, responseType: 'blob'})
+                    .then(response => {
+                        FileSaver.saveAs(response.data, getters.PDF(id));
+                        resolve(response);
+                    })
+                    .catch((error) => {
+                        const blob = new Blob([error.response.data], {type: 'application/json'});
+                        blob.text().then((res) => {
+                            commit('SNACKBAR/ERROR', JSON.parse(res).message, {root: true});
+                        })
+                        reject(error);
+                    });
+            }
         });
     },
     XML({getters, commit}, payload) {

@@ -33,6 +33,25 @@ Route::get('/digi-key', function (Request $request, DigiKeyApiService $service) 
     return redirect($service->gettingTheAuthorizationCodeUri());
 });
 
+Route::get('/pdf/transfer-out/{id}', function ($id, Request $request) {
+    $token = $request->get('token');
+    if (!$token) {
+        abort(403, 'Token required');
+    }
+
+    $data = \Illuminate\Support\Facades\Cache::pull('pdf_token_' . $token);
+    if (!$data || $data['transfer_out_id'] != $id) {
+        abort(403, 'Invalid token');
+    }
+
+    // Авторизуем пользователя
+    $user = \App\User::findOrFail($data['user_id']);
+    \Illuminate\Support\Facades\Auth::setUser($user);
+
+    // Вызываем метод контроллера через app()->call() для автоматической инъекции зависимостей
+    return app()->call('App\Http\Controllers\Api\TransferOutController@pdf', ['id' => $id]);
+})->name('transfer-out.pdf.public');
+
 Route::get('/{path?}', function () {
     return view('app');
 });
