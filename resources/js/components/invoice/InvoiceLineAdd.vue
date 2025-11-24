@@ -205,7 +205,7 @@ export default {
                 if (!_.isEmpty(this.newInvoiceLine)) {
                     const { deliveryTime, goodId, orderQuantity, sellerId } = this.newInvoiceLine;
                     this.invoiceLine.PRIM = deliveryTime
-                        ? deliveryTime + ' дней'
+                        ? this.formatDays(deliveryTime)
                         : deliveryTime === 0 ? 'склад' : null;
                     this.invoiceLine.QUAN = orderQuantity;
                     this.invoiceLine.GOODSCODE = goodId;

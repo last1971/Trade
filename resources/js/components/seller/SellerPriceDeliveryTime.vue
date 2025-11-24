@@ -2,7 +2,7 @@
     <v-container>
         <v-row dense>
             <v-col>
-                <b>{{ item.deliveryTime }} дней</b>
+                <b>{{ formatDays(item.deliveryTime) }}</b>
             </v-col>
         </v-row>
         <v-row dense>
@@ -22,10 +22,11 @@
 
 <script>
 import sellerPriceMixin from "../../mixins/sellerPriceMixin";
+import utilsMixin from "../../mixins/utilsMixin";
 
 export default {
     name: "SellerPriceDeliveryTime",
-    mixins: [sellerPriceMixin],
+    mixins: [sellerPriceMixin, utilsMixin],
     methods: {
         sellerRemark(item) {
             if (!item.options) return 'С К Л А Д';

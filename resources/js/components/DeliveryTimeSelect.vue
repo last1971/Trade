@@ -7,8 +7,11 @@
 </template>
 
 <script>
+import utilsMixin from "../mixins/utilsMixin";
+
 export default {
     name: "DeliveryTimeSelect",
+    mixins: [utilsMixin],
     props: {
         value: {
             type: String,
@@ -18,13 +21,13 @@ export default {
         return {
             deliveryTimes: [
                 'склад',
-                '1 день',
-                '3 дня',
-                '5 дней',
-                '7 дней',
-                '8 дней',
-                '9 дней',
-                '10 дней',
+                this.formatDays(1),
+                this.formatDays(3),
+                this.formatDays(5),
+                this.formatDays(7),
+                this.formatDays(8),
+                this.formatDays(9),
+                this.formatDays(10),
                 '2 недели',
                 '3 недели',
                 '4 недели',
