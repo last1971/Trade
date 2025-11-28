@@ -123,8 +123,8 @@ class UpdImportService
     private function parseNumber($value): float
     {
         $value = (string)$value;
-        // Убираем пробелы и неразрывные пробелы
-        $value = str_replace([' ', "\xc2\xa0"], '', $value);
+        // Убираем все виды Unicode пробелов (Zs - space separators)
+        $value = preg_replace('/\p{Zs}/u', '', $value);
 
         // Определяем формат: если есть и запятая и точка
         if (strpos($value, ',') !== false && strpos($value, '.') !== false) {
