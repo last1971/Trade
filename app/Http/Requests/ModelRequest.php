@@ -92,7 +92,7 @@ class ModelRequest extends FormRequest
                 $rules += [
                     'item.edo_id' => [
                         'required',
-                        'integer',
+                        'string',
                         Rule::unique('advanced_buyers','edo_id')
                             ->ignore($this->route('advanced_buyer') ? $this->route('advanced_buyer') : null),
                     ],

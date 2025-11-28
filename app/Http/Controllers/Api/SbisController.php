@@ -10,6 +10,8 @@ use App\Rules\RightUnitRule;
 use App\Services\SbisService;
 use App\Services\TransferOutLineService;
 use App\Services\TransferOutService;
+use App\Services\UpdImportService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Maatwebsite\Excel\Excel;
 use PDF;
@@ -65,5 +67,25 @@ class SbisController extends Controller
         );
         $pdf->setPaper('A4', 'portrait');
         return $pdf->download('packing-list-pdf.pdf');
+    }
+
+    /**
+     * Импорт УПД из xlsx и генерация XML
+     */
+    public function updImport(Request $request, UpdImportService $service)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx',
+            'buyer_id' => 'required|integer',
+        ]);
+
+        $xml = $service->generateXml($request->file('file'), $request->buyer_id);
+
+        $filename = 'upd_' . date('Y-m-d_H-i-s') . '.xml';
+
+        return response($xml, 200, [
+            'Content-Type' => 'application/xml',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
     }
 }

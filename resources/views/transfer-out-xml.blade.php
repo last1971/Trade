@@ -50,15 +50,19 @@
                         НаимСтран="РОССИЯ"
                     />
                 </Адрес>
+                @if ($transferOut->buyer->BIK || $transferOut->buyer->RSCHET1)
                 <БанкРекв НомерСчета="{{ $transferOut->buyer->RSCHET1 }}">
                     <СвБанк БИК="{{ $transferOut->buyer->BIK }}"
                             КорСчет="{{ $transferOut->buyer->KS }}"
                             НаимБанк="{{ $transferOut->buyer->BANK }}"
                     />
                 </БанкРекв>
+                @endif
+                @if ($transferOut->buyer->PHONES)
                 <Контакт>
                     <Тлф>{{ $transferOut->buyer->PHONES }}</Тлф>
                 </Контакт>
+                @endif
             </ГрузПолуч>
             @foreach($cashFlows as $cf)
                 <СвПРД НомерПРД="{{ $cf->NPP }}"
@@ -76,15 +80,19 @@
                 <Адрес>
                     <АдрИнф АдрТекст="{{ $transferOut->buyer->ADDRESS }}" КодСтр="643" НаимСтран="РОССИЯ"/>
                 </Адрес>
+                @if ($transferOut->buyer->BIK || $transferOut->buyer->RSCHET1)
                 <БанкРекв НомерСчета="{{ $transferOut->buyer->RSCHET1 }}">
                     <СвБанк БИК="{{ $transferOut->buyer->BIK }}"
                             КорСчет="{{ $transferOut->buyer->KS }}"
                             НаимБанк="{{ $transferOut->buyer->BANK }}"
                     />
                 </БанкРекв>
+                @endif
+                @if ($transferOut->buyer->PHONES)
                 <Контакт>
                     <Тлф>{{ $transferOut->buyer->PHONES }}</Тлф>
                 </Контакт>
+                @endif
             </СвПокуп>
             @if ($transferOut->invoice->IGK)
                 <ДопСвФХЖ1 ИдГосКон="{{ $transferOut->invoice->IGK }}"/>
@@ -132,6 +140,12 @@
         </ТаблСчФакт>
         <СвПродПер>
             <СвПер ВидОпер="Продажа" СодОпер="Товары переданы" ДатаПер="{{ \Carbon\Carbon::create($transferOut->DATA)->format('d.m.Y') }}">
+                @if (!empty($transferOut->invoice->basis))
+                <ОснПер РеквДатаДок="{{ $transferOut->invoice->basisDate }}"
+                        РеквНаимДок="{{ $transferOut->invoice->basis }}"
+                        РеквНомерДок="{{ $transferOut->invoice->basisNumber }}"
+                />
+                @else
                 <ОснПер РеквДатаДок="{{ \Carbon\Carbon::create($transferOut->invoice->DATA)->format('d.m.Y') }}"
                         РеквНаимДок="Счет"
                         РеквНомерДок="{{ $transferOut->invoice->NS }}"
@@ -141,6 +155,7 @@
                             РеквНаимДок="Заказ"
                             РеквНомерДок="{{ Str::replace('{NZ}', $transferOut->invoice->NZ, $transferOut->buyer->DOGOVOR) }}"
                     />
+                @endif
                 @endif
             </СвПер>
         </СвПродПер>

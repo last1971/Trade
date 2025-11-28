@@ -55,6 +55,36 @@
                 </v-btn>
             </v-col>
         </v-row>
+
+        <v-divider class="my-4"/>
+
+        <v-row>
+            <v-col cols="12">
+                <div class="text-subtitle-1 mb-2">Импорт УПД из 1С</div>
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col cols="8">
+                <v-file-input
+                    v-model="updFile"
+                    label="Выберите xlsx файл УПД из 1С"
+                    accept=".xlsx"
+                    prepend-icon="mdi-file-excel"
+                    show-size
+                    clearable
+                />
+            </v-col>
+            <v-col cols="4" class="d-flex align-center">
+                <v-btn
+                    :loading="updImportLoading"
+                    :disabled="!updFile || !buyerId"
+                    @click="updImport"
+                    color="primary"
+                >
+                    Скачать XML
+                </v-btn>
+            </v-col>
+        </v-row>
     </v-container>
 </template>
 
@@ -75,6 +105,8 @@
                 gtdLoading: false,
                 transferLoading: false,
                 packingListLoading: false,
+                updFile: null,
+                updImportLoading: false,
             }
         },
         created() {
@@ -134,6 +166,39 @@
                     .catch(() => {
                     })
                     .then(() => this.packingListLoading = false);
+            },
+            async updImport() {
+                if (!this.updFile || !this.buyerId) return;
+
+                this.updImportLoading = true;
+                try {
+                    const formData = new FormData();
+                    formData.append('file', this.updFile);
+                    formData.append('buyer_id', this.buyerId);
+
+                    const response = await axios.post('/api/sbis/upd-import', formData, {
+                        responseType: 'blob',
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+
+                    // Скачиваем файл
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', 'upd_' + new Date().toISOString().slice(0, 10) + '.xml');
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+
+                    this.updFile = null;
+                } catch (e) {
+                    const message = e.response?.data?.message || 'Ошибка импорта';
+                    this.$store.commit('SNACKBAR/ERROR', message, { root: true });
+                } finally {
+                    this.updImportLoading = false;
+                }
             }
         }
     }
