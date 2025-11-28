@@ -396,9 +396,12 @@ class PromelecOrderService implements ISellerOrderService
             
             // Возвращаем PDF в base64
             return [
-                'pdf' => base64_encode($pdfContent),
-                'type' => 'pdf',
-                'filename' => 'bill_' . $salesId . '.pdf'
+                'success' => true,
+                'data' => [
+                    'pdf' => base64_encode($pdfContent),
+                    'type' => 'pdf',
+                    'filename' => 'bill_' . $salesId . '.pdf'
+                ]
             ];
         } catch (\Exception $e) {
             throw new \Exception('Error getting bill document: ' . $e->getMessage());

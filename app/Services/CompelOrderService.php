@@ -356,17 +356,23 @@ class CompelOrderService implements ISellerOrderService
     /**
      * Создание и отправка счета
      * @param string $salesId - ID заказа
-     * @return mixed
+     * @return array
      * @throws \App\Exceptions\CompelException
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function sendInvoice(string $salesId)
     {
         $compel = new CompelApiService();
-        
+
         $response = $compel->createInvoice($salesId);
-        
-        return $response->result ?? null;
+
+        $result = $response->result ?? null;
+
+        // Возвращаем в едином формате с другими сервисами
+        return [
+            'success' => true,
+            'data' => $result
+        ];
     }
 
     /**
