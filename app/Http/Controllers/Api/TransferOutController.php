@@ -28,6 +28,17 @@ class TransferOutController extends ModelController
 
     public function pdfToken($id)
     {
+        // Проверяем валидность стран перед генерацией токена
+        $lines = TransferOutLine::where('SFCODE', $id)->get();
+        $countryCodes = config('country_codes');
+        foreach ($lines as $line) {
+            if ($line->STRANA && !isset($countryCodes[\Illuminate\Support\Str::upper($line->STRANA)])) {
+                return response()->json([
+                    'message' => 'Неизвестная страна: ' . $line->STRANA
+                ], 400);
+            }
+        }
+
         // Генерируем одноразовый токен на 5 минут
         $token = \Illuminate\Support\Str::random(64);
         \Illuminate\Support\Facades\Cache::put('pdf_token_' . $token, [

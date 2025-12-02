@@ -168,7 +168,12 @@ let actions = {
                         window.open(url, '_blank');
                         resolve(response);
                     })
-                    .catch(reject);
+                    .catch((error) => {
+                        if (error.response && error.response.data && error.response.data.message) {
+                            commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                        }
+                        reject(error);
+                    });
             } else {
                 axios
                     .get(getters.URL + '/export/' + id, {params: query, responseType: 'blob'})
