@@ -32,9 +32,10 @@ class TransferOutController extends ModelController
         $lines = TransferOutLine::where('SFCODE', $id)->get();
         $countryCodes = config('country_codes');
         foreach ($lines as $line) {
-            if ($line->STRANA && !isset($countryCodes[\Illuminate\Support\Str::upper($line->STRANA)])) {
+            $strana = trim($line->STRANA ?? '');
+            if ($strana && !array_key_exists(\Illuminate\Support\Str::upper($strana), $countryCodes)) {
                 return response()->json([
-                    'message' => 'Неизвестная страна: ' . $line->STRANA
+                    'message' => 'Неизвестная страна: ' . $strana
                 ], 400);
             }
         }

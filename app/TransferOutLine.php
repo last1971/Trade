@@ -52,7 +52,11 @@ class TransferOutLine extends Model
 
     public function getCountryNumCodeAttribute()
     {
-        return config('country_codes')[Str::upper($this->STRANA)];
+        $strana = trim($this->STRANA ?? '');
+        if (!$strana) {
+            return null;
+        }
+        return config('country_codes')[Str::upper($strana)] ?? null;
     }
 
     public function good()
