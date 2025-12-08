@@ -48,8 +48,7 @@ Route::get('/pdf/transfer-out/{id}', function ($id, Request $request) {
     $user = \App\User::findOrFail($data['user_id']);
     \Illuminate\Support\Facades\Auth::setUser($user);
 
-    // Вызываем метод контроллера через app()->call() для автоматической инъекции зависимостей
-    return app()->call('App\Http\Controllers\Api\TransferOutController@pdf', ['id' => $id]);
+    return app(App\Http\Controllers\Api\TransferOutController::class)->pdfPublic($id, $request);
 })->name('transfer-out.pdf.public');
 
 Route::get('/{path?}', function () {

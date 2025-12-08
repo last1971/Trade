@@ -50,9 +50,28 @@ class TransferOutController extends ModelController
         return response()->json(['token' => $token]);
     }
 
+    public function pdfPublic($id, \Illuminate\Http\Request $request)
+    {
+        $transferOut = \App\TransferOut::with('firm', 'buyer.advancedBuyer', 'employee', 'invoice.cashFlows')
+            ->findOrFail(intval($id));
+
+        $params = [
+            'body' => $request->get('body') === 'true',
+            'producer' => $request->get('producer') === 'true',
+            'category' => $request->get('category') === 'true',
+            'divider' => $request->get('divider') === 'true',
+        ];
+
+        return $this->generatePdf($transferOut, $params);
+    }
+
     public function pdf(TransferOutPDFRequest $request)
     {
-        $transferOut = $request->transferOut;
+        return $this->generatePdf($request->transferOut, $request->validated());
+    }
+
+    private function generatePdf($transferOut, array $params)
+    {
         $cashFlows = $transferOut->invoice->cashFlows->filter(function ($v) {
             return !$v->SFCODE1;
         });
@@ -63,7 +82,7 @@ class TransferOutController extends ModelController
         $pdf = PDF::loadView(
             'transfer-out-pdf',
             array_merge(
-                $request->validated(),
+                $params,
                 compact('transferOutLines', 'transferOut', 'cashFlows', 'count')
             )
         );
@@ -74,7 +93,7 @@ class TransferOutController extends ModelController
         $pdf = PDF::loadView(
             'transfer-out-pdf',
             array_merge(
-                $request->validated(),
+                $params,
                 compact('transferOutLines', 'transferOut', 'cashFlows', 'count')
             )
         );
