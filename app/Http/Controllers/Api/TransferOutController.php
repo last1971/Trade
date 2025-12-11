@@ -60,6 +60,9 @@ class TransferOutController extends ModelController
             'producer' => $request->get('producer') === 'true',
             'category' => $request->get('category') === 'true',
             'divider' => $request->get('divider') === 'true',
+            'basis' => $request->get('basis'),
+            'basisNumber' => $request->get('basisNumber'),
+            'basisDate' => $request->get('basisDate'),
         ];
 
         return $this->generatePdf($transferOut, $params);

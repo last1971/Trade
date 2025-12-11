@@ -411,7 +411,9 @@
         <tr>
             <td>Основание передачи (сдачи)/получения приемки</td>
             <td width="75%" class="bottom-border">
-                @if($transferOut->PRIM)
+                @if(!empty($basis ?? null))
+                    {{ $basis }} № {{ $basisNumber }} от {{ $basisDate }}
+                @elseif($transferOut->PRIM)
                     {{ $transferOut->PRIM }}
                 @else
                     Счет № {{ $transferOut->invoice->NS }}
