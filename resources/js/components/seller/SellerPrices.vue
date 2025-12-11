@@ -102,7 +102,7 @@
             </v-container>
         </template>
         <template v-slot:item.deliveryTime="{ item }">
-            <seller-price-delivery-time :item="item" @update="update(item)" />
+            <seller-price-delivery-time :item="item" :markup="markup" @update="update(item)" />
         </template>
     </v-data-table>
 </template>
