@@ -178,7 +178,7 @@ let actions = {
                 axios
                     .get(getters.URL + '/export/' + id, {params: query, responseType: 'blob'})
                     .then(response => {
-                        FileSaver.saveAs(response.data, getters.PDF(id));
+                        FileSaver.saveAs(response.data, getters.PDF(id, query.documentType));
                         resolve(response);
                     })
                     .catch((error) => {

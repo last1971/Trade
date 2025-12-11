@@ -59,7 +59,16 @@ class InvoiceController extends ModelController
                 'sortDesc' =>$request->sortDesc,
             ]))->get()
         ]);
-        return PDF::loadView('invoice-pdf', $request->all())->download('invoice.pdf');
+
+        if ($request->documentType === 'specification') {
+            $pdf = PDF::loadView('specification-pdf', $request->all());
+            $pdf->setPaper('A4', 'landscape');
+            $date = \Carbon\Carbon::parse($request->invoice->DATA)->format('d.m.Y');
+            return $pdf->download("Спецификация № {$request->invoice->NS} от {$date}.pdf");
+        }
+
+        $date = \Carbon\Carbon::parse($request->invoice->DATA)->format('d.m.Y');
+        return PDF::loadView('invoice-pdf', $request->all())->download("Счёт № {$request->invoice->NS} от {$date}.pdf");
     }
 
     /**

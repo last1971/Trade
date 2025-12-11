@@ -19,6 +19,12 @@
             <v-card-text>
                 <v-container>
                     <v-row>
+                        <v-radio-group v-model="documentType" row class="col-12 mt-0">
+                            <v-radio label="Счёт" value="invoice"></v-radio>
+                            <v-radio label="Спецификация" value="specification"></v-radio>
+                        </v-radio-group>
+                    </v-row>
+                    <v-row v-if="documentType === 'invoice'">
                         <v-switch class="col-6"
                                   inset
                                   label="Новые реквизиты"
@@ -64,7 +70,31 @@
                                   label="С подвалом"
                                   v-model="invoiceWithFooter"
                         />
-                        <v-btn @click="download()" class="col-2" fab>
+                    </v-row>
+                    <v-row v-else>
+                        <v-switch class="col-6"
+                                  inset
+                                  :label="invoiceBody ? 'Корпус' : 'Без корпуса'"
+                                  v-model="invoiceBody"
+                        />
+                        <v-switch class="col-6"
+                                  inset
+                                  :label="invoiceProducer ? 'Производитель' : 'Без Производителя'"
+                                  v-model="invoiceProducer"
+                        />
+                        <v-switch :label="'Разделитель ' + (invoiceDivider ? '/' : '\' \'')"
+                                  inset
+                                  v-model="invoiceDivider"
+                                  class="col-6"
+                        />
+                        <v-switch :label="invoiceWithStamp ? 'С печатью' : 'Без печати'"
+                                  class="col-6"
+                                  inset
+                                  v-model="invoiceWithStamp"
+                        />
+                    </v-row>
+                    <v-row justify="center">
+                        <v-btn @click="download()" fab>
                             <v-icon dark>mdi-download</v-icon>
                         </v-btn>
                     </v-row>
@@ -82,6 +112,11 @@ export default {
         pdfDialog: { type: Boolean, default: false },
         sortBy: { type: Array, default: () => ['REALPRICECODE'] },
         sortDesc: { type: Array, default: () => [false] },
+    },
+    data() {
+        return {
+            documentType: 'invoice',
+        }
     },
     computed: {
         invoiceWithStamp: {
@@ -172,7 +207,8 @@ export default {
                 divider = this.invoiceDivider,
                 deliveryTime = this.invoiceDeliveryTime,
                 sortBy = this.sortBy,
-                sortDesc = this.sortDesc;
+                sortDesc = this.sortDesc,
+                documentType = this.documentType;
             this.$store.dispatch(
                 'INVOICE/PDF',
                 {
@@ -189,6 +225,7 @@ export default {
                         deliveryTime,
                         sortBy,
                         sortDesc,
+                        documentType,
                     }
                 }
             )

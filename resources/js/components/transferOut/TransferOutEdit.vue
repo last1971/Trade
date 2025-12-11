@@ -71,9 +71,6 @@
                     <v-btn @click="pdfDialog=true" fab>
                         <v-icon color="red">mdi-adobe-acrobat</v-icon>
                     </v-btn>
-                    <v-btn @click="download('xml')" fab>
-                        <v-icon color="blue">mdi-xml</v-icon>
-                    </v-btn>
                     <v-btn @click="download('xlsx')" fab>
                         <v-icon color="green">mdi-microsoft-excel</v-icon>
                     </v-btn>

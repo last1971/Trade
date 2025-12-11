@@ -97,8 +97,12 @@ getters['GET_NEW_INVOICE'] = () => {
     };
 };
 
-getters.PDF = state => id => {
-    return 'Счет № ' + getters.GET(state)(id).NS + '.pdf'
+getters.PDF = state => (id, documentType) => {
+    const invoice = getters.GET(state)(id);
+    if (documentType === 'specification') {
+        return 'Спецификация № ' + invoice.NS + '.pdf';
+    }
+    return 'Счет № ' + invoice.NS + '.pdf';
 }
 
 getters['GET-CURRENT'] = state => state.currentInvoice;

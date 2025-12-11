@@ -16,10 +16,9 @@
                 <v-card-text>
                     <v-row dense>
                         <v-col>
-                            <v-text-field label="Строка поиска"
+                            <search-text-field label="Строка поиска"
                                           placeholder="Введите название компонента"
                                           v-model="search"
-
                             />
                         </v-col>
                         <v-col cols="2">
@@ -103,7 +102,7 @@
             </v-container>
         </template>
         <template v-slot:item.deliveryTime="{ item }">
-            <seller-price-delivery-time :item="item" @update="update(item)" />
+            <seller-price-delivery-time :item="item" :markup="markup" @update="update(item)" />
         </template>
     </v-data-table>
 </template>
@@ -120,10 +119,12 @@ import SellerPriceDeliveryTime from "./SellerPriceDeliveryTime";
 import moment from "moment";
 import InvoiceCard from "../invoice/InvoiceCard";
 import SellerApiFileSelectNew from "./SellerApi/SellerApiFileSelectNew";
+import SearchTextField from "../common/SearchTextField";
 
 export default {
     name: "SellerPrices",
     components: {
+        SearchTextField,
         SellerApiFileSelectNew,
         InvoiceCard,
         SellerPriceDeliveryTime,

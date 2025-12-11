@@ -69,8 +69,13 @@ class TransferOutService extends ModelService
         $cashFlows = $transferOut->invoice->cashFlows->filter(function ($v) {
             return !$v->SFCODE1;
         });
+
+        $basis = $request->get('basis');
+        $basisNumber = $request->get('basisNumber');
+        $basisDate = $request->get('basisDate');
+
         $output = View::make('transfer-out-xml')
-            ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows'))
+            ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows', 'basis', 'basisNumber', 'basisDate'))
             ->render();
         return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251", $output);
     }

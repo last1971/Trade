@@ -140,7 +140,12 @@
         </ТаблСчФакт>
         <СвПродПер>
             <СвПер ВидОпер="Продажа" СодОпер="Товары переданы" ДатаПер="{{ \Carbon\Carbon::create($transferOut->DATA)->format('d.m.Y') }}">
-                @if (!empty($transferOut->invoice->basis))
+                @if (!empty($basis ?? null))
+                <ОснПер РеквДатаДок="{{ $basisDate }}"
+                        РеквНаимДок="{{ $basis }}"
+                        РеквНомерДок="{{ $basisNumber }}"
+                />
+                @elseif (!empty($transferOut->invoice->basis))
                 <ОснПер РеквДатаДок="{{ $transferOut->invoice->basisDate }}"
                         РеквНаимДок="{{ $transferOut->invoice->basis }}"
                         РеквНомерДок="{{ $transferOut->invoice->basisNumber }}"
