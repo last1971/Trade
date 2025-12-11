@@ -38,10 +38,23 @@
             </ГрузОт>
             <ГрузПолуч>
                 <ИдСв>
+                    @if (strlen($transferOut->buyer->Inn) == 12)
+                    @php
+                        $fio = preg_replace('/^ИП\s+/ui', '', trim($transferOut->buyer->advancedBuyer->consignee ?? $transferOut->buyer->FULLNAME));
+                        $parts = preg_split('/\s+/', $fio);
+                        $lastName = $parts[0] ?? '';
+                        $firstName = $parts[1] ?? '';
+                        $middleName = $parts[2] ?? '';
+                    @endphp
+                    <СвИП ИННФЛ="{{ $transferOut->buyer->Inn }}">
+                        <ФИО Имя="{{ $firstName }}" Отчество="{{ $middleName }}" Фамилия="{{ $lastName }}"/>
+                    </СвИП>
+                    @else
                     <СвЮЛУч ИННЮЛ="{{ $transferOut->buyer->Inn }}"
                             КПП="{{ $transferOut->buyer->Kpp }}"
                             НаимОрг="{{ $transferOut->buyer->advancedBuyer->consignee ?? $transferOut->buyer->FULLNAME }}"
                     />
+                    @endif
                 </ИдСв>
                 <Адрес>
                     <АдрИнф
@@ -72,10 +85,23 @@
             @endforeach
             <СвПокуп>
                 <ИдСв>
+                    @if (strlen($transferOut->buyer->Inn) == 12)
+                    @php
+                        $fio2 = preg_replace('/^ИП\s+/ui', '', trim($transferOut->buyer->FULLNAME));
+                        $parts2 = preg_split('/\s+/', $fio2);
+                        $lastName2 = $parts2[0] ?? '';
+                        $firstName2 = $parts2[1] ?? '';
+                        $middleName2 = $parts2[2] ?? '';
+                    @endphp
+                    <СвИП ИННФЛ="{{ $transferOut->buyer->Inn }}">
+                        <ФИО Имя="{{ $firstName2 }}" Отчество="{{ $middleName2 }}" Фамилия="{{ $lastName2 }}"/>
+                    </СвИП>
+                    @else
                     <СвЮЛУч ИННЮЛ="{{ $transferOut->buyer->Inn }}"
                             КПП="{{ $transferOut->buyer->Kpp }}"
                             НаимОрг="{{ $transferOut->buyer->FULLNAME }}"
                     />
+                    @endif
                 </ИдСв>
                 <Адрес>
                     <АдрИнф АдрТекст="{{ $transferOut->buyer->ADDRESS }}" КодСтр="643" НаимСтран="РОССИЯ"/>
