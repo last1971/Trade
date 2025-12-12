@@ -6,10 +6,10 @@
         @input="$emit('input', $event)"
     >
         <template v-slot:append>
-            <v-btn icon x-small @click="clear" v-if="value" title="Очистить">
+            <v-btn icon x-small tabindex="-1" @click="clear" v-if="value" title="Очистить">
                 <v-icon small>mdi-eraser</v-icon>
             </v-btn>
-            <v-btn icon x-small @click="pasteFromClipboard" title="Вставить из буфера">
+            <v-btn icon x-small tabindex="-1" @click="pasteFromClipboard" title="Вставить из буфера">
                 <v-icon small>mdi-content-paste</v-icon>
             </v-btn>
         </template>
