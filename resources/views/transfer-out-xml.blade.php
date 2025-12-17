@@ -129,7 +129,7 @@
             @foreach($transferOutLines as $line)
                 <СведТов КолТов="{{ $line->QUAN }}"
                          НаимТов="{{ $line->name->NAME }}"
-                         НалСт="{{ VAT::get($transferOut->DATA) }}%"
+                         НалСт="{{ VAT::get($transferOut->DATA, $transferOut->firm->FIRM_ID ?? null) }}%"
                          НомСтр="{{ $loop->iteration }}"
                          ОКЕИ_Тов="{{ $line->good->unitCode }}"
                          НаимЕдИзм="{{ $line->good->unitName }}"

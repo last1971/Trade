@@ -60,15 +60,15 @@
 
         <v-row>
             <v-col cols="12">
-                <div class="text-subtitle-1 mb-2">Импорт УПД из 1С</div>
+                <div class="text-subtitle-1 mb-2">Импорт уведомления о выкупе Wildberries</div>
             </v-col>
         </v-row>
         <v-row>
             <v-col cols="8">
                 <v-file-input
                     v-model="updFile"
-                    label="Выберите xlsx файл УПД из 1С"
-                    accept=".xlsx"
+                    label="Выберите xlsx или zip файл уведомления WB"
+                    accept=".xlsx,.zip"
                     prepend-icon="mdi-file-excel"
                     show-size
                     clearable
@@ -77,7 +77,7 @@
             <v-col cols="4" class="d-flex align-center">
                 <v-btn
                     :loading="updImportLoading"
-                    :disabled="!updFile || !buyerId"
+                    :disabled="!updFile"
                     @click="updImport"
                     color="primary"
                 >
@@ -168,15 +168,14 @@
                     .then(() => this.packingListLoading = false);
             },
             async updImport() {
-                if (!this.updFile || !this.buyerId) return;
+                if (!this.updFile) return;
 
                 this.updImportLoading = true;
                 try {
                     const formData = new FormData();
                     formData.append('file', this.updFile);
-                    formData.append('buyer_id', this.buyerId);
 
-                    const response = await axios.post('/api/sbis/upd-import', formData, {
+                    const response = await axios.post('/api/sbis/wildberries-import', formData, {
                         responseType: 'blob',
                         headers: {
                             'Content-Type': 'multipart/form-data'
@@ -187,7 +186,7 @@
                     const url = window.URL.createObjectURL(new Blob([response.data]));
                     const link = document.createElement('a');
                     link.href = url;
-                    link.setAttribute('download', 'upd_' + new Date().toISOString().slice(0, 10) + '.xml');
+                    link.setAttribute('download', 'upd_wb_' + new Date().toISOString().slice(0, 10) + '.xml');
                     document.body.appendChild(link);
                     link.click();
                     link.remove();

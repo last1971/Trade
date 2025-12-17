@@ -88,4 +88,23 @@ class SbisController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ]);
     }
+
+    /**
+     * Импорт уведомления о выкупе Wildberries и генерация XML
+     */
+    public function wildberriesImport(Request $request, UpdImportService $service)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,zip',
+        ]);
+
+        $xml = $service->generateWildberriesXml($request->file('file'));
+
+        $filename = 'upd_wb_' . date('Y-m-d_H-i-s') . '.xml';
+
+        return response($xml, 200, [
+            'Content-Type' => 'application/xml',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
 }

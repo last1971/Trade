@@ -88,6 +88,7 @@ Route::middleware('auth:api')->group(function () {
     Route::post('sbis/export', 'Api\SbisController@export')->name('sbis.export');
     Route::post('sbis/packing-list', 'Api\SbisController@packingList')->name('sbis.packing-list');
     Route::post('sbis/upd-import', 'Api\SbisController@updImport')->name('sbis.upd-import');
+    Route::post('sbis/wildberries-import', 'Api\SbisController@wildberriesImport')->name('sbis.wildberries-import');
 
     Route::post('goods-list', 'Api\GoodsListController@store')->name('goods-list.store');
 
