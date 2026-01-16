@@ -62,6 +62,9 @@
 <script>
 import { mapGetters } from 'vuex';
 import DatePicker from '../DatePicker';
+import createLocalStorageSync from '../../helpers/localStorage';
+
+const deliveryModeStorage = createLocalStorageSync('compel_delivery_mode');
 
 export default {
     name: 'ShipOrderDialog',
@@ -81,27 +84,50 @@ export default {
             deliveryModes: 'COMPEL/GET_DELIVERY_MODES',
         }),
     },
+    watch: {
+        selectedDeliveryMode(val) {
+            if (val) {
+                deliveryModeStorage.set(val);
+            }
+        },
+    },
     methods: {
         open(order) {
             this.order = order;
             this.dialog = true;
-            this.selectedDeliveryMode = null;
             this.dateDeadline = null;
             this.loading = false;
+
+            // Восстанавливаем последний выбранный способ доставки
+            const savedMode = deliveryModeStorage.get(null);
+            const modeExists = savedMode && this.deliveryModes.some(m => m.id === savedMode);
+            this.selectedDeliveryMode = modeExists ? savedMode : null;
             
             // Устанавливаем дату по умолчанию - ближайшая пятница
-            const today = new Date();
-            const dayOfWeek = today.getDay(); // 0 = воскресенье, 5 = пятница
-            let daysUntilFriday = (5 - dayOfWeek + 7) % 7;
-            
-            // Если сегодня пятница, берем следующую
-            if (daysUntilFriday === 0) {
-                daysUntilFriday = 7;
+            // До 9:00 МСК пятницы можно выбрать текущую пятницу
+            const now = new Date();
+            const moscowOffset = 3 * 60; // Москва UTC+3
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const moscowTime = new Date(utc + (moscowOffset * 60000));
+
+            const dayOfWeek = moscowTime.getDay(); // 0 = воскресенье, 5 = пятница
+            const hour = moscowTime.getHours();
+
+            let daysUntilFriday;
+            if (dayOfWeek === 5 && hour < 9) {
+                // Пятница до 9 утра МСК - можно сегодня
+                daysUntilFriday = 0;
+            } else {
+                daysUntilFriday = (5 - dayOfWeek + 7) % 7;
+                if (daysUntilFriday === 0) {
+                    // Пятница после 9 утра - следующая пятница
+                    daysUntilFriday = 7;
+                }
             }
-            
-            const nextFriday = new Date(today);
-            nextFriday.setDate(today.getDate() + daysUntilFriday);
-            this.dateDeadline = nextFriday.toISOString().split('T')[0];
+
+            const targetDate = new Date(now);
+            targetDate.setDate(now.getDate() + daysUntilFriday);
+            this.dateDeadline = targetDate.toISOString().split('T')[0];
             
             this.$nextTick(() => {
                 if (this.$refs.form) {

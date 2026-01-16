@@ -83,6 +83,7 @@
                        СуммаПРД="{{ $cf->MONEYSCHET }}"
                 />
             @endforeach
+            <ДокПодтвОтгрНом РеквНаимДок="УПД" РеквНомерДок="{{ $transferOut->NSF }}" РеквДатаДок="{{ \Carbon\Carbon::create($transferOut->DATA)->format('d.m.Y') }}" />
             <СвПокуп>
                 <ИдСв>
                     @if (strlen($transferOut->buyer->Inn) == 12)
