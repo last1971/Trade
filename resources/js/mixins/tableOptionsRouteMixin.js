@@ -15,7 +15,9 @@ export default {
             }
             if (options.sortBy) {
                 options.sortBy = typeof options.sortBy === 'string' ? [options.sortBy] : options.sortBy;
-                options.sortDesc = typeof options.sortDesc === 'string' ? [options.sortDesc] : options.sortDesc;
+            }
+            if (options.sortDesc && !Array.isArray(options.sortDesc)) {
+                options.sortDesc = [options.sortDesc];
             }
             if (options.multiSort) {
                 options.multiSort = options.multiSort === "true" || options.multiSort === true;

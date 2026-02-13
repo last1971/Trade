@@ -70,6 +70,12 @@ class TransferOutService extends ModelService
             return !$v->SFCODE1;
         });
 
+        foreach ($cashFlows as $cf) {
+            if (empty($cf->NPP)) {
+                throw new ApiException('ВМС не занес обязательный номер платежного поручения!', 400);
+            }
+        }
+
         $basis = $request->get('basis');
         $basisNumber = $request->get('basisNumber');
         $basisDate = $request->get('basisDate');

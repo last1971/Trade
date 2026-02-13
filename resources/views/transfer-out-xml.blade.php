@@ -84,9 +84,6 @@
                 />
             @endforeach
             <ДокПодтвОтгрНом РеквНаимДок="УПД" РеквНомерДок="{{ $transferOut->NSF }}" РеквДатаДок="{{ \Carbon\Carbon::create($transferOut->DATA)->format('d.m.Y') }}" />
-            @foreach(($advanceInvoices ?? []) as $ai)
-            <СчФактОснАванс НомерСчФ="{{ $ai['number'] }}" ДатаСчФ="{{ $ai['date'] }}"/>
-            @endforeach
             <СвПокуп>
                 <ИдСв>
                     @if (strlen($transferOut->buyer->Inn) == 12)
@@ -124,10 +121,18 @@
                 </Контакт>
                 @endif
             </СвПокуп>
-            @if ($transferOut->invoice->IGK)
-                <ДопСвФХЖ1 ИдГосКон="{{ $transferOut->invoice->IGK }}"/>
-            @endif
             <ДенИзм КодОКВ="643" НаимОКВ="Российский рубль"/>
+            @php $dopSvNumber = 1; @endphp
+            @if ($transferOut->invoice->IGK)
+                <ДопСвФХЖ{{ $dopSvNumber++ }} ИдГосКон="{{ $transferOut->invoice->IGK }}"/>
+            @endif
+            @if (!empty($advanceInvoices ?? []))
+                <ДопСвФХЖ{{ $dopSvNumber }}>
+                    @foreach($advanceInvoices as $ai)
+                    <СопрДокФХЖ РеквНаимДок="АСЧФ" РеквНомерДок="{{ $ai['number'] }}" РеквДатаДок="{{ $ai['date'] }}"/>
+                    @endforeach
+                </ДопСвФХЖ{{ $dopSvNumber++ }}>
+            @endif
         </СвСчФакт>
         <ТаблСчФакт>
             @foreach($transferOutLines as $line)
