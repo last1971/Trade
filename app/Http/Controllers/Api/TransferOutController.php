@@ -63,6 +63,7 @@ class TransferOutController extends ModelController
             'basis' => $request->get('basis'),
             'basisNumber' => $request->get('basisNumber'),
             'basisDate' => $request->get('basisDate'),
+            'advanceInvoices' => json_decode($request->get('advanceInvoices'), true) ?? [],
         ];
 
         return $this->generatePdf($transferOut, $params);

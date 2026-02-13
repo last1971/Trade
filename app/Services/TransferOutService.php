@@ -73,9 +73,10 @@ class TransferOutService extends ModelService
         $basis = $request->get('basis');
         $basisNumber = $request->get('basisNumber');
         $basisDate = $request->get('basisDate');
+        $advanceInvoices = json_decode($request->get('advanceInvoices'), true) ?? [];
 
         $output = View::make('transfer-out-xml')
-            ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows', 'basis', 'basisNumber', 'basisDate'))
+            ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows', 'basis', 'basisNumber', 'basisDate', 'advanceInvoices'))
             ->render();
         return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251", $output);
     }

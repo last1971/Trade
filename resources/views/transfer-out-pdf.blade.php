@@ -194,6 +194,19 @@
                     <td width="3%" class="centred">(5a)</td>
                 </tr>
                 <tr>
+                    <td style="font-size: 7px">К счету-фактуре (счетам-фактурам), выставленному (выставленным) при получении оплаты, частичной оплаты</td>
+                    <td width="75%" class="bottom-border">
+                        @if(!empty($advanceInvoices ?? []))
+                            @foreach($advanceInvoices as $ai)
+                                № {{ $ai['number'] }} от {{ $ai['date'] }}@if(!$loop->last); @endif
+                            @endforeach
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td width="3%" class="centred">(5б)</td>
+                </tr>
+                <tr>
                     <td><b>Покупатель</b></td>
                     <td width="75%" class="bottom-border">
                         <b>{{ $transferOut->buyer->FULLNAME }}</b>

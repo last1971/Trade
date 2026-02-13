@@ -82,6 +82,53 @@
                         </v-menu>
                     </v-row>
                     <v-divider class="my-2"></v-divider>
+                    <v-row>
+                        <v-switch class="col-12"
+                                  inset
+                                  label="Авансовая СФ"
+                                  v-model="useAdvanceInvoice"
+                        />
+                    </v-row>
+                    <template v-if="useAdvanceInvoice">
+                        <v-row v-for="(ai, index) in advanceInvoices" :key="index" align="center">
+                            <v-text-field class="col-4"
+                                          label="Номер СФ"
+                                          v-model="ai.number"
+                                          dense
+                            />
+                            <v-menu
+                                :close-on-content-click="false"
+                                :nudge-right="40"
+                                min-width="290px"
+                                offset-y
+                                transition="scale-transition"
+                                v-model="ai.datePicker"
+                            >
+                                <template v-slot:activator="{ on }">
+                                    <v-text-field
+                                        class="col-5"
+                                        :value="formatDate(ai.dateRaw)"
+                                        label="Дата СФ"
+                                        prepend-icon="mdi-calendar"
+                                        readonly
+                                        dense
+                                        v-on="on"
+                                    />
+                                </template>
+                                <v-date-picker @input="ai.datePicker = false" v-model="ai.dateRaw"></v-date-picker>
+                            </v-menu>
+                            <v-btn icon small @click="removeAdvanceInvoice(index)" v-if="advanceInvoices.length > 1">
+                                <v-icon color="red" small>mdi-close</v-icon>
+                            </v-btn>
+                        </v-row>
+                        <v-row class="mb-2">
+                            <v-btn text small color="primary" @click="addAdvanceInvoice">
+                                <v-icon left small>mdi-plus</v-icon>
+                                Добавить
+                            </v-btn>
+                        </v-row>
+                    </template>
+                    <v-divider class="my-2"></v-divider>
                     <v-row justify="center">
                         <v-btn @click="download('pdf')" class="mx-2" fab>
                             <v-icon color="red">mdi-adobe-acrobat</v-icon>
@@ -112,6 +159,8 @@ export default {
             basisNumber: '',
             basisDateRaw: null,
             basisDatePicker: false,
+            useAdvanceInvoice: false,
+            advanceInvoices: [{ number: '', dateRaw: null, datePicker: false }],
         }
     },
     computed: {
@@ -157,6 +206,15 @@ export default {
         },
     },
     methods: {
+        formatDate(dateRaw) {
+            return dateRaw ? moment(dateRaw).format('DD.MM.YYYY') : '';
+        },
+        addAdvanceInvoice() {
+            this.advanceInvoices.push({ number: '', dateRaw: null, datePicker: false });
+        },
+        removeAdvanceInvoice(index) {
+            this.advanceInvoices.splice(index, 1);
+        },
         download(type) {
             this.$emit('downloading', true);
             this.$emit('close');
@@ -167,6 +225,15 @@ export default {
                 query.basis = this.basis;
                 query.basisNumber = this.basisNumber;
                 query.basisDate = this.basisDate;
+            }
+
+            if (this.useAdvanceInvoice) {
+                const filtered = this.advanceInvoices
+                    .filter(ai => ai.number)
+                    .map(ai => ({ number: ai.number, date: this.formatDate(ai.dateRaw) }));
+                if (filtered.length) {
+                    query.advanceInvoices = JSON.stringify(filtered);
+                }
             }
 
             const action = type === 'xml' ? 'TRANSFER-OUT/XML' : 'TRANSFER-OUT/PDF';

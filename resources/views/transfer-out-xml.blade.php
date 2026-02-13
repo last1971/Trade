@@ -84,6 +84,9 @@
                 />
             @endforeach
             <ДокПодтвОтгрНом РеквНаимДок="УПД" РеквНомерДок="{{ $transferOut->NSF }}" РеквДатаДок="{{ \Carbon\Carbon::create($transferOut->DATA)->format('d.m.Y') }}" />
+            @foreach(($advanceInvoices ?? []) as $ai)
+            <СчФактОснАванс НомерСчФ="{{ $ai['number'] }}" ДатаСчФ="{{ $ai['date'] }}"/>
+            @endforeach
             <СвПокуп>
                 <ИдСв>
                     @if (strlen($transferOut->buyer->Inn) == 12)
