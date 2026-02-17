@@ -111,6 +111,16 @@
                     v-if="$vuetify.breakpoint.smAndUp"
                     fab
                     class="mt-2 ml-2"
+                    @click="$emit('recalculateAll')"
+                    :disabled="notEditable || notCan || value.STATUS > 0"
+                    title="Пересчитать все строки из цены без НДС"
+                >
+                    <v-icon color="orange">mdi-calculator-variant</v-icon>
+                </v-btn>
+                <v-btn
+                    v-if="$vuetify.breakpoint.smAndUp"
+                    fab
+                    class="mt-2 ml-2"
                     @click="transferOut"
                     :disabled="value.STATUS < 3 || value.STATUS > 4"
                     :loading="creatingTransferOut"

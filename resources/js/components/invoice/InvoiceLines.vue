@@ -17,6 +17,7 @@
                           @input="proxyInput"
                           @reloadInvoice="reloadValue"
                           @newInvoiceLine="newInvoiceLine"
+                          @recalculateAll="recalculateAll"
                           :sort-by="options.sortBy"
                           :sort-desc="options.sortDesc"
             />
@@ -275,6 +276,21 @@
                 item.SUMMAP = item.sumWithoutVat * (100 + this.vat) / 100 || '';
                 if (item.SUMMAP) item.SUMMAP = item.SUMMAP.toFixed(2);
                 this.save(item);
+            },
+            async recalculateAll() {
+                this.loading = true;
+                const snapshot = this.items2.map(item => ({
+                    item,
+                    priceWithoutVat: parseFloat(item.priceWithoutVat.toFixed(2)),
+                }));
+                const promises = snapshot.map(({ item, priceWithoutVat }) => {
+                    item.PRICE = (priceWithoutVat * (100 + this.vat) / 100).toFixed(2);
+                    item.SUMMAP = (priceWithoutVat * (100 + this.vat) / 100 * item.QUAN).toFixed(2);
+                    return this.$store.dispatch('INVOICE-LINE/UPDATE', { item, options: this.options });
+                });
+                await Promise.all(promises);
+                await this.reloadValue(true);
+                this.loading = false;
             },
             newInvoiceLine(id) {
                 this.itemIds.push(id);
