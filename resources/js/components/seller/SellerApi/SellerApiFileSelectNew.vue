@@ -122,10 +122,22 @@ export default {
         return {
             pdfDialog: false,
             pdfDownloading: false,
+            blockedInterval: null,
         };
+    },
+    beforeDestroy() {
+        if (this.blockedInterval) {
+            clearInterval(this.blockedInterval);
+        }
     },
     created() {
         this.tryLoadInvoice(this.currentInvoice);
+
+        // Загружаем статус блокировок поставщиков
+        this.$store.dispatch('SELLER-PRICE/GET_BLOCKED');
+        this.blockedInterval = setInterval(() => {
+            this.$store.dispatch('SELLER-PRICE/GET_BLOCKED');
+        }, 600000); // 10 минут
 
         // Загружаем заказы для всех поставщиков у которых есть активные ID
         const activeOrderIds = this.$store.state['SELLER-ORDER'].activeOrderIds || {};

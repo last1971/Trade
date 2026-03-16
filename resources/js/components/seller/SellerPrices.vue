@@ -230,6 +230,7 @@ export default {
                     //    )
                     //})
                 await Promise.all(this.handlers);
+                this.$store.dispatch('SELLER-PRICE/GET_BLOCKED');
             } catch (e) {
                 console.log(e)
             } finally {

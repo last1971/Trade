@@ -37,6 +37,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('exchange-rate', 'Api\ExchangeRateController@index')->name('exchange-rate.index');
     Route::get('seller-price', 'Api\SellerPriceController@index')->name('seller-price.index');
     Route::get('seller-price/own', 'Api\SellerPriceController@show')->name('seller-price.show');
+    Route::get('seller-price/blocked', 'Api\SellerPriceController@blocked')
+        ->name('seller-price.blocked');
     Route::get('seller-price/sellers', 'Api\SellerPriceController@sellers')
         ->name('seller-price.sellers');
 

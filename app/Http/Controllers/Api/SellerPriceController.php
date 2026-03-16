@@ -38,6 +38,11 @@ class SellerPriceController extends Controller
         return $service->searchFromRequest($request);
     }
 
+    public function blocked(SellerPriceHttpService $service)
+    {
+        return $service->getBlocked();
+    }
+
     public function sellers(SellerPriceHttpService $service)
     {
         /*

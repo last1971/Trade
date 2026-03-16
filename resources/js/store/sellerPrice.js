@@ -130,6 +130,22 @@ const mutations = {
             return seller;
         });
     },
+    SET_SELLER_BLOCKED(state, { sellerId, blockedUntil, lastError }) {
+        const index = _.findIndex(state.sellers, { sellerId });
+        if (index === -1) return;
+        const seller = state.sellers[index];
+        seller.blockedUntil = blockedUntil;
+        seller.lastError = lastError;
+        state.sellers.splice(index, 1, seller);
+    },
+    CLEAR_SELLER_BLOCKED(state, sellerId) {
+        const index = _.findIndex(state.sellers, { sellerId });
+        if (index === -1) return;
+        const seller = state.sellers[index];
+        seller.blockedUntil = null;
+        seller.lastError = null;
+        state.sellers.splice(index, 1, seller);
+    },
     PUSH_SOURCE(state, payload) {
         state.sources.set(payload.id, payload.source);
     },
@@ -178,6 +194,26 @@ const actions = {
             }
         } catch (e) {
             commit('SNACKBAR/ERROR', e.response.data.message, {root: true});
+        }
+    },
+    async GET_BLOCKED({commit, getters}) {
+        try {
+            const response = await axios.get(getters.URL + '/blocked');
+            const blocked = response.data;
+            blocked.forEach(item => {
+                const sellerId = parseInt(item.id);
+                if (item.blockedUntil && new Date(item.blockedUntil) > new Date()) {
+                    commit('SET_SELLER_BLOCKED', {
+                        sellerId,
+                        blockedUntil: item.blockedUntil,
+                        lastError: item.lastError || null,
+                    });
+                } else {
+                    commit('CLEAR_SELLER_BLOCKED', sellerId);
+                }
+            });
+        } catch (e) {
+            // не критично, просто не покажем статус блокировки
         }
     },
     async SAVE_SELLER_PRICE({state, getters}, item) {

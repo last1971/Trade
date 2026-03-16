@@ -82,6 +82,12 @@ class SellerPriceHttpService implements ISellerPriceable
         }, $sellers);
     }
 
+    public function getBlocked(): array
+    {
+        $response = $this->client->get('supplier/blocked/elcopro');
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
     public function getRawResponse(array $ids): array
     {
         $response = $this->client->post(
