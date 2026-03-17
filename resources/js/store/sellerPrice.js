@@ -155,7 +155,7 @@ const mutations = {
 }
 
 const actions = {
-    async GET({state, getters, commit}, params) {
+    async GET({state, getters, commit, dispatch}, params) {
         try {
             const id = _.uniqueId();
             const CancelToken = axios.CancelToken;
@@ -171,12 +171,10 @@ const actions = {
             });
             commit('ADD_DATA', data);
             commit('SET_QUANTITY', state.quantity);
-            if (response.data.isApiError) {
-                commit('SET_SELLER_API_ERROR', params.sellerId);
-            }
+            dispatch('GET_BLOCKED');
             commit('PULL_SOURCE', id);
         } catch (e) {
-            if (!axios.isCancel(e)) {
+            if (!axios.isCancel(e) && e.response) {
                 commit('SNACKBAR/ERROR', e.response.data.message, {root: true});
             }
         }
