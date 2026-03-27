@@ -244,7 +244,7 @@ class UpdImportService
             ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows'))
             ->render();
 
-        return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251", $output);
+        return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251//TRANSLIT//IGNORE", $output);
     }
 
     /**
@@ -501,6 +501,6 @@ class UpdImportService
             ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows'))
             ->render();
 
-        return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251", $output);
+        return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251//TRANSLIT//IGNORE", $output);
     }
 }
