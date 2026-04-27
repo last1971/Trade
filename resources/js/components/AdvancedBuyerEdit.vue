@@ -23,7 +23,17 @@
                             <buyer-select :error-messages="errors['item.buyer_id']" v-model="item.buyer_id"/>
                         </v-col>
                         <v-col>
-                            <v-text-field :error-messages="errors['item.edo_id']" label="ЭДО" v-model="item.edo_id"/>
+                            <v-text-field :error-messages="errors['item.edo_id']" label="ЭДО ID" v-model="item.edo_id"/>
+                        </v-col>
+                        <v-col>
+                            <v-select
+                                :error-messages="errors['item.edo_provider']"
+                                :items="edoProviders"
+                                item-text="text"
+                                item-value="value"
+                                label="ЭДО провайдер"
+                                v-model="item.edo_provider"
+                            />
                         </v-col>
                     </v-row>
                     <v-row>
@@ -74,18 +84,24 @@
                 default: {
                     buyer_id: null,
                     edo_id: null,
+                    edo_provider: 'sbis',
                     consignee: '',
                     consigneeAddress: '',
                 },
                 item: {
                     buyer_id: null,
                     edo_id: null,
+                    edo_provider: 'sbis',
                     consignee: '',
                     consigneeAddress: '',
                 },
                 errors: {},
                 model: 'ADVANCED-BUYER',
                 options: {with: ['buyer']},
+                edoProviders: [
+                    {value: 'sbis', text: 'СБИС'},
+                    {value: 'diadoc', text: 'Диадок'},
+                ],
             }
         },
         mixins: [utilsMixin],

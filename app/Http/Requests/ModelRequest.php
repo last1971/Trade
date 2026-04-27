@@ -102,6 +102,7 @@ class ModelRequest extends FormRequest
                         Rule::unique('advanced_buyers','buyer_id')
                             ->ignore($this->route('advanced_buyer') ? $this->route('advanced_buyer') : null),
                     ],
+                    'item.edo_provider' => ['nullable', 'string', Rule::in(['sbis', 'diadoc'])],
                 ];
                 break;
             case 'cash-flow.store':
