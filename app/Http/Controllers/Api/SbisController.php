@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SbisRequest;
 use App\Rules\RightCountryRule;
 use App\Rules\RightUnitRule;
-use App\Services\SbisService;
+use App\Services\Edo\EdoProviderFactory;
 use App\Services\TransferOutLineService;
 use App\Services\TransferOutService;
 use App\Services\UpdImportService;
@@ -29,7 +29,7 @@ class SbisController extends Controller
         $service->clearGtd($request);
     }
 
-    public function export(SbisRequest $request, SbisService $sbisService, TransferOutService $transferOutService)
+    public function export(SbisRequest $request, EdoProviderFactory $edoFactory, TransferOutService $transferOutService)
     {
         $transferOuts = $transferOutService->index(collect([
             'filterAttributes' => ['POKUPATCODE', 'DATA'],
@@ -40,7 +40,8 @@ class SbisController extends Controller
             $this->validate($request, ['date' => [new RightUnitRule($transferOut), new RightCountryRule($transferOut)]]);
         }
         foreach ($transferOuts as $transferOut) {
-            $sbisService->exportTransferOut($transferOutService->xml(collect(compact('transferOut'))));
+            $provider = $edoFactory->forBuyer($transferOut->buyer);
+            $provider->sendUpd($transferOutService->xml(collect(compact('transferOut'))));
         }
     }
 
