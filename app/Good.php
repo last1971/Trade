@@ -208,4 +208,9 @@ class Good extends Model
     {
         return $this->hasOne('App\Warehouse', 'GOODSCODE', 'GOODSCODE');
     }
+
+    public function markCodes()
+    {
+        return $this->hasMany('App\MarkCode', 'GOODSCODE', 'GOODSCODE');
+    }
 }

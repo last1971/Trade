@@ -75,6 +75,11 @@ class InvoiceLine extends Model
         return $this->hasMany('App\PickUp', 'REALPRICECODE', 'REALPRICECODE');
     }
 
+    public function markCodes()
+    {
+        return $this->hasMany('App\MarkCode', 'REALPRICECODE', 'REALPRICECODE');
+    }
+
     public function orderLinesTransit()
     {
         return $this->hasMany('App\OrderLine', 'GOODSCODE', 'GOODSCODE')

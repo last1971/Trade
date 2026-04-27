@@ -85,4 +85,9 @@ class TransferOutLine extends Model
     {
         return $this->belongsTo('App\TransferOut', 'SFCODE', 'SFCODE');
     }
+
+    public function markCodes()
+    {
+        return $this->hasMany('App\MarkCode', 'REALPRICEFCODE', 'REALPRICEFCODE');
+    }
 }
