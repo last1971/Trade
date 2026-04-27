@@ -14,7 +14,7 @@ class AdvancedBuyer extends Model
      * @var array
      */
     protected $fillable = [
-        'buyer_id', 'edo_id', 'consignee', 'consigneeAddress'
+        'buyer_id', 'edo_id', 'edo_provider', 'consignee', 'consigneeAddress'
     ];
 
     public function buyer()
