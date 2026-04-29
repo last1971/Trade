@@ -49,6 +49,22 @@ interface UpdSourceInterface
     public function getInvoice(): ?Invoice;
 
     /**
+     * Override основания передачи: наименование документа.
+     * Если NULL — берём из Invoice.
+     */
+    public function getBasis(): ?string;
+
+    /**
+     * Override номера документа основания.
+     */
+    public function getBasisNumber(): ?string;
+
+    /**
+     * Override даты документа основания.
+     */
+    public function getBasisDate(): ?string;
+
+    /**
      * Платёжки для блока СвПрД. Пустая коллекция если нет.
      */
     public function getCashFlows(): Collection;
