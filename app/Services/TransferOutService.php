@@ -5,15 +5,13 @@ namespace App\Services;
 
 
 use App\Exceptions\ApiException;
+use App\Services\Upd\Sources\TransferOutUpdSource;
+use App\Services\Upd\UpdXmlBuilder;
 use App\TransferOut;
-use App\TransferOutLine;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Str;
 use Throwable;
 
 class TransferOutService extends ModelService
@@ -61,30 +59,16 @@ class TransferOutService extends ModelService
         $transferOut = is_object($request->get('transferOut'))
             ? $request->get('transferOut')
             : $this->query->with(['firm', 'buyer.advancedBuyer'])->find(intval($request->get('transferOut')));
-        $fileId = 'ON_NSCHFDOPPR_' . ($transferOut->buyer->advancedBuyer->edo_id ?? $transferOut->buyer->Inn) .
-            '_' . $transferOut->firm->EDOID . '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
-        $transferOutLines = TransferOutLine::with(['category', 'name', 'good', 'markCodes'])
-            ->where('SFCODE', '=', $transferOut->SFCODE)
-            ->get();
-        $cashFlows = $transferOut->invoice->cashFlows->filter(function ($v) {
-            return !$v->SFCODE1;
-        });
 
-        foreach ($cashFlows as $cf) {
-            if (empty($cf->NPP)) {
-                throw new ApiException('ВМС не занес обязательный номер платежного поручения!', 400);
-            }
-        }
+        $source = new TransferOutUpdSource(
+            $transferOut,
+            $request->get('basis'),
+            $request->get('basisNumber'),
+            $request->get('basisDate'),
+            json_decode($request->get('advanceInvoices'), true) ?? []
+        );
 
-        $basis = $request->get('basis');
-        $basisNumber = $request->get('basisNumber');
-        $basisDate = $request->get('basisDate');
-        $advanceInvoices = json_decode($request->get('advanceInvoices'), true) ?? [];
-
-        $output = View::make('transfer-out-xml')
-            ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows', 'basis', 'basisNumber', 'basisDate', 'advanceInvoices'))
-            ->render();
-        return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251", $output);
+        return app(UpdXmlBuilder::class)->build($source);
     }
 
     public function create($request)

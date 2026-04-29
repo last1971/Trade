@@ -5,6 +5,7 @@ namespace App\Services\Upd\Sources;
 use App\Buyer;
 use App\Exceptions\ApiException;
 use App\Firm;
+use App\FirmHistory;
 use App\Invoice;
 use App\Services\Upd\Contracts\UpdLineDto;
 use App\Services\Upd\Contracts\UpdSourceInterface;
@@ -79,6 +80,11 @@ class TransferOutUpdSource implements UpdSourceInterface
     public function getFirm(): Firm
     {
         return $this->transferOut->firm;
+    }
+
+    public function getFirmHistory(): ?FirmHistory
+    {
+        return $this->transferOut->firmHistory;
     }
 
     public function getBuyer(): Buyer

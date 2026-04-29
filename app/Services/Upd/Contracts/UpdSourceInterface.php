@@ -4,6 +4,7 @@ namespace App\Services\Upd\Contracts;
 
 use App\Buyer;
 use App\Firm;
+use App\FirmHistory;
 use App\Invoice;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -40,6 +41,12 @@ interface UpdSourceInterface
     public function getFileId(): string;
 
     public function getFirm(): Firm;
+
+    /**
+     * Историческая запись фирмы на момент создания документа (банковские реквизиты).
+     * NULL если истории нет — используем текущие данные firm.
+     */
+    public function getFirmHistory(): ?FirmHistory;
 
     public function getBuyer(): Buyer;
 
