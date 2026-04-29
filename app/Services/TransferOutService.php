@@ -63,7 +63,7 @@ class TransferOutService extends ModelService
             : $this->query->with(['firm', 'buyer.advancedBuyer'])->find(intval($request->get('transferOut')));
         $fileId = 'ON_NSCHFDOPPR_' . ($transferOut->buyer->advancedBuyer->edo_id ?? $transferOut->buyer->Inn) .
             '_' . $transferOut->firm->EDOID . '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
-        $transferOutLines = TransferOutLine::with(['category', 'name', 'good'])
+        $transferOutLines = TransferOutLine::with(['category', 'name', 'good', 'markCodes'])
             ->where('SFCODE', '=', $transferOut->SFCODE)
             ->get();
         $cashFlows = $transferOut->invoice->cashFlows->filter(function ($v) {

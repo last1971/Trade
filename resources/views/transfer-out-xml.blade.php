@@ -156,6 +156,13 @@
                         @if ($line->countryNumCode)
                             <КрНаимСтрПр>"{{ $line->STRANA }}"</КрНаимСтрПр>
                         @endif
+                        @if ($line->markCodes && $line->markCodes->isNotEmpty())
+                            <НомСредИдентТов>
+                                @foreach ($line->markCodes as $mc)
+                                    <КИЗ>{{ $mc->KI }}</КИЗ>
+                                @endforeach
+                            </НомСредИдентТов>
+                        @endif
                     </ДопСведТов>
                     <Акциз>
                         <БезАкциз>без акциза</БезАкциз>
