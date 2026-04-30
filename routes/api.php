@@ -23,6 +23,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('invoice/export/', 'Api\InvoiceController@export')->name('invoice.xlsx');
     Route::get('invoice/export/{id}', 'Api\InvoiceController@pdf')->name('invoice.pdf');
     Route::get('invoice/upd2-xml/{id}', 'Api\InvoiceController@upd2Xml')->name('invoice.upd2-xml');
+    Route::post('mark-codes/mark-as-transferred', 'Api\MarkCodeController@markAsTransferred')->name('mark-codes.mark-as-transferred');
+    Route::post('mark-codes/unmark-as-transferred', 'Api\MarkCodeController@unmarkAsTransferred')->name('mark-codes.unmark-as-transferred');
     Route::get('invoice/receipt/{invoice}', 'Api\InvoiceController@receipt')->name('invoice.receipt');
     Route::get('invoice/etiks', 'Api\InvoiceController@etiks')->name('invoice.etiks');
     Route::get('invoice-line/export/', 'Api\InvoiceLineController@export')->name('invoice-line.xlsx');

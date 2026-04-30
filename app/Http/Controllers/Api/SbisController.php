@@ -8,6 +8,7 @@ use App\Http\Requests\SbisRequest;
 use App\Rules\RightCountryRule;
 use App\Rules\RightUnitRule;
 use App\Services\Edo\EdoProviderFactory;
+use App\Services\Marking\MarkCodeTransferService;
 use App\Services\TransferOutLineService;
 use App\Services\TransferOutService;
 use App\Services\Upd\UpdSourceFactory;
@@ -42,6 +43,15 @@ class SbisController extends Controller
             $source = $sourceFactory->fromRequest($request);
             $provider = $edoFactory->forBuyer($source->getBuyer());
             $message = $provider->sendUpd($xmlBuilder->build($source));
+
+            if ($source->getInvoice() && $message->status === 'sent') {
+                app(MarkCodeTransferService::class)->markAsTransferred(
+                    $source->getInvoice(),
+                    2,
+                    3
+                );
+            }
+
             return ['message_id' => $message->messageId];
         }
 
