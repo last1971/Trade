@@ -4,9 +4,12 @@ namespace App\Services;
 
 use App\AdvancedBuyer;
 use App\Firm;
+use App\Services\Upd\Contracts\UpdLineDto;
+use App\Services\Upd\Sources\ImportedUpdSource;
+use App\Services\Upd\UpdXmlBuilder;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\View;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
@@ -187,64 +190,30 @@ class UpdImportService
     {
         $parsed = $this->parseWildberries($file);
 
-        // Покупатель всегда Вайлдберриз (РВБ)
-        // whereHas не работает между разными БД, ищем сначала в Firebird
         $buyer = \App\Buyer::where('FULLNAME', 'LIKE', '%РВБ%')->firstOrFail();
         $advancedBuyer = AdvancedBuyer::where('buyer_id', $buyer->POKUPATCODE)->firstOrFail();
         $buyer->setRelation('advancedBuyer', $advancedBuyer);
 
-        // Продавец по firm_id
         $firm = Firm::findOrFail($parsed['firm_id']);
 
-        // Формируем fileId
-        $fileId = 'ON_NSCHFDOPPR_' . $advancedBuyer->edo_id .
-            '_' . $firm->EDOID . '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
+        $fileId = 'ON_NSCHFDOPPR_' . $advancedBuyer->edo_id
+            . '_' . $firm->EDOID
+            . '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
 
-        $transferOut = new \stdClass();
-        $transferOut->DATA = $parsed['date'];
-        $transferOut->NSF = $parsed['number'];
-        $transferOut->firm = $firm;
-        $transferOut->firmHistory = null;
-        $transferOut->buyer = $buyer;
-        $transferOut->invoice = (object)[
-            'DATA' => $parsed['date'],
-            'NS' => $parsed['number'],
-            'NZ' => null,
-            'IGK' => null,
-            'basis' => $parsed['basis'],
-            'basisNumber' => $parsed['basisNumber'],
-            'basisDate' => $parsed['basisDate'],
-        ];
+        $source = new ImportedUpdSource(
+            $firm,
+            $buyer,
+            (string)$parsed['number'],
+            Carbon::create($parsed['date']),
+            $fileId,
+            $this->mapParsedLines($parsed['lines']),
+            [],
+            $parsed['basis'] ?? null,
+            $parsed['basisNumber'] ?? null,
+            $parsed['basisDate'] ?? null
+        );
 
-        $vatRate = $parsed['vat_rate'];
-        $transferOutLines = collect($parsed['lines'])->map(function ($line) use ($vatRate) {
-            $obj = new \stdClass();
-            $obj->QUAN = $line['quantity'];
-            $obj->SUMMAP = $line['amount_with_vat'];
-            $obj->amountWithoutVat = $line['amount_without_vat'];
-            $obj->priceWithoutVat = $line['price_without_vat'];
-            $obj->GOODSCODE = $line['code'];
-            $obj->countryNumCode = null;
-            $obj->GTD = null;
-            $obj->STRANA = null;
-            $obj->vatRate = $vatRate . '%';
-
-            $obj->name = (object)['NAME' => $line['name']];
-            $obj->good = (object)[
-                'unitCode' => $line['unit_code'],
-                'unitName' => $line['unit_name'],
-            ];
-
-            return $obj;
-        });
-
-        $cashFlows = collect([]);
-
-        $output = View::make('transfer-out-xml')
-            ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows'))
-            ->render();
-
-        return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251//TRANSLIT//IGNORE", $output);
+        return app(UpdXmlBuilder::class)->build($source);
     }
 
     /**
@@ -434,73 +403,63 @@ class UpdImportService
     {
         $parsed = $this->parse($file);
 
-        // Получаем покупателя с advancedBuyer
         $advancedBuyer = AdvancedBuyer::with('buyer')->where('buyer_id', $buyerId)->firstOrFail();
         $buyer = $advancedBuyer->buyer;
         $buyer->setRelation('advancedBuyer', $advancedBuyer);
 
-        // Получаем фирму по ИНН из xlsx
-        $firm = null;
-        if (!empty($parsed['seller_inn_kpp'])) {
-            $inn = explode('/', $parsed['seller_inn_kpp'])[0] ?? '';
-            if ($inn) {
-                // Используем LIKE из-за CHAR полей в Firebird
-                $firm = Firm::where('INN', 'LIKE', $inn . '%')->first();
-            }
+        $firm = $this->resolveFirmByInn($parsed['seller_inn_kpp'] ?? null);
+
+        $fileId = 'ON_NSCHFDOPPR_' . $advancedBuyer->edo_id
+            . '_' . $firm->EDOID
+            . '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
+
+        $source = new ImportedUpdSource(
+            $firm,
+            $buyer,
+            (string)$parsed['number'],
+            Carbon::create($parsed['date']),
+            $fileId,
+            $this->mapParsedLines($parsed['lines']),
+            [],
+            $parsed['basis'] ?? null,
+            $parsed['basisNumber'] ?? null,
+            $parsed['basisDate'] ?? null
+        );
+
+        return app(UpdXmlBuilder::class)->build($source);
+    }
+
+    private function resolveFirmByInn(?string $sellerInnKpp): Firm
+    {
+        if (empty($sellerInnKpp)) {
+            throw new \Exception('Фирма с ИНН не указан не найдена');
         }
+        $inn = explode('/', $sellerInnKpp)[0] ?? '';
+        if (!$inn) {
+            throw new \Exception('Фирма с ИНН не указан не найдена');
+        }
+        $firm = Firm::where('INN', 'LIKE', $inn . '%')->first();
         if (!$firm) {
-            throw new \Exception('Фирма с ИНН ' . ($parsed['seller_inn_kpp'] ?? 'не указан') . ' не найдена');
+            throw new \Exception('Фирма с ИНН ' . $sellerInnKpp . ' не найдена');
         }
+        return $firm;
+    }
 
-        // Формируем fileId
-        $fileId = 'ON_NSCHFDOPPR_' . $advancedBuyer->edo_id .
-            '_' . $firm->EDOID . '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
-
-        // Создаём объект-обёртку для transferOut
-        $transferOut = new \stdClass();
-        $transferOut->DATA = $parsed['date'];
-        $transferOut->NSF = $parsed['number'];
-        $transferOut->firm = $firm;
-        $transferOut->firmHistory = null;
-        $transferOut->buyer = $buyer;
-        $transferOut->invoice = (object)[
-            'DATA' => $parsed['date'],
-            'NS' => $parsed['number'],
-            'NZ' => null,
-            'IGK' => null,
-            'basis' => $parsed['basis'] ?? null,
-            'basisNumber' => $parsed['basisNumber'] ?? null,
-            'basisDate' => $parsed['basisDate'] ?? null,
-        ];
-
-        // Формируем строки
-        $transferOutLines = collect($parsed['lines'])->map(function ($line) {
-            $obj = new \stdClass();
-            $obj->QUAN = $line['quantity'];
-            $obj->SUMMAP = $line['amount_with_vat'];
-            $obj->amountWithoutVat = $line['amount_without_vat'];
-            $obj->priceWithoutVat = $line['price_without_vat'];
-            $obj->GOODSCODE = $line['code'];
-            $obj->countryNumCode = null;
-            $obj->GTD = null;
-            $obj->STRANA = null;
-
-            // Имитация связей name и good
-            $obj->name = (object)['NAME' => $line['name']];
-            $obj->good = (object)[
-                'unitCode' => $line['unit_code'],
-                'unitName' => $line['unit_name'],
-            ];
-
-            return $obj;
-        });
-
-        $cashFlows = collect([]);
-
-        $output = View::make('transfer-out-xml')
-            ->with(compact('fileId', 'transferOut', 'transferOutLines', 'cashFlows'))
-            ->render();
-
-        return "<?xml version=\"1.0\" encoding=\"windows-1251\" ?> \n" . iconv("utf-8", "cp1251//TRANSLIT//IGNORE", $output);
+    private function mapParsedLines(array $lines): Collection
+    {
+        return collect($lines)->map(fn($line) => new UpdLineDto(
+            name: $line['name'],
+            quantity: (int)$line['quantity'],
+            price: (string)$line['price_without_vat'],
+            amount: (string)$line['amount_with_vat'],
+            amountWithoutVat: (string)$line['amount_without_vat'],
+            unitCode: $line['unit_code'] ?? null,
+            unitName: $line['unit_name'] ?? null,
+            goodsCode: (string)$line['code'],
+            countryNumCode: null,
+            strana: null,
+            gtdNumber: null,
+            markCodes: new Collection()
+        ));
     }
 }

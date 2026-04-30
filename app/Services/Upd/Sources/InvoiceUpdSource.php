@@ -153,7 +153,7 @@ class InvoiceUpdSource implements UpdSourceInterface
             amountWithoutVat: (string)$line->amountWithoutVat,
             unitCode: $line->good->unitCode,
             unitName: $line->good->unitName,
-            goodsCode: $line->GOODSCODE,
+            goodsCode: (string)$line->GOODSCODE,
             countryNumCode: null,
             strana: null,
             gtdNumber: null,

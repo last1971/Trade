@@ -146,7 +146,7 @@ class TransferOutUpdSource implements UpdSourceInterface
             amountWithoutVat: (string)$line->amountWithoutVat,
             unitCode: $line->good->unitCode,
             unitName: $line->good->unitName,
-            goodsCode: $line->GOODSCODE,
+            goodsCode: (string)$line->GOODSCODE,
             countryNumCode: $line->countryNumCode,
             strana: $line->STRANA,
             gtdNumber: $line->GTD,

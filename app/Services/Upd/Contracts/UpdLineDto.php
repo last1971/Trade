@@ -16,7 +16,7 @@ class UpdLineDto
         public string $amountWithoutVat,
         public ?string $unitCode,
         public ?string $unitName,
-        public int $goodsCode,
+        public string $goodsCode,
         public ?string $countryNumCode = null,
         public ?string $strana = null,
         public ?string $gtdNumber = null,

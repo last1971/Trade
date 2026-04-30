@@ -134,7 +134,7 @@
             </СвПокуп>
             <ДенИзм КодОКВ="643" НаимОКВ="Российский рубль"/>
             @php $dopSvNumber = 1; @endphp
-            @if ($invoice && $invoice->IGK)
+            @if ($invoice && $invoice->IGK && $invoice->IGK !== 'NOT1C')
                 <ДопСвФХЖ{{ $dopSvNumber++ }} ИдГосКон="{{ $invoice->IGK }}"/>
             @endif
             @if (!empty($advanceInvoices))
