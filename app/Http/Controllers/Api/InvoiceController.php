@@ -12,6 +12,8 @@ use App\PickUp;
 use App\Services\AtolService;
 use App\Services\InvoiceLineService;
 use App\Services\InvoiceService;
+use App\Services\Upd\UpdSourceFactory;
+use App\Services\Upd\UpdXmlBuilder;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
@@ -45,6 +47,26 @@ class InvoiceController extends ModelController
     public function export(Excel $excel, InvoiceExport $export)
     {
         return $excel->download($export, 'invoices.xlsx');
+    }
+
+    /**
+     * Скачать УПД-2 XML по счёту (без отправки в ЭДО).
+     */
+    public function upd2Xml(int $id, UpdSourceFactory $sourceFactory, UpdXmlBuilder $xmlBuilder)
+    {
+        $source = $sourceFactory->fromRequest(collect([
+            'type' => 'upd2',
+            'invoice_id' => $id,
+        ]));
+        $xml = $xmlBuilder->build($source);
+
+        $fileId = (string)(simplexml_load_string($xml))->attributes()['ИдФайл'];
+
+        return response()->streamDownload(
+            fn() => print($xml),
+            $fileId . '.xml',
+            ['Content-Type' => 'application/xml']
+        );
     }
 
     public function pdf(InvoicePDFRequest $request)

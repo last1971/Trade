@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SbisRequest extends FormRequest
 {
@@ -25,9 +26,13 @@ class SbisRequest extends FormRequest
      */
     public function rules()
     {
+        $isUpd2 = $this->input('type') === 'upd2';
+
         return [
-            'buyerId' => 'required|integer',
-            'date' => 'required|date',
+            'type' => ['nullable', 'string', Rule::in(['upd', 'upd2'])],
+            'buyerId' => [Rule::requiredIf(!$isUpd2), 'integer'],
+            'date' => [Rule::requiredIf(!$isUpd2), 'date'],
+            'invoice_id' => [Rule::requiredIf($isUpd2), 'integer'],
         ];
     }
 }

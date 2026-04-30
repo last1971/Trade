@@ -10,6 +10,8 @@ use App\Rules\RightUnitRule;
 use App\Services\Edo\EdoProviderFactory;
 use App\Services\TransferOutLineService;
 use App\Services\TransferOutService;
+use App\Services\Upd\UpdSourceFactory;
+use App\Services\Upd\UpdXmlBuilder;
 use App\Services\UpdImportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -29,8 +31,20 @@ class SbisController extends Controller
         $service->clearGtd($request);
     }
 
-    public function export(SbisRequest $request, EdoProviderFactory $edoFactory, TransferOutService $transferOutService)
-    {
+    public function export(
+        SbisRequest $request,
+        EdoProviderFactory $edoFactory,
+        TransferOutService $transferOutService,
+        UpdSourceFactory $sourceFactory,
+        UpdXmlBuilder $xmlBuilder
+    ) {
+        if ($request->input('type') === 'upd2') {
+            $source = $sourceFactory->fromRequest($request);
+            $provider = $edoFactory->forBuyer($source->getBuyer());
+            $message = $provider->sendUpd($xmlBuilder->build($source));
+            return ['message_id' => $message->messageId];
+        }
+
         $transferOuts = $transferOutService->index(collect([
             'filterAttributes' => ['POKUPATCODE', 'DATA'],
             'filterOperators' => ['=', 'BETWEENDATE'],
