@@ -147,6 +147,15 @@
                     <v-btn @click="receipt" fab v-if="!notCan">
                         <v-icon color="primary">mdi-paper-roll</v-icon>
                     </v-btn>
+                    <v-btn @click="downloadUpd2Xml" fab :loading="upd2Loading" title="Скачать УПД-2 XML">
+                        <v-icon color="orange">mdi-xml</v-icon>
+                    </v-btn>
+                    <v-btn @click="sendUpd2ToEdo" fab :loading="upd2Loading" title="Отправить УПД-2 в ЭДО">
+                        <v-icon color="purple">mdi-send</v-icon>
+                    </v-btn>
+                    <v-btn @click="unmarkUpd2" fab :loading="upd2Loading" title="Откатить передачу УПД-2">
+                        <v-icon color="red">mdi-undo</v-icon>
+                    </v-btn>
                 </v-speed-dial>
                 <invoice-pdf-menu
                     v-model="value"
@@ -211,6 +220,7 @@ export default {
             addInvoiceLine: false,
             firmId: undefined,
             creatingTransferOut: false,
+            upd2Loading: false,
         };
     },
     computed: {
@@ -316,6 +326,70 @@ export default {
             }
             this.$store.commit("INVOICE/SET-CURRENT", this.value.SCODE);
             this.$router.push({ name: "home" });
+        },
+        async downloadUpd2Xml() {
+            this.upd2Loading = true;
+            try {
+                const response = await window.axios.get(
+                    `/api/invoice/upd2-xml/${this.value.SCODE}`,
+                    { responseType: "blob" }
+                );
+                const cd = response.headers["content-disposition"] || "";
+                const match = cd.match(/filename="?([^";]+)"?/);
+                const filename = match ? match[1] : `upd2_${this.value.SCODE}.xml`;
+                const url = URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = filename;
+                link.click();
+                URL.revokeObjectURL(url);
+            } catch (e) {
+                this.$store.commit("SNACKBAR/ERROR", "Ошибка скачивания УПД-2 XML");
+            } finally {
+                this.upd2Loading = false;
+            }
+        },
+        async sendUpd2ToEdo() {
+            if (!confirm("Отправить УПД-2 в ЭДО? Коды будут помечены как переданные.")) return;
+            this.upd2Loading = true;
+            try {
+                const { data } = await window.axios.post("/api/sbis/export", {
+                    type: "upd2",
+                    invoice_id: this.value.SCODE,
+                });
+                this.$store.commit("SNACKBAR/PUSH", {
+                    text: `УПД-2 отправлен. Message ID: ${data.message_id}`,
+                    color: "success",
+                    status: true,
+                    timeout: 10000,
+                });
+            } catch (e) {
+                const msg = e.response?.data?.message || "Ошибка отправки УПД-2";
+                this.$store.commit("SNACKBAR/ERROR", msg);
+            } finally {
+                this.upd2Loading = false;
+            }
+        },
+        async unmarkUpd2() {
+            if (!confirm("Откатить передачу кодов УПД-2? Коды вернутся в оборот.")) return;
+            this.upd2Loading = true;
+            try {
+                const { data } = await window.axios.post(
+                    "/api/mark-codes/unmark-as-transferred",
+                    { invoice_id: this.value.SCODE }
+                );
+                this.$store.commit("SNACKBAR/PUSH", {
+                    text: `Откачено ${data.count} кодов`,
+                    color: "success",
+                    status: true,
+                    timeout: 10000,
+                });
+            } catch (e) {
+                const msg = e.response?.data?.message || "Ошибка отката УПД-2";
+                this.$store.commit("SNACKBAR/ERROR", msg);
+            } finally {
+                this.upd2Loading = false;
+            }
         },
     },
 };
