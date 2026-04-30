@@ -4,6 +4,7 @@ namespace App;
 
 use App\ModelTraits\InsertTrait;
 use Illuminate\Database\Eloquent\Model;
+use VAT;
 
 class InvoiceLine extends Model
 {
@@ -25,6 +26,24 @@ class InvoiceLine extends Model
 //        'PRICE' => 'double',
 //        'SUMMAP' => 'double',
 //    ];
+
+    public function getAmountWithoutVatAttribute()
+    {
+        return str_replace(
+            ',',
+            '.',
+            round($this->getAttributes()['SUMMAP'] / (100 + VAT::get($this->invoice->DATA, $this->invoice->FIRM_ID ?? null)) * 100, 2)
+        );
+    }
+
+    public function getPriceWithoutVatAttribute()
+    {
+        return str_replace(
+            ',',
+            '.',
+            round($this->amountWithoutVat / $this->QUAN, 2)
+        );
+    }
 
     public function category()
     {
