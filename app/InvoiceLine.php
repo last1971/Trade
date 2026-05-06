@@ -96,7 +96,8 @@ class InvoiceLine extends Model
 
     public function markCodes()
     {
-        return $this->hasMany('App\MarkCode', 'REALPRICECODE', 'REALPRICECODE');
+        return $this->hasMany('App\MarkCode', 'REALPRICECODE', 'REALPRICECODE')
+            ->where('TRANSFER_TYPE', 0);
     }
 
     public function orderLinesTransit()

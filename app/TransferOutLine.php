@@ -88,6 +88,7 @@ class TransferOutLine extends Model
 
     public function markCodes()
     {
-        return $this->hasMany('App\MarkCode', 'REALPRICEFCODE', 'REALPRICEFCODE');
+        return $this->hasMany('App\MarkCode', 'REALPRICEFCODE', 'REALPRICEFCODE')
+            ->where('TRANSFER_TYPE', 0);
     }
 }
