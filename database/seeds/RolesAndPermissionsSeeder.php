@@ -73,8 +73,11 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'sbis.*', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'sbis.show', 'guard_name' => 'api']);
 
+        Permission::query()->firstOrCreate(['name' => 'buyer-debt.index', 'guard_name' => 'api']);
+
         Permission::query()->firstOrCreate(['name' => 'nav.*', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.advanced-buyer', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.buyer-debt', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.home', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.goods', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.goods-list', 'guard_name' => 'api']);
@@ -93,6 +96,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin = Role::query()->firstOrCreate(['name' => 'admin', 'guard_name' => 'api']);
         $admin->syncPermissions([
             'nav.*',
+            'buyer-debt.index',
             'advanced-buyer.*',
             'buyer.*',
             'cash-flow.*',
@@ -158,6 +162,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $manager = Role::query()->firstOrCreate(['name' => 'manager', 'guard_name' => 'api']);
         $manager->syncPermissions([
             'nav.advanced-buyer',
+            'nav.buyer-debt',
+            'buyer-debt.index',
             'nav.home',
             'nav.goods',
             'nav.goods-list',
@@ -230,6 +236,8 @@ class RolesAndPermissionsSeeder extends Seeder
         $buh = Role::query()->firstOrCreate(['name' => 'buh', 'guard_name' => 'api']);
         $buh->syncPermissions([
             'nav.payments',
+            'nav.buyer-debt',
+            'buyer-debt.index',
             'nav.invoices',
             'nav.invoice-lines',
             'nav.transfer-outs',

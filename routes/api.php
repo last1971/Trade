@@ -28,6 +28,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('invoice/receipt/{invoice}', 'Api\InvoiceController@receipt')->name('invoice.receipt');
     Route::get('invoice/etiks', 'Api\InvoiceController@etiks')->name('invoice.etiks');
     Route::get('invoice-line/export/', 'Api\InvoiceLineController@export')->name('invoice-line.xlsx');
+    Route::get('buyer-debt/export', 'Api\BuyerDebtController@export')->name('buyer-debt.xlsx');
     Route::get('transfer-out-line/export/', 'Api\TransferOutLineController@export')
         ->name('transfer-out-line.xlsx');
     Route::get('transfer-out/pdf-token/{id}', 'Api\TransferOutController@pdfToken')

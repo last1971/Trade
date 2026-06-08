@@ -25,6 +25,7 @@ import ExchangeRates from "./components/ExchangeRates";
 import PaymentTabs from "./components/payment/PaymentTabs";
 import SellerPrices from "./components/seller/SellerPrices";
 import UnitCodes from "./components/unit/UnitCodes.vue";
+import BuyerDebt from "./components/BuyerDebt";
 
 Vue.use(VueRouter);
 
@@ -34,6 +35,12 @@ const routes = [
         path: '/advanced-buyer',
         component: AdvancedBuyers,
         meta: {requiresAuth: true, permission: 'advanced-buyer.index'},
+    },
+    {
+        name: 'buyer-debt',
+        path: '/buyer-debt',
+        component: BuyerDebt,
+        meta: {requiresAuth: true, permission: 'buyer-debt.index'},
     },
     {
         name: 'help',

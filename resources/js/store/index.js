@@ -45,6 +45,7 @@ import unitCodeAlias from "./unitCodeAlias";
 import cashFlow from "./cashFlow";
 import compel from "./compel";
 import config from "./config";
+import buyerDebt from "./buyerDebt";
 
 Vue.use(Vuex);
 
@@ -58,6 +59,7 @@ export default new Vuex.Store({
         AUTH: auth,
         BREADCRUMBS: breadcrumbs,
         BUYER: buyer,
+        'BUYER-DEBT': buyerDebt,
         'CASH-FLOW': cashFlow,
         CATEGORY: category,
         COMPEL: compel,

@@ -47,6 +47,11 @@ class Invoice extends Model
         return $this->hasMany('App\CashFlow', 'SCODE', 'SCODE');
     }
 
+    public function deposits()
+    {
+        return $this->hasMany('App\Deposit', 'SCODE', 'SCODE');
+    }
+
     public function employee()
     {
         return $this->belongsTo('App\Employee', 'STAFF_ID', 'ID');
