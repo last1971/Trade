@@ -153,6 +153,9 @@
                     <v-btn @click="sendUpd2ToEdo" fab :loading="upd2Loading" title="Отправить УПД-2 в ЭДО">
                         <v-icon color="purple">mdi-send</v-icon>
                     </v-btn>
+                    <v-btn @click="markUpd2Manual" fab :loading="upd2Loading" title="Я передал УПД-2 вручную">
+                        <v-icon color="green">mdi-check-bold</v-icon>
+                    </v-btn>
                     <v-btn @click="unmarkUpd2" fab :loading="upd2Loading" title="Откатить передачу УПД-2">
                         <v-icon color="red">mdi-undo</v-icon>
                     </v-btn>
@@ -365,6 +368,27 @@ export default {
                 });
             } catch (e) {
                 const msg = e.response?.data?.message || "Ошибка отправки УПД-2";
+                this.$store.commit("SNACKBAR/ERROR", msg);
+            } finally {
+                this.upd2Loading = false;
+            }
+        },
+        async markUpd2Manual() {
+            if (!confirm("Пометить коды как переданные вручную? Используй если XML отдан в ЭДО/ЛК Озон вне системы.")) return;
+            this.upd2Loading = true;
+            try {
+                const { data } = await window.axios.post(
+                    "/api/mark-codes/mark-as-transferred",
+                    { invoice_id: this.value.SCODE, transfer_type: 2, retire_reason: 1 }
+                );
+                this.$store.commit("SNACKBAR/PUSH", {
+                    text: `Помечено ${data.count} кодов как переданные`,
+                    color: "success",
+                    status: true,
+                    timeout: 10000,
+                });
+            } catch (e) {
+                const msg = e.response?.data?.message || "Ошибка ручной пометки УПД-2";
                 this.$store.commit("SNACKBAR/ERROR", msg);
             } finally {
                 this.upd2Loading = false;
