@@ -9,7 +9,7 @@
     >
         <template v-slot:activator="{ on }">
             <v-text-field
-                :value="proxy | formatDate"
+                :value="proxy ? $options.filters.formatDate(proxy) : ''"
                 :label="label"
                 :disabled="disabled"
                 prepend-icon="mdi-calendar-edit"
