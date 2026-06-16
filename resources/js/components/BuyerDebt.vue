@@ -1,17 +1,28 @@
 <template>
-    <v-container>
-        <v-card class="mx-auto mt-4" max-width="640">
+    <v-container fluid>
+        <v-card class="mb-4">
             <v-card-title>Долги покупателя</v-card-title>
             <v-card-text>
-                <buyer-select v-model="buyer"/>
-                <div class="d-flex align-center">
-                    <date-picker v-model="from" label="Счета не ранее"/>
-                    <v-btn v-if="from" icon small class="ml-2" title="Сбросить дату" @click="from = null">
-                        <v-icon>mdi-close</v-icon>
-                    </v-btn>
+                <div class="d-flex flex-wrap align-center" style="gap: 16px">
+                    <buyer-select v-model="buyer" style="max-width: 360px"/>
+                    <div class="d-flex align-center">
+                        <date-picker v-model="from" label="Счета не ранее"/>
+                        <v-btn v-if="from" icon small class="ml-2" title="Сбросить дату" @click="from = null">
+                            <v-icon>mdi-close</v-icon>
+                        </v-btn>
+                    </div>
                 </div>
             </v-card-text>
             <v-card-actions>
+                <v-btn
+                    color="primary"
+                    :disabled="!buyer"
+                    :loading="loading"
+                    @click="load"
+                >
+                    <v-icon left>mdi-magnify</v-icon>
+                    Показать
+                </v-btn>
                 <v-spacer/>
                 <v-btn
                     color="success"
@@ -24,12 +35,34 @@
                 </v-btn>
             </v-card-actions>
         </v-card>
+
+        <v-card v-if="report">
+            <v-tabs v-model="tab" align-with-title>
+                <v-tab>Счета</v-tab>
+                <v-tab>Неоплаченные УПД</v-tab>
+                <v-tab>Не едет</v-tab>
+            </v-tabs>
+            <v-tabs-items v-model="tab">
+                <v-tab-item :key="0">
+                    <buyer-debt-invoices :invoices="report.invoices" :totals="report.totals"/>
+                </v-tab-item>
+                <v-tab-item :key="1">
+                    <buyer-debt-upds :invoices="report.invoices"/>
+                </v-tab-item>
+                <v-tab-item :key="2">
+                    <buyer-debt-holes :invoices="report.invoices"/>
+                </v-tab-item>
+            </v-tabs-items>
+        </v-card>
     </v-container>
 </template>
 
 <script>
     import BuyerSelect from "./BuyerSelect";
     import DatePicker from "./DatePicker";
+    import BuyerDebtInvoices from "./buyerDebt/BuyerDebtInvoices";
+    import BuyerDebtUpds from "./buyerDebt/BuyerDebtUpds";
+    import BuyerDebtHoles from "./buyerDebt/BuyerDebtHoles";
     import moment from "moment";
     import createLocalStorageSync from "../helpers/localStorage";
 
@@ -37,11 +70,14 @@
 
     export default {
         name: "BuyerDebt",
-        components: {BuyerSelect, DatePicker},
+        components: {BuyerSelect, DatePicker, BuyerDebtInvoices, BuyerDebtUpds, BuyerDebtHoles},
         data: () => ({
             buyer: null,
             from: null,
             saving: false,
+            loading: false,
+            report: null,
+            tab: null,
         }),
         created() {
             // Восстанавливаем последний выбранный покупателя и дату.
@@ -73,6 +109,17 @@
         methods: {
             persistFilter() {
                 filterStorage.set({buyer: this.buyer, from: this.from});
+            },
+            load() {
+                if (!this.buyer) return;
+                this.loading = true;
+                this.$store.dispatch('BUYER-DEBT/REPORT', {
+                    buyer: this.buyer,
+                    from: this.from || undefined,
+                })
+                    .then(data => this.report = data)
+                    .catch(() => {})
+                    .then(() => this.loading = false);
             },
             save() {
                 if (!this.buyer) return;

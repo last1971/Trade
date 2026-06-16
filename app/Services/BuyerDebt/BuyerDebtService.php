@@ -17,6 +17,17 @@ class BuyerDebtService
     /** Статусы счёта «в работе, не закрыт»: Зарезервирован / В подборке / Подобран. */
     private const STATUSES = [2, 3, 4];
 
+    /** Человекочитаемые названия статусов счёта по STATUS (единый источник для Excel и страницы). */
+    public const STATUS_LABELS = [
+        0 => 'Формируется',
+        1 => 'Сформирован',
+        2 => 'Резерв',
+        3 => 'Подборка',
+        4 => 'Подобран',
+        5 => 'Закрыт',
+        6 => 'Корзина',
+    ];
+
     /**
      * Полный отчёт по покупателю.
      *
@@ -36,6 +47,7 @@ class BuyerDebtService
                 'invoiceLines.pickUps',
                 'invoiceLines.reserves',
                 'invoiceLines.name',
+                'invoiceLines.good',
                 'transferOuts.transferOutLines',
                 'cashFlows',
                 'deposits',
@@ -75,6 +87,7 @@ class BuyerDebtService
             'NS' => $invoice->NS,
             'DATA' => $invoice->DATA,
             'STATUS' => $invoice->STATUS,
+            'statusLabel' => self::STATUS_LABELS[$invoice->STATUS] ?? $invoice->STATUS,
             'sum' => $sum,
             'paidBank' => $paidBank,
             'deposit' => $deposit,
@@ -205,6 +218,8 @@ class BuyerDebtService
                     'NS' => $invoice->NS,
                     'GOODSCODE' => $line->GOODSCODE,
                     'name' => trim((string)optional($line->name)->NAME),
+                    'body' => trim((string)optional($line->good)->BODY),
+                    'producer' => trim((string)optional($line->good)->PRODUCER),
                     'qty' => round($holeQty, 3),
                     'price' => round($line->PRICE, 2),
                     'sum' => $money['notComing'],

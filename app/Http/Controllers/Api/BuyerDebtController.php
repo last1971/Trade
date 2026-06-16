@@ -20,4 +20,13 @@ class BuyerDebtController extends Controller
 
         return $excel->download(new BuyerDebtExport($report), "Долги {$name}.xlsx");
     }
+
+    /**
+     * JSON-версия того же отчёта для показа на странице (?buyer=POKUPATCODE).
+     * Зовёт тот же сервис, что и export — ничего не пересчитывает.
+     */
+    public function report(Request $request, BuyerDebtService $service): array
+    {
+        return $service->report((string)$request->buyer, $request->from ?: null);
+    }
 }

@@ -16,7 +16,7 @@ class BuyerDebtItemsSheet extends AbstractBuyerDebtSheet
 
     public function headings(): array
     {
-        return ['Счёт', 'GOODSCODE', 'Товар', 'Кол-во', 'Цена', 'Сумма'];
+        return ['Счёт', 'GOODSCODE', 'Товар', 'Корпус', 'Производитель', 'Кол-во', 'Цена', 'Сумма'];
     }
 
     private function holes(): array
@@ -36,6 +36,8 @@ class BuyerDebtItemsSheet extends AbstractBuyerDebtSheet
             $h['NS'],
             $h['GOODSCODE'],
             $h['name'],
+            $h['body'],
+            $h['producer'],
             $h['qty'],
             $h['price'],
             $h['sum'], // доля денег строки (SUMMAP), может отличаться от Кол-во×Цена из-за округления цены
@@ -44,7 +46,7 @@ class BuyerDebtItemsSheet extends AbstractBuyerDebtSheet
 
     public function columnFormats(): array
     {
-        return ['D' => self::NUM, 'E' => self::NUM, 'F' => self::NUM];
+        return ['F' => self::NUM, 'G' => self::NUM, 'H' => self::NUM];
     }
 
     public function registerEvents(): array
@@ -57,7 +59,7 @@ class BuyerDebtItemsSheet extends AbstractBuyerDebtSheet
                     return;
                 }
 
-                $this->totalsRow($sheet, 2, $count + 1, 'C', ['F']);
+                $this->totalsRow($sheet, 2, $count + 1, 'E', ['H']);
             },
         ];
     }

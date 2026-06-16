@@ -12,8 +12,6 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
  */
 class BuyerDebtSummarySheet extends AbstractBuyerDebtSheet
 {
-    private const STATUSES = ['Формируется', 'Сформирован', 'Резерв', 'Подборка', 'Подобран', 'Закрыт', 'Корзина'];
-
     public function title(): string
     {
         return 'Счета';
@@ -29,7 +27,7 @@ class BuyerDebtSummarySheet extends AbstractBuyerDebtSheet
         return array_map(fn($inv) => [
             $inv['NS'],
             Date::dateTimeToExcel(new Carbon($inv['DATA'])),
-            self::STATUSES[$inv['STATUS']] ?? $inv['STATUS'],
+            $inv['statusLabel'],
             $inv['sum'],
             $inv['paidBank'],
             $inv['deposit'],

@@ -275,6 +275,16 @@ export default {
     async created() {
         await this.$store.dispatch('SELLER-PRICE/GET_SELLERS');
     },
+    // Срабатывает при каждом показе (компонент в <keep-alive>, created — только раз).
+    // Поиск, переданный из других страниц (?search=название&quantity=кол-во).
+    activated() {
+        if (this.$route.query.quantity != null) {
+            this.quantity = Number(this.$route.query.quantity);
+        }
+        if (this.$route.query.search) {
+            this.search = this.$route.query.search; // запускает watcher поиска
+        }
+    },
     methods: {
         async update(item, isUpdate = true) {
             const { sellerId } = item;
