@@ -46,6 +46,7 @@ import cashFlow from "./cashFlow";
 import compel from "./compel";
 import config from "./config";
 import buyerDebt from "./buyerDebt";
+import replenish from "./replenish";
 
 Vue.use(Vuex);
 
@@ -60,6 +61,7 @@ export default new Vuex.Store({
         BREADCRUMBS: breadcrumbs,
         BUYER: buyer,
         'BUYER-DEBT': buyerDebt,
+        REPLENISH: replenish,
         'CASH-FLOW': cashFlow,
         CATEGORY: category,
         COMPEL: compel,

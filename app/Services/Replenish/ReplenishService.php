@@ -51,6 +51,7 @@ class ReplenishService
             'good' => [
                 'GOODSCODE' => $goodsCode,
                 'name' => trim((string)optional($good->name)->NAME),
+                'body' => trim((string)$good->BODY),
                 'producer' => trim((string)$good->PRODUCER),
                 'unit' => $good->unitName,
             ],
@@ -113,6 +114,7 @@ class ReplenishService
                 $rows[] = [
                     'GOODSCODE' => $g,
                     'name' => $info[$g]['name'] ?? '',
+                    'body' => $info[$g]['body'] ?? '',
                     'producer' => $info[$g]['producer'] ?? '',
                     'soldPeriod1' => round($candidates[$g]['qty'], 3),
                     'toOrder' => $result['toOrder'],
@@ -135,7 +137,7 @@ class ReplenishService
      * Название и производитель по кодам, пакетно.
      *
      * @param int[] $codes
-     * @return array<int, array{name: string, producer: string}>
+     * @return array<int, array{name: string, body: string, producer: string}>
      */
     private function goodInfo(array $codes): array
     {
@@ -145,6 +147,7 @@ class ReplenishService
                 ->each(function (Good $good) use (&$map) {
                     $map[(int)$good->GOODSCODE] = [
                         'name' => trim((string)optional($good->name)->NAME),
+                        'body' => trim((string)$good->BODY),
                         'producer' => trim((string)$good->PRODUCER),
                     ];
                 });

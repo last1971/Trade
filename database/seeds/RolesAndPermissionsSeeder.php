@@ -74,8 +74,10 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'sbis.show', 'guard_name' => 'api']);
 
         Permission::query()->firstOrCreate(['name' => 'buyer-debt.index', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'replenish.index', 'guard_name' => 'api']);
 
         Permission::query()->firstOrCreate(['name' => 'nav.*', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.replenish', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.advanced-buyer', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.buyer-debt', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.home', 'guard_name' => 'api']);
@@ -97,6 +99,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin->syncPermissions([
             'nav.*',
             'buyer-debt.index',
+            'replenish.index',
             'advanced-buyer.*',
             'buyer.*',
             'cash-flow.*',
@@ -163,7 +166,9 @@ class RolesAndPermissionsSeeder extends Seeder
         $manager->syncPermissions([
             'nav.advanced-buyer',
             'nav.buyer-debt',
+            'nav.replenish',
             'buyer-debt.index',
+            'replenish.index',
             'nav.home',
             'nav.goods',
             'nav.goods-list',
