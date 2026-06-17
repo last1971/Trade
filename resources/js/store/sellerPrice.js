@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import seller from "./seller";
 
 const state = {
@@ -134,17 +135,17 @@ const mutations = {
         const index = _.findIndex(state.sellers, { sellerId });
         if (index === -1) return;
         const seller = state.sellers[index];
-        seller.blockedUntil = blockedUntil;
-        seller.lastError = lastError;
-        state.sellers.splice(index, 1, seller);
+        // Vue.set — поля могли отсутствовать при создании объекта (API/localStorage),
+        // прямое присваивание было бы нереактивным (Vue 2 reactivity caveat).
+        Vue.set(seller, 'blockedUntil', blockedUntil);
+        Vue.set(seller, 'lastError', lastError);
     },
     CLEAR_SELLER_BLOCKED(state, sellerId) {
         const index = _.findIndex(state.sellers, { sellerId });
         if (index === -1) return;
         const seller = state.sellers[index];
-        seller.blockedUntil = null;
-        seller.lastError = null;
-        state.sellers.splice(index, 1, seller);
+        Vue.set(seller, 'blockedUntil', null);
+        Vue.set(seller, 'lastError', null);
     },
     PUSH_SOURCE(state, payload) {
         state.sources.set(payload.id, payload.source);
