@@ -31,6 +31,7 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware('permission:buyer-debt.index')->group(function () {
         Route::get('buyer-debt/export', 'Api\BuyerDebtController@export')->name('buyer-debt.xlsx');
         Route::get('buyer-debt/report', 'Api\BuyerDebtController@report')->name('buyer-debt.report');
+        Route::get('buyer-debt/summary', 'Api\BuyerDebtController@summary')->name('buyer-debt.summary');
     });
 
     Route::middleware('permission:replenish.index')->group(function () {

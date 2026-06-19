@@ -149,7 +149,7 @@
                     {id: 7, text: 'Заказы', to: {name: 'orders'}, icon: 'mdi-clipboard-arrow-left'},
                     {id: 8, text: 'СБИС', to: {name: 'sbis'}, icon: 'mdi-electron-framework'},
                     {id: 9, text: 'Покупатели+', to: {name: 'advanced-buyer'}, icon: 'mdi-account-plus'},
-                    {id: 16, text: 'Долги', to: {name: 'buyer-debt'}, icon: 'mdi-cash-multiple'},
+                    {id: 16, text: 'Долги и отгрузки', to: {name: 'buyer-debt'}, icon: 'mdi-cash-multiple'},
                     {id: 17, text: 'Закупка', to: {name: 'replenish'}, icon: 'mdi-cart-arrow-down'},
                     {id: 10, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
                     {id: 15, text: 'Ед.изм.', to: {name: 'unit-code'}, icon: 'mdi-numeric-9-plus'},

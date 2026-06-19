@@ -21,5 +21,14 @@ export default {
                     throw error;
                 });
         },
+        // Сводка по всем покупателям за период (тот же сервис, метод summary).
+        SUMMARY({getters, commit}, payload) {
+            return axios.get(getters.URL + '/summary', {params: payload})
+                .then(response => response.data)
+                .catch(error => {
+                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                    throw error;
+                });
+        },
     },
 }

@@ -29,4 +29,13 @@ class BuyerDebtController extends Controller
     {
         return $service->report((string)$request->buyer, $request->from ?: null);
     }
+
+    /**
+     * Сводный отчёт по всем покупателям за период (?from=YYYY-MM-DD&to=YYYY-MM-DD).
+     * Долговые колонки — тем же сервисом, что и report (цифры совпадают).
+     */
+    public function summary(Request $request, BuyerDebtService $service): array
+    {
+        return $service->summary($request->from ?: null, $request->to ?: null);
+    }
 }

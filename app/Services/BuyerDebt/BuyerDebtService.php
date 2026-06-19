@@ -5,6 +5,7 @@ namespace App\Services\BuyerDebt;
 use App\Buyer;
 use App\Invoice;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Расчёт долгов покупателя по незакрытым счетам.
@@ -37,10 +38,112 @@ class BuyerDebtService
      */
     public function report(string $pokupatcode, ?string $from = null): array
     {
-        $invoices = Invoice::query()
-            ->where('POKUPATCODE', $pokupatcode)
+        $invoices = $this->loadInvoices($pokupatcode, $from)->all();
+
+        return [
+            'buyer' => [
+                'POKUPATCODE' => $pokupatcode,
+                'name' => trim((string)optional(Buyer::find($pokupatcode))->SHORTNAME),
+            ],
+            'invoices' => $invoices,
+            'totals' => $this->buildTotals($invoices),
+        ];
+    }
+
+    /**
+     * Сводный отчёт по всем покупателям за период.
+     *
+     * Долговые колонки (debt/oweConcrete) считаются ровно тем же кодом, что и report() —
+     * одним батч-запросом всех открытых счетов за период (без N+1), затем группировка по покупателю.
+     * Движенческие колонки (счета/отгрузки/поступления за период) — лёгкими GROUP BY к Firebird.
+     * Строки — объединение покупателей из всех источников (отгрузка без счёта и денег тоже попадёт).
+     *
+     * @param string|null $from дата (YYYY-MM-DD) начала периода
+     * @param string|null $to дата (YYYY-MM-DD) конца периода
+     * @return array<int, array>
+     */
+    public function summary(?string $from = null, ?string $to = null): array
+    {
+        // Движение за период (всё, кроме Корзины) — дешёвые GROUP BY.
+        $movement = $this->movementSummary($from, $to);
+
+        // Долг по открытым счетам — тоже GROUP BY. Это чистые суммы (строки − оплаты − депозит),
+        // поэтому совпадает с totals.debt страницы «Долги». Верхнюю границу периода НЕ применяем
+        // (как «Долги»: фильтр только по from), чтобы кнопка «Открыть долги» давала те же цифры.
+        $debt = $this->debtSummary($from);
+
+        // Объединение ключей из всех источников (пустые коды отбрасываем — это документы без покупателя).
+        $codes = collect(array_keys($debt))
+            ->merge(array_keys($movement['invoices']))
+            ->merge(array_keys($movement['shipped']))
+            ->merge(array_keys($movement['paid']))
+            ->filter(fn($code) => $code !== null && $code !== '')
+            ->unique()
+            ->values();
+
+        $names = Buyer::whereIn('POKUPATCODE', $codes->all())->pluck('SHORTNAME', 'POKUPATCODE');
+
+        return $codes
+            ->map(fn($code) => [
+                'POKUPATCODE' => $code,
+                'name' => trim((string)($names[$code] ?? '')),
+                'invoices' => $movement['invoices'][$code] ?? 0.0,
+                'shipped' => $movement['shipped'][$code] ?? 0.0,
+                'paid' => $movement['paid'][$code] ?? 0.0,
+                'updCount' => $movement['updCount'][$code] ?? 0,
+                'debt' => $debt[$code] ?? 0.0,
+            ])
+            ->filter(fn($row) => $row['invoices'] != 0 || $row['shipped'] != 0
+                || $row['paid'] != 0 || $row['debt'] != 0)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Долг по открытым счетам на покупателя: Σстрок − Σоплат + Σдепозитов (та же формула, что
+     * totals.debt в report(), только агрегатами без гидрации). Все три суммы привязаны к открытым
+     * счетам (STATUS 2,3,4) с DATA >= from — иначе цифра не сойдётся с вкладкой «Долги».
+     *
+     * @return array<int,float> POKUPATCODE => долг
+     */
+    private function debtSummary(?string $from): array
+    {
+        $conn = DB::connection('firebird');
+        $open = fn($table, $col) => $conn->table($table)
+            ->join('S', 'S.SCODE', '=', "$table.SCODE")
+            ->whereIn('S.STATUS', self::STATUSES)
+            ->when($from, fn($q) => $q->where('S.DATA', '>=', $from))
+            ->groupBy('S.POKUPATCODE')
+            ->get(['S.POKUPATCODE as p', DB::raw("sum($col) as \"s\"")]);
+
+        $debt = [];
+        foreach ($open('REALPRICE', 'REALPRICE.SUMMAP') as $row) {
+            $debt[$row->p] = round((float)$row->s, 2);                       // Σ строк счетов
+        }
+        foreach ($open('SCHET', 'SCHET.MONEYSCHET') as $row) {
+            $debt[$row->p] = round(($debt[$row->p] ?? 0) - (float)$row->s, 2); // − Σ оплат
+        }
+        foreach ($open('DEPOSIT', 'DEPOSIT.SUMMA') as $row) {
+            $debt[$row->p] = round(($debt[$row->p] ?? 0) + (float)$row->s, 2); // + Σ депозитов (deposit = −SUMMA в report)
+        }
+
+        return $debt;
+    }
+
+    /**
+     * Загрузка открытых счетов с полным набором связей и сборкой через buildInvoice().
+     * Единственное место, где живёт список eager-load связей — и для одиночного отчёта, и для сводки.
+     * Eager-load батчит связи по всем счетам сразу, поэтому N+1 нет даже без фильтра по покупателю.
+     *
+     * @return Collection<int, array> массив разобранных счетов (buildInvoice)
+     */
+    private function loadInvoices(?string $pokupatcode, ?string $from, ?string $to = null): Collection
+    {
+        return Invoice::query()
+            ->when($pokupatcode, fn($query) => $query->where('POKUPATCODE', $pokupatcode))
             ->whereIn('STATUS', self::STATUSES)
             ->when($from, fn($query) => $query->where('DATA', '>=', $from))
+            ->when($to, fn($query) => $query->where('DATA', '<=', $to))
             ->with([
                 'invoiceLines.transferOutLines',
                 'invoiceLines.orderLinesTransit',
@@ -54,17 +157,66 @@ class BuyerDebtService
             ])
             ->orderBy('DATA')
             ->get()
-            ->map(fn(Invoice $invoice) => $this->buildInvoice($invoice))
-            ->all();
+            ->map(fn(Invoice $invoice) => $this->buildInvoice($invoice));
+    }
 
-        return [
-            'buyer' => [
-                'POKUPATCODE' => $pokupatcode,
-                'name' => trim((string)optional(Buyer::find($pokupatcode))->SHORTNAME),
-            ],
-            'invoices' => $invoices,
-            'totals' => $this->buildTotals($invoices),
-        ];
+    /**
+     * Суммы движения по покупателям за период (раздельно: счета / отгрузки / поступления).
+     * Плоские GROUP BY к Firebird, raw-алиасы в кавычках (иначе Firebird их аплертит).
+     *
+     * @return array{invoices: array<int,float>, shipped: array<int,float>, paid: array<int,float>, updCount: array<int,int>}
+     */
+    private function movementSummary(?string $from, ?string $to): array
+    {
+        $conn = DB::connection('firebird');
+
+        // Счета (S ⨝ REALPRICE), все статусы кроме Корзины (6).
+        $invoices = [];
+        $rows = $conn->table('S')
+            ->join('REALPRICE', 'REALPRICE.SCODE', '=', 'S.SCODE')
+            ->where('S.STATUS', '<>', 6)
+            ->when($from, fn($q) => $q->where('S.DATA', '>=', $from))
+            ->when($to, fn($q) => $q->where('S.DATA', '<=', $to))
+            ->groupBy('S.POKUPATCODE')
+            ->get(['S.POKUPATCODE as p', DB::raw('sum(REALPRICE.SUMMAP) as "s"')]);
+        foreach ($rows as $row) {
+            $invoices[$row->p] = round((float)$row->s, 2);
+        }
+
+        // Отгрузки/УПД (SF ⨝ REALPRICEF): сумма + количество УПД.
+        $shipped = [];
+        $updCount = [];
+        $rows = $conn->table('SF')
+            ->join('REALPRICEF', 'REALPRICEF.SFCODE', '=', 'SF.SFCODE')
+            ->when($from, fn($q) => $q->where('SF.DATA', '>=', $from))
+            ->when($to, fn($q) => $q->where('SF.DATA', '<=', $to))
+            ->groupBy('SF.POKUPATCODE')
+            ->get([
+                'SF.POKUPATCODE as p',
+                DB::raw('sum(REALPRICEF.SUMMAP) as "s"'),
+                DB::raw('count(distinct SF.SFCODE) as "c"'),
+            ]);
+        foreach ($rows as $row) {
+            $shipped[$row->p] = round((float)$row->s, 2);
+            $updCount[$row->p] = (int)$row->c;
+        }
+
+        // Поступления денег (SCHET). Покупателя берём через счёт (SCODE → S.POKUPATCODE):
+        // SCHET.POKUPATCODE ненадёжен (у части платежей пуст/служебный), а привязка к счёту —
+        // тот же принцип, что paidBank в report() и в долговой колонке.
+        $paid = [];
+        $rows = $conn->table('SCHET')
+            ->join('S', 'S.SCODE', '=', 'SCHET.SCODE')
+            ->where('S.STATUS', '<>', 6)
+            ->when($from, fn($q) => $q->where('SCHET.DATA', '>=', $from))
+            ->when($to, fn($q) => $q->where('SCHET.DATA', '<=', $to))
+            ->groupBy('S.POKUPATCODE')
+            ->get(['S.POKUPATCODE as p', DB::raw('sum(SCHET.MONEYSCHET) as "s"')]);
+        foreach ($rows as $row) {
+            $paid[$row->p] = round((float)$row->s, 2);
+        }
+
+        return ['invoices' => $invoices, 'shipped' => $shipped, 'paid' => $paid, 'updCount' => $updCount];
     }
 
     /** Разбор одного счёта. */
