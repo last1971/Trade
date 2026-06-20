@@ -135,6 +135,8 @@
                     },
                     {id: 3, text: 'Товары', to: {name: 'goods'}, icon: 'mdi-chip'},
                     {id: 7, text: 'Заказы', to: {name: 'orders'}, icon: 'mdi-clipboard-arrow-left'},
+                    {id: 6, text: 'Исх.УПД', to: {name: 'transfer-outs'}, icon: 'mdi-clipboard-text-play'},
+                    {id: 17, text: 'Закупка', to: {name: 'replenish'}, icon: 'mdi-cart-arrow-down'},
                     {id: 10, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
                     {id: 11, text: 'Список', to: {name: 'goods-list'}, icon: 'mdi-playlist-edit'},
                     {id: 12, text: 'Розн.продажи', to: {name: 'retail-sales'}, icon: 'mdi-store-24-hour'},
