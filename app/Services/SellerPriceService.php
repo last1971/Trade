@@ -96,7 +96,7 @@ class SellerPriceService implements ISellerPriceable
     private function checkParameters(): SellerPriceService
     {
         throw_if(!$this->isSeller($this->sellerId), new Error('Bad Seller!'));
-        throw_if(mb_strlen($this->search) < 3, new Error('Search string is short!'));
+        throw_if(mb_strlen($this->search) < SellerPriceRequest::MIN_SEARCH, new Error('Search string is short!'));
         // Log::info('checkParameters');
         return $this;
     }

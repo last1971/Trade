@@ -121,6 +121,9 @@ import InvoiceCard from "../invoice/InvoiceCard";
 import SellerApiFileSelectNew from "./SellerApi/SellerApiFileSelectNew";
 import SearchTextField from "../common/SearchTextField";
 
+// Минимальная длина строки поиска (должна совпадать с SellerPriceRequest::MIN_SEARCH на бэке).
+const MIN_SEARCH = 4;
+
 export default {
     name: "SellerPrices",
     components: {
@@ -192,7 +195,7 @@ export default {
                 await this.$store.dispatch('EXCHANGE-RATE/SET', moment().format('Y-MM-DD'))
             }
             let { search } = this;
-            if (!search || search.trim().length  < 3) return;
+            if (!search || search.trim().length  < MIN_SEARCH) return;
             try {
                 this.$store.commit('SELLER-PRICE/CLEAR_DATA');
                 this.$store.commit('SELLER-PRICE/CLEAR_ALL_API_ERRORS');
@@ -290,7 +293,7 @@ export default {
             const { sellerId } = item;
             const seller = this.seller(sellerId);
             const { search } = this;
-            if (!seller.isApi || !search || search.trim().length  < 3) return;
+            if (!seller.isApi || !search || search.trim().length  < MIN_SEARCH) return;
             this.$store.commit('SELLER-PRICE/CLEAR_SELLER_DATA', sellerId);
             this.$store.commit('SELLER-PRICE/CLEAR_SELLER_API_ERROR', sellerId);
             this.loading = true;

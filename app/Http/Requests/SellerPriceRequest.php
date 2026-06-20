@@ -7,6 +7,9 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class SellerPriceRequest extends FormRequest
 {
+    /** Минимальная длина строки поиска (единый источник для фронта/бэка). */
+    public const MIN_SEARCH = 4;
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,7 +28,7 @@ class SellerPriceRequest extends FormRequest
     public function rules()
     {
         return [
-            'search' => 'required|string|min:3',
+            'search' => 'required|string|min:' . self::MIN_SEARCH,
             'isUpdate' => 'nullable|in:true,false',
             'sellerId' => 'required_without:sellerIds|integer',
             'sellerIds' => 'required_without:sellerId|array',
