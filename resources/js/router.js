@@ -25,6 +25,7 @@ import ExchangeRates from "./components/ExchangeRates";
 import PaymentTabs from "./components/payment/PaymentTabs";
 import SellerPrices from "./components/seller/SellerPrices";
 import UnitCodes from "./components/unit/UnitCodes.vue";
+import Certificates from "./components/certificate/Certificates.vue";
 import BuyerDebtPage from "./components/BuyerDebtPage";
 import Replenish from "./components/Replenish";
 
@@ -176,6 +177,12 @@ const routes = [
         path: '/unit-code',
         component: UnitCodes,
         meta: {requiresAuth: true, permission: 'unit-code.show'},
+    },
+    {
+        name: 'certificates',
+        path: '/certificate',
+        component: Certificates,
+        meta: {requiresAuth: true, model: 'CERTIFICATE', permission: 'certificate.index'},
     },
     {
         name: 'test',

@@ -57,11 +57,33 @@ Route::middleware('auth:api')->group(function () {
     Route::get('seller-price/sellers', 'Api\SellerPriceController@sellers')
         ->name('seller-price.sellers');
 
+    Route::middleware('permission:certificate.index')->group(function () {
+        Route::get('certificate/{id}/download', 'Api\CertificateController@download')
+            ->name('certificate.download');
+        Route::get('certificate-marketplaces', 'Api\CertificateController@marketplaces')
+            ->name('certificate.marketplaces');
+        Route::get('certificate-types', 'Api\CertificateController@types')
+            ->name('certificate.types');
+        Route::get('good/{id}/certificates', 'Api\CertificateController@forGood')
+            ->name('good.certificates');
+    });
+    Route::middleware('permission:certificate.update')->group(function () {
+        Route::post('certificate/{id}/goods', 'Api\CertificateController@attachGoods')
+            ->name('certificate.attach-goods');
+        Route::delete('certificate/{id}/goods/{goodId}', 'Api\CertificateController@detachGood')
+            ->name('certificate.detach-good');
+        Route::post('certificate/{id}/marketplaces', 'Api\CertificateController@markMarketplace')
+            ->name('certificate.mark-marketplace');
+        Route::delete('certificate/{id}/marketplaces/{marketplaceId}', 'Api\CertificateController@unmarkMarketplace')
+            ->name('certificate.unmark-marketplace');
+    });
+
     Route::apiResources([
         'advanced-buyer' => 'Api\AdvancedBuyerController',
         'buyer' => 'Api\BuyerController',
         'cash-flow' => 'Api\CashFlowController',
         'category' => 'Api\CategoryController',
+        'certificate' => 'Api\CertificateController',
         'employee' => 'Api\EmployeeController',
         'firm' => 'Api\FirmController',
         'firm-history' => 'Api\FirmHistoryController',

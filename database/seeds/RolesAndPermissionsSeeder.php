@@ -11,6 +11,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'buyer',
         'cash-flow',
         'category',
+        'certificate',
         'employee',
         'firm',
         'firm-history',
@@ -80,6 +81,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'nav.replenish', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.advanced-buyer', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.buyer-debt', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.certificates', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.home', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.goods', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.goods-list', 'guard_name' => 'api']);
@@ -104,6 +106,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'buyer.*',
             'cash-flow.*',
             'category.*',
+            'certificate.*',
             'employee.*',
             'exchange-rate.index',
             'firm.*',
@@ -169,6 +172,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.replenish',
             'buyer-debt.index',
             'replenish.index',
+            'nav.certificates',
             'nav.home',
             'nav.goods',
             'nav.goods-list',
@@ -180,6 +184,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'advanced-buyer.*',
             'buyer.*',
             'category.*',
+            'certificate.*',
             'employee.index',
             'employee.show',
             'exchange-rate.index',

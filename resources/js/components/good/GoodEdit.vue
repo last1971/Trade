@@ -51,6 +51,7 @@
         <retail-price-edit v-model="retailPrice"/>
         <order-step-edit v-model="orderStep"/>
         <leftovers v-model="model"/>
+        <good-certificates v-if="model.GOODSCODE" v-model="model.GOODSCODE"/>
         <good-info v-model="model.GOODSCODE" />
     </v-container>
 </template>
@@ -63,10 +64,11 @@
     import editMixin from "../../mixins/editMixin";
     import Leftovers from "../Leftovers";
     import GoodInfo from "./GoodInfo";
+    import GoodCertificates from "./GoodCertificates";
 
     export default {
         name: "GoodEdit",
-        components: {GoodInfo, Leftovers, RetailPriceEdit, NameSelect, CategorySelect, OrderStepEdit},
+        components: {GoodCertificates, GoodInfo, Leftovers, RetailPriceEdit, NameSelect, CategorySelect, OrderStepEdit},
         mixins: [editMixin],
         props: {
             newName: {

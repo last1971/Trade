@@ -141,6 +141,7 @@
                     {id: 11, text: 'Список', to: {name: 'goods-list'}, icon: 'mdi-playlist-edit'},
                     {id: 12, text: 'Розн.продажи', to: {name: 'retail-sales'}, icon: 'mdi-store-24-hour'},
                     {id: 13, text: 'Платежи', to: {name: 'payments'}, icon: 'mdi-credit-card-settings-outline'},
+                    {id: 18, text: 'Сертификаты', to: {name: 'certificates'}, icon: 'mdi-certificate'},
                     {id: 14, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
                 ]
                 : [
@@ -155,6 +156,7 @@
                     {id: 17, text: 'Закупка', to: {name: 'replenish'}, icon: 'mdi-cart-arrow-down'},
                     {id: 10, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple'},
                     {id: 15, text: 'Ед.изм.', to: {name: 'unit-code'}, icon: 'mdi-numeric-9-plus'},
+                    {id: 18, text: 'Сертификаты', to: {name: 'certificates'}, icon: 'mdi-certificate'},
                     {id: 14, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube'},
                 ]
         }),

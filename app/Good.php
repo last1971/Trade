@@ -213,4 +213,9 @@ class Good extends Model
     {
         return $this->hasMany('App\MarkCode', 'GOODSCODE', 'GOODSCODE');
     }
+
+    public function certificateGoods()
+    {
+        return $this->hasMany('App\CertificateGood', 'good_id', 'GOODSCODE');
+    }
 }

@@ -43,6 +43,7 @@ import sellerOrder from "./sellerOrder";
 import unitCode from "./unitCode";
 import unitCodeAlias from "./unitCodeAlias";
 import cashFlow from "./cashFlow";
+import certificate from "./certificate";
 import compel from "./compel";
 import config from "./config";
 import buyerDebt from "./buyerDebt";
@@ -64,6 +65,7 @@ export default new Vuex.Store({
         REPLENISH: replenish,
         'CASH-FLOW': cashFlow,
         CATEGORY: category,
+        CERTIFICATE: certificate,
         COMPEL: compel,
         CONFIG: config,
         'EXCHANGE-RATE': exchangeRate,

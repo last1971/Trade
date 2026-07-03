@@ -13,7 +13,8 @@
     >
         <input
             @change="changed"
-            accept="application/excel"
+            :accept="accept"
+            :multiple="multiple"
             ref="input"
             style="display: none"
             type="file"
@@ -47,6 +48,14 @@
             text: {
                 type: String,
                 default: 'Drag\'n drop or click to upload file!'
+            },
+            accept: {
+                type: String,
+                default: 'application/excel'
+            },
+            multiple: {
+                type: Boolean,
+                default: false
             }
         },
         data() {

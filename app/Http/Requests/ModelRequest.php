@@ -81,6 +81,7 @@ class ModelRequest extends FormRequest
         ];
         switch ($this->route()->getName()) {
             case 'advanced-buyer.destroy':
+            case 'certificate.destroy':
             case 'cash-flow.destroy':
             case 'order-line.destroy':
             case 'invoice-line.destroy':
@@ -103,6 +104,16 @@ class ModelRequest extends FormRequest
                             ->ignore($this->route('advanced_buyer') ? $this->route('advanced_buyer') : null),
                     ],
                     'item.edo_provider' => ['nullable', 'string', Rule::in(['sbis', 'diadoc'])],
+                ];
+                break;
+            case 'certificate.update':
+                $rules += [
+                    'item.number' => 'string|max:255',
+                    'item.type' => 'string|max:255',
+                    'item.name' => 'nullable|string|max:255',
+                    'item.date_from' => 'nullable|date',
+                    'item.date_to' => 'nullable|date',
+                    'item.remark' => 'nullable|string|max:255',
                 ];
                 break;
             case 'cash-flow.store':
