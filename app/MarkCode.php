@@ -26,6 +26,11 @@ class MarkCode extends Model
         'SERIAL_NUMBER', 'SOURCE', 'STATUS', 'TRANSFER_TYPE',
         'SUPPLIER_INN', 'SKLADINCODE', 'SHOPINCODE',
         'REALPRICECODE', 'REALPRICEFCODE', 'SHOPLOGCODE', 'SPISID',
+        'QUANTITY',
+    ];
+
+    protected $casts = [
+        'QUANTITY' => 'integer',
     ];
 
     public function good()
