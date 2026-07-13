@@ -78,6 +78,19 @@ Route::middleware('auth:api')->group(function () {
             ->name('certificate.unmark-marketplace');
     });
 
+    Route::middleware('permission:good.show')->group(function () {
+        Route::get('good/{id}/gtins', 'Api\GoodGtinController@forGood')
+            ->name('good.gtins');
+    });
+    Route::middleware('permission:good.update')->group(function () {
+        Route::post('good/{id}/gtins', 'Api\GoodGtinController@store')
+            ->name('good.gtins.store');
+        Route::put('good-gtin/{id}', 'Api\GoodGtinController@update')
+            ->name('good.gtins.update');
+        Route::delete('good-gtin/{id}', 'Api\GoodGtinController@destroy')
+            ->name('good.gtins.destroy');
+    });
+
     Route::apiResources([
         'advanced-buyer' => 'Api\AdvancedBuyerController',
         'buyer' => 'Api\BuyerController',
