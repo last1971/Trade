@@ -45,6 +45,10 @@ state.fillable = ['NAMECODE', 'CATEGORYCODE', 'UNIT_I', 'BODY', 'PRODUCER', 'PRI
 state.headers = [
     {text: '', value: 'actions', width: 10, sortable: false},
     {
+        text: 'Код',
+        value: 'GOODSCODE',
+    },
+    {
         text: 'Категория',
         value: 'category.CATEGORY',
     },

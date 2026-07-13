@@ -16,13 +16,7 @@
             <div class="m-2">
                 <v-row>
                     <v-col>
-                        <v-text-field label="Наименовние" v-model="searchName"/>
-                    </v-col>
-                    <v-col>
-                        <v-switch
-                            v-model="inRetailStore"
-                            :label="inRetailStore ? 'Есть в магазине' : 'Все в магазине'"
-                        ></v-switch>
+                        <v-text-field label="Наименование или код" v-model="searchName"/>
                     </v-col>
                 </v-row>
             </div>
@@ -103,24 +97,20 @@
                         'storeLinesTransitQuantity',
                     ],
                     filterAttributes: [
-                        'goodNames.NAME', 'HIDDEN', 'retailStore.QUAN'
+                        'goodNames.NAME', 'HIDDEN'
                     ],
-                    filterOperators: ['CONTAIN', '=', '>'],
-                    filterValues: ['', 0, 0],
+                    filterOperators: ['CONTAIN', '='],
+                    filterValues: ['', 0],
                 },
                 mobileFiltersVisible: false,
                 model: 'GOOD',
                 searchName: '',
-                inRetailStore: true,
             }
         },
         watch: {
             searchName(val) {
-                this.options.filterValues.splice(0, 1, val.replace(/[^а-яёА-ЯЁa-zA-Z0-9]/g, ''));
+                this.options.filterValues.splice(0, 1, val);
             },
-            inRetailStore(val) {
-                this.options.filterValues.splice(2, 1, val ? 0 : -1)
-            }
         },
         methods: {},
         beforeRouteEnter(to, from, next) {
