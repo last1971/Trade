@@ -1,5 +1,5 @@
 <template>
-    <v-card v-if="certificates.length" outlined class="my-4">
+    <v-card outlined class="my-4">
         <v-card-title class="subtitle-2 py-2">Сертификаты</v-card-title>
         <v-divider/>
         <v-simple-table dense>
@@ -16,6 +16,9 @@
                     </tr>
                     </thead>
                     <tbody>
+                    <tr v-if="!certificates.length">
+                        <td colspan="7" class="text-center">Отсутствуют данные</td>
+                    </tr>
                     <tr v-for="certificate in certificates"
                         :key="certificate.id"
                         :class="certificate.is_expired ? 'certificate-expired' : ''"

@@ -9,6 +9,7 @@
                 <v-tab v-if="hasPermission('reserve.index')">Резервы</v-tab>
                 <v-tab v-if="hasPermission('store-line.index')">Приходы</v-tab>
                 <v-tab>ЕдетЪ</v-tab>
+                <v-tab v-if="hasPermission('certificate.index')">Сертификаты</v-tab>
             </v-tabs>
             </v-col>
             <v-col cols="1">
@@ -26,7 +27,7 @@
             <v-tab-item>
                 <transfer-out-lines-dependent v-if="good" :good="good"/>
             </v-tab-item>
-            <v-tab-item v-if="hasPermission('reserve.index')">>
+            <v-tab-item v-if="hasPermission('reserve.index')">
                 <reserves-dependent v-if="good && good.name" :value="good" :name="good.name.NAME"/>
             </v-tab-item>
             <v-tab-item v-if="hasPermission('store-line.index')">
@@ -34,6 +35,9 @@
             </v-tab-item>
             <v-tab-item>
                 <order-line-in-way v-if="good" :invoice-line="good" class="mx-2" :top-text="false" />
+            </v-tab-item>
+            <v-tab-item v-if="hasPermission('certificate.index')">
+                <good-certificates :value="value"/>
             </v-tab-item>
         </v-tabs-items>
     </v-card>
@@ -47,12 +51,14 @@ import TransferOutLinesDependent from "../transferOut/TransferOutLinesDependent"
 import ReservesDependent from "../ReservesDependent";
 import StoreLinesDependent from "../StoreLinesDependent";
 import OrderLineInWay from "../order/OrderLineInWay";
+import GoodCertificates from "./GoodCertificates";
 import {mapGetters} from "vuex";
 export default {
     name: "GoodInfo",
     components: {
         OrderLineInWay,
         StoreLinesDependent,
+        GoodCertificates,
         ReservesDependent, TransferOutLinesDependent, TransferOutLinesModal, InvoiceLinesDepenntByGood},
     props: {
         value: {

@@ -13,6 +13,13 @@
         <v-row>
             <v-col cols="1">
                 <v-text-field
+                    label="Код"
+                    :value="model.GOODSCODE"
+                    disabled
+                />
+            </v-col>
+            <v-col cols="1">
+                <v-text-field
                     :error-messages="errors['item.UNIT_I']"
                     label="Ед.изм."
                     v-model="model.UNIT_I"
@@ -35,7 +42,7 @@
                     :disabled="notEditable"
                 />
             </v-col>
-            <v-col cols="6">
+            <v-col cols="5">
                 <v-text-field :error-messages="errors['item.PRIM']"
                               label="Описание"
                               v-model="model.PRIM"
@@ -51,7 +58,6 @@
         <retail-price-edit v-model="retailPrice"/>
         <order-step-edit v-model="orderStep"/>
         <leftovers v-model="model"/>
-        <good-certificates v-if="model.GOODSCODE" v-model="model.GOODSCODE"/>
         <good-info v-model="model.GOODSCODE" />
     </v-container>
 </template>
@@ -64,11 +70,10 @@
     import editMixin from "../../mixins/editMixin";
     import Leftovers from "../Leftovers";
     import GoodInfo from "./GoodInfo";
-    import GoodCertificates from "./GoodCertificates";
 
     export default {
         name: "GoodEdit",
-        components: {GoodCertificates, GoodInfo, Leftovers, RetailPriceEdit, NameSelect, CategorySelect, OrderStepEdit},
+        components: {GoodInfo, Leftovers, RetailPriceEdit, NameSelect, CategorySelect, OrderStepEdit},
         mixins: [editMixin],
         props: {
             newName: {
