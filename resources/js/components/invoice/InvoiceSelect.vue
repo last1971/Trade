@@ -15,7 +15,6 @@
         :filter-values="filterValues"
         :sort-by="sortBy"
         :sort-desc="sortDesc"
-        :smart-name="true"
     >
         <template v-slot:item="{ item, maxLength }">
             <invoice-in-line :invoice="item"/>

@@ -12,10 +12,6 @@
             Товар
         </template>
         <template v-slot:header.name>
-            <v-btn icon left @click.stop="smartName = !smartName">
-                <v-icon v-if="smartName">mdi-clipboard-check-outline</v-icon>
-                <v-icon v-else>mdi-clipboard-outline</v-icon>
-            </v-btn>
             Наименование поставщика
         </template>
         <template v-slot:item.GOODSCODE="{ item }">
@@ -23,7 +19,6 @@
                          :ref="'ac_' + item.id"
                          v-model="item.GOODSCODE"
                          @clearSearchName="clearSearchName(item)"
-                         :smart-name="smartName"
             />
         </template>
         <template v-slot:item.name="{ item }">
@@ -72,7 +67,6 @@
             return {
                 loading: false,
                 model: 'ORDER-IMPORT-LINE',
-                smartName: false
             }
         },
         computed: {

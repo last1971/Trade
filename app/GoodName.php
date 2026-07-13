@@ -21,6 +21,11 @@ class GoodName extends Model
 
     protected $sequenceName = 'GEN_GOODS_SEARCH_ID';
 
+    public static function normalize($value)
+    {
+        return mb_ereg_replace(config('app.search_replace'), '', $value);
+    }
+
     public function good()
     {
         return $this->belongsTo('App\Good', 'GOODSCODE', 'GOODSCODE');

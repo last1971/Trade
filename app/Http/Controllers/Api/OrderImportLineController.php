@@ -57,11 +57,7 @@ class OrderImportLineController extends Controller
             ->pluck('name')
             ->unique()
             ->map(function ($name) {
-                return Str::substr(
-                    mb_ereg_replace(config('app.search_replace'), '', $name),
-                    0,
-                    70
-                );
+                return Str::substr(GoodName::normalize($name), 0, 70);
             })
             ->all();
         $goods = $service->index(collect([
@@ -91,7 +87,7 @@ class OrderImportLineController extends Controller
             $good = $goods->first(fn($value) => $value->goodNames->where(
                 'NAME',
                 '=',
-                mb_ereg_replace(config('app.search_replace'), '', $row->get('name'))
+                GoodName::normalize($row->get('name'))
             )->first());
             $row->put('good', $good);
             $row->put('GOODSCODE', $good ? $good->GOODSCODE : null);
@@ -143,11 +139,7 @@ class OrderImportLineController extends Controller
             ]);
             GoodName::query()->firstOrCreate([
                 'GOODSCODE' => $line['GOODSCODE'],
-                'NAME' => Str::substr(
-                    mb_ereg_replace(config('app.search_replace'), '', $line['name']),
-                    0,
-                    70
-                )
+                'NAME' => Str::substr(GoodName::normalize($line['name']), 0, 70)
             ]);
             $GOODSCODE = $line['GOODSCODE'];
         }

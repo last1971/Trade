@@ -48,7 +48,7 @@ class InvoiceService extends ModelService
         $index = $request->get('filterAttributes')
             ? array_search('buyer.SHORTNAME', $request->get('filterAttributes'))
             : false;
-        if ($request->get('smartName') && $index !== false) {
+        if ($index !== false) {
             $value = $request->get('filterValues')[$index];
             $filterAttributes = $request->get('filterAttributes');
             if (is_numeric($value)) {

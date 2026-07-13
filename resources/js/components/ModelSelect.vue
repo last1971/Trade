@@ -68,7 +68,7 @@
             noFilter: {type: Boolean, default: true},
             getValue: {type: Boolean, default: false},
             newSearch: {type: String, default: ''},
-            smartName: {type: Boolean, default: false},
+            searchAttribute: {type: String, default: null},
             canEmpty: {type: Boolean, default: false}
         },
         data() {
@@ -141,13 +141,12 @@
                 const options = {
                     itemsPerPage: this.itemsPerPage,
                     aggregateAttributes: this.aggregateAttributes,
-                    filterAttributes: _.concat(this.filterAttributes, this.itemText),
+                    filterAttributes: _.concat(this.filterAttributes, this.searchAttribute || this.itemText),
                     filterOperators: _.concat(this.filterOperators, 'CONTAIN'),
                     filterValues: _.concat(this.filterValues, val.substr(0,69)),
                     sortBy: _.isEmpty(this.sortBy) ? null : this.sortBy,
                     sortDesc: _.isEmpty(this.sortDesc) ? null: this.sortDesc,
                     with: this.with,
-                    smartName: this.smartName,
                 };
                 this.isLoading = true;
                 const response = await this.$store.dispatch(this.MODEL + '/ALL', options);

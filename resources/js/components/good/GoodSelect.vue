@@ -15,7 +15,7 @@
         model="good"
         v-model="proxy"
         :new-search="testName"
-        :smart-name="proxySmartName"
+        search-attribute="goodNames.NAME"
         @clearSearchName="$emit('clearSearchName')"
     >
         <template v-slot:item="{ item, maxLength }">
@@ -45,12 +45,6 @@
                 </v-card>
             </v-dialog>
         </template>
-        <template v-slot:append>
-            <v-btn icon left @click.stop="proxySmartName = !proxySmartName">
-                <v-icon v-if="proxySmartName">mdi-clipboard-check-outline</v-icon>
-                <v-icon v-else>mdi-clipboard-outline</v-icon>
-            </v-btn>
-        </template>
     </model-select>
 </template>
 
@@ -69,7 +63,6 @@
             disabled: {type: Boolean, default: false},
             dense: {type: Boolean, default: false},
             newSearch: {type: String, default: ''},
-            smartName: {type: Boolean, default: false},
             goodPrototype: {type: Object, default: () => {}}
         },
         data() {
@@ -96,7 +89,6 @@
                 reload: 0,
                 label: this.dense ? null : 'Товар',
                 testName: null,
-                proxySmartName: this.smartName
             }
         },
         computed: {
@@ -140,12 +132,6 @@
             }
         },
         watch: {
-            smartName(v) {
-                this.proxySmartName = v;
-            },
-            proxySmartName(v) {
-                this.$emit('update:smartName', v);
-            },
             newSearch() {
                 this.testName = this.newSearch;
             },

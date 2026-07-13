@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Events\SellerGoodUpdated;
+use App\GoodName;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
@@ -76,9 +77,7 @@ class SellerGood extends Model
     public function setNameAttribute(string $value)
     {
         $this->attributes['name'] = $value;
-        $this->attributes['search_name'] = mb_ereg_replace(
-            config('app.search_replace'), '', $value
-        );
+        $this->attributes['search_name'] = GoodName::normalize($value);
     }
 
     public function seller()

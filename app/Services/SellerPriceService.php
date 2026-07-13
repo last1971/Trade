@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use App\GoodName;
 use App\Http\Requests\SellerPriceRequest;
 use App\Http\Resources\SellerPriceResource;
 use App\Interfaces\ISellerPriceable;
@@ -149,14 +150,14 @@ class SellerPriceService implements ISellerPriceable
         if ($this->cache) return $this;
         $service = new $this->seller['class'];
         $processedSearch = $this->seller['ereg']
-            ? mb_ereg_replace(config('app.search_replace'), '', $this->search)
+            ? GoodName::normalize($this->search)
             : $this->search;
         try {
             $this->collection = $service($processedSearch, [$this->searchKey, $this->sellerKey]);
             Cache::put($this->sellerKey, $this->collection, $this->seller['cacheTimes']);
         } catch (Exception $e) {
             $service = new DataBase();
-            $processedSearch = mb_ereg_replace(config('app.search_replace'), '', $processedSearch);
+            $processedSearch = GoodName::normalize($processedSearch);
             $this->collection = $service($processedSearch);
             $this->isApiError = true;
             Log::error($e->getMessage());
