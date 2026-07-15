@@ -2,6 +2,43 @@
     <v-card outlined class="my-4">
         <v-card-title class="subtitle-2 py-2">Национальный каталог (GTIN)</v-card-title>
         <v-divider/>
+        <v-card-text class="py-2 d-flex align-center flex-wrap" style="gap: 12px">
+            <span>
+                Маркировка:
+                <v-chip small :color="verdictColor" outlined>{{ verdictText }}</v-chip>
+            </span>
+            <template v-if="!notEditable">
+                <v-combobox
+                    v-model="verdictTnved"
+                    :items="tnvedItems"
+                    label="ТНВЭД (выбор или ввод)"
+                    dense hide-details clearable
+                    style="max-width: 420px"
+                    @change="onTnvedChange"
+                />
+                <v-select
+                    v-if="okpd2Items.length > 1"
+                    v-model="verdictOkpd2"
+                    :items="okpd2Items"
+                    label="ОКПД2"
+                    dense hide-details clearable
+                    style="max-width: 420px"
+                />
+                <v-text-field
+                    v-model="verdictPrim"
+                    label="Примечание (почему)"
+                    dense hide-details clearable
+                    style="max-width: 420px"
+                />
+                <v-btn small outlined color="green" :loading="classifying" @click="classify(0)">
+                    Не подлежит
+                </v-btn>
+                <v-btn small outlined color="orange" :loading="classifying" @click="classify(1)">
+                    Подлежит
+                </v-btn>
+            </template>
+        </v-card-text>
+        <v-divider/>
         <v-simple-table dense>
             <template v-slot:default>
                 <thead>
@@ -11,13 +48,15 @@
                     <th>ОКПД2</th>
                     <th>ИНН поставщика</th>
                     <th>Осн.</th>
+                    <th>Марк.</th>
                     <th>Кодов ЧЗ</th>
+                    <th>Примечание</th>
                     <th style="width: 110px"></th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-if="!rows.length && !adding">
-                    <td colspan="7" class="text-center">Отсутствуют данные</td>
+                    <td colspan="9" class="text-center">Отсутствуют данные</td>
                 </tr>
                 <tr v-for="row in rows" :key="row.ID">
                     <template v-if="editId === row.ID">
@@ -34,7 +73,11 @@
                             <v-text-field v-model="form.SUPPLIER_INN" dense hide-details/>
                         </td>
                         <td>{{ row.IS_PRIMARY ? 'да' : '' }}</td>
+                        <td>{{ row.MARK_REQUIRED ? 'да' : 'нет' }}</td>
                         <td>{{ row.mark_codes_count }}</td>
+                        <td>
+                            <v-text-field v-model="form.PRIM" dense hide-details placeholder="Примечание"/>
+                        </td>
                         <td>
                             <v-btn icon small @click="saveEdit(row)" title="Сохранить">
                                 <v-icon small color="green">mdi-content-save</v-icon>
@@ -45,12 +88,14 @@
                         </td>
                     </template>
                     <template v-else>
-                        <td>{{ row.GTIN }}</td>
+                        <td>{{ row.GTIN || '—' }}</td>
                         <td>{{ row.TNVED }}</td>
                         <td>{{ row.OKPD2 }}</td>
                         <td>{{ row.SUPPLIER_INN }}</td>
                         <td>{{ row.IS_PRIMARY ? 'да' : '' }}</td>
+                        <td>{{ row.MARK_REQUIRED ? 'да' : 'нет' }}</td>
                         <td>{{ row.mark_codes_count }}</td>
+                        <td>{{ row.PRIM }}</td>
                         <td>
                             <v-btn icon small
                                    :disabled="notEditable || row.mark_codes_count > 0"
@@ -84,6 +129,10 @@
                     </td>
                     <td></td>
                     <td></td>
+                    <td></td>
+                    <td>
+                        <v-text-field v-model="form.PRIM" dense hide-details placeholder="Примечание"/>
+                    </td>
                     <td>
                         <v-btn icon small @click="saveNew" title="Сохранить">
                             <v-icon small color="green">mdi-content-save</v-icon>
@@ -116,12 +165,43 @@ export default {
             rows: [],
             adding: false,
             editId: null,
-            form: {GTIN: '', TNVED: '', OKPD2: '', SUPPLIER_INN: ''},
+            classifying: false,
+            verdictTnved: '',
+            verdictOkpd2: '',
+            verdictPrim: '',
+            // Справочник маркируемых ТНВЭД→ОКПД2 (временно захардкожен, отдельный чанк).
+            tnvedDict: [],
+            form: {GTIN: '', TNVED: '', OKPD2: '', SUPPLIER_INN: '', PRIM: ''},
         }
     },
     computed: {
         notEditable() {
             return !this.$store.getters['AUTH/HAS_PERMISSION']('good.update');
+        },
+        tnvedItems() {
+            return this.tnvedDict.map(t => ({text: t.c + ' — ' + t.n, value: t.c}));
+        },
+        // ОКПД2-варианты выбранного ТНВЭД из справочника.
+        okpd2Items() {
+            const entry = this.tnvedDict.find(t => t.c === this.tnvedCode);
+            return entry
+                ? entry.o.map(o => ({text: o.c + ' — ' + o.n, value: o.c}))
+                : [];
+        },
+        // v-combobox отдаёт объект при выборе из списка и строку при ручном вводе.
+        tnvedCode() {
+            return this.verdictTnved && typeof this.verdictTnved === 'object'
+                ? this.verdictTnved.value
+                : (this.verdictTnved || '');
+        },
+        // Вердикт по товару: «подлежит?» = есть строка с MARK_REQUIRED=1.
+        verdictText() {
+            if (!this.rows.length) return 'не проверяли';
+            return this.rows.some(row => row.MARK_REQUIRED) ? 'подлежит' : 'не подлежит';
+        },
+        verdictColor() {
+            if (!this.rows.length) return 'grey';
+            return this.rows.some(row => row.MARK_REQUIRED) ? 'orange' : 'green';
         },
     },
     watch: {
@@ -132,6 +212,11 @@ export default {
             }
         }
     },
+    created() {
+        // Ленивый чанк со справочником — не тянет основной бандл.
+        import(/* webpackChunkName: "tnved-marking" */ '../../data/tnvedMarking.json')
+            .then((m) => this.tnvedDict = m.default || m);
+    },
     methods: {
         load() {
             if (!this.value) {
@@ -141,14 +226,44 @@ export default {
             axios.get('/api/good/' + this.value + '/gtins')
                 .then((response) => {
                     this.rows = response.data;
+                    this.fillVerdictTnved();
                 })
                 .catch(() => {
                     this.rows = [];
                 });
         },
+        // ТНВЭД/ОКПД2/примечание вердикта живут на основной (IS_PRIMARY=1) строке товара.
+        fillVerdictTnved() {
+            const primary = this.rows.find(row => row.IS_PRIMARY);
+            this.verdictTnved = primary ? (primary.TNVED || '') : '';
+            this.verdictOkpd2 = primary ? (primary.OKPD2 || '') : '';
+            this.verdictPrim = primary ? (primary.PRIM || '') : '';
+        },
+        // При выборе ТНВЭД из справочника: один вариант ОКПД2 — подставить,
+        // несколько — очистить и дать выбрать селектом.
+        onTnvedChange() {
+            const items = this.okpd2Items;
+            this.verdictOkpd2 = items.length === 1 ? items[0].value : '';
+        },
+        classify(markRequired) {
+            this.classifying = true;
+            axios.post('/api/good/' + this.value + '/classify', {
+                MARK_REQUIRED: markRequired,
+                TNVED: this.tnvedCode || null,
+                OKPD2: this.verdictOkpd2 || null,
+                PRIM: this.verdictPrim || null,
+            })
+                .then((response) => {
+                    this.rows = response.data;
+                    this.fillVerdictTnved();
+                    this.$emit('classified');
+                })
+                .catch((e) => this.error(e))
+                .then(() => this.classifying = false);
+        },
         startAdd() {
             this.editId = null;
-            this.form = {GTIN: '', TNVED: '', OKPD2: '', SUPPLIER_INN: ''};
+            this.form = {GTIN: '', TNVED: '', OKPD2: '', SUPPLIER_INN: '', PRIM: ''};
             this.adding = true;
         },
         startEdit(row) {
@@ -158,6 +273,7 @@ export default {
                 TNVED: row.TNVED,
                 OKPD2: row.OKPD2,
                 SUPPLIER_INN: row.SUPPLIER_INN,
+                PRIM: row.PRIM,
             };
             this.editId = row.ID;
         },

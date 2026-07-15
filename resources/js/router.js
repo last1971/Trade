@@ -28,6 +28,7 @@ import UnitCodes from "./components/unit/UnitCodes.vue";
 import Certificates from "./components/certificate/Certificates.vue";
 import BuyerDebtPage from "./components/BuyerDebtPage";
 import Replenish from "./components/Replenish";
+import StockClassif from "./components/stock/StockClassif";
 
 Vue.use(VueRouter);
 
@@ -49,6 +50,12 @@ const routes = [
         path: '/replenish',
         component: Replenish,
         meta: {requiresAuth: true, permission: 'replenish.index'},
+    },
+    {
+        name: 'stock-classif',
+        path: '/stock-classif',
+        component: StockClassif,
+        meta: {requiresAuth: true, permission: 'stock-classif.index'},
     },
     {
         name: 'help',

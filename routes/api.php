@@ -78,11 +78,22 @@ Route::middleware('auth:api')->group(function () {
             ->name('certificate.unmark-marketplace');
     });
 
+    Route::middleware('permission:stock-classif.index')->group(function () {
+        Route::get('stock-classif', 'Api\StockClassifController@index')
+            ->name('stock-classif.index');
+        Route::get('stock-classif/status', 'Api\StockClassifController@status')
+            ->name('stock-classif.status');
+        Route::post('stock-classif/refresh', 'Api\StockClassifController@refresh')
+            ->name('stock-classif.refresh');
+    });
+
     Route::middleware('permission:good.show')->group(function () {
         Route::get('good/{id}/gtins', 'Api\GoodGtinController@forGood')
             ->name('good.gtins');
     });
     Route::middleware('permission:good.update')->group(function () {
+        Route::post('good/{id}/classify', 'Api\GoodGtinController@classify')
+            ->name('good.classify');
         Route::post('good/{id}/gtins', 'Api\GoodGtinController@store')
             ->name('good.gtins.store');
         Route::put('good-gtin/{id}', 'Api\GoodGtinController@update')

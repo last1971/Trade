@@ -16,3 +16,4 @@ npm-debug.log
 yarn-error.log
 /api-tests
 .DS_Store
+/public/js/

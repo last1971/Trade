@@ -2,10 +2,13 @@
 
 namespace App;
 
+use App\ModelTraits\InsertTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class GoodClassif extends Model
 {
+    use InsertTrait;
+
     public static $snakeAttributes = false;
 
     public $timestamps = false;
@@ -16,9 +19,11 @@ class GoodClassif extends Model
 
     protected $primaryKey = 'ID';
 
+    protected $sequenceName = 'GEN_GOODS_CLASSIF_ID';
+
     protected $fillable = [
         'GOODSCODE', 'GTIN', 'TNVED', 'OKPD2', 'MARK_REQUIRED',
-        'SUPPLIER_INN', 'IS_PRIMARY', 'UPDATED_AT',
+        'SUPPLIER_INN', 'IS_PRIMARY', 'PRIM', 'UPDATED_AT',
     ];
 
     public function good()

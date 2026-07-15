@@ -38,6 +38,7 @@ class Kernel extends ConsoleKernel
         // $schedule->job(new ProcessSeaTronicPrice)->dailyAt('07:00');
         // $schedule->job(new ProcessPositronPrice)->dailyAt('08:00');
         $schedule->command('make:searchname')->dailyAt('03:00');
+        $schedule->command('stock:classif')->hourly()->withoutOverlapping()->runInBackground();
     }
 
     /**

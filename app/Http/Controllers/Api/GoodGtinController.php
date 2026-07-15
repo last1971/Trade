@@ -11,6 +11,18 @@ use Illuminate\Support\Facades\DB;
 
 class GoodGtinController extends Controller
 {
+    /** Русские сообщения валидации (переводов validation.* в проекте нет). */
+    private const MESSAGES = [
+        'GTIN.required' => 'Укажите GTIN',
+        'GTIN.digits_between' => 'GTIN — от 8 до 14 цифр',
+        'TNVED.max' => 'ТНВЭД — не более 10 символов',
+        'OKPD2.max' => 'ОКПД2 — не более 12 символов',
+        'SUPPLIER_INN.digits_between' => 'ИНН поставщика — от 10 до 12 цифр',
+        'MARK_REQUIRED.required' => 'Не указан вердикт маркировки',
+        'MARK_REQUIRED.in' => 'Неверное значение вердикта',
+        'PRIM.max' => 'Примечание — не более 250 символов',
+    ];
+
     /**
      * GOODS_CLASSIF rows of the good with linked mark codes count.
      *
@@ -54,7 +66,8 @@ class GoodGtinController extends Controller
             'TNVED' => 'nullable|string|max:10',
             'OKPD2' => 'nullable|string|max:12',
             'SUPPLIER_INN' => 'nullable|digits_between:10,12',
-        ]);
+            'PRIM' => 'nullable|string|max:250',
+        ], self::MESSAGES);
         try {
             DB::connection('firebird')->statement(
                 'EXECUTE PROCEDURE GOODS_CLASSIF_ADD_GTIN(?, ?, ?)',
@@ -67,10 +80,81 @@ class GoodGtinController extends Controller
             ->where('GOODSCODE', intval($goodscode))
             ->where('GTIN', $request->GTIN)
             ->firstOrFail();
-        if ($request->filled('TNVED') || $request->filled('OKPD2')) {
-            $row->update($request->only(['TNVED', 'OKPD2']));
+        if ($request->filled('TNVED') || $request->filled('OKPD2') || $request->filled('PRIM')) {
+            $row->update($request->only(['TNVED', 'OKPD2', 'PRIM']));
         }
         return $row;
+    }
+
+    /**
+     * Вердикт классификации товара: подлежит/не подлежит маркировке + ТНВЭД.
+     * Вердикт живёт на строке IS_PRIMARY=1 (одна на товар, GTIN может быть NULL);
+     * «не подлежит» гасит MARK_REQUIRED на всех строках товара, потому что
+     * «подлежит?» проверяется как EXISTS(строка с MARK_REQUIRED=1).
+     *
+     * @param Request $request
+     * @param int $goodscode
+     * @return \Illuminate\Support\Collection
+     */
+    public function classify(Request $request, $goodscode)
+    {
+        $request->validate([
+            'MARK_REQUIRED' => 'required|in:0,1',
+            'TNVED' => 'nullable|string|max:10',
+            'OKPD2' => 'nullable|string|max:12',
+            'PRIM' => 'nullable|string|max:250',
+        ], self::MESSAGES);
+        $goodscode = intval($goodscode);
+        $markRequired = intval($request->MARK_REQUIRED);
+
+        $connection = DB::connection('firebird');
+        $connection->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
+        $connection->beginTransaction();
+        try {
+            $primary = GoodClassif::query()
+                ->where('GOODSCODE', $goodscode)
+                ->where('IS_PRIMARY', 1)
+                ->first();
+            if ($primary) {
+                $primary->update([
+                    'MARK_REQUIRED' => $markRequired,
+                    'TNVED' => $request->TNVED ?: $primary->TNVED,
+                    'OKPD2' => $request->OKPD2 ?: $primary->OKPD2,
+                    'PRIM' => $request->PRIM,
+                    'UPDATED_AT' => now(),
+                ]);
+            } else {
+                $primary = GoodClassif::query()->create([
+                    'GOODSCODE' => $goodscode,
+                    'IS_PRIMARY' => 1,
+                    'MARK_REQUIRED' => $markRequired,
+                    'TNVED' => $request->TNVED,
+                    'OKPD2' => $request->OKPD2,
+                    'PRIM' => $request->PRIM,
+                    'UPDATED_AT' => now(),
+                ]);
+            }
+            GoodClassif::query()
+                ->where('GOODSCODE', $goodscode)
+                ->where('ID', '<>', $primary->ID)
+                ->where('IS_PRIMARY', 1)
+                ->update(['IS_PRIMARY' => 0, 'UPDATED_AT' => now()]);
+            if ($markRequired === 0) {
+                GoodClassif::query()
+                    ->where('GOODSCODE', $goodscode)
+                    ->where('MARK_REQUIRED', 1)
+                    ->update(['MARK_REQUIRED' => 0, 'UPDATED_AT' => now()]);
+            }
+            // Читаем до commit: при AUTOCOMMIT=0 после него нет открытой транзакции.
+            $rows = $this->forGood($goodscode);
+            $connection->commit();
+        } catch (\Exception $e) {
+            $connection->rollBack();
+            abort(422, $e->getMessage());
+        } finally {
+            $connection->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
+        }
+        return $rows;
     }
 
     /**
@@ -86,22 +170,26 @@ class GoodGtinController extends Controller
             422,
             'К GTIN привязаны коды Честного знака — изменение запрещено'
         );
+        // Строка-вердикт живёт без GTIN — для неё он не обязателен;
+        // у обычной строки затирать GTIN пустым нельзя.
         $request->validate([
-            'GTIN' => 'required|digits_between:8,14',
+            'GTIN' => [$row->GTIN ? 'required' : 'nullable', 'digits_between:8,14'],
             'TNVED' => 'nullable|string|max:10',
             'OKPD2' => 'nullable|string|max:12',
             'SUPPLIER_INN' => 'nullable|digits_between:10,12',
-        ]);
-        $duplicate = GoodClassif::query()
+            'PRIM' => 'nullable|string|max:250',
+        ], self::MESSAGES);
+        $duplicate = $request->filled('GTIN') && GoodClassif::query()
             ->where('GTIN', $request->GTIN)
             ->where('ID', '<>', $row->ID)
             ->exists();
         abort_if($duplicate, 422, 'Этот GTIN уже привязан к другому товару.');
         $row->update([
-            'GTIN' => $request->GTIN,
+            'GTIN' => $request->GTIN ?: null,
             'TNVED' => $request->TNVED,
             'OKPD2' => $request->OKPD2,
             'SUPPLIER_INN' => $request->SUPPLIER_INN,
+            'PRIM' => $request->PRIM,
             'UPDATED_AT' => now(),
         ]);
         return $row;

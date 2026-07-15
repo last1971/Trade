@@ -48,6 +48,7 @@ import compel from "./compel";
 import config from "./config";
 import buyerDebt from "./buyerDebt";
 import replenish from "./replenish";
+import stockClassif from "./stockClassif";
 
 Vue.use(Vuex);
 
@@ -99,6 +100,7 @@ export default new Vuex.Store({
         'SELLER-PRICE': sellerPrice,
         'SELLER-ORDER': sellerOrder,
         SNACKBAR: snackbar,
+        'STOCK-CLASSIF': stockClassif,
         'STORE-LINE': storeLine,
         'TRANSFER-OUT': transferOut,
         'TRANSFER-OUT-LINE': transferOutLine,
