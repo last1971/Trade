@@ -81,6 +81,10 @@
                             ? `${this.name} № ${this.previousValue[this.number]} от
                            ${this.$options.filters.formatDate(this.previousValue[this.date])}`
                             : `${this.name} ${_.get(this.previousValue, this.number)}`
+                        // Прямой заход по URL: цепочки нет — берём родителей из meta маршрута.
+                        if (!this.$store.getters['BREADCRUMBS/ALL'].length && this.$route.meta.breadcrumbs) {
+                            this.$store.commit('BREADCRUMBS/SET', [...this.$route.meta.breadcrumbs]);
+                        }
                         this.$store.commit('BREADCRUMBS/PUT', {
                             text,
                             to: {name: this.value, params: {id: this.key}},

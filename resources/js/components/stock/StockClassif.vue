@@ -103,7 +103,20 @@ export default {
             {text: 'Коды ЧЗ', value: 'codes', sortable: false},
         ],
     }),
+    beforeRouteEnter(to, from, next) {
+        next(vm => vm.$store.commit('BREADCRUMBS/SET', [
+            {text: 'Торговля', to: {name: 'home'}, exact: true},
+            {text: 'Разгребание склада', to: {name: 'stock-classif'}, exact: true},
+        ]));
+    },
     created() {
+        // Восстановление состояния из URL (возврат по крошке с карточки товара).
+        const query = this.$route.query;
+        if (query.search) this.search = query.search;
+        if (query.marking === '0') this.problemMarking = false;
+        if (query.cert === '0') this.problemNoCert = false;
+        if (query.page > 1) this.options.page = Number(query.page);
+        if (query.ipp) this.options.itemsPerPage = Number(query.ipp);
         // Если пересчёт уже идёт (cron или другой пользователь) — сразу поллим.
         this.$store.dispatch('STOCK-CLASSIF/STATUS').then((status) => {
             this.running = status.running;
@@ -158,6 +171,7 @@ export default {
         },
         load() {
             this.loading = true;
+            this.syncQuery();
             this.$store.dispatch('STOCK-CLASSIF/LIST', this.params())
                 .then((data) => {
                     this.items = data.data;
@@ -166,6 +180,18 @@ export default {
                 })
                 .catch(() => {})
                 .then(() => this.loading = false);
+        },
+        // Состояние страницы в URL: крошка (BREADCRUMBS/SYNC) вернёт сюда как было.
+        syncQuery() {
+            const query = {};
+            if (this.search) query.search = this.search;
+            if (!this.problemMarking) query.marking = '0';
+            if (!this.problemNoCert) query.cert = '0';
+            if (this.options.page > 1) query.page = String(this.options.page);
+            if (this.options.itemsPerPage !== 25) query.ipp = String(this.options.itemsPerPage);
+            if (!_.isEqual(query, this.$route.query)) {
+                this.$router.replace({query}).catch(() => {});
+            }
         },
         refresh() {
             this.running = true;

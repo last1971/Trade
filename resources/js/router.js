@@ -72,7 +72,15 @@ const routes = [
         name: 'good',
         path: '/good/:id',
         component: Good,
-        meta: {requiresAuth: true, permission: 'good.show'},
+        meta: {
+            requiresAuth: true,
+            permission: 'good.show',
+            // родители крошек при прямом заходе на карточку (цепочка пуста)
+            breadcrumbs: [
+                {text: 'Торговля', to: {name: 'home'}, exact: true},
+                {text: 'Товары', to: {name: 'goods'}, exact: true},
+            ],
+        },
     },
     {
         name: 'goods',

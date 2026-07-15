@@ -34,11 +34,9 @@
             <v-toolbar-title>
                 <v-breadcrumbs :items="breadcrumbs" large>
                     <template v-slot:item="{ item }">
-                        <v-breadcrumbs-item :to="item.to" v-if="item.disabled">
-                            {{ item.text }}
-                        </v-breadcrumbs-item>
-                        <v-breadcrumbs-item v-else>
-                            <router-link :disabled="item.disabled" :to="item.to" class="white--text">
+                        <v-breadcrumbs-item :disabled="item.disabled">
+                            <span v-if="item.disabled" class="white--text">{{ item.text }}</span>
+                            <router-link v-else :to="item.to" class="white--text">
                                 {{ item.text }}
                             </router-link>
                         </v-breadcrumbs-item>
@@ -172,12 +170,27 @@
                 exchangeRate: 'EXCHANGE-RATE/GET',
             }),
             breadcrumbs() {
-                const breadcrumbs = this.$store.getters['BREADCRUMBS/ALL'];
+                // disabled вычисляется по позиции: кликабельны все, кроме текущей.
+                const items = this.$store.getters['BREADCRUMBS/ALL']
+                    .map((item, index, all) => ({...item, disabled: index === all.length - 1}));
                 if (this.$vuetify.breakpoint.xsOnly) {
-                    return !_.isEmpty(breadcrumbs) ? [_.last(breadcrumbs)] : [];
+                    return !_.isEmpty(items) ? [_.last(items)] : [];
                 }
-                return breadcrumbs;
+                return items;
             }
+        },
+        watch: {
+            // Уходя со страницы, фиксируем её точный адрес (с query) в её крошке —
+            // возврат по крошке ведёт туда, откуда пришли, с фильтрами и страницей.
+            $route(to, from) {
+                if (from && from.name) {
+                    this.$store.commit('BREADCRUMBS/SYNC', {
+                        name: from.name,
+                        params: from.params,
+                        query: from.query,
+                    });
+                }
+            },
         },
         methods: {
             logout() {
@@ -209,8 +222,6 @@
         },
         mounted() {
         },
-        watch: {
-        }
     }
 </script>
 
