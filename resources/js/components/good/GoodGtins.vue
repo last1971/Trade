@@ -16,11 +16,10 @@
                     style="max-width: 420px"
                     @change="onTnvedChange"
                 />
-                <v-select
-                    v-if="okpd2Items.length > 1"
+                <v-combobox
                     v-model="verdictOkpd2"
                     :items="okpd2Items"
-                    label="ОКПД2"
+                    label="ОКПД2 (выбор или ввод)"
                     dense hide-details clearable
                     style="max-width: 420px"
                 />
@@ -194,6 +193,11 @@ export default {
                 ? this.verdictTnved.value
                 : (this.verdictTnved || '');
         },
+        okpd2Code() {
+            return this.verdictOkpd2 && typeof this.verdictOkpd2 === 'object'
+                ? this.verdictOkpd2.value
+                : (this.verdictOkpd2 || '');
+        },
         // Вердикт по товару: «подлежит?» = есть строка с MARK_REQUIRED=1.
         verdictText() {
             if (!this.rows.length) return 'не проверяли';
@@ -250,7 +254,7 @@ export default {
             axios.post('/api/good/' + this.value + '/classify', {
                 MARK_REQUIRED: markRequired,
                 TNVED: this.tnvedCode || null,
-                OKPD2: this.verdictOkpd2 || null,
+                OKPD2: this.okpd2Code || null,
                 PRIM: this.verdictPrim || null,
             })
                 .then((response) => {
