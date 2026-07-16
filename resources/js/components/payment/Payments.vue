@@ -244,24 +244,8 @@ export default {
             }
         }
     },
-    beforeRouteEnter(to, from, next) {
-        next(vm => {
-            vm.$store.commit('BREADCRUMBS/SET', [
-                {
-                    text: 'Торговля',
-                    to: {name: 'home'},
-                    exact: true,
-                    disabled: false,
-                },
-                {
-                    text: 'Платежи',
-                    to: {name: 'payments'},
-                    exact: true,
-                    disabled: true,
-                }
-            ]);
-        });
-    }
+    // Крошки ставит PaymentTabs — компонент маршрута payments
+    // (внутрикомпонентный beforeRouteEnter здесь не срабатывал: Payments — не route-компонент).
 }
 </script>
 

@@ -19,6 +19,12 @@
 import RetailSales from "./RetailSales";
 import ReatilStoreReturns from "./ReatilStoreReturns";
 export default {
+    beforeRouteEnter(to, from, next) {
+        next(vm => vm.$store.commit('BREADCRUMBS/SET', [
+            {text: 'Торговля', to: {name: 'home'}, exact: true},
+            {text: 'Розн.продажи', to: {name: 'retail-sales'}, exact: true},
+        ]));
+    },
     name: "RetailSalesAndRefunds",
     components: {ReatilStoreReturns, RetailSales},
     data() {

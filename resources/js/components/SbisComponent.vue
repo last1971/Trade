@@ -93,6 +93,12 @@
     import BuyerSelect from "./BuyerSelect";
 
     export default {
+        beforeRouteEnter(to, from, next) {
+            next(vm => vm.$store.commit('BREADCRUMBS/SET', [
+                {text: 'Торговля', to: {name: 'home'}, exact: true},
+                {text: 'СБИС', to: {name: 'sbis'}, exact: true},
+            ]));
+        },
         name: "SbisComponent",
         components: {BuyerSelect},
         data() {

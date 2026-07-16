@@ -25,6 +25,12 @@
     export default {
         name: "Replenish",
         components: {ReplenishList, ReplenishGood},
+        beforeRouteEnter(to, from, next) {
+            next(vm => vm.$store.commit('BREADCRUMBS/SET', [
+                {text: 'Торговля', to: {name: 'home'}, exact: true},
+                {text: 'Закупка', to: {name: 'replenish'}, exact: true},
+            ]));
+        },
         data: () => ({
             tab: null,
             injected: null,

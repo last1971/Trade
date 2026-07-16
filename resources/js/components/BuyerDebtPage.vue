@@ -26,6 +26,12 @@
     const filterStorage = createLocalStorageSync('buyer_debt_filter');
 
     export default {
+        beforeRouteEnter(to, from, next) {
+            next(vm => vm.$store.commit('BREADCRUMBS/SET', [
+                {text: 'Торговля', to: {name: 'home'}, exact: true},
+                {text: 'Долги и отгрузки', to: {name: 'buyer-debt'}, exact: true},
+            ]));
+        },
         name: "BuyerDebtPage",
         components: {BuyerDebt, BuyerShipmentsReport},
         data: () => ({

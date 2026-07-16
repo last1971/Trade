@@ -102,6 +102,12 @@ import EditField from "../EditField";
 import utilsMixin from "../../mixins/utilsMixin";
 
 export default {
+    beforeRouteEnter(to, from, next) {
+        next(vm => vm.$store.commit('BREADCRUMBS/SET', [
+            {text: 'Торговля', to: {name: 'home'}, exact: true},
+            {text: 'Список', to: {name: 'goods-list'}, exact: true},
+        ]));
+    },
     name: "GoodsList",
     components: {BuyerSelect, GoodName, EditField},
     mixins: [utilsMixin],

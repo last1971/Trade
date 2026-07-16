@@ -56,6 +56,12 @@ import GoodName from "../good/GoodName";
 import RetailOrderLineStatusSelect from "./RetailOrderLineStatusSelect";
 
 export default {
+    beforeRouteEnter(to, from, next) {
+        next(vm => vm.$store.commit('BREADCRUMBS/SET', [
+            {text: 'Торговля', to: {name: 'home'}, exact: true},
+            {text: 'Заказы розницы', to: {name: 'retail-order-lines'}, exact: true},
+        ]));
+    },
     name: "RetailOrderLines",
     components: {RetailOrderLineStatusSelect, BuyerSelect, GoodName},
     mixins: [tableMixin, utilsMixin],

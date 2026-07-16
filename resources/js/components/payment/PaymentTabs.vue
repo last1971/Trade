@@ -23,6 +23,12 @@ import Payments from "./Payments";
 import PaymentOrdersTab from "./PaymentOrdersTab";
 
 export default {
+    beforeRouteEnter(to, from, next) {
+        next(vm => vm.$store.commit('BREADCRUMBS/SET', [
+            {text: 'Торговля', to: {name: 'home'}, exact: true},
+            {text: 'Платежи', to: {name: 'payments'}, exact: true},
+        ]));
+    },
     name: "PaymentTabs",
     components: {PaymentOrdersTab, Payments},
     data() {

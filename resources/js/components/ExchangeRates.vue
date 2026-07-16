@@ -63,6 +63,12 @@ import EditField from "./EditField";
 import utilsMixin from "../mixins/utilsMixin";
 
 export default {
+    beforeRouteEnter(to, from, next) {
+        next(vm => vm.$store.commit('BREADCRUMBS/SET', [
+            {text: 'Торговля', to: {name: 'home'}, exact: true},
+            {text: 'Курсы валют', to: {name: 'exchange-rates'}, exact: true},
+        ]));
+    },
     name: "ExchangeRates",
     components: {EditField},
     mixins: [utilsMixin],

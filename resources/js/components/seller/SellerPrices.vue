@@ -125,6 +125,11 @@ import SearchTextField from "../common/SearchTextField";
 const MIN_SEARCH = 4;
 
 export default {
+    beforeRouteEnter(to, from, next) {
+        next(vm => vm.$store.commit('BREADCRUMBS/SET', [
+            {text: 'Торговля', to: {name: 'home'}, exact: true},
+        ]));
+    },
     name: "SellerPrices",
     components: {
         SearchTextField,
