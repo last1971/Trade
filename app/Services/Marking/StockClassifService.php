@@ -7,9 +7,11 @@ use App\Good;
 use App\GoodClassif;
 use App\GoodName;
 use App\MarkCode;
+use App\Services\MarketplaceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 /**
  * «Разгребание склада»: стоимость остатка по приходным ценам партий,
@@ -72,10 +74,43 @@ class StockClassifService
             'values' => $values,
             'uncovered' => $uncovered,
             'codes' => $codes,
+            'mp' => $this->marketplaceMap(),
         ]);
         Cache::put(self::CACHE_UPDATED_AT, now()->format('Y-m-d H:i'));
 
         return count($values);
+    }
+
+    /**
+     * Карта «товар → маркетплейсы» из Nest-сервиса (sku-list).
+     * GOODSCODE = числовой префикс SKU ("498824-1000" → 498824).
+     * Если сервис недоступен — его данные берутся из прошлого снапшота.
+     *
+     * @return array [goodscode => ['ozon', 'wb']]
+     */
+    private function marketplaceMap(): array
+    {
+        $previous = Cache::get(self::CACHE_SNAP)['mp'] ?? [];
+        $map = [];
+        foreach (['ozon', 'wb'] as $service) {
+            try {
+                $skus = app(MarketplaceService::class)->skuList($service);
+                foreach ($skus as $sku) {
+                    $goodscode = intval($sku);
+                    if ($goodscode > 0 && !in_array($service, $map[$goodscode] ?? [])) {
+                        $map[$goodscode][] = $service;
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning("stock:classif: sku-list {$service} недоступен, беру прошлый снапшот: " . $e->getMessage());
+                foreach ($previous as $goodscode => $services) {
+                    if (in_array($service, $services) && !in_array($service, $map[$goodscode] ?? [])) {
+                        $map[$goodscode][] = $service;
+                    }
+                }
+            }
+        }
+        return $map;
     }
 
     /**
@@ -91,6 +126,7 @@ class StockClassifService
         $values = $snap['values'];
         $uncovered = $snap['uncovered'];
         $codes = $snap['codes'];
+        $mp = $snap['mp'] ?? [];
 
         // Классификация живьём: MAX(MARK_REQUIRED) по товару (строк — сотни).
         $classif = GoodClassif::query()
@@ -129,11 +165,23 @@ class StockClassifService
                 ->all();
         }
 
+        // Фильтр по маркетплейсу: ozon/wb — конкретный, any — на любом, none — нет ни на одном.
+        $marketplace = $request->input('marketplace', '');
+
         uasort($values, fn($a, $b) => $b[1] <=> $a[1]);
 
         $list = [];
         foreach (array_keys($values) as $code) {
             if ($found !== null && !isset($found[$code])) {
+                continue;
+            }
+            if ($marketplace === 'any' && empty($mp[$code])) {
+                continue;
+            }
+            if ($marketplace === 'none' && !empty($mp[$code])) {
+                continue;
+            }
+            if (in_array($marketplace, ['ozon', 'wb']) && !in_array($marketplace, $mp[$code] ?? [])) {
                 continue;
             }
             $sick = [];
@@ -154,7 +202,7 @@ class StockClassifService
         $list = array_slice($list, ($page - 1) * $perPage, $perPage, true);
 
         return [
-            'data' => $this->hydrate($list, $values, $uncovered, $codes),
+            'data' => $this->hydrate($list, $values, $uncovered, $codes, $mp),
             'total' => $total,
             'updated_at' => Cache::get(self::CACHE_UPDATED_AT),
         ];
@@ -165,7 +213,7 @@ class StockClassifService
      *
      * @param array $list [goodscode => список проблем товара]
      */
-    private function hydrate(array $list, array $values, array $uncovered, array $codes): array
+    private function hydrate(array $list, array $values, array $uncovered, array $codes, array $mp): array
     {
         if (!$list) {
             return [];
@@ -192,6 +240,7 @@ class StockClassifService
                 'VAL' => $values[$code][1],
                 'UNCOVERED' => $uncovered[$code] ?? 0,
                 'CODES' => $codes[$code] ?? 0,
+                'mp' => $mp[$code] ?? [],
                 'problem_marking' => in_array('marking', $sick),
                 'problem_no_cert' => in_array('noCert', $sick),
                 'classifs' => $classifs->get($code, collect())->values(),

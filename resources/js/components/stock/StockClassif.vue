@@ -11,6 +11,13 @@
                 />
                 <v-switch v-model="problemMarking" label="Маркировка" dense hide-details/>
                 <v-switch v-model="problemNoCert" label="Сертификат" dense hide-details/>
+                <v-select
+                    v-model="marketplace"
+                    :items="marketplaceItems"
+                    label="Маркетплейс"
+                    dense hide-details
+                    style="max-width: 160px"
+                />
                 <v-spacer/>
                 <span v-if="updatedAt" class="text--secondary">данные на {{ updatedAt }}</span>
                 <v-btn color="primary" outlined :loading="running" @click="refresh">
@@ -53,6 +60,10 @@
                         {{ item.problem_no_cert ? 'нет' : 'есть' }}
                     </v-chip>
                 </template>
+                <template v-slot:item.mp="{ item }">
+                    <v-chip v-if="item.mp.includes('ozon')" x-small outlined color="blue" class="mr-1">Озон</v-chip>
+                    <v-chip v-if="item.mp.includes('wb')" x-small outlined color="purple">ВБ</v-chip>
+                </template>
                 <template v-slot:item.codes="{ item }">
                     <v-chip v-if="item.CODES > item.OST" small outlined color="red"
                             title="Живых кодов больше остатка — товар ушёл без списания кода">
@@ -88,6 +99,14 @@ export default {
         search: '',
         problemMarking: true,
         problemNoCert: true,
+        marketplace: '',
+        marketplaceItems: [
+            {text: 'Все', value: ''},
+            {text: 'Озон', value: 'ozon'},
+            {text: 'ВБ', value: 'wb'},
+            {text: 'На любом', value: 'any'},
+            {text: 'Нет на МП', value: 'none'},
+        ],
         options: {page: 1, itemsPerPage: 25},
         selected: null,
         modal: false,
@@ -100,6 +119,7 @@ export default {
             {text: 'Непокрыто', value: 'UNCOVERED', sortable: false, align: 'end'},
             {text: 'Маркировка', value: 'marking', sortable: false},
             {text: 'Сертификат', value: 'cert', sortable: false},
+            {text: 'МП', value: 'mp', sortable: false},
             {text: 'Коды ЧЗ', value: 'codes', sortable: false},
         ],
     }),
@@ -115,6 +135,7 @@ export default {
         if (query.search) this.search = query.search;
         if (query.marking === '0') this.problemMarking = false;
         if (query.cert === '0') this.problemNoCert = false;
+        if (query.mp) this.marketplace = query.mp;
         if (query.page > 1) this.options.page = Number(query.page);
         if (query.ipp) this.options.itemsPerPage = Number(query.ipp);
         // Если пересчёт уже идёт (cron или другой пользователь) — сразу поллим.
@@ -143,6 +164,9 @@ export default {
         problemNoCert() {
             this.resetAndLoad();
         },
+        marketplace() {
+            this.resetAndLoad();
+        },
         // После закрытия карточки перечитать список — вердикт мог убрать товар.
         modal(value) {
             if (!value) this.load();
@@ -158,6 +182,7 @@ export default {
                 itemsPerPage: this.options.itemsPerPage,
                 search: this.search || '',
                 problems,
+                marketplace: this.marketplace,
             };
         },
         // Сброс на первую страницу; если уже на ней — просто перечитать
@@ -187,6 +212,7 @@ export default {
             if (this.search) query.search = this.search;
             if (!this.problemMarking) query.marking = '0';
             if (!this.problemNoCert) query.cert = '0';
+            if (this.marketplace) query.mp = this.marketplace;
             if (this.options.page > 1) query.page = String(this.options.page);
             if (this.options.itemsPerPage !== 25) query.ipp = String(this.options.itemsPerPage);
             if (!_.isEqual(query, this.$route.query)) {
