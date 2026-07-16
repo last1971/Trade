@@ -249,9 +249,9 @@ export default {
         },
         markingColor(item) {
             if (!item.classifs.length) return 'grey';
-            return item.classifs.some(row => row.MARK_REQUIRED)
-                ? (item.problem_marking ? 'orange' : 'green')
-                : 'green';
+            if (!item.classifs.some(row => row.MARK_REQUIRED)) return 'green';
+            // подлежит: оранжевый, пока есть непокрытые штуки или кодов меньше остатка
+            return (item.UNCOVERED > 0 || item.CODES < item.OST) ? 'orange' : 'green';
         },
     },
 }

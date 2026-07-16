@@ -148,9 +148,13 @@ class StockClassifService
             ->all();
 
         // Именованные «проблемы»; следующая (например, по качеству фото) — ещё одна строка.
+        // Для «подлежит» кроме снапшотного UNCOVERED смотрим «кодов < остатка»:
+        // свежий вердикт «подлежит» ещё не пересчитан процедурой (UNCOVERED=0),
+        // но кодов у товара нет — он должен остаться в списке проблемным.
         $problems = [
             'marking' => fn(int $code) => !isset($classif[$code])
-                || ($classif[$code] === 1 && ($uncovered[$code] ?? 0) > 0),
+                || ($classif[$code] === 1
+                    && (($uncovered[$code] ?? 0) > 0 || ($codes[$code] ?? 0) < $values[$code][0])),
             'noCert' => fn(int $code) => !isset($certified[$code]),
         ];
         $enabled = array_intersect($request->input('problems', []), array_keys($problems));
