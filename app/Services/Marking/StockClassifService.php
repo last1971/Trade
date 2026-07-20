@@ -52,6 +52,24 @@ class StockClassifService
             $values[intval($row->GOODSCODE)] = [floatval($row->OST), round(floatval($row->VAL), 2)];
         }
 
+        // Сверка с живым остатком SKLAD: у старых товаров расходы не покрыты FIFO_T,
+        // и «приход − FIFO» даёт остаток-призрак (пример: APM-4150 — 6 шт при пустом складе).
+        // Живой остаток — истина; стоимость ужимаем пропорционально (цены партионные).
+        $sklad = DB::connection('firebird')
+            ->select('select goodscode, quan from sklad');
+        $real = [];
+        foreach ($sklad as $row) {
+            $real[intval($row->GOODSCODE)] = floatval($row->QUAN);
+        }
+        foreach ($values as $code => [$ost, $val]) {
+            $quan = $real[$code] ?? 0;
+            if ($quan <= 0) {
+                unset($values[$code]);
+            } elseif ($quan < $ost) {
+                $values[$code] = [$quan, round($val * $quan / $ost, 2)];
+            }
+        }
+
         // Непокрытые кодами штуки — готовая процедура (только товары из GOODS_CLASSIF).
         $uncovered = [];
         $rows = DB::connection('firebird')->select(
