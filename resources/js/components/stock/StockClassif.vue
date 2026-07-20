@@ -228,16 +228,32 @@ export default {
         poll() {
             this.running = true;
             clearInterval(this.timer);
+            // Пересчёт идёт ~3 мин; ждём максимум 5, иначе снимаем индикатор:
+            // пересчёт мог умереть, оставив флаг (он протухнет сам), а крутить
+            // спиннер бесконечно и молчать при ошибке статуса нельзя.
+            let attempts = 0;
             this.timer = setInterval(() => {
-                this.$store.dispatch('STOCK-CLASSIF/STATUS').then((status) => {
-                    if (!status.running) {
-                        clearInterval(this.timer);
-                        this.running = false;
-                        this.updatedAt = status.updated_at;
-                        this.load();
-                    }
-                });
+                if (++attempts > 60) {
+                    this.stopPolling();
+                    this.$store.commit('SNACKBAR/ERROR',
+                        'Пересчёт не завершился за 5 минут — проверьте лог сервера', {root: true});
+                    return;
+                }
+                this.$store.dispatch('STOCK-CLASSIF/STATUS')
+                    .then((status) => {
+                        if (!status.running) {
+                            this.updatedAt = status.updated_at;
+                            this.stopPolling();
+                            this.load();
+                        }
+                    })
+                    .catch(() => this.stopPolling());
             }, 5000);
+        },
+        stopPolling() {
+            clearInterval(this.timer);
+            this.timer = null;
+            this.running = false;
         },
         open(item) {
             this.selected = item.GOODSCODE;

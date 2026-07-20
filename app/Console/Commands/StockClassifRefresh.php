@@ -35,18 +35,29 @@ class StockClassifRefresh extends Command
             $this->warn('stock:classif уже выполняется');
             return 1;
         }
-        Log::info('stock:classif start');
         try {
+            // Логирование не должно ронять пересчёт: на проде оно бывает недоступно
+            // (права на storage/logs), а флаг running обязан сняться в любом случае.
+            $this->log('info', 'stock:classif start');
             $count = $service->refresh();
-            Log::info("stock:classif done, goods: {$count}");
+            $this->log('info', "stock:classif done, goods: {$count}");
             $this->info("Готово, товаров с остатком: {$count}");
             return 0;
         } catch (\Throwable $e) {
-            Log::error('stock:classif failed: ' . $e->getMessage());
+            $this->log('error', 'stock:classif failed: ' . $e->getMessage());
             $this->error($e->getMessage());
             return 1;
         } finally {
             Cache::forget(StockClassifService::CACHE_RUNNING);
+        }
+    }
+
+    private function log(string $level, string $message): void
+    {
+        try {
+            Log::$level($message);
+        } catch (\Throwable $e) {
+            // логгер недоступен — не мешаем пересчёту
         }
     }
 }
