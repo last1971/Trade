@@ -36,7 +36,9 @@ class StockClassifController extends Controller
     public function refresh(): array
     {
         if (!Cache::get(StockClassifService::CACHE_RUNNING)) {
-            exec('php ' . base_path('artisan') . ' stock:classif > /dev/null 2>&1 &');
+            // Вывод не в /dev/null: www-data не может писать в storage/logs, и без
+            // этого файла смерть веб-запуска не оставляет вообще никаких следов.
+            exec('php ' . base_path('artisan') . ' stock:classif >> /tmp/stock-classif-web.log 2>&1 &');
         }
         return ['running' => true];
     }

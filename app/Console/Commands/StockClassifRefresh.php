@@ -31,7 +31,9 @@ class StockClassifRefresh extends Command
     public function handle(StockClassifService $service)
     {
         // Тяжёлый запрос идёт ~2.5 мин — параллельный запуск бессмыслен и вреден.
-        if (!Cache::add(StockClassifService::CACHE_RUNNING, now()->toDateTimeString(), 1800)) {
+        // TTL 300: при жёсткой смерти (OOM/kill) finally не срабатывает, и флаг
+        // должен протухнуть раньше, чем фронт отчается ждать (у него лимит 5 мин).
+        if (!Cache::add(StockClassifService::CACHE_RUNNING, now()->toDateTimeString(), 300)) {
             $this->warn('stock:classif уже выполняется');
             return 1;
         }
