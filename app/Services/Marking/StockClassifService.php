@@ -79,10 +79,11 @@ class StockClassifService
             $uncovered[intval($row->GOODSCODE)] = intval($row->UNCOVERED);
         }
 
-        // Живые свободные коды по товарам — для признака «кодов больше остатка».
+        // Штуки под живыми свободными кодами — для сверки с остатком.
+        // Именно SUM(QUANTITY), не COUNT: количественный код кроет N штук.
         $codes = MarkCode::query()
             ->free()
-            ->selectRaw('GOODSCODE, COUNT(*) AS CNT')
+            ->selectRaw('GOODSCODE, SUM(QUANTITY) AS CNT')
             ->groupBy('GOODSCODE')
             ->pluck('CNT', 'GOODSCODE')
             ->map(fn($cnt) => intval($cnt))
