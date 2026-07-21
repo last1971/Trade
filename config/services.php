@@ -30,4 +30,19 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'ai' => [
+        'claude' => [
+            'key' => env('CLAUDE_API_KEY', ''),
+            'proxy' => env('CLAUDE_PROXY_URL'),
+        ],
+        'openai' => [
+            'key' => env('OPENAI_API_KEY', ''),
+            'proxy' => env('OPENAI_PROXY_URL'),
+        ],
+        'yandex' => [
+            'key' => env('YANDEX_GPT_API_KEY', ''),
+            'folder' => env('YANDEX_GPT_FOLDER_ID', ''),
+        ],
+    ],
+
 ];
