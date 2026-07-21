@@ -12,6 +12,7 @@ use App\PickUp;
 use App\Services\AtolService;
 use App\Services\InvoiceLineService;
 use App\Services\InvoiceService;
+use App\Services\Upd\MpUpdPatchService;
 use App\Services\Upd\UpdSourceFactory;
 use App\Services\Upd\UpdXmlBuilder;
 use GuzzleHttp\Exception\GuzzleException;
@@ -67,6 +68,23 @@ class InvoiceController extends ModelController
             $fileId . '.xml',
             ['Content-Type' => 'application/xml']
         );
+    }
+
+    /**
+     * УПД маркетплейса: принять их XML, подставить номер счёта с префиксом
+     * МП, подписанта и КИЗ, вернуть файл (base64) + предупреждения.
+     */
+    public function mpUpdXml(int $id, Request $request, MpUpdPatchService $service)
+    {
+        $request->validate(['file' => 'required|file']);
+        $invoice = Invoice::findOrFail($id);
+        $result = $service->patch($invoice, $request->file('file'));
+
+        return response()->json([
+            'filename' => $result['filename'],
+            'warnings' => $result['warnings'],
+            'xml' => base64_encode($result['xml']),
+        ]);
     }
 
     public function pdf(InvoicePDFRequest $request)

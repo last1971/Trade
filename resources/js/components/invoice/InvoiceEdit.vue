@@ -159,7 +159,12 @@
                     <v-btn @click="unmarkUpd2" fab :loading="upd2Loading" title="Откатить передачу УПД-2">
                         <v-icon color="red">mdi-undo</v-icon>
                     </v-btn>
+                    <v-btn @click="$refs.mpUpdFile.click()" fab :loading="upd2Loading"
+                           title="УПД маркетплейса: подставить номер, подписанта и коды ЧЗ">
+                        <v-icon color="teal">mdi-storefront</v-icon>
+                    </v-btn>
                 </v-speed-dial>
+                <input type="file" ref="mpUpdFile" accept=".xml" style="display: none" @change="patchMpUpd" />
                 <invoice-pdf-menu
                     v-model="value"
                     :pdf-dialog="pdfDialog"
@@ -348,6 +353,42 @@ export default {
                 URL.revokeObjectURL(url);
             } catch (e) {
                 this.$store.commit("SNACKBAR/ERROR", "Ошибка скачивания УПД-2 XML");
+            } finally {
+                this.upd2Loading = false;
+            }
+        },
+        async patchMpUpd(e) {
+            const file = e.target.files[0];
+            e.target.value = "";
+            if (!file) return;
+            this.upd2Loading = true;
+            try {
+                const form = new FormData();
+                form.append("file", file);
+                const { data } = await window.axios.post(
+                    `/api/invoice/mp-upd-xml/${this.value.SCODE}`,
+                    form,
+                    { headers: { "Content-Type": "multipart/form-data" } }
+                );
+                // xml приходит base64-ом: файл в windows-1251, через JSON-строку его не протащить
+                const bytes = Uint8Array.from(atob(data.xml), (c) => c.charCodeAt(0));
+                const url = URL.createObjectURL(new Blob([bytes], { type: "application/xml" }));
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = data.filename;
+                link.click();
+                URL.revokeObjectURL(url);
+                (data.warnings || []).forEach((w) =>
+                    this.$store.commit("SNACKBAR/PUSH", {
+                        text: w,
+                        color: "warning",
+                        status: true,
+                        timeout: 15000,
+                    })
+                );
+            } catch (err) {
+                const msg = err.response?.data?.message || "Ошибка обработки УПД маркетплейса";
+                this.$store.commit("SNACKBAR/ERROR", msg);
             } finally {
                 this.upd2Loading = false;
             }
