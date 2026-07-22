@@ -98,8 +98,15 @@ export default {
         },
         ...mapGetters({ hasPermission: 'AUTH/HAS_PERMISSION' }),
     },
-    async created() {
-        if (!this.good) this.$store.dispatch('GOOD/GET', { id: this.value, query: this.query });
+    watch: {
+        // Модалка карточки переиспользуется (v-if держит инстанс), меняется только
+        // value — created не перевызывается, поэтому грузим товар по watcher.
+        value: {
+            immediate: true,
+            handler() {
+                if (!this.good) this.$store.dispatch('GOOD/GET', { id: this.value, query: this.query });
+            },
+        },
     },
 }
 </script>
