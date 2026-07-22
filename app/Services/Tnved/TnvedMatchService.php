@@ -227,11 +227,18 @@ final class TnvedMatchService
         $req = new AIRequest(
             staticPrompt: $static,
             dynamicPrompt: $dynamic,
-            maxTokens: 400,
+            // thinking-токены входят в max_tokens: на эскалации нужен запас, иначе
+            // модель истратит бюджет на размышление и вернёт пустой текст.
+            maxTokens: $model === self::MODEL_ESCALATE ? 3000 : 400,
             thinking: $model === self::MODEL_ESCALATE ? 'adaptive' : 'disabled',
         );
 
-        $data = $this->ai->generate('claude', $model, $req)->parseJson();
+        try {
+            $data = $this->ai->generate('claude', $model, $req)->parseJson();
+        } catch (\Throwable $e) {
+            // Пустой/невалидный JSON от модели не должен ронять весь подбор (500).
+            return ['_model' => $model, 'confidence' => 0];
+        }
         $data['_model'] = $model;
 
         return $data;
