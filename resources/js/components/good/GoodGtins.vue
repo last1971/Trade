@@ -244,6 +244,8 @@ export default {
     },
     methods: {
         load() {
+            // Инстанс модалки переиспользуется — гасим подбор от прошлой карточки.
+            this.suggestion = null;
             if (!this.value) {
                 this.rows = [];
                 return;
