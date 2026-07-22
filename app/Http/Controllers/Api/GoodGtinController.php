@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\GoodClassif;
 use App\Http\Controllers\Controller;
 use App\MarkCode;
+use App\Services\Marking\GoodClassifyService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -96,7 +97,7 @@ class GoodGtinController extends Controller
      * @param int $goodscode
      * @return \Illuminate\Support\Collection
      */
-    public function classify(Request $request, $goodscode)
+    public function classify(Request $request, $goodscode, GoodClassifyService $service)
     {
         $request->validate([
             'MARK_REQUIRED' => 'required|in:0,1',
@@ -105,56 +106,18 @@ class GoodGtinController extends Controller
             'PRIM' => 'nullable|string|max:250',
         ], self::MESSAGES);
         $goodscode = intval($goodscode);
-        $markRequired = intval($request->MARK_REQUIRED);
-
-        $connection = DB::connection('firebird');
-        $connection->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
-        $connection->beginTransaction();
         try {
-            $primary = GoodClassif::query()
-                ->where('GOODSCODE', $goodscode)
-                ->where('IS_PRIMARY', 1)
-                ->first();
-            if ($primary) {
-                $primary->update([
-                    'MARK_REQUIRED' => $markRequired,
-                    'TNVED' => $request->TNVED ?: $primary->TNVED,
-                    'OKPD2' => $request->OKPD2 ?: $primary->OKPD2,
-                    'PRIM' => $request->PRIM,
-                    'UPDATED_AT' => now(),
-                ]);
-            } else {
-                $primary = GoodClassif::query()->create([
-                    'GOODSCODE' => $goodscode,
-                    'IS_PRIMARY' => 1,
-                    'MARK_REQUIRED' => $markRequired,
-                    'TNVED' => $request->TNVED,
-                    'OKPD2' => $request->OKPD2,
-                    'PRIM' => $request->PRIM,
-                    'UPDATED_AT' => now(),
-                ]);
-            }
-            GoodClassif::query()
-                ->where('GOODSCODE', $goodscode)
-                ->where('ID', '<>', $primary->ID)
-                ->where('IS_PRIMARY', 1)
-                ->update(['IS_PRIMARY' => 0, 'UPDATED_AT' => now()]);
-            if ($markRequired === 0) {
-                GoodClassif::query()
-                    ->where('GOODSCODE', $goodscode)
-                    ->where('MARK_REQUIRED', 1)
-                    ->update(['MARK_REQUIRED' => 0, 'UPDATED_AT' => now()]);
-            }
-            // Читаем до commit: при AUTOCOMMIT=0 после него нет открытой транзакции.
-            $rows = $this->forGood($goodscode);
-            $connection->commit();
+            $service->setVerdict(
+                $goodscode,
+                intval($request->MARK_REQUIRED),
+                $request->TNVED ?: null,
+                $request->OKPD2 ?: null,
+                $request->PRIM
+            );
         } catch (\Exception $e) {
-            $connection->rollBack();
             abort(422, $e->getMessage());
-        } finally {
-            $connection->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
         }
-        return $rows;
+        return $this->forGood($goodscode);
     }
 
     /**

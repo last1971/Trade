@@ -102,6 +102,56 @@ final class TnvedMatchService
         ];
     }
 
+    /**
+     * Выбрать один код ОКПД2 из вариантов маркируемого ТНВЭД (справочник даёт
+     * список, семантику — модель). Один вариант — возвращаем сразу без вызова ИИ.
+     *
+     * @param array<int, array{c: string, n: string}> $options коды ОКПД2 из справочника
+     */
+    public function chooseOkpd2(
+        array $options,
+        string $name,
+        ?string $category = null,
+        ?string $case = null,
+        ?string $maker = null
+    ): ?string {
+        $codes = array_column($options, 'c');
+        if (count($codes) <= 1) {
+            return $codes[0] ?? null;
+        }
+
+        $static = <<<'TXT'
+        Ты эксперт по ОКПД2. Из списка КАНДИДАТОВ ниже выбери ОДИН код ОКПД2,
+        который точнее всего соответствует товару. Выбирай ТОЛЬКО из списка — не придумывай.
+        Верни строго JSON без пояснений: {"code": "код ОКПД2 из списка"}.
+        TXT;
+
+        $lines = [];
+        foreach ($options as $o) {
+            $lines[] = $o['c'] . ' | ' . $o['n'];
+        }
+        $dynamic = "Товар:\n" . $this->describe($name, $category, $case, $maker)
+            . "\n\nКандидаты ОКПД2 (код | наименование):\n" . implode("\n", $lines);
+
+        $req = new AIRequest(
+            staticPrompt: $static,
+            dynamicPrompt: $dynamic,
+            maxTokens: 200,
+            thinking: 'disabled',
+        );
+
+        try {
+            $data = $this->ai->generate('claude', self::MODEL_MAIN, $req)->parseJson();
+        } catch (\Throwable $e) {
+            // Модель не смогла ответить — берём первый вариант, вердикт не роняем.
+            return $codes[0];
+        }
+
+        $picked = (string) ($data['code'] ?? '');
+
+        return in_array($picked, $codes, true) ? $picked : $codes[0];
+    }
+
     private function describe(string $name, ?string $category, ?string $case, ?string $maker): string
     {
         $lines = ['Название: ' . $name];

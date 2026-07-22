@@ -136,6 +136,52 @@ class StockClassifService
      * Страница списка: фильтр «проблем», сортировка по стоимости, пагинация
      * поверх снапшота; имена и классификация — только для строк страницы.
      */
+    /**
+     * Коды товаров «не проверяли» (нет ни одной строки GOODS_CLASSIF) из снапшота
+     * склада, по убыванию стоимости остатка — та же выборка, что даёт список на
+     * экране «Разгребание склада». Источник для команды авто-классификации.
+     *
+     * @return array<int, int>
+     */
+    public function uncheckedCodes(int $limit): array
+    {
+        $snap = Cache::get(self::CACHE_SNAP);
+        if (!$snap) {
+            return [];
+        }
+        $values = $snap['values'];
+        $classif = $this->classifMap();
+        uasort($values, fn($a, $b) => $b[1] <=> $a[1]);
+
+        $codes = [];
+        foreach (array_keys($values) as $code) {
+            if (!isset($classif[$code])) {
+                $codes[] = $code;
+                if (count($codes) >= $limit) {
+                    break;
+                }
+            }
+        }
+
+        return $codes;
+    }
+
+    /**
+     * Классификация живьём: GOODSCODE → MAX(MARK_REQUIRED). Общий источник для
+     * list() (фильтр «подлежит»/«не проверяли») и uncheckedCodes() — без дублей.
+     *
+     * @return array<int, int>
+     */
+    private function classifMap(): array
+    {
+        return GoodClassif::query()
+            ->selectRaw('GOODSCODE, MAX(MARK_REQUIRED) AS MR')
+            ->groupBy('GOODSCODE')
+            ->pluck('MR', 'GOODSCODE')
+            ->map(fn($mr) => intval($mr))
+            ->all();
+    }
+
     public function list(Request $request): array
     {
         $snap = Cache::get(self::CACHE_SNAP);
@@ -148,12 +194,7 @@ class StockClassifService
         $mp = $snap['mp'] ?? [];
 
         // Классификация живьём: MAX(MARK_REQUIRED) по товару (строк — сотни).
-        $classif = GoodClassif::query()
-            ->selectRaw('GOODSCODE, MAX(MARK_REQUIRED) AS MR')
-            ->groupBy('GOODSCODE')
-            ->pluck('MR', 'GOODSCODE')
-            ->map(fn($mr) => intval($mr))
-            ->all();
+        $classif = $this->classifMap();
 
         // Товары с действующим сертификатом (MySQL, живьём).
         $certified = CertificateGood::query()
