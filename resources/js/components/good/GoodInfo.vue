@@ -41,7 +41,7 @@
                 <good-certificates :value="value"/>
             </v-tab-item>
             <v-tab-item>
-                <good-gtins :value="value"/>
+                <good-gtins :value="value" :good="good"/>
             </v-tab-item>
         </v-tabs-items>
     </v-card>

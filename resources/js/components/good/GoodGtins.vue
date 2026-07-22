@@ -29,12 +29,20 @@
                     dense hide-details clearable
                     style="max-width: 420px"
                 />
+                <v-btn small outlined color="blue" :loading="suggesting" :disabled="!canSuggest" @click="suggest" title="Подобрать код ТН ВЭД по данным товара">
+                    <v-icon small left>mdi-magnify</v-icon>
+                    Подобрать код
+                </v-btn>
                 <v-btn small outlined color="green" :loading="classifying" @click="classify(0)">
                     Не подлежит
                 </v-btn>
                 <v-btn small outlined color="orange" :loading="classifying" @click="classify(1)">
                     Подлежит
                 </v-btn>
+                <span v-if="suggestion" class="caption" style="flex-basis: 100%">
+                    Подбор: <b>{{ suggestion.code }}</b> · {{ suggestionName }}
+                    · уверенность {{ suggestion.confidence }}%{{ suggestion.apply ? '' : ' — низкая, проверьте' }}
+                </span>
             </template>
         </v-card-text>
         <v-divider/>
@@ -158,6 +166,7 @@ export default {
     name: "GoodGtins",
     props: {
         value: {type: [Number, String], required: true},
+        good: {type: Object, default: null},
     },
     data() {
         return {
@@ -165,6 +174,8 @@ export default {
             adding: false,
             editId: null,
             classifying: false,
+            suggesting: false,
+            suggestion: null,
             verdictTnved: '',
             verdictOkpd2: '',
             verdictPrim: '',
@@ -176,6 +187,16 @@ export default {
     computed: {
         notEditable() {
             return !this.$store.getters['AUTH/HAS_PERMISSION']('good.update');
+        },
+        // Есть чем подбирать — нужно хотя бы название товара.
+        canSuggest() {
+            return !!(this.good && this.good.name && this.good.name.NAME) && !this.classifying;
+        },
+        // Наименование подбора без служебного глифа-стрелки из справочника.
+        suggestionName() {
+            return this.suggestion
+                ? (this.suggestion.name || '').replace(/\s*[\u{1F800}-\u{1F8FF}]\s*/gu, ' / ')
+                : '';
         },
         tnvedItems() {
             return this.tnvedDict.map(t => ({text: t.c + ' — ' + t.n, value: t.c}));
@@ -248,6 +269,31 @@ export default {
         onTnvedChange() {
             const items = this.okpd2Items;
             this.verdictOkpd2 = items.length === 1 ? items[0].value : '';
+        },
+        // Автоподбор кода ТН ВЭД по данным товара (название/категория/корпус/производитель).
+        suggest() {
+            if (!this.canSuggest) return;
+            this.suggesting = true;
+            this.suggestion = null;
+            axios.post('/api/tnved/match', {
+                name: this.good.name.NAME,
+                category: this.good.category ? this.good.category.CATEGORY : null,
+                case: this.good.BODY || null,
+                maker: this.good.PRODUCER || null,
+            })
+                .then((response) => {
+                    const r = response.data;
+                    if (!r || !r.found) {
+                        this.$store.commit('SNACKBAR/ERROR',
+                            'Не удалось подобрать: ' + ((r && r.reason) || 'нет результата'), {root: true});
+                        return;
+                    }
+                    this.suggestion = r;
+                    this.verdictTnved = r.code;
+                    this.onTnvedChange();
+                })
+                .catch((e) => this.error(e))
+                .then(() => this.suggesting = false);
         },
         classify(markRequired) {
             this.classifying = true;
