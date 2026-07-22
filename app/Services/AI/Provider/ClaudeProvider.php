@@ -25,6 +25,8 @@ final class ClaudeProvider implements AIProviderInterface
             'tier' => 'cheap',
             'supports_cache' => true,
             'supports_web_search' => true,
+            'supports_sampling' => true,      // temperature ещё принимается
+            'thinking_configurable' => true,  // мышление по умолчанию выключено
         ],
         'claude-sonnet-5' => [
             'name' => 'Claude Sonnet 5',
@@ -34,6 +36,8 @@ final class ClaudeProvider implements AIProviderInterface
             'tier' => 'medium',
             'supports_cache' => true,
             'supports_web_search' => true,
+            'supports_sampling' => false,     // temperature удалён — 400
+            'thinking_configurable' => true,  // adaptive по умолчанию ВКЛ — выключать явно
         ],
         'claude-opus-4-8' => [
             'name' => 'Claude Opus 4.8',
@@ -43,6 +47,8 @@ final class ClaudeProvider implements AIProviderInterface
             'tier' => 'expensive',
             'supports_cache' => true,
             'supports_web_search' => true,
+            'supports_sampling' => false,
+            'thinking_configurable' => true,  // по умолчанию мышление выключено
         ],
         'claude-fable-5' => [
             'name' => 'Claude Fable 5',
@@ -52,6 +58,8 @@ final class ClaudeProvider implements AIProviderInterface
             'tier' => 'expensive',
             'supports_cache' => true,
             'supports_web_search' => true,
+            'supports_sampling' => false,
+            'thinking_configurable' => false, // мышление всегда ВКЛ, disabled = 400
         ],
     ];
 
@@ -100,8 +108,15 @@ final class ClaudeProvider implements AIProviderInterface
             ],
         ];
 
-        if ($request->temperature > 0) {
+        // temperature удалён на Sonnet 5 / Opus 4.8 / Fable 5 (400) — шлём только там, где принимается
+        if ($request->temperature > 0 && ($modelConfig['supports_sampling'] ?? false)) {
             $jsonBody['temperature'] = $request->temperature;
+        }
+
+        // thinking: 'disabled' экономит токены на справочных задачах (у Sonnet 5 adaptive ВКЛ по
+        // умолчанию). У Fable 5 мышление всегда включено — disabled даст 400, поэтому не трогаем.
+        if ($request->thinking !== null && ($modelConfig['thinking_configurable'] ?? true)) {
+            $jsonBody['thinking'] = ['type' => $request->thinking];
         }
 
         $response = Http::withHeaders($headers)
