@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 //});
 
 Route::middleware('auth:api')->group(function () {
+    Route::post('tnved/match', 'Api\TnvedController@match')->name('tnved.match');
     Route::get('logout', 'Api\AuthController@logout')->name('logout');
     Route::get('refresh-user', 'Api\AuthController@refresh')->name('refresh');
     Route::get('invoice/export/', 'Api\InvoiceController@export')->name('invoice.xlsx');
