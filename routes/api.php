@@ -100,6 +100,8 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware('permission:good.update')->group(function () {
         Route::post('good/{id}/classify', 'Api\GoodGtinController@classify')
             ->name('good.classify');
+        Route::post('good/{id}/suggest', 'Api\GoodGtinController@suggest')
+            ->name('good.suggest');
         Route::post('good/classify-bulk', 'Api\GoodGtinController@classifyBulk')
             ->name('good.classify-bulk');
         Route::get('tnved-suggestions', 'Api\TnvedSuggestController@index')

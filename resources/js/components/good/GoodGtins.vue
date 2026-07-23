@@ -42,8 +42,9 @@
                     Подлежит
                 </v-btn>
                 <span v-if="suggestion" class="caption" style="flex-basis: 100%">
-                    Подбор: <b>{{ suggestion.code }}</b> · {{ suggestionName }}
-                    · уверенность {{ suggestion.confidence }}%{{ suggestion.apply ? '' : ' — низкая, проверьте' }}
+                    Подбор: <b>{{ suggestion.tnved }}</b> · {{ suggestionName }}
+                    · {{ suggestion.mark_required ? 'подлежит' : 'не подлежит' }}
+                    · уверенность {{ suggestion.confidence }}%{{ suggestion.confidence < 80 ? ' — низкая, проверьте' : '' }}
                 </span>
             </template>
         </v-card-text>
@@ -197,7 +198,7 @@ export default {
         },
         // Наименование подбора без служебного глифа-стрелки (mixin).
         suggestionName() {
-            return this.suggestion ? this.cleanGlyph(this.suggestion.name) : '';
+            return this.suggestion ? this.cleanGlyph(this.suggestion.tnved_name) : '';
         },
         // Нормализация значения combobox → код (mixin normCode).
         tnvedCode() {
@@ -259,26 +260,24 @@ export default {
             this.resolveTnved(this.tnvedCode);
         },
         // Автоподбор кода ТН ВЭД по данным товара (название/категория/корпус/производитель).
+        // Подбор через тот же движок, что пачка/команда (classifyOne на бэке):
+        // заполняет код + ОКПД2, показывает подлежит/уверенность. В базу не пишет —
+        // сохраняет пользователь кнопкой «Подлежит»/«Не подлежит».
         suggest() {
             if (!this.canSuggest) return;
             this.suggesting = true;
             this.suggestion = null;
-            axios.post('/api/tnved/match', {
-                name: this.good.name.NAME,
-                category: this.good.category ? this.good.category.CATEGORY : null,
-                case: this.good.BODY || null,
-                maker: this.good.PRODUCER || null,
-            })
-                .then((response) => {
-                    const r = response.data;
-                    if (!r || !r.found) {
+            axios.post('/api/good/' + this.value + '/suggest')
+                .then(({data}) => {
+                    if (!data || data.status !== 'ok') {
                         this.$store.commit('SNACKBAR/ERROR',
-                            'Не удалось подобрать: ' + ((r && r.reason) || 'нет результата'), {root: true});
+                            'Не удалось подобрать: ' + ((data && data.reason) || 'нет результата'), {root: true});
                         return;
                     }
-                    this.suggestion = r;
-                    this.verdictTnved = r.code;
-                    this.onTnvedChange();
+                    this.suggestion = data;
+                    this.verdictTnved = data.tnved;
+                    this.verdictOkpd2 = data.okpd2 || '';
+                    this.resolveTnved(this.tnvedCode);
                 })
                 .catch((e) => this.error(e))
                 .then(() => this.suggesting = false);

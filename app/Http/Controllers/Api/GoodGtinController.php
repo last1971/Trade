@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\GoodClassif;
 use App\Http\Controllers\Controller;
 use App\MarkCode;
+use App\Services\Marking\AutoClassifyService;
 use App\Services\Marking\GoodClassifyService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -118,6 +119,16 @@ class GoodGtinController extends Controller
             abort(422, $e->getMessage());
         }
         return $this->forGood($goodscode);
+    }
+
+    /**
+     * Подбор классификации одного товара тем же движком, что пачка и команда
+     * (AutoClassifyService::classifyOne) — единое поведение подбора везде.
+     * Порог 0: на карточке подбор показываем всегда, уверенность рисует фронт.
+     */
+    public function suggest($goodscode, AutoClassifyService $auto): array
+    {
+        return $auto->classifyOne(intval($goodscode), 0);
     }
 
     /**
