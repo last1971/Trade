@@ -76,8 +76,8 @@ final class TnvedMatchService
         }
 
         // Шаг 5 — сверка выбранного кода по справочнику
-        $row = Tnved::where('code', (string) ($pick['code'] ?? ''))->first();
-        if ($row === null) {
+        $resolved = $this->resolve((string) ($pick['code'] ?? ''));
+        if ($resolved === null) {
             return [
                 'found' => false,
                 'reason' => 'модель вернула код вне справочника',
@@ -90,9 +90,9 @@ final class TnvedMatchService
 
         return [
             'found' => true,
-            'code' => $row->code,
-            'name' => $row->name,
-            'tariff' => $row->tariff,
+            'code' => $resolved['code'],
+            'name' => $resolved['name'],
+            'tariff' => $resolved['tariff'],
             'confidence' => $confidence,
             'apply' => $confidence >= self::CONFIDENCE_THRESHOLD,
             'reason' => (string) ($pick['reason'] ?? ''),
@@ -100,6 +100,22 @@ final class TnvedMatchService
             'headings' => $headings,
             'candidates' => $candidates->count(),
         ];
+    }
+
+    /**
+     * Расшифровка кода ТН ВЭД по справочнику: наименование + тариф.
+     * Единственная точка «код → что это такое» — зовут match(), API и экраны.
+     *
+     * @return array{code: string, name: string, tariff: string|null}|null
+     */
+    public function resolve(string $code): ?array
+    {
+        $row = Tnved::where('code', $code)->first(['code', 'name', 'tariff']);
+        if ($row === null) {
+            return null;
+        }
+
+        return ['code' => $row->code, 'name' => $row->name, 'tariff' => $row->tariff];
     }
 
     /**

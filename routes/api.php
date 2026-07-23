@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:api')->group(function () {
     Route::post('tnved/match', 'Api\TnvedController@match')->name('tnved.match');
+    Route::get('marking/dict', 'Api\TnvedController@markingDict')->name('marking.dict');
+    Route::get('tnved/{code}', 'Api\TnvedController@show')->where('code', '[0-9]+')->name('tnved.show');
     Route::get('logout', 'Api\AuthController@logout')->name('logout');
     Route::get('refresh-user', 'Api\AuthController@refresh')->name('refresh');
     Route::get('invoice/export/', 'Api\InvoiceController@export')->name('invoice.xlsx');
@@ -96,6 +98,8 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware('permission:good.update')->group(function () {
         Route::post('good/{id}/classify', 'Api\GoodGtinController@classify')
             ->name('good.classify');
+        Route::post('good/classify-bulk', 'Api\GoodGtinController@classifyBulk')
+            ->name('good.classify-bulk');
         Route::post('good/{id}/gtins', 'Api\GoodGtinController@store')
             ->name('good.gtins.store');
         Route::put('good-gtin/{id}', 'Api\GoodGtinController@update')

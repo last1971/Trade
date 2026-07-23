@@ -121,6 +121,44 @@ class GoodGtinController extends Controller
     }
 
     /**
+     * Массовый разбор: одинаковый вердикт на список «не проверяли» товаров.
+     * Пишет через тот же GoodClassifyService::setVerdict — одна точка записи.
+     *
+     * @return array{applied: int, errors: array<int, array{GOODSCODE: int, message: string}>}
+     */
+    public function classifyBulk(Request $request, GoodClassifyService $service): array
+    {
+        $data = $request->validate([
+            'GOODSCODES' => 'required|array|min:1',
+            'GOODSCODES.*' => 'integer',
+            'MARK_REQUIRED' => 'required|in:0,1',
+            'TNVED' => 'nullable|string|max:10',
+            'OKPD2' => 'nullable|string|max:12',
+            'PRIM' => 'nullable|string|max:250',
+        ], self::MESSAGES);
+
+        $markRequired = intval($data['MARK_REQUIRED']);
+        $applied = 0;
+        $errors = [];
+        foreach ($data['GOODSCODES'] as $goodscode) {
+            try {
+                $service->setVerdict(
+                    intval($goodscode),
+                    $markRequired,
+                    $data['TNVED'] ?? null,
+                    $data['OKPD2'] ?? null,
+                    $data['PRIM'] ?? null
+                );
+                $applied++;
+            } catch (\Exception $e) {
+                $errors[] = ['GOODSCODE' => intval($goodscode), 'message' => $e->getMessage()];
+            }
+        }
+
+        return ['applied' => $applied, 'errors' => $errors];
+    }
+
+    /**
      * @param Request $request
      * @param int $id
      * @return GoodClassif

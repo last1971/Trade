@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Good;
+use App\Services\Marking\AutoClassifyService;
 use App\Services\Marking\GoodClassifyService;
 use App\Services\Marking\StockClassifService;
-use App\Services\Tnved\TnvedMatchService;
 use Illuminate\Console\Command;
 
 /**
@@ -14,7 +13,7 @@ use Illuminate\Console\Command;
  * ставим вердикт — та же операция, что человек делает на карточке Нац Каталога.
  *
  * Своей бизнес-логики не держит: выборка — StockClassifService::uncheckedCodes(),
- * подбор — TnvedMatchService, запись — GoodClassifyService::setVerdict().
+ * подбор — AutoClassifyService::classifyOne(), запись — GoodClassifyService::setVerdict().
  */
 class TnvedClassify extends Command
 {
@@ -33,7 +32,7 @@ class TnvedClassify extends Command
 
     public function handle(
         StockClassifService $stock,
-        TnvedMatchService $matcher,
+        AutoClassifyService $auto,
         GoodClassifyService $verdict
     ): int {
         $limit = max(1, (int) $this->option('limit'));
@@ -46,47 +45,20 @@ class TnvedClassify extends Command
             return self::SUCCESS;
         }
 
-        $marking = $this->markingDict();
+        $labels = [
+            'no_name' => 'нет названия',
+            'not_found' => 'не подобрано',
+            'low_confidence' => 'пропуск (низкая)',
+        ];
+
         $rows = [];
-
         foreach ($codes as $code) {
-            $good = Good::with(['name', 'category'])->find($code);
-            $name = (string) optional($good?->name)->NAME;
-            if ($name === '') {
-                $rows[] = [$code, '—', '', '', '', '', 'нет названия'];
-                continue;
-            }
+            $r = $auto->classifyOne($code, $threshold);
 
-            $category = optional($good->category)->CATEGORY;
-            $case = $good->BODY ?: null;
-            $maker = $good->PRODUCER ?: null;
-
-            $res = $matcher->match($name, $category, $case, $maker);
-            if (!($res['found'] ?? false)) {
-                $rows[] = [$code, $name, '', '', '', '', 'не подобрано'];
-                continue;
-            }
-
-            $tnved = (string) $res['code'];
-            $conf = (int) $res['confidence'];
-            if ($conf < $threshold) {
-                $rows[] = [$code, $name, $tnved, '', '', $conf . '%', 'пропуск (низкая)'];
-                continue;
-            }
-
-            // Подлежит = код попал в справочник маркируемых (те же 180 из селекта UI).
-            $entry = $marking[$tnved] ?? null;
-            $markRequired = $entry ? 1 : 0;
-            $okpd2 = $entry
-                ? $matcher->chooseOkpd2($entry['o'], $name, $category, $case, $maker)
-                : null;
-
-            $prim = 'авто-подбор ИИ, уверенность ' . $conf . '%, модель ' . ($res['model'] ?? '');
-
-            $action = 'dry-run';
-            if ($apply) {
+            $action = $labels[$r['status']] ?? 'dry-run';
+            if ($r['status'] === 'ok' && $apply) {
                 try {
-                    $verdict->setVerdict($code, $markRequired, $tnved, $okpd2, $prim);
+                    $verdict->setVerdict($code, $r['mark_required'], $r['tnved'], $r['okpd2'], $r['prim']);
                     $action = 'записано';
                 } catch (\Throwable $e) {
                     $action = 'ошибка: ' . $e->getMessage();
@@ -95,17 +67,18 @@ class TnvedClassify extends Command
 
             $rows[] = [
                 $code,
-                $name,
-                $tnved,
-                $markRequired ? 'да' : 'нет',
-                $okpd2 ?? '',
-                $conf . '%',
+                $r['name'],
+                $r['tnved'] ?? '',
+                $r['tnved_name'] ? mb_strimwidth($r['tnved_name'], 0, 40, '…') : '',
+                $r['status'] === 'ok' ? ($r['mark_required'] ? 'да' : 'нет') : '',
+                $r['okpd2'] ?? '',
+                $r['confidence'] !== null ? $r['confidence'] . '%' : '',
                 $action,
             ];
         }
 
         $this->table(
-            ['Код', 'Товар', 'ТНВЭД', 'Подлежит', 'ОКПД2', 'Увер.', 'Действие'],
+            ['Код', 'Товар', 'ТНВЭД', 'Что это', 'Подлежит', 'ОКПД2', 'Увер.', 'Действие'],
             $rows
         );
         if (!$apply) {
@@ -113,24 +86,5 @@ class TnvedClassify extends Command
         }
 
         return self::SUCCESS;
-    }
-
-    /**
-     * Справочник маркировки code → запись — тот же JSON, что грузит фронт
-     * (resources/js/data/tnvedMarking.json), второй копии не заводим.
-     *
-     * @return array<string, array{c: string, n: string, o: array<int, array{c: string, n: string}>}>
-     */
-    private function markingDict(): array
-    {
-        $path = resource_path('js/data/tnvedMarking.json');
-        $data = json_decode((string) file_get_contents($path), true) ?: [];
-
-        $out = [];
-        foreach ($data as $entry) {
-            $out[$entry['c']] = $entry;
-        }
-
-        return $out;
     }
 }
