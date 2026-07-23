@@ -29,6 +29,7 @@ import reserve from "./reserve";
 import retailOrderLine from "./retailOrderLine";
 import orderImportLine from "./orderImportLine";
 import goodsList from "./goodsList";
+import marking from "./marking";
 import retailOrderStatus from "./retailOrderStatus";
 import retailSale from "./retailSale";
 import retailSaleLine from "./retailSaleLine";
@@ -100,6 +101,7 @@ export default new Vuex.Store({
         'SELLER-PRICE': sellerPrice,
         'SELLER-ORDER': sellerOrder,
         SNACKBAR: snackbar,
+        MARKING: marking,
         'STOCK-CLASSIF': stockClassif,
         'STORE-LINE': storeLine,
         'TRANSFER-OUT': transferOut,

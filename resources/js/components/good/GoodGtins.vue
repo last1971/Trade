@@ -179,8 +179,6 @@ export default {
             verdictTnved: '',
             verdictOkpd2: '',
             verdictPrim: '',
-            // Справочник маркируемых ТНВЭД→ОКПД2 (временно захардкожен, отдельный чанк).
-            tnvedDict: [],
             form: {GTIN: '', TNVED: '', OKPD2: '', SUPPLIER_INN: '', PRIM: ''},
         }
     },
@@ -199,14 +197,12 @@ export default {
                 : '';
         },
         tnvedItems() {
-            return this.tnvedDict.map(t => ({text: t.c + ' — ' + t.n, value: t.c}));
+            return this.$store.getters['MARKING/DICT'].map(t => ({text: t.c + ' — ' + t.n, value: t.c}));
         },
-        // ОКПД2-варианты выбранного ТНВЭД из справочника.
+        // ОКПД2-варианты выбранного ТНВЭД из справочника (общий стор).
         okpd2Items() {
-            const entry = this.tnvedDict.find(t => t.c === this.tnvedCode);
-            return entry
-                ? entry.o.map(o => ({text: o.c + ' — ' + o.n, value: o.c}))
-                : [];
+            return this.$store.getters['MARKING/OKPD2_OPTIONS'](this.tnvedCode)
+                .map(o => ({text: o.c + ' — ' + o.n, value: o.c}));
         },
         // v-combobox отдаёт объект при выборе из списка и строку при ручном вводе.
         tnvedCode() {
@@ -238,9 +234,8 @@ export default {
         }
     },
     created() {
-        // Ленивый чанк со справочником — не тянет основной бандл.
-        import(/* webpackChunkName: "tnved-marking" */ '../../data/tnvedMarking.json')
-            .then((m) => this.tnvedDict = m.default || m);
+        // Справочник маркировки — общий стор, тянется один раз за сессию.
+        this.$store.dispatch('MARKING/FETCH');
     },
     methods: {
         load() {
