@@ -26,6 +26,11 @@ export default {
             return axios.get(getters.URL + '/status')
                 .then(response => response.data);
         },
+        // Категории склада (с подкатегориями) для фильтра — фронт тянет один раз.
+        CATEGORIES({getters}) {
+            return axios.get(getters.URL + '/categories')
+                .then(response => response.data);
+        },
         // Запуск пересчёта снапшота в фоне (~2.5 мин).
         REFRESH({getters, commit}) {
             return axios.post(getters.URL + '/refresh')

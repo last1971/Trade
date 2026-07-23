@@ -18,6 +18,28 @@
                     dense hide-details
                     style="max-width: 160px"
                 />
+                <v-select
+                    v-model="category"
+                    :items="categoryItems"
+                    label="Категория"
+                    dense hide-details clearable
+                    style="max-width: 220px"
+                />
+                <v-select
+                    v-if="subcategoryItems.length"
+                    v-model="subcategory"
+                    :items="subcategoryItems"
+                    label="Подкатегория"
+                    dense hide-details clearable
+                    style="max-width: 220px"
+                />
+                <v-select
+                    v-model="status"
+                    :items="statusItems"
+                    label="Разбор"
+                    dense hide-details
+                    style="max-width: 170px"
+                />
                 <v-spacer/>
                 <span v-if="updatedAt" class="text--secondary">данные на {{ updatedAt }}</span>
                 <v-btn color="secondary" outlined :to="{name: 'tnved-review'}">
@@ -168,6 +190,15 @@ export default {
             {text: 'На любом', value: 'any'},
             {text: 'Нет на МП', value: 'none'},
         ],
+        category: 0,
+        subcategory: 0,
+        status: 'all',
+        categories: [],
+        statusItems: [
+            {text: 'Все', value: 'all'},
+            {text: 'Разобранные', value: 'checked'},
+            {text: 'Неразобранные', value: 'unchecked'},
+        ],
         options: {page: 1, itemsPerPage: 25},
         selected: null,
         modal: false,
@@ -202,6 +233,9 @@ export default {
         if (query.marking === '0') this.problemMarking = false;
         if (query.cert === '0') this.problemNoCert = false;
         if (query.mp) this.marketplace = query.mp;
+        if (query.cat) this.category = Number(query.cat);
+        if (query.sub) this.subcategory = Number(query.sub);
+        if (query.status) this.status = query.status;
         if (query.page > 1) this.options.page = Number(query.page);
         if (query.ipp) this.options.itemsPerPage = Number(query.ipp);
         // Если пересчёт уже идёт (cron или другой пользователь) — сразу поллим.
@@ -212,6 +246,8 @@ export default {
         });
         // Справочник маркировки для тулбара массового разбора (общий стор).
         this.$store.dispatch('MARKING/FETCH');
+        // Категории склада для фильтра — один раз.
+        this.$store.dispatch('STOCK-CLASSIF/CATEGORIES').then((data) => this.categories = data);
     },
     beforeDestroy() {
         clearInterval(this.timer);
@@ -220,6 +256,14 @@ export default {
         // Строки «не проверяли» на текущей странице — только их можно разбирать.
         unclassifiedItems() {
             return this.items.filter(item => !item.classifs.length);
+        },
+        categoryItems() {
+            return this.categories.map(c => ({text: c.name, value: c.code}));
+        },
+        // Подкатегории выбранной категории (пусто — селект скрыт).
+        subcategoryItems() {
+            const cat = this.categories.find(c => c.code === this.category);
+            return cat ? cat.subcategories.map(s => ({text: s.name, value: s.id})) : [];
         },
         // Нормализация combobox → код (mixin normCode).
         bulkTnvedCode() {
@@ -252,6 +296,16 @@ export default {
         marketplace() {
             this.resetAndLoad();
         },
+        category() {
+            this.subcategory = 0; // сменили категорию — подкатегория неактуальна
+            this.resetAndLoad();
+        },
+        subcategory() {
+            this.resetAndLoad();
+        },
+        status() {
+            this.resetAndLoad();
+        },
         // После закрытия карточки перечитать список — вердикт мог убрать товар.
         modal(value) {
             if (!value) this.load();
@@ -268,6 +322,9 @@ export default {
                 search: this.search || '',
                 problems,
                 marketplace: this.marketplace,
+                category: this.category || 0,
+                subcategory: this.subcategory || 0,
+                status: this.status,
             };
         },
         // Сброс на первую страницу; если уже на ней — просто перечитать
@@ -298,6 +355,9 @@ export default {
             if (!this.problemMarking) query.marking = '0';
             if (!this.problemNoCert) query.cert = '0';
             if (this.marketplace) query.mp = this.marketplace;
+            if (this.category) query.cat = String(this.category);
+            if (this.subcategory) query.sub = String(this.subcategory);
+            if (this.status !== 'all') query.status = this.status;
             if (this.options.page > 1) query.page = String(this.options.page);
             if (this.options.itemsPerPage !== 25) query.ipp = String(this.options.itemsPerPage);
             if (!_.isEqual(query, this.$route.query)) {

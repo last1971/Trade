@@ -94,6 +94,7 @@ class StockClassifService
             'uncovered' => $uncovered,
             'codes' => $codes,
             'mp' => $this->marketplaceMap(),
+            'categories' => $this->categoryMap(array_keys($values)),
         ]);
         Cache::put(self::CACHE_UPDATED_AT, now()->format('Y-m-d H:i'));
 
@@ -130,6 +131,85 @@ class StockClassifService
             }
         }
         return $map;
+    }
+
+    /**
+     * Карта «товар → [категория, подкатегория]» из GOODS для товаров снапшота —
+     * чтобы фильтровать список по категории/подкатегории без запросов на каждую страницу.
+     *
+     * @param array<int, int> $codes
+     * @return array<int, array{0: int, 1: int|null}>
+     */
+    private function categoryMap(array $codes): array
+    {
+        $map = [];
+        foreach (array_chunk($codes, 1000) as $chunk) {
+            $in = implode(',', array_map('intval', $chunk));
+            $rows = DB::connection('firebird')->select(
+                "select goodscode, categorycode, subcategory_id from goods where goodscode in ($in)"
+            );
+            foreach ($rows as $row) {
+                $map[intval($row->GOODSCODE)] = [
+                    intval($row->CATEGORYCODE),
+                    $row->SUBCATEGORY_ID !== null ? intval($row->SUBCATEGORY_ID) : null,
+                ];
+            }
+        }
+
+        return $map;
+    }
+
+    /**
+     * Дерево категорий, реально присутствующих в снапшоте (не все 133), с их
+     * подкатегориями — для селектов фильтра на странице.
+     *
+     * @return array<int, array{code: int, name: string, subcategories: array<int, array{id: int, name: string}>}>
+     */
+    public function categories(): array
+    {
+        $snap = Cache::get(self::CACHE_SNAP);
+        if (!$snap || empty($snap['categories'])) {
+            return [];
+        }
+
+        $catCodes = [];
+        $subIds = [];
+        foreach ($snap['categories'] as [$cat, $sub]) {
+            if ($cat) {
+                $catCodes[$cat] = true;
+            }
+            if ($sub) {
+                $subIds[$sub] = true;
+            }
+        }
+        if (empty($catCodes)) {
+            return [];
+        }
+
+        $db = DB::connection('firebird');
+        $cats = $db->select('select categorycode, category from CATEGORY where categorycode in ('
+            . implode(',', array_keys($catCodes)) . ') order by category');
+
+        $subsByCat = [];
+        if (!empty($subIds)) {
+            $subs = $db->select('select id, categorycode, subcategory from SUBCATEGORY where id in ('
+                . implode(',', array_keys($subIds)) . ') order by subcategory');
+            foreach ($subs as $s) {
+                $subsByCat[intval($s->CATEGORYCODE)][] = ['id' => intval($s->ID), 'name' => $s->SUBCATEGORY];
+            }
+        }
+
+        $out = [];
+        foreach ($cats as $c) {
+            $code = intval($c->CATEGORYCODE);
+            $out[] = [
+                'code' => $code,
+                'name' => $c->CATEGORY,
+                'subcategories' => $subsByCat[$code] ?? [],
+            ];
+        }
+
+        return $out;
     }
 
     /**
@@ -197,6 +277,7 @@ class StockClassifService
         $uncovered = $snap['uncovered'];
         $codes = $snap['codes'];
         $mp = $snap['mp'] ?? [];
+        $cats = $snap['categories'] ?? [];
 
         // Классификация живьём: MAX(MARK_REQUIRED) по товару (строк — сотни).
         $classif = $this->classifMap();
@@ -237,11 +318,28 @@ class StockClassifService
         // Фильтр по маркетплейсу: ozon/wb — конкретный, any — на любом, none — нет ни на одном.
         $marketplace = $request->input('marketplace', '');
 
+        // Фильтры по категории/подкатегории (из снапшота) и статусу разбора.
+        $category = intval($request->input('category', 0));
+        $subcategory = intval($request->input('subcategory', 0));
+        $status = $request->input('status', 'all'); // all | checked | unchecked
+
         uasort($values, fn($a, $b) => $b[1] <=> $a[1]);
 
         $list = [];
         foreach (array_keys($values) as $code) {
             if ($found !== null && !isset($found[$code])) {
+                continue;
+            }
+            if ($category && ($cats[$code][0] ?? 0) !== $category) {
+                continue;
+            }
+            if ($subcategory && ($cats[$code][1] ?? null) !== $subcategory) {
+                continue;
+            }
+            if ($status === 'unchecked' && isset($classif[$code])) {
+                continue;
+            }
+            if ($status === 'checked' && !isset($classif[$code])) {
                 continue;
             }
             if ($marketplace === 'any' && empty($mp[$code])) {

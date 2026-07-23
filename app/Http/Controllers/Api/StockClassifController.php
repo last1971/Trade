@@ -19,6 +19,15 @@ class StockClassifController extends Controller
     }
 
     /**
+     * Категории (с подкатегориями), реально присутствующие на складе — для
+     * фильтра на странице. Тянется фронтом один раз.
+     */
+    public function categories(StockClassifService $service): array
+    {
+        return $service->categories();
+    }
+
+    /**
      * Статус пересчёта — фронт поллит после нажатия «Обновить данные».
      */
     public function status(): array
