@@ -8,23 +8,7 @@
                 <v-chip small :color="verdictColor" outlined>{{ verdictText }}</v-chip>
             </span>
             <template v-if="!notEditable">
-                <v-combobox
-                    v-model="verdictTnved"
-                    :items="tnvedItems"
-                    label="ТНВЭД (выбор или ввод)"
-                    :hint="tnvedHint(tnvedCode)"
-                    persistent-hint
-                    dense clearable
-                    style="max-width: 420px"
-                    @change="onTnvedChange"
-                />
-                <v-combobox
-                    v-model="verdictOkpd2"
-                    :items="okpd2Items(tnvedCode)"
-                    label="ОКПД2 (выбор или ввод)"
-                    dense hide-details clearable
-                    style="max-width: 420px"
-                />
+                <verdict-picker v-model="verdict" field-width="420px"/>
                 <v-text-field
                     v-model="verdictPrim"
                     label="Примечание (почему)"
@@ -35,11 +19,8 @@
                     <v-icon small left>mdi-magnify</v-icon>
                     Подобрать код
                 </v-btn>
-                <v-btn small outlined color="green" :loading="classifying" @click="classify(0)">
-                    Не подлежит
-                </v-btn>
-                <v-btn small outlined color="orange" :loading="classifying" @click="classify(1)">
-                    Подлежит
+                <v-btn small color="primary" :loading="classifying" @click="classify(isMarkRequired(verdict.tnved) ? 1 : 0)">
+                    Классифицировать
                 </v-btn>
                 <span v-if="suggestion" class="caption" style="flex-basis: 100%">
                     Подбор: <b>{{ suggestion.tnved }}</b> · {{ suggestionName }}
@@ -166,9 +147,11 @@
 
 <script>
 import marking from "../../mixins/marking";
+import VerdictPicker from "./VerdictPicker";
 
 export default {
     name: "GoodGtins",
+    components: {VerdictPicker},
     mixins: [marking],
     props: {
         value: {type: [Number, String], required: true},
@@ -182,8 +165,7 @@ export default {
             classifying: false,
             suggesting: false,
             suggestion: null,
-            verdictTnved: '',
-            verdictOkpd2: '',
+            verdict: {tnved: '', okpd2: ''},
             verdictPrim: '',
             form: {GTIN: '', TNVED: '', OKPD2: '', SUPPLIER_INN: '', PRIM: ''},
         }
@@ -199,13 +181,6 @@ export default {
         // Наименование подбора без служебного глифа-стрелки (mixin).
         suggestionName() {
             return this.suggestion ? this.cleanGlyph(this.suggestion.tnved_name) : '';
-        },
-        // Нормализация значения combobox → код (mixin normCode).
-        tnvedCode() {
-            return this.normCode(this.verdictTnved);
-        },
-        okpd2Code() {
-            return this.normCode(this.verdictOkpd2);
         },
         // Вердикт по товару: «подлежит?» = есть строка с MARK_REQUIRED=1.
         verdictText() {
@@ -249,20 +224,15 @@ export default {
         // ТНВЭД/ОКПД2/примечание вердикта живут на основной (IS_PRIMARY=1) строке товара.
         fillVerdictTnved() {
             const primary = this.rows.find(row => row.IS_PRIMARY);
-            this.verdictTnved = primary ? (primary.TNVED || '') : '';
-            this.verdictOkpd2 = primary ? (primary.OKPD2 || '') : '';
+            this.verdict = {
+                tnved: primary ? (primary.TNVED || '') : '',
+                okpd2: primary ? (primary.OKPD2 || '') : '',
+            };
             this.verdictPrim = primary ? (primary.PRIM || '') : '';
-            this.resolveTnved(this.tnvedCode);
         },
-        // Смена ТНВЭД: авто-ОКПД2 (один вариант) + расшифровка кода в подстрочник.
-        onTnvedChange() {
-            this.verdictOkpd2 = this.defaultOkpd2(this.tnvedCode);
-            this.resolveTnved(this.tnvedCode);
-        },
-        // Автоподбор кода ТН ВЭД по данным товара (название/категория/корпус/производитель).
         // Подбор через тот же движок, что пачка/команда (classifyOne на бэке):
         // заполняет код + ОКПД2, показывает подлежит/уверенность. В базу не пишет —
-        // сохраняет пользователь кнопкой «Подлежит»/«Не подлежит».
+        // сохраняет пользователь кнопкой «Классифицировать».
         suggest() {
             if (!this.canSuggest) return;
             this.suggesting = true;
@@ -275,9 +245,7 @@ export default {
                         return;
                     }
                     this.suggestion = data;
-                    this.verdictTnved = data.tnved;
-                    this.verdictOkpd2 = data.okpd2 || '';
-                    this.resolveTnved(this.tnvedCode);
+                    this.verdict = {tnved: data.tnved, okpd2: data.okpd2 || ''};
                 })
                 .catch((e) => this.error(e))
                 .then(() => this.suggesting = false);
@@ -286,8 +254,8 @@ export default {
             this.classifying = true;
             axios.post('/api/good/' + this.value + '/classify', {
                 MARK_REQUIRED: markRequired,
-                TNVED: this.tnvedCode || null,
-                OKPD2: this.okpd2Code || null,
+                TNVED: this.verdict.tnved || null,
+                OKPD2: this.verdict.okpd2 || null,
                 PRIM: this.verdictPrim || null,
             })
                 .then((response) => {

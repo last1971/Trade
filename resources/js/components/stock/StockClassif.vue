@@ -92,28 +92,9 @@
                         <template v-if="checked.length">
                             <v-divider vertical/>
                             <span class="text--secondary">выбрано: {{ checked.length }}</span>
-                            <v-combobox
-                                v-model="bulkTnved"
-                                :items="tnvedItems"
-                                label="ТНВЭД (выбор или ввод)"
-                                :hint="tnvedHint(bulkTnvedCode)"
-                                persistent-hint
-                                dense clearable
-                                style="max-width: 340px"
-                                @change="onBulkTnvedChange"
-                            />
-                            <v-combobox
-                                v-model="bulkOkpd2"
-                                :items="okpd2Items(bulkTnvedCode)"
-                                label="ОКПД2"
-                                dense hide-details clearable
-                                style="max-width: 340px"
-                            />
-                            <v-chip small outlined :color="bulkMarkRequired ? 'orange' : 'green'">
-                                {{ bulkMarkRequired ? 'подлежит' : 'не подлежит' }}
-                            </v-chip>
+                            <verdict-picker v-model="bulkVerdict"/>
                             <v-btn small color="primary" :loading="bulkSaving"
-                                   :disabled="!bulkTnvedCode"
+                                   :disabled="!bulkVerdict.tnved"
                                    @click="classifySelected">
                                 Классифицировать выбранные ({{ checked.length }})
                             </v-btn>
@@ -173,12 +154,13 @@
 <script>
 import GoodName from "../good/GoodName";
 import GoodInfoModal from "../good/GoodInfoModal";
+import VerdictPicker from "../good/VerdictPicker";
 import marking from "../../mixins/marking";
 import _ from "lodash";
 
 export default {
     name: "StockClassif",
-    components: {GoodName, GoodInfoModal},
+    components: {GoodName, GoodInfoModal, VerdictPicker},
     mixins: [marking],
     data: () => ({
         items: [],
@@ -212,8 +194,7 @@ export default {
         timer: null,
         // Массовый разбор «не проверяли»: выбор строк + значения вердикта.
         checked: [],
-        bulkTnved: '',
-        bulkOkpd2: '',
+        bulkVerdict: {tnved: '', okpd2: ''},
         bulkSaving: false,
         headers: [
             {text: 'Код', value: 'GOODSCODE', sortable: false},
@@ -271,17 +252,6 @@ export default {
         subcategoryItems() {
             const cat = this.categories.find(c => c.code === this.category);
             return cat ? cat.subcategories.map(s => ({text: s.name, value: s.id})) : [];
-        },
-        // Нормализация combobox → код (mixin normCode).
-        bulkTnvedCode() {
-            return this.normCode(this.bulkTnved);
-        },
-        bulkOkpd2Code() {
-            return this.normCode(this.bulkOkpd2);
-        },
-        // Подлежит = код в справочнике маркируемых (mixin, единый источник).
-        bulkMarkRequired() {
-            return this.isMarkRequired(this.bulkTnvedCode);
         },
     },
     watch: {
@@ -437,20 +407,15 @@ export default {
         selectAllUnclassified() {
             this.checked = [...this.unclassifiedItems];
         },
-        // Смена ТНВЭД: авто-ОКПД2 (один вариант) + расшифровка в подстрочник.
-        onBulkTnvedChange() {
-            this.bulkOkpd2 = this.defaultOkpd2(this.bulkTnvedCode);
-            this.resolveTnved(this.bulkTnvedCode);
-        },
         // Массовый вердикт: одинаковые значения на выбранные товары (classify-bulk).
         classifySelected() {
-            if (!this.checked.length || !this.bulkTnvedCode) return;
+            if (!this.checked.length || !this.bulkVerdict.tnved) return;
             this.bulkSaving = true;
             axios.post('/api/good/classify-bulk', {
                 GOODSCODES: this.checked.map(item => item.GOODSCODE),
-                MARK_REQUIRED: this.bulkMarkRequired ? 1 : 0,
-                TNVED: this.bulkTnvedCode || null,
-                OKPD2: this.bulkOkpd2Code || null,
+                MARK_REQUIRED: this.isMarkRequired(this.bulkVerdict.tnved) ? 1 : 0,
+                TNVED: this.bulkVerdict.tnved || null,
+                OKPD2: this.bulkVerdict.okpd2 || null,
             })
                 .then(({data}) => {
                     const msg = 'Классифицировано: ' + data.applied
@@ -459,8 +424,7 @@ export default {
                         {text: msg, color: data.errors.length ? 'warning' : 'success', status: true},
                         {root: true});
                     this.checked = [];
-                    this.bulkTnved = '';
-                    this.bulkOkpd2 = '';
+                    this.bulkVerdict = {tnved: '', okpd2: ''};
                     this.load();
                 })
                 .catch((error) => {
