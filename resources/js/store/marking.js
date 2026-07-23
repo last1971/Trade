@@ -15,6 +15,8 @@ export default {
             const entry = state.dict.find(t => t.c === code);
             return entry ? entry.o : [];
         },
+        // Подлежит ли код маркировке = есть в справочнике (та же логика, что на бэке).
+        IS_MARK_REQUIRED: state => code => state.dict.some(t => t.c === code),
     },
     mutations: {
         SET(state, dict) {

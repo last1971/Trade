@@ -29,6 +29,7 @@
                 Данные ещё не считались — нажмите «Обновить данные» (расчёт ~3 минуты).
             </v-alert>
             <v-data-table
+                v-model="checked"
                 :headers="headers"
                 :items="items"
                 :options.sync="options"
@@ -36,9 +37,61 @@
                 :loading="loading"
                 :footer-props="{'items-per-page-options': [25, 50, 100]}"
                 item-key="GOODSCODE"
+                show-select
                 dense
                 @click:row="open"
             >
+                <!-- Массовый разбор: галочки только на «не проверяли». -->
+                <template v-slot:header.data-table-select>
+                    <span class="text--secondary caption">разбор</span>
+                </template>
+                <template v-slot:item.data-table-select="{ item, isSelected, select }">
+                    <v-simple-checkbox
+                        v-if="!item.classifs.length"
+                        :value="isSelected"
+                        :ripple="false"
+                        @input="select($event)"
+                        @click.stop
+                    />
+                </template>
+                <template v-slot:top>
+                    <div class="d-flex flex-wrap align-center px-4 py-2" style="gap: 12px">
+                        <v-btn small text color="primary" :disabled="!unclassifiedItems.length"
+                               @click="selectAllUnclassified">
+                            Выбрать неразобранные ({{ unclassifiedItems.length }})
+                        </v-btn>
+                        <v-btn small text :disabled="!checked.length" @click="checked = []">
+                            Снять
+                        </v-btn>
+                        <template v-if="checked.length">
+                            <v-divider vertical/>
+                            <span class="text--secondary">выбрано: {{ checked.length }}</span>
+                            <v-combobox
+                                v-model="bulkTnved"
+                                :items="tnvedItems"
+                                label="ТНВЭД (выбор или ввод)"
+                                dense hide-details clearable
+                                style="max-width: 340px"
+                                @change="onBulkTnvedChange"
+                            />
+                            <v-combobox
+                                v-model="bulkOkpd2"
+                                :items="bulkOkpd2Items"
+                                label="ОКПД2"
+                                dense hide-details clearable
+                                style="max-width: 340px"
+                            />
+                            <v-chip small outlined :color="bulkMarkRequired ? 'orange' : 'green'">
+                                {{ bulkMarkRequired ? 'подлежит' : 'не подлежит' }}
+                            </v-chip>
+                            <v-btn small color="primary" :loading="bulkSaving"
+                                   :disabled="!bulkTnvedCode"
+                                   @click="classifySelected">
+                                Классифицировать выбранные ({{ checked.length }})
+                            </v-btn>
+                        </template>
+                    </div>
+                </template>
                 <template v-slot:item.NAME="{ item }">
                     <good-name :value="{ GOODSCODE: item.GOODSCODE, name: { NAME: item.NAME } }" :prim="false"/>
                 </template>
@@ -111,6 +164,11 @@ export default {
         selected: null,
         modal: false,
         timer: null,
+        // Массовый разбор «не проверяли»: выбор строк + значения вердикта.
+        checked: [],
+        bulkTnved: '',
+        bulkOkpd2: '',
+        bulkSaving: false,
         headers: [
             {text: 'Код', value: 'GOODSCODE', sortable: false},
             {text: 'Наименование', value: 'NAME', sortable: false},
@@ -144,9 +202,39 @@ export default {
             this.updatedAt = status.updated_at;
             if (status.running) this.poll();
         });
+        // Справочник маркировки для тулбара массового разбора (общий стор).
+        this.$store.dispatch('MARKING/FETCH');
     },
     beforeDestroy() {
         clearInterval(this.timer);
+    },
+    computed: {
+        // Строки «не проверяли» на текущей странице — только их можно разбирать.
+        unclassifiedItems() {
+            return this.items.filter(item => !item.classifs.length);
+        },
+        tnvedItems() {
+            return this.$store.getters['MARKING/DICT'].map(t => ({text: t.c + ' — ' + t.n, value: t.c}));
+        },
+        bulkOkpd2Items() {
+            return this.$store.getters['MARKING/OKPD2_OPTIONS'](this.bulkTnvedCode)
+                .map(o => ({text: o.c + ' — ' + o.n, value: o.c}));
+        },
+        // v-combobox отдаёт объект при выборе из списка и строку при ручном вводе.
+        bulkTnvedCode() {
+            return this.bulkTnved && typeof this.bulkTnved === 'object'
+                ? this.bulkTnved.value
+                : (this.bulkTnved || '');
+        },
+        bulkOkpd2Code() {
+            return this.bulkOkpd2 && typeof this.bulkOkpd2 === 'object'
+                ? this.bulkOkpd2.value
+                : (this.bulkOkpd2 || '');
+        },
+        // Подлежит = код в справочнике маркируемых (единый источник — стор).
+        bulkMarkRequired() {
+            return this.$store.getters['MARKING/IS_MARK_REQUIRED'](this.bulkTnvedCode);
+        },
     },
     watch: {
         options: {
@@ -258,6 +346,42 @@ export default {
         open(item) {
             this.selected = item.GOODSCODE;
             this.modal = true;
+        },
+        // Выбрать все неразобранные строки текущей страницы.
+        selectAllUnclassified() {
+            this.checked = [...this.unclassifiedItems];
+        },
+        // Один вариант ОКПД2 — подставить, несколько — очистить и дать выбрать.
+        onBulkTnvedChange() {
+            const items = this.bulkOkpd2Items;
+            this.bulkOkpd2 = items.length === 1 ? items[0].value : '';
+        },
+        // Массовый вердикт: одинаковые значения на выбранные товары (classify-bulk).
+        classifySelected() {
+            if (!this.checked.length || !this.bulkTnvedCode) return;
+            this.bulkSaving = true;
+            axios.post('/api/good/classify-bulk', {
+                GOODSCODES: this.checked.map(item => item.GOODSCODE),
+                MARK_REQUIRED: this.bulkMarkRequired ? 1 : 0,
+                TNVED: this.bulkTnvedCode || null,
+                OKPD2: this.bulkOkpd2Code || null,
+            })
+                .then(({data}) => {
+                    const msg = 'Классифицировано: ' + data.applied
+                        + (data.errors.length ? ', ошибок: ' + data.errors.length : '');
+                    this.$store.commit('SNACKBAR/PUSH',
+                        {text: msg, color: data.errors.length ? 'warning' : 'success', status: true},
+                        {root: true});
+                    this.checked = [];
+                    this.bulkTnved = '';
+                    this.bulkOkpd2 = '';
+                    this.load();
+                })
+                .catch((error) => {
+                    this.$store.commit('SNACKBAR/ERROR',
+                        error.response?.data?.message || 'Ошибка классификации', {root: true});
+                })
+                .then(() => this.bulkSaving = false);
         },
         markingText(item) {
             if (!item.classifs.length) return 'не проверяли';
