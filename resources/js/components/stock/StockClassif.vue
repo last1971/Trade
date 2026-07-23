@@ -120,8 +120,15 @@
                         </template>
                     </div>
                 </template>
+                <template v-slot:item.GOODSCODE="{ item }">
+                    <span>{{ item.GOODSCODE }}</span>
+                    <v-icon x-small class="copy-ico ml-1" title="Скопировать код"
+                            @click.stop="copy(item.GOODSCODE)">mdi-content-copy</v-icon>
+                </template>
                 <template v-slot:item.NAME="{ item }">
                     <good-name :value="{ GOODSCODE: item.GOODSCODE, name: { NAME: item.NAME } }" :prim="false"/>
+                    <v-icon x-small class="copy-ico ml-1" title="Скопировать название"
+                            @click.stop="copy(item.NAME)">mdi-content-copy</v-icon>
                 </template>
                 <template v-slot:item.VAL="{ item }">
                     {{ item.VAL | formatRub }}
@@ -404,6 +411,28 @@ export default {
             this.selected = item.GOODSCODE;
             this.modal = true;
         },
+        // Копирование в буфер; на http navigator.clipboard недоступен — фолбэк.
+        copy(text) {
+            const value = String(text);
+            const done = () => this.$store.commit('SNACKBAR/PUSH',
+                {text: 'Скопировано: ' + value, color: 'success', status: true}, {root: true});
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(value).then(done).catch(() => this.copyFallback(value, done));
+            } else {
+                this.copyFallback(value, done);
+            }
+        },
+        copyFallback(value, done) {
+            const el = document.createElement('textarea');
+            el.value = value;
+            el.style.position = 'fixed';
+            el.style.opacity = '0';
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            done();
+        },
         // Выбрать все неразобранные строки текущей страницы.
         selectAllUnclassified() {
             this.checked = [...this.unclassifiedItems];
@@ -458,5 +487,14 @@ export default {
 /* Строки кликабельны — открывают карточку товара. */
 ::v-deep tbody tr {
     cursor: pointer;
+}
+/* Иконка копирования — приглушена, ярче при наведении на строку. */
+.copy-ico {
+    opacity: 0.35;
+    cursor: pointer;
+}
+.copy-ico:hover,
+::v-deep tbody tr:hover .copy-ico {
+    opacity: 1;
 }
 </style>
