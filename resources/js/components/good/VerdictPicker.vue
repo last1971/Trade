@@ -4,9 +4,7 @@
             v-model="rawTnved"
             :items="tnvedItems"
             label="ТНВЭД (выбор или ввод)"
-            :hint="tnvedHint(tnvedCode)"
-            persistent-hint
-            dense clearable
+            dense hide-details clearable
             :style="{ maxWidth: fieldWidth }"
             @change="onTnvedChange"
         />
@@ -21,6 +19,10 @@
         <v-chip small outlined :color="markRequired ? 'orange' : 'green'">
             {{ markRequired ? 'подлежит' : 'не подлежит' }}
         </v-chip>
+        <!-- «Что это»: подстрочник под полями, на всю ширину — не влияет на высоту полей. -->
+        <span v-if="hint" class="caption text--secondary" style="flex-basis: 100%; margin-top: -6px">
+            {{ hint }}
+        </span>
     </div>
 </template>
 
@@ -59,6 +61,10 @@ export default {
         },
         markRequired() {
             return this.isMarkRequired(this.tnvedCode);
+        },
+        // «Что это» — наименование кода из кэша резолва (mixin).
+        hint() {
+            return this.tnvedHint(this.tnvedCode);
         },
     },
     watch: {
