@@ -74,13 +74,15 @@
                                 v-model="bulkTnved"
                                 :items="tnvedItems"
                                 label="ТНВЭД (выбор или ввод)"
-                                dense hide-details clearable
+                                :hint="tnvedHint(bulkTnvedCode)"
+                                persistent-hint
+                                dense clearable
                                 style="max-width: 340px"
                                 @change="onBulkTnvedChange"
                             />
                             <v-combobox
                                 v-model="bulkOkpd2"
-                                :items="bulkOkpd2Items"
+                                :items="okpd2Items(bulkTnvedCode)"
                                 label="ОКПД2"
                                 dense hide-details clearable
                                 style="max-width: 340px"
@@ -142,11 +144,13 @@
 <script>
 import GoodName from "../good/GoodName";
 import GoodInfoModal from "../good/GoodInfoModal";
+import marking from "../../mixins/marking";
 import _ from "lodash";
 
 export default {
     name: "StockClassif",
     components: {GoodName, GoodInfoModal},
+    mixins: [marking],
     data: () => ({
         items: [],
         total: 0,
@@ -217,27 +221,16 @@ export default {
         unclassifiedItems() {
             return this.items.filter(item => !item.classifs.length);
         },
-        tnvedItems() {
-            return this.$store.getters['MARKING/DICT'].map(t => ({text: t.c + ' — ' + t.n, value: t.c}));
-        },
-        bulkOkpd2Items() {
-            return this.$store.getters['MARKING/OKPD2_OPTIONS'](this.bulkTnvedCode)
-                .map(o => ({text: o.c + ' — ' + o.n, value: o.c}));
-        },
-        // v-combobox отдаёт объект при выборе из списка и строку при ручном вводе.
+        // Нормализация combobox → код (mixin normCode).
         bulkTnvedCode() {
-            return this.bulkTnved && typeof this.bulkTnved === 'object'
-                ? this.bulkTnved.value
-                : (this.bulkTnved || '');
+            return this.normCode(this.bulkTnved);
         },
         bulkOkpd2Code() {
-            return this.bulkOkpd2 && typeof this.bulkOkpd2 === 'object'
-                ? this.bulkOkpd2.value
-                : (this.bulkOkpd2 || '');
+            return this.normCode(this.bulkOkpd2);
         },
-        // Подлежит = код в справочнике маркируемых (единый источник — стор).
+        // Подлежит = код в справочнике маркируемых (mixin, единый источник).
         bulkMarkRequired() {
-            return this.$store.getters['MARKING/IS_MARK_REQUIRED'](this.bulkTnvedCode);
+            return this.isMarkRequired(this.bulkTnvedCode);
         },
     },
     watch: {
@@ -355,10 +348,10 @@ export default {
         selectAllUnclassified() {
             this.checked = [...this.unclassifiedItems];
         },
-        // Один вариант ОКПД2 — подставить, несколько — очистить и дать выбрать.
+        // Смена ТНВЭД: авто-ОКПД2 (один вариант) + расшифровка в подстрочник.
         onBulkTnvedChange() {
-            const items = this.bulkOkpd2Items;
-            this.bulkOkpd2 = items.length === 1 ? items[0].value : '';
+            this.bulkOkpd2 = this.defaultOkpd2(this.bulkTnvedCode);
+            this.resolveTnved(this.bulkTnvedCode);
         },
         // Массовый вердикт: одинаковые значения на выбранные товары (classify-bulk).
         classifySelected() {

@@ -6,6 +6,8 @@ export default {
     state: {
         dict: [],
         loaded: false,
+        // Кэш расшифровок кодов ТНВЭД: code → {found, name, tariff, mark_required, okpd2}.
+        resolved: {},
     },
     getters: {
         // Весь справочник: [{c, n, o:[{c, n}]}].
@@ -17,11 +19,17 @@ export default {
         },
         // Подлежит ли код маркировке = есть в справочнике (та же логика, что на бэке).
         IS_MARK_REQUIRED: state => code => state.dict.some(t => t.c === code),
+        // Расшифровка кода из кэша (null, если ещё не резолвили).
+        RESOLVED: state => code => state.resolved[code] || null,
     },
     mutations: {
         SET(state, dict) {
             state.dict = dict;
             state.loaded = true;
+        },
+        SET_RESOLVED(state, {code, data}) {
+            // Новый ключ через переприсвоение — иначе Vue 2 не увидит реактивность.
+            state.resolved = {...state.resolved, [code]: data};
         },
     },
     actions: {
@@ -35,6 +43,18 @@ export default {
                     commit('SET', response.data);
                     return response.data;
                 });
+        },
+        // Расшифровка кода «что это»: из кэша или разово с бэка (/api/tnved/{code}).
+        RESOLVE({state, commit}, code) {
+            if (state.resolved[code]) {
+                return Promise.resolve(state.resolved[code]);
+            }
+            return axios.get('/api/tnved/' + code)
+                .then(response => {
+                    commit('SET_RESOLVED', {code, data: response.data});
+                    return response.data;
+                })
+                .catch(() => null);
         },
     },
 }

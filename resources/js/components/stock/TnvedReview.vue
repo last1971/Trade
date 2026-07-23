@@ -41,7 +41,12 @@
                                   @change="onTnvedChange(item)"/>
                 </template>
                 <template v-slot:item.tnved_name="{ item }">
-                    <span class="caption">{{ item.tnved_name | shorten }}</span>
+                    <v-tooltip bottom max-width="480">
+                        <template v-slot:activator="{ on }">
+                            <span v-on="on" class="caption">{{ shorten(cleanGlyph(item.tnved_name)) }}</span>
+                        </template>
+                        <span>{{ cleanGlyph(item.tnved_name) }}</span>
+                    </v-tooltip>
                 </template>
                 <template v-slot:item.mark_required="{ item }">
                     <v-chip small outlined :color="item.mark_required ? 'orange' : 'green'">
@@ -51,7 +56,7 @@
                 <template v-slot:item.okpd2="{ item }">
                     <v-select v-if="item.mark_required"
                               v-model="item.okpd2"
-                              :items="okpd2ItemsFor(item.tnved)"
+                              :items="okpd2Items(item.tnved)"
                               dense hide-details clearable style="min-width: 150px"/>
                     <span v-else>—</span>
                 </template>
@@ -67,13 +72,12 @@
 
 <script>
 import GoodInfoModal from "../good/GoodInfoModal";
+import marking from "../../mixins/marking";
 
 export default {
     name: "TnvedReview",
     components: {GoodInfoModal},
-    filters: {
-        shorten: value => value && value.length > 60 ? value.slice(0, 60) + '…' : (value || ''),
-    },
+    mixins: [marking],
     data: () => ({
         items: [],
         selected: [],
@@ -150,22 +154,19 @@ export default {
                 });
             }, 5000);
         },
+        shorten(value) {
+            return value && value.length > 60 ? value.slice(0, 60) + '…' : (value || '');
+        },
         // Правка кода вручную: пересчитать маркируемость/ОКПД2 и обновить «что это».
         onTnvedChange(item) {
-            item.mark_required = this.$store.getters['MARKING/IS_MARK_REQUIRED'](item.tnved) ? 1 : 0;
+            item.mark_required = this.isMarkRequired(item.tnved) ? 1 : 0;
             const opts = this.$store.getters['MARKING/OKPD2_OPTIONS'](item.tnved).map(o => o.c);
             if (!opts.includes(item.okpd2)) {
-                item.okpd2 = opts.length === 1 ? opts[0] : '';
+                item.okpd2 = this.defaultOkpd2(item.tnved);
             }
-            if (/^\d+$/.test(item.tnved)) {
-                axios.get('/api/tnved/' + item.tnved)
-                    .then(({data}) => item.tnved_name = data.name)
-                    .catch(() => {});
-            }
-        },
-        okpd2ItemsFor(code) {
-            return this.$store.getters['MARKING/OKPD2_OPTIONS'](code)
-                .map(o => ({text: o.c + ' — ' + o.n, value: o.c}));
+            this.resolveTnved(item.tnved).then(data => {
+                if (data) item.tnved_name = data.name;
+            });
         },
         apply() {
             this.applying = true;

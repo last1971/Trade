@@ -12,13 +12,15 @@
                     v-model="verdictTnved"
                     :items="tnvedItems"
                     label="ТНВЭД (выбор или ввод)"
-                    dense hide-details clearable
+                    :hint="tnvedHint(tnvedCode)"
+                    persistent-hint
+                    dense clearable
                     style="max-width: 420px"
                     @change="onTnvedChange"
                 />
                 <v-combobox
                     v-model="verdictOkpd2"
-                    :items="okpd2Items"
+                    :items="okpd2Items(tnvedCode)"
                     label="ОКПД2 (выбор или ввод)"
                     dense hide-details clearable
                     style="max-width: 420px"
@@ -162,8 +164,11 @@
 </template>
 
 <script>
+import marking from "../../mixins/marking";
+
 export default {
     name: "GoodGtins",
+    mixins: [marking],
     props: {
         value: {type: [Number, String], required: true},
         good: {type: Object, default: null},
@@ -190,30 +195,16 @@ export default {
         canSuggest() {
             return !!(this.good && this.good.name && this.good.name.NAME) && !this.classifying;
         },
-        // Наименование подбора без служебного глифа-стрелки из справочника.
+        // Наименование подбора без служебного глифа-стрелки (mixin).
         suggestionName() {
-            return this.suggestion
-                ? (this.suggestion.name || '').replace(/\s*[\u{1F800}-\u{1F8FF}]\s*/gu, ' / ')
-                : '';
+            return this.suggestion ? this.cleanGlyph(this.suggestion.name) : '';
         },
-        tnvedItems() {
-            return this.$store.getters['MARKING/DICT'].map(t => ({text: t.c + ' — ' + t.n, value: t.c}));
-        },
-        // ОКПД2-варианты выбранного ТНВЭД из справочника (общий стор).
-        okpd2Items() {
-            return this.$store.getters['MARKING/OKPD2_OPTIONS'](this.tnvedCode)
-                .map(o => ({text: o.c + ' — ' + o.n, value: o.c}));
-        },
-        // v-combobox отдаёт объект при выборе из списка и строку при ручном вводе.
+        // Нормализация значения combobox → код (mixin normCode).
         tnvedCode() {
-            return this.verdictTnved && typeof this.verdictTnved === 'object'
-                ? this.verdictTnved.value
-                : (this.verdictTnved || '');
+            return this.normCode(this.verdictTnved);
         },
         okpd2Code() {
-            return this.verdictOkpd2 && typeof this.verdictOkpd2 === 'object'
-                ? this.verdictOkpd2.value
-                : (this.verdictOkpd2 || '');
+            return this.normCode(this.verdictOkpd2);
         },
         // Вердикт по товару: «подлежит?» = есть строка с MARK_REQUIRED=1.
         verdictText() {
@@ -260,12 +251,12 @@ export default {
             this.verdictTnved = primary ? (primary.TNVED || '') : '';
             this.verdictOkpd2 = primary ? (primary.OKPD2 || '') : '';
             this.verdictPrim = primary ? (primary.PRIM || '') : '';
+            this.resolveTnved(this.tnvedCode);
         },
-        // При выборе ТНВЭД из справочника: один вариант ОКПД2 — подставить,
-        // несколько — очистить и дать выбрать селектом.
+        // Смена ТНВЭД: авто-ОКПД2 (один вариант) + расшифровка кода в подстрочник.
         onTnvedChange() {
-            const items = this.okpd2Items;
-            this.verdictOkpd2 = items.length === 1 ? items[0].value : '';
+            this.verdictOkpd2 = this.defaultOkpd2(this.tnvedCode);
+            this.resolveTnved(this.tnvedCode);
         },
         // Автоподбор кода ТН ВЭД по данным товара (название/категория/корпус/производитель).
         suggest() {
