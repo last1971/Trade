@@ -100,6 +100,14 @@ Route::middleware('auth:api')->group(function () {
             ->name('good.classify');
         Route::post('good/classify-bulk', 'Api\GoodGtinController@classifyBulk')
             ->name('good.classify-bulk');
+        Route::get('tnved-suggestions', 'Api\TnvedSuggestController@index')
+            ->name('tnved-suggestions.index');
+        Route::get('tnved-suggestions/status', 'Api\TnvedSuggestController@status')
+            ->name('tnved-suggestions.status');
+        Route::post('tnved-suggestions/run', 'Api\TnvedSuggestController@run')
+            ->name('tnved-suggestions.run');
+        Route::post('tnved-suggestions/apply', 'Api\TnvedSuggestController@apply')
+            ->name('tnved-suggestions.apply');
         Route::post('good/{id}/gtins', 'Api\GoodGtinController@store')
             ->name('good.gtins.store');
         Route::put('good-gtin/{id}', 'Api\GoodGtinController@update')

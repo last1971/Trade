@@ -20,6 +20,10 @@
                 />
                 <v-spacer/>
                 <span v-if="updatedAt" class="text--secondary">данные на {{ updatedAt }}</span>
+                <v-btn color="secondary" outlined :to="{name: 'tnved-review'}">
+                    <v-icon left>mdi-magnify</v-icon>
+                    Подбор ТН ВЭД (ИИ)
+                </v-btn>
                 <v-btn color="primary" outlined :loading="running" @click="refresh">
                     <v-icon left>mdi-refresh</v-icon>
                     Обновить данные

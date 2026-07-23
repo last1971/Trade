@@ -141,9 +141,13 @@ class StockClassifService
      * склада, по убыванию стоимости остатка — та же выборка, что даёт список на
      * экране «Разгребание склада». Источник для команды авто-классификации.
      *
+     * $exclude — коды, которые уже где-то в работе (например, лежат в подборе на
+     * ревью): их пропускаем, чтобы добрать следующую пачку свежих товаров.
+     *
+     * @param array<int, int> $exclude
      * @return array<int, int>
      */
-    public function uncheckedCodes(int $limit): array
+    public function uncheckedCodes(int $limit, array $exclude = []): array
     {
         $snap = Cache::get(self::CACHE_SNAP);
         if (!$snap) {
@@ -151,11 +155,12 @@ class StockClassifService
         }
         $values = $snap['values'];
         $classif = $this->classifMap();
+        $excluded = array_flip($exclude);
         uasort($values, fn($a, $b) => $b[1] <=> $a[1]);
 
         $codes = [];
         foreach (array_keys($values) as $code) {
-            if (!isset($classif[$code])) {
+            if (!isset($classif[$code]) && !isset($excluded[$code])) {
                 $codes[] = $code;
                 if (count($codes) >= $limit) {
                     break;

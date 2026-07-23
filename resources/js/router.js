@@ -29,6 +29,7 @@ import Certificates from "./components/certificate/Certificates.vue";
 import BuyerDebtPage from "./components/BuyerDebtPage";
 import Replenish from "./components/Replenish";
 import StockClassif from "./components/stock/StockClassif";
+import TnvedReview from "./components/stock/TnvedReview";
 
 Vue.use(VueRouter);
 
@@ -55,6 +56,12 @@ const routes = [
         name: 'stock-classif',
         path: '/stock-classif',
         component: StockClassif,
+        meta: {requiresAuth: true, permission: 'stock-classif.index'},
+    },
+    {
+        name: 'tnved-review',
+        path: '/tnved-review',
+        component: TnvedReview,
         meta: {requiresAuth: true, permission: 'stock-classif.index'},
     },
     {
