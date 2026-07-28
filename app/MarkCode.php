@@ -24,13 +24,14 @@ class MarkCode extends Model
     protected $fillable = [
         'MARKORDERITEMCODE', 'GOODSCODE', 'GTIN', 'KI', 'KM_FULL',
         'SERIAL_NUMBER', 'SOURCE', 'STATUS', 'TRANSFER_TYPE',
-        'SUPPLIER_INN', 'SKLADINCODE', 'SHOPINCODE',
+        'SUPPLIER_INN', 'SKLADINCODE', 'SHOPINCODE', 'PR_META_IN_ID',
         'REALPRICECODE', 'REALPRICEFCODE', 'SHOPLOGCODE', 'SPISID',
         'QUANTITY',
     ];
 
     protected $casts = [
         'QUANTITY' => 'integer',
+        'PR_META_IN_ID' => 'integer',
     ];
 
     public function good()
