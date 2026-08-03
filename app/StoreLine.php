@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class StoreLine extends Model
 {
-    //
+    // Без него camelCase-связи (orderLine) сериализуются в order_line и фронт их не видит
+    public static $snakeAttributes = false;
+
     public $timestamps = false;
 
     protected $connection = 'firebird';

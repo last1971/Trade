@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Invoice;
+use App\Services\MarkCodeService;
 use App\Services\Marking\MarkCodeTransferService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-class MarkCodeController extends Controller
+class MarkCodeController extends ModelController
 {
+    public function __construct()
+    {
+        parent::__construct(MarkCodeService::class);
+    }
+
     public function markAsTransferred(Request $request, MarkCodeTransferService $service)
     {
         $data = $request->validate([

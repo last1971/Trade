@@ -18,6 +18,7 @@ class RolesAndPermissionsSeeder extends Seeder
         'good',
         'invoice',
         'invoice-line',
+        'mark-code',
         'name',
         'order',
         'order-line',
@@ -35,6 +36,8 @@ class RolesAndPermissionsSeeder extends Seeder
         'seller-order',
         'seller-order-line',
         'seller-price',
+        'spis-sklad',
+        'store-in',
         'store-line',
         'transfer-out',
         'transfer-out-line',
@@ -96,6 +99,9 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'nav.sbis', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.stock-classif', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.transfer-outs', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.mark-codes', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.store-ins', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.spis-sklads', 'guard_name' => 'api']);
 
         Role::query()->firstOrCreate(['name' => 'guest', 'guard_name' => 'api']);
 
@@ -118,6 +124,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'goods-list.*',
             'invoice.*',
             'invoice-line.*',
+            'mark-code.*',
             'name.*',
             'order.*',
             'order-line.*',
@@ -137,6 +144,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'seller-price.*',
             'seller-order.*',
             'seller-order-line.*',
+            'spis-sklad.*',
+            'store-in.*',
             'store-line.*',
             'transfer-out.*',
             'transfer-out-line.*',
@@ -183,8 +192,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.goods-list',
             'nav.invoices',
             'nav.invoice-lines',
+            'nav.mark-codes',
             'nav.orders',
             'nav.sbis',
+            'nav.store-ins',
             'nav.transfer-outs',
             'advanced-buyer.*',
             'buyer.*',
@@ -200,6 +211,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'good.*',
             'invoice.*',
             'invoice-line.*',
+            'mark-code.index',
             'name.*',
             'order.*',
             'order-line.*',
@@ -208,8 +220,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'seller.*',
             'seller-good.*',
             'seller-order.*',
-            'seller-order-line.*',        
+            'seller-order-line.*',
             'seller-price.*',
+            'store-in.*',
             'store-line.*',
             'transfer-out.*',
             'transfer-out-line.*',

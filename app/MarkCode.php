@@ -26,12 +26,15 @@ class MarkCode extends Model
         'SERIAL_NUMBER', 'SOURCE', 'STATUS', 'TRANSFER_TYPE',
         'SUPPLIER_INN', 'SKLADINCODE', 'SHOPINCODE', 'PR_META_IN_ID',
         'REALPRICECODE', 'REALPRICEFCODE', 'SHOPLOGCODE', 'SPISID',
+        'SPISSKLADCODE', 'SPISSHOPCODE', 'RETIRE_REASON', 'RETIRED_AT',
         'QUANTITY',
     ];
 
     protected $casts = [
         'QUANTITY' => 'integer',
         'PR_META_IN_ID' => 'integer',
+        'SPISSKLADCODE' => 'integer',
+        'SPISSHOPCODE' => 'integer',
     ];
 
     public function good()
@@ -47,6 +50,16 @@ class MarkCode extends Model
     public function transferOutLine()
     {
         return $this->belongsTo('App\TransferOutLine', 'REALPRICEFCODE', 'REALPRICEFCODE');
+    }
+
+    public function storeLine()
+    {
+        return $this->belongsTo('App\StoreLine', 'SKLADINCODE', 'SKLADINCODE');
+    }
+
+    public function spisSklad()
+    {
+        return $this->belongsTo('App\SpisSklad', 'SPISSKLADCODE', 'SPISSKLADCODE');
     }
 
     public function scopeFree($query)

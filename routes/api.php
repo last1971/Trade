@@ -154,6 +154,11 @@ Route::middleware('auth:api')->group(function () {
         'unit-code-alias' => 'Api\UnitCodeAliasController',
     ]);
 
+    // Марки ЧЗ, приходы и списания — только просмотр
+    Route::apiResource('mark-code', 'Api\MarkCodeController')->only(['index', 'show']);
+    Route::apiResource('store-in', 'Api\StoreInController')->only(['index', 'show']);
+    Route::apiResource('spis-sklad', 'Api\SpisSkladController')->only(['index', 'show']);
+
     Route::get('retail-sale', 'Api\RetailSaleController@index')->name('retail-sale.index');
 
     Route::get('retail-store-return', 'Api\RetailStoreReturnController@index')
