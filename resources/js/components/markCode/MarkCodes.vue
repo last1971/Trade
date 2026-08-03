@@ -15,6 +15,7 @@
         <template v-slot:body.prepend="{ isMobile }">
             <mark-code-filter-row :headers="headers"
                                   :options="options"
+                                  :model="model"
                                   :is-mobile="isMobile"
                                   v-if="!isMobile || mobileFiltersVisible"
                                   @reload="updateItems"

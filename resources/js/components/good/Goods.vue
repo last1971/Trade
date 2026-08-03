@@ -14,9 +14,12 @@
     >
         <template v-slot:top>
             <div class="m-2">
-                <v-row>
+                <v-row align="center">
                     <v-col>
                         <v-text-field label="Наименование или код" v-model="searchName"/>
+                    </v-col>
+                    <v-col cols="auto">
+                        <select-headers :model="model"/>
                     </v-col>
                 </v-row>
             </div>
@@ -75,10 +78,11 @@
     import utilsMixin from "../../mixins/utilsMixin";
     import GoodName from "./GoodName";
     import GoodToList from "./GoodToList";
+    import SelectHeaders from "../SelectHeaders";
 
     export default {
         name: "Goods",
-        components: {GoodToList, GoodName},
+        components: {GoodToList, GoodName, SelectHeaders},
         mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
         data() {
             return {

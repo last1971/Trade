@@ -23,6 +23,7 @@
                                 <v-icon>mdi-hand-pointing-right</v-icon>
                             </v-btn>
                         </template>
+                        <select-headers :model="model"/>
                         <v-btn @click="updateItems" fab>
                             <v-icon>mdi-reload</v-icon>
                         </v-btn>
@@ -211,10 +212,11 @@ import EditField from "../EditField";
 import InvoiceStatusSelect from "./InvoiceStatusSelect";
 import InvoiceStatusSelectInline from "./InvoiceStatusSelectInline";
 import CashFlowsModal from "../CashFlowsModal.vue";
+import SelectHeaders from "../SelectHeaders";
 
 export default {
     name: "Invoices",
-    components: {CashFlowsModal, InvoiceStatusSelect, EditField, InvoicePdf, InvoiceStatusSelectInline},
+    components: {CashFlowsModal, InvoiceStatusSelect, EditField, InvoicePdf, InvoiceStatusSelectInline, SelectHeaders},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {

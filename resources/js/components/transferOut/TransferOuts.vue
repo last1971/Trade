@@ -17,9 +17,12 @@
                 v-if="!isMobile || mobileFiltersVisible"
             >
                 <td v-if="!isMobile">
-                    <v-btn icon @click="updateItems(false)">
-                        <v-icon>mdi-reload</v-icon>
-                    </v-btn>
+                    <div class="d-flex">
+                        <v-btn icon @click="updateItems(false)">
+                            <v-icon>mdi-reload</v-icon>
+                        </v-btn>
+                        <select-headers :model="model"/>
+                    </div>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <v-menu
@@ -134,10 +137,11 @@
     import {mapGetters} from "vuex";
     import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
     import TransferOutPdf from "./TransferOutPdf";
+    import SelectHeaders from "../SelectHeaders";
 
     export default {
         name: "TransferOuts",
-        components: {TransferOutPdf},
+        components: {TransferOutPdf, SelectHeaders},
         mixins: [tableMixin, utilsMixin, tableOptionsRouteMixin],
         data() {
             return {

@@ -32,6 +32,8 @@
                     <v-icon>mdi-restart</v-icon>
                 </v-btn>
             </template>
+            <v-spacer/>
+            <select-headers :model="model"/>
         </div>
         <v-alert v-if="extraKis.length" type="error" dense text class="mx-2 my-1">
             Лишние коды — отсканированы, но в списке их нет:
@@ -127,11 +129,12 @@
 import tableMixin from "../../mixins/tableMixin";
 import markCodeTableMixin from "../../mixins/markCodeTableMixin";
 import MarkCodeFilterRow from "./MarkCodeFilterRow";
+import SelectHeaders from "../SelectHeaders";
 import {extractKi} from "../../helpers/markScan";
 
 export default {
     name: "MarkCodesDependent",
-    components: {MarkCodeFilterRow},
+    components: {MarkCodeFilterRow, SelectHeaders},
     mixins: [tableMixin, markCodeTableMixin],
     props: {
         value: {

@@ -23,6 +23,7 @@
                                 <v-icon>mdi-hand-pointing-right</v-icon>
                             </v-btn>
                         </template>
+                        <select-headers :model="model"/>
                         <v-btn @click="updateItems" fab>
                             <v-icon>mdi-reload</v-icon>
                         </v-btn>
@@ -137,10 +138,11 @@ import {mapGetters} from "vuex";
 import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
 import OrderStatusSelectInline from "./OrderStatusSelectInline";
 import DatePicker from "../DatePicker";
+import SelectHeaders from "../SelectHeaders";
 
 export default {
     name: "Orders",
-    components: {DatePicker, OrderStatusSelectInline},
+    components: {DatePicker, OrderStatusSelectInline, SelectHeaders},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {

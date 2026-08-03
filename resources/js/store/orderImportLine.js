@@ -5,9 +5,8 @@ let state = _.cloneDeep(model.state);
 
 state.name = 'order-import-line'
 
-const headers = JSON.parse(localStorage.getItem('headers'));
-
-state.headers = headers && headers[state.name] ?  headers[state.name] : [
+// Скрытые колонки восстанавливаются централизованно в store/index.js
+state.headers = [
     /*{
         text: '',
         value: 'actions',

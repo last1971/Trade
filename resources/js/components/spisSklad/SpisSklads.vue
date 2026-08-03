@@ -17,9 +17,12 @@
                 v-if="!isMobile || mobileFiltersVisible"
             >
                 <td v-if="!isMobile">
-                    <v-btn @click="updateItems" icon>
-                        <v-icon>mdi-reload</v-icon>
-                    </v-btn>
+                    <div class="d-flex">
+                        <v-btn @click="updateItems" icon>
+                            <v-icon>mdi-reload</v-icon>
+                        </v-btn>
+                        <select-headers :model="model"/>
+                    </div>
                 </td>
                 <td :class="{ 'v-data-table__mobile-row' : isMobile }">
                     <div class="d-flex align-center">
@@ -101,10 +104,11 @@ import tableMixin from "../../mixins/tableMixin";
 import utilsMixin from "../../mixins/utilsMixin";
 import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
 import GoodName from "../good/GoodName";
+import SelectHeaders from "../SelectHeaders";
 
 export default {
     name: "SpisSklads",
-    components: {GoodName},
+    components: {GoodName, SelectHeaders},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {

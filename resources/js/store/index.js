@@ -56,12 +56,7 @@ import stockClassif from "./stockClassif";
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
-    state: {},
-    getters: {},
-    mutations: {},
-    actions: {},
-    modules: {
+const modules = {
         'ADVANCED-BUYER': advancedBuyer,
         AUTH: auth,
         BREADCRUMBS: breadcrumbs,
@@ -115,5 +110,27 @@ export default new Vuex.Store({
         USER: user,
         'UNIT-CODE': unitCode,
         'UNIT-CODE-ALIAS': unitCodeAlias,
-    }
+};
+
+// Восстановление скрытых пользователем колонок (SelectHeaders → TOGGLE-HEADER → localStorage).
+// Из сохранённого берём только флаг hidden: набор, порядок и подписи колонок — всегда из кода,
+// чтобы новые/переименованные колонки не пропадали из-за устаревшей копии в localStorage.
+const savedHeaders = JSON.parse(localStorage.getItem('headers')) || {};
+Object.values(modules).forEach((module) => {
+    const state = module.state;
+    if (!state || !state.name || !_.isArray(state.headers)) return;
+    const saved = savedHeaders[state.name];
+    if (!saved) return;
+    state.headers.forEach((header) => {
+        const savedHeader = _.find(saved, {value: header.value});
+        if (savedHeader && !header.notHidden) header.hidden = !!savedHeader.hidden;
+    });
+});
+
+export default new Vuex.Store({
+    state: {},
+    getters: {},
+    mutations: {},
+    actions: {},
+    modules,
 })

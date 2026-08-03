@@ -3,9 +3,12 @@
         <td v-for="header in headers" :key="header.value"
             :class="{ 'v-data-table__mobile-row' : isMobile }"
         >
-            <v-btn v-if="header.value === 'actions' && !isMobile" @click="$emit('reload')" icon>
-                <v-icon>mdi-reload</v-icon>
-            </v-btn>
+            <div v-if="header.value === 'actions' && !isMobile" class="d-flex">
+                <v-btn @click="$emit('reload')" icon>
+                    <v-icon>mdi-reload</v-icon>
+                </v-btn>
+                <select-headers :model="model" v-if="model"/>
+            </div>
             <v-menu v-else-if="header.value === 'CREATED_AT' && has('CREATED_AT')"
                     :close-on-content-click="false"
                     :nudge-right="40"
@@ -67,6 +70,7 @@
 
 <script>
 import markCodeTableMixin from "../../mixins/markCodeTableMixin";
+import SelectHeaders from "../SelectHeaders";
 import {extractKi} from "../../helpers/markScan";
 
 // Текстовые фильтры «содержит»: value заголовка → атрибут фильтра на сервере
@@ -78,11 +82,16 @@ const TEXT_FILTERS = {
 
 export default {
     name: "MarkCodeFilterRow",
+    components: {SelectHeaders},
     mixins: [markCodeTableMixin],
     props: {
         headers: {
             type: Array,
             required: true,
+        },
+        model: {
+            type: String,
+            default: '',
         },
         options: {
             type: Object,
