@@ -79,6 +79,7 @@
     import GoodName from "./GoodName";
     import GoodToList from "./GoodToList";
     import SelectHeaders from "../SelectHeaders";
+    import {extractKi} from "../../helpers/markScan";
 
     export default {
         name: "Goods",
@@ -113,7 +114,20 @@
         },
         watch: {
             searchName(val) {
-                this.options.filterValues.splice(0, 1, val);
+                // Пикнули сканером код ЧЗ — ищем товар по марке, иначе обычный поиск по имени
+                let attribute = 'goodNames.NAME';
+                let operator = 'CONTAIN';
+                let value = val;
+                try {
+                    value = extractKi(val);
+                    attribute = 'markCodes.KI';
+                    operator = '=';
+                } catch (e) {
+                    // не код ЧЗ — текстовый поиск
+                }
+                this.options.filterAttributes.splice(0, 1, attribute);
+                this.options.filterOperators.splice(0, 1, operator);
+                this.options.filterValues.splice(0, 1, value);
             },
         },
         methods: {},

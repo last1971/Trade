@@ -69,6 +69,11 @@ class GoodService extends ModelService
                 'CATEGORY as category', 'category.CATEGORYCODE', '=', 'GOODS.CATEGORYCODE'
             );
         };
+        // Поиск товара по коду маркировки ЧЗ (сканером в поле поиска)
+        $this->aliases['markCodes.KI'] = function (Builder $query) {
+            $query->join('MARKCODES as markCodes', 'markCodes.GOODSCODE', '=', 'GOODS.GOODSCODE');
+        };
+
         $this->aliases['goodNames.NAME'] = function (Builder $query) {
             $query
                 ->join(
