@@ -30,6 +30,9 @@ import BuyerDebtPage from "./components/BuyerDebtPage";
 import Replenish from "./components/Replenish";
 import StockClassif from "./components/stock/StockClassif";
 import TnvedReview from "./components/stock/TnvedReview";
+import MarkCodes from "./components/markCode/MarkCodes";
+import StoreIns from "./components/storeIn/StoreIns";
+import SpisSklads from "./components/spisSklad/SpisSklads";
 
 Vue.use(VueRouter);
 
@@ -57,6 +60,24 @@ const routes = [
         path: '/stock-classif',
         component: StockClassif,
         meta: {requiresAuth: true, permission: 'stock-classif.index'},
+    },
+    {
+        name: 'mark-codes',
+        path: '/mark-code',
+        component: MarkCodes,
+        meta: {requiresAuth: true, model: 'MARK-CODE', permission: 'mark-code.index'},
+    },
+    {
+        name: 'store-ins',
+        path: '/store-in',
+        component: StoreIns,
+        meta: {requiresAuth: true, model: 'STORE-IN', permission: 'store-in.index'},
+    },
+    {
+        name: 'spis-sklads',
+        path: '/spis-sklad',
+        component: SpisSklads,
+        meta: {requiresAuth: true, model: 'SPIS-SKLAD', permission: 'spis-sklad.index'},
     },
     {
         name: 'tnved-review',

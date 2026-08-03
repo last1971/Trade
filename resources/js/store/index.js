@@ -40,6 +40,9 @@ import paymentOrder from "./paymentOrder";
 import firmHistory from "./firmHistory";
 import sellerPrice from "./sellerPrice";
 import storeLine from "./storeLine";
+import markCode from "./markCode";
+import spisSklad from "./spisSklad";
+import storeIn from "./storeIn";
 import sellerOrder from "./sellerOrder";
 import unitCode from "./unitCode";
 import unitCodeAlias from "./unitCodeAlias";
@@ -102,7 +105,10 @@ export default new Vuex.Store({
         'SELLER-ORDER': sellerOrder,
         SNACKBAR: snackbar,
         MARKING: marking,
+        'MARK-CODE': markCode,
+        'SPIS-SKLAD': spisSklad,
         'STOCK-CLASSIF': stockClassif,
+        'STORE-IN': storeIn,
         'STORE-LINE': storeLine,
         'TRANSFER-OUT': transferOut,
         'TRANSFER-OUT-LINE': transferOutLine,

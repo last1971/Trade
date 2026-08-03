@@ -11,6 +11,7 @@
                 <v-tab>ЕдетЪ</v-tab>
                 <v-tab v-if="hasPermission('certificate.index')">Сертификаты</v-tab>
                 <v-tab>Нац.каталог</v-tab>
+                <v-tab v-if="hasPermission('mark-code.index')">Марки ЧЗ</v-tab>
             </v-tabs>
             </v-col>
             <v-col cols="1">
@@ -43,6 +44,9 @@
             <v-tab-item>
                 <good-gtins :value="value" :good="good"/>
             </v-tab-item>
+            <v-tab-item v-if="hasPermission('mark-code.index')">
+                <mark-codes-dependent :value="value"/>
+            </v-tab-item>
         </v-tabs-items>
     </v-card>
 </template>
@@ -57,6 +61,7 @@ import StoreLinesDependent from "../StoreLinesDependent";
 import OrderLineInWay from "../order/OrderLineInWay";
 import GoodCertificates from "./GoodCertificates";
 import GoodGtins from "./GoodGtins";
+import MarkCodesDependent from "../markCode/MarkCodesDependent";
 import {mapGetters} from "vuex";
 export default {
     name: "GoodInfo",
@@ -65,6 +70,7 @@ export default {
         StoreLinesDependent,
         GoodCertificates,
         GoodGtins,
+        MarkCodesDependent,
         ReservesDependent, TransferOutLinesDependent, TransferOutLinesModal, InvoiceLinesDepenntByGood},
     props: {
         value: {
