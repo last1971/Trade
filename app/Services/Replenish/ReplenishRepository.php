@@ -159,6 +159,10 @@ class ReplenishRepository
     /**
      * В пути (заказано у поставщика, статусы 2,3) по каждому коду.
      *
+     * Считается по строке заказа: заказано минус уже принятое по ней
+     * (SKLADIN/SHOPIN по ZAKAZ_DETAIL_ID) — заказ с частичным приходом
+     * даёт в путь только непришедший остаток строк.
+     *
      * @param int[] $codes
      * @return array<int, float>
      */
@@ -171,10 +175,16 @@ class ReplenishRepository
                 ->join('ZAKAZ_MASTER', 'ZAKAZ_MASTER.ID', '=', 'ZAKAZ_DETAIL.MASTER_ID')
                 ->whereIn('ZAKAZ_DETAIL.GOODSCODE', $chunk)
                 ->whereIn('ZAKAZ_MASTER.STATUS', [2, 3])
-                ->groupBy('ZAKAZ_DETAIL.GOODSCODE')
-                ->get(['ZAKAZ_DETAIL.GOODSCODE as g', DB::raw('sum(ZAKAZ_DETAIL.QUAN) as "s"')]);
+                ->get([
+                    'ZAKAZ_DETAIL.GOODSCODE as g',
+                    'ZAKAZ_DETAIL.QUAN as q',
+                    DB::raw('(SELECT COALESCE(SUM(s.QUAN), 0) FROM SKLADIN s
+                        WHERE s.ZAKAZ_DETAIL_ID = ZAKAZ_DETAIL.ID) as "skl"'),
+                    DB::raw('(SELECT COALESCE(SUM(sh.QUAN), 0) FROM SHOPIN sh
+                        WHERE sh.ZAKAZ_DETAIL_ID = ZAKAZ_DETAIL.ID) as "shp"'),
+                ]);
             foreach ($rows as $r) {
-                $map[(int)$r->g] = (float)$r->s;
+                $map[(int)$r->g] += max(0.0, (float)$r->q - (float)$r->skl - (float)$r->shp);
             }
         }
 
