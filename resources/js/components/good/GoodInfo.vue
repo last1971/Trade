@@ -24,7 +24,7 @@
         </v-row>
         <v-tabs-items v-model="tab">
             <v-tab-item>
-                <invoice-lines-depennt-by-good :value="value"/>
+                <invoice-lines-dependent-by-good :value="value"/>
             </v-tab-item>
             <v-tab-item>
                 <transfer-out-lines-dependent v-if="good" :good="good"/>
@@ -53,7 +53,7 @@
 
 <script>
 
-import InvoiceLinesDepenntByGood from "../invoice/InvoiceLinesDepenntByGood";
+import InvoiceLinesDependentByGood from "../invoice/InvoiceLinesDependentByGood";
 import TransferOutLinesModal from "../transferOut/TransferOutLinesModal";
 import TransferOutLinesDependent from "../transferOut/TransferOutLinesDependent";
 import ReservesDependent from "../ReservesDependent";
@@ -71,7 +71,7 @@ export default {
         GoodCertificates,
         GoodGtins,
         MarkCodesDependent,
-        ReservesDependent, TransferOutLinesDependent, TransferOutLinesModal, InvoiceLinesDepenntByGood},
+        ReservesDependent, TransferOutLinesDependent, TransferOutLinesModal, InvoiceLinesDependentByGood},
     props: {
         value: {
             type: Number,

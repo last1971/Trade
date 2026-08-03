@@ -13,7 +13,7 @@
 <script>
 import InvoiceLinesDependent from "./InvoiceLinesDependent";
 export default {
-    name: "InvoiceLinesDepenntByGood",
+    name: "InvoiceLinesDependentByGood",
     components: {InvoiceLinesDependent},
     props: {
         value: {
