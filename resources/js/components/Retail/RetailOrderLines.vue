@@ -83,7 +83,6 @@ export default {
             mobileFiltersVisible: false,
             dependent: false,
             model: 'RETAIL-ORDER-LINE',
-            removeHeaders: ['ROZN_DETAIL.STATUS'],
             buyer: null,
             status: [0],
             onlyReserves: false,
@@ -91,11 +90,18 @@ export default {
         }
     },
     computed: {
+        // Скрытые колонки — следствие фильтров, а не хранимое состояние:
+        // выбран один покупатель — колонка покупателя не нужна, один статус — колонка статуса
+        removeHeaders() {
+            return [
+                ...(this.buyer ? ['retailOrder.buyer.SHORTNAME'] : []),
+                ...(this.status.length === 1 ? ['ROZN_DETAIL.STATUS'] : []),
+            ];
+        },
         mutatedHeaders() {
             return this.headers.filter(
                 (header) => this.removeHeaders.find((rh) => rh === header.value) === undefined
             );
-
         },
     },
     watch: {
@@ -112,20 +118,11 @@ export default {
                 this.options.filterOperators.splice(index, 1);
                 this.options.filterValues.splice(index, 1);
             }
-            const i = this.removeHeaders.indexOf('retailOrder.buyer.SHORTNAME');
-            if (v && i < 0) this.removeHeaders.push('retailOrder.buyer.SHORTNAME');
-            else if (!v && i >= 0) this.removeHeaders.splice(i, 1);
             this.changePerPage()
         },
         status(v) {
             const i = this.options.filterAttributes.indexOf('ROZN_DETAIL.STATUS');
             this.options.filterValues.splice(i, 1, v);
-            const index = this.removeHeaders.indexOf('ROZN_DETAIL.STATUS');
-            if (v.length === 1) {
-                if (index < 0) this.removeHeaders.push('ROZN_DETAIL.STATUS');
-            } else {
-                if (index >= 0) this.removeHeaders.splice(index, 1)
-            }
         },
         onlyReserves(v) {
             const i = this.options.filterAttributes.indexOf('QUAN_RES');
