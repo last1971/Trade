@@ -81,7 +81,7 @@ export default {
                 filterOperators: ['>', '>', 'IN', 'LIKE'],
                 filterValues: ['2010-01-01', 0, [], ''],
                 sortBy: ['date'],
-                sortDesc: [false],
+                sortDesc: [true],
               //  itemsPerPage: -1,
             },
             mobileFiltersVisible: false,
