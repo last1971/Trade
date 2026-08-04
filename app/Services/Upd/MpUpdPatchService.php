@@ -5,6 +5,7 @@ namespace App\Services\Upd;
 use App\Invoice;
 use App\InvoiceLine;
 use DOMDocument;
+use DOMElement;
 use DOMXPath;
 use Illuminate\Http\UploadedFile;
 
@@ -15,7 +16,10 @@ use Illuminate\Http\UploadedFile;
  *   - НомерДок (и РеквНомерДок подтверждения) → префикс МП + номер счёта
  *     (русская «О» для Озона, «В» для ВБ — по ИНН покупателя);
  *   - Подписант → Верхотуров (как в нашем шаблоне УПД);
- *   - в ДопСведТов строк добавляются КИЗ привязанных к счёту кодов.
+ *   - в ДопСведТов строк добавляются КИЗ привязанных к счёту кодов;
+ *   - в ИдФайл заглушки Озона заменяются на ЭДО-идентификаторы сторон,
+ *     а при наличии КИЗ выставляется признак маркированных товаров
+ *     (2-я группа хвоста 5.03); имя файла = ИдФайл.xml.
  * Даты и вся остальная структура файла сохраняются как есть,
  * результат — в исходной кодировке windows-1251.
  */
@@ -37,6 +41,7 @@ class MpUpdPatchService
         }
         $xp = new DOMXPath($dom);
 
+        /** @var DOMElement|null $svFact */
         $svFact = $xp->query('//СвСчФакт')->item(0);
         if (!$svFact) {
             abort(422, 'В файле нет СвСчФакт — это не УПД');
@@ -48,15 +53,17 @@ class MpUpdPatchService
             abort(422, "Покупатель с ИНН {$buyerInn} — не Озон и не ВБ");
         }
 
-        $oldNumber = $svFact->getAttribute('НомерДок');
         $newNumber = $prefix . $invoice->NS;
         $svFact->setAttribute('НомерДок', $newNumber);
+        /** @var DOMElement $dok */
         foreach ($xp->query('//СвСчФакт/ДокПодтвОтгрНом') as $dok) {
             $dok->setAttribute('РеквНомерДок', $newNumber);
         }
 
+        /** @var DOMElement $signer */
         foreach ($xp->query('//Документ/Подписант') as $signer) {
             $signer->setAttribute('Должн', 'ДИРЕКТОР');
+            /** @var DOMElement $fio */
             foreach ($xp->query('./ФИО', $signer) as $fio) {
                 $fio->setAttribute('Фамилия', 'Верхотуров');
                 $fio->setAttribute('Имя', 'Михаил');
@@ -65,17 +72,42 @@ class MpUpdPatchService
         }
 
         $warnings = $this->injectMarkCodes($dom, $xp, $invoice);
-
-        $origName = $file->getClientOriginalName();
-        $filename = $oldNumber !== '' && str_contains($origName, $oldNumber)
-            ? str_replace($oldNumber, $newNumber, $origName)
-            : "upd_{$newNumber}.xml";
+        $fileId = $this->patchFileId($dom, $xp, $invoice, $warnings);
 
         return [
             'xml' => $dom->saveXML(),
-            'filename' => $filename,
+            'filename' => $fileId . '.xml',
             'warnings' => $warnings,
         ];
+    }
+
+    /**
+     * ИдФайл: заглушки Озона → ЭДО-идентификаторы сторон (как в InvoiceUpdSource),
+     * при наличии КИЗ — признак маркировки в хвосте 5.03
+     * (_<прослеживаемость>_<маркировка>_<алкоголь>_<табак>_<нефтепродукты>_<резерв>).
+     *
+     * @param string[] $warnings
+     */
+    private function patchFileId(DOMDocument $dom, DOMXPath $xp, Invoice $invoice, array &$warnings): string
+    {
+        $fileEl = $dom->documentElement;
+        $fileId = $fileEl->getAttribute('ИдФайл');
+
+        $fileId = strtr($fileId, [
+            'ИдентификаторПолучателя' => $invoice->buyer->advancedBuyer->edo_id ?? $invoice->buyer->Inn,
+            'ИдентификаторОтправителя' => $invoice->firm->EDOID,
+        ]);
+
+        if ($xp->query('//ТаблСчФакт/СведТов/ДопСведТов/НомСредИдентТов')->length > 0) {
+            $fileId = preg_replace('/_(\d)_\d(_\d_\d_\d_\d{2})$/u', '_$1_1$2', $fileId, 1, $count);
+            if ($count === 0) {
+                $warnings[] = 'В ИдФайл не найден хвост признаков 5.03 — признак маркировки не выставлен';
+            }
+        }
+
+        $fileEl->setAttribute('ИдФайл', $fileId);
+
+        return $fileId;
     }
 
     /**
@@ -92,8 +124,10 @@ class MpUpdPatchService
             ->groupBy('GOODSCODE');
 
         $warnings = [];
+        /** @var DOMElement $tov */
         foreach ($xp->query('//ТаблСчФакт/СведТов') as $tov) {
             $num = $tov->getAttribute('НомСтр');
+            /** @var DOMElement|null $dop */
             $dop = $xp->query('./ДопСведТов', $tov)->item(0);
             $goodsCode = $dop ? trim($dop->getAttribute('КодТов')) : '';
             if ($goodsCode === '') {
