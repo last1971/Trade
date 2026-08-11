@@ -5,6 +5,7 @@
             <router-link :to="{ name: 'good', params: { id: value.GOODSCODE }}" v-else>
                 {{ value.name.NAME }}
             </router-link>
+            <chz-mark :code="value.GOODSCODE"/>
             <v-icon small class="ml-1" title="Найти на главной" @click="searchAtHome">mdi-magnify</v-icon>
         </div>
         <div class="font-italic" style="font-size: 10px" v-if="remark">{{ remark }}</div>
@@ -12,8 +13,11 @@
 </template>
 
 <script>
+    import ChzMark from "./ChzMark";
+
     export default {
         name: "GoodName",
+        components: {ChzMark},
         props: {
             value: {
                 type: Object,

@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->group(function () {
     Route::post('tnved/match', 'Api\TnvedController@match')->name('tnved.match');
     Route::get('marking/dict', 'Api\TnvedController@markingDict')->name('marking.dict');
+    Route::get('marking/goods', 'Api\TnvedController@markGoods')->name('marking.goods');
     Route::get('tnved/{code}', 'Api\TnvedController@show')->where('code', '[0-9]+')->name('tnved.show');
     Route::get('logout', 'Api\AuthController@logout')->name('logout');
     Route::get('refresh-user', 'Api\AuthController@refresh')->name('refresh');

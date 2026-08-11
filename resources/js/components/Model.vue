@@ -49,6 +49,13 @@
                 type: String,
                 required: true,
             },
+            // Значок после названия в крошке: {getter, name, title}. Показывается,
+            // если геттер(id карточки) истинен — проверка при рендере (App.vue),
+            // потому что PUT крошки одноразовый, а данные геттера могут доехать позже.
+            crumbIcon: {
+                type: Object,
+                default: null,
+            },
         },
         data() {
             return {
@@ -89,6 +96,7 @@
                             text,
                             to: {name: this.value, params: {id: this.key}},
                             disabled: true,
+                            ...(this.crumbIcon ? {icon: {...this.crumbIcon, id: this.key}} : {}),
                         });
                     }
                 }

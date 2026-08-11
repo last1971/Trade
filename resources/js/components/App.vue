@@ -39,6 +39,9 @@
                             <router-link v-else :to="item.to" class="white--text">
                                 {{ item.text }}
                             </router-link>
+                            <v-icon small color="white" class="ml-1" :title="item.icon.title"
+                                    v-if="item.icon && $store.getters[item.icon.getter](item.icon.id)"
+                            >{{ item.icon.name }}</v-icon>
                         </v-breadcrumbs-item>
                     </template>
                 </v-breadcrumbs>

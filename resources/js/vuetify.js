@@ -4,6 +4,7 @@ import 'vuetify/dist/vuetify.min.css'
 import ru from 'vuetify/es5/locale/ru'
 import '@mdi/font/css/materialdesignicons.css'
 import colors from 'vuetify/lib/util/colors'
+import ChzIcon from './components/icons/ChzIcon'
 
 Vue.use(Vuetify);
 
@@ -13,6 +14,10 @@ const lighten = process.env.MIX_PRIMARY_LIGHTEN || 'lighten2';
 const opts = {
     icons: {
         iconfont: 'mdi',
+        values: {
+            // Знак ЧЗ: <v-icon>$chz</v-icon>
+            chz: {component: ChzIcon},
+        },
     },
     lang: {
         locales: {ru},

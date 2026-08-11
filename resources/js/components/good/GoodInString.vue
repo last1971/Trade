@@ -5,6 +5,7 @@
                 <span>{{ value.name.NAME }}</span>
                 <span v-if="value.BODY">/ {{ value.BODY }}</span>
                 <span v-if="value.PRODUCER">/ {{ value.PRODUCER }}</span>
+                <chz-mark :code="value.GOODSCODE"/>
                 <br/>
                 <div class="font-italic" style="font-size: 8px">{{ remark }}</div>
             </v-col>
@@ -47,10 +48,11 @@
 import GoodQuantity from "./GoodQuantity";
 import ReservesModal from "../ReservesModal";
 import OrderLineInWayModal from "../order/OrderLineInWayModal";
+import ChzMark from "./ChzMark";
 
 export default {
     name: "GoodInString",
-    components: {OrderLineInWayModal, ReservesModal, GoodQuantity},
+    components: {OrderLineInWayModal, ReservesModal, GoodQuantity, ChzMark},
     props: {
         value: {
             type: Object,

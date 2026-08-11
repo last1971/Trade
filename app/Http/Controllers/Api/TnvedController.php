@@ -56,4 +56,20 @@ class TnvedController extends Controller
     {
         return $marking->all();
     }
+
+    /**
+     * GOODSCODE всех товаров, подлежащих маркировке, для значка ЧЗ у названия.
+     * «Подлежит» = EXISTS(строка GOODS_CLASSIF с MARK_REQUIRED=1) — та же
+     * семантика, что в GoodClassifyService/StockClassifService.
+     */
+    public function markGoods(): array
+    {
+        return \App\GoodClassif::query()
+            ->where('MARK_REQUIRED', 1)
+            ->distinct()
+            ->pluck('GOODSCODE')
+            ->map(fn($code) => intval($code))
+            ->values()
+            ->all();
+    }
 }
