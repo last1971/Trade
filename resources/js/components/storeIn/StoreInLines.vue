@@ -65,6 +65,7 @@ export default {
                 {text: 'Цена', value: 'entry.PRICE', align: 'right', sortable: false},
                 {text: 'Сумма', value: 'summap', align: 'right', sortable: false},
                 {text: 'ГТД', value: 'GTD', sortable: false},
+                {text: 'Страна', value: 'STRANA', sortable: false},
                 {text: 'Заказ', value: 'orderLine.MASTER_ID', sortable: false},
             ];
         },

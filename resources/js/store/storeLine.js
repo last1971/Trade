@@ -13,6 +13,8 @@ state.headers = [
     {text: 'Поставщик', value: 'entry.seller.NAMEPOST', sortable: false},
     {text: 'Дата документа', value: 'DATA_DOC', sortable: false},
     {text: 'Номер', value: 'NDOC', sortable: false},
+    {text: 'ГТД', value: 'GTD', sortable: false},
+    {text: 'Страна', value: 'STRANA', sortable: false},
     {text: 'Кол.', value: 'QUAN', align: 'right', sortable: false},
     {text: 'Цена', value: 'entry.PRICE', align: 'right', sortable: false},
     {text: 'Сумма', value: 'entry.SUMMAP', align: 'right', sortable: false},
