@@ -31,6 +31,9 @@
                 <v-btn icon small class="ml-2" title="Сбросить инвентаризацию" @click="resetInventory">
                     <v-icon>mdi-restart</v-icon>
                 </v-btn>
+                <v-btn icon small class="ml-2" title="Выгрузить в CSV (Excel)" @click="exportCsv">
+                    <v-icon>mdi-download</v-icon>
+                </v-btn>
             </template>
             <v-spacer/>
             <select-headers :model="model"/>
@@ -240,6 +243,29 @@ export default {
         },
         rowClass(item) {
             return this.scannedKis.includes(item.KI) ? 'mark-scanned' : '';
+        },
+        // Итоги инвентаризации в CSV для Excel: столбец лишних (отсканированы,
+        // но в списке нет) и столбец не отсканированных по текущим фильтрам.
+        // ";" как разделитель и BOM — чтобы русский Excel открыл двойным кликом.
+        exportCsv() {
+            const cell = (v) => /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+            const notScanned = this.items
+                .filter((item) => !this.scannedKis.includes(item.KI))
+                .map((item) => item.KI);
+            const rows = [['Лишние (нет в списке)', 'Не отсканированы']];
+            for (let i = 0; i < Math.max(this.extraKis.length, notScanned.length); i++) {
+                rows.push([this.extraKis[i] || '', notScanned[i] || '']);
+            }
+            const csv = '\ufeff' + rows.map((row) => row.map(cell).join(';')).join('\r\n');
+            const blob = new Blob([csv], {type: 'text/csv;charset=utf-8'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'инвентаризация_' + this.value + '.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         },
     },
 }
