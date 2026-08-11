@@ -24,6 +24,9 @@ class OrderService extends ModelService
             'orderLinesSum' => ['orderLines' => function (Builder $query) {
                 $query->orderLinesSum();
             }],
+            'markGoodLinesCount' => ['orderLines' => function (Builder $query) {
+                $query->markGoodLinesCount();
+            }],
         ];
 
         $this->dateAttributes = ['DATA_ZAK', 'DATA_PRIH', 'INVOICE_DATA'];

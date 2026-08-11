@@ -91,6 +91,10 @@
         <template v-slot:item.DATA="{ item }">
             {{ item.DATA | formatDate }}
         </template>
+        <template v-slot:item.NP="{ item }">
+            {{ item.NP }}
+            <chz-mark :count="item.markGoodLinesCount"/>
+        </template>
         <template v-slot:item.DATA_DOC="{ item }">
             {{ item.DATA_DOC | formatDate }}
         </template>
@@ -113,15 +117,17 @@ import utilsMixin from "../../mixins/utilsMixin";
 import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
 import StoreInLines from "./StoreInLines";
 import SelectHeaders from "../SelectHeaders";
+import ChzMark from "../good/ChzMark";
 
 export default {
     name: "StoreIns",
-    components: {StoreInLines, SelectHeaders},
+    components: {StoreInLines, SelectHeaders, ChzMark},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {
             options: {
                 with: ['seller'],
+                aggregateAttributes: ['markGoodLinesCount'],
                 filterAttributes: [
                     'DATA',
                     'NP',
@@ -142,8 +148,9 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
-            // with — часть кода, не настройка: игнорируем протухший список из URL/localStorage
+            // with и aggregateAttributes — часть кода, не настройка: игнорируем протухшие списки из URL/localStorage
             vm.options.with = ['seller'];
+            vm.options.aggregateAttributes = ['markGoodLinesCount'];
             vm.$store.commit('BREADCRUMBS/SET', [
                 {
                     text: 'Торговля',

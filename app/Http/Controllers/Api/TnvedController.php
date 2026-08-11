@@ -64,6 +64,10 @@ class TnvedController extends Controller
      */
     public function markGoods(): array
     {
+        if (!\App\GoodClassif::tableExists()) {
+            // магазинная база без GOODS_CLASSIF — маркируемых товаров нет
+            return [];
+        }
         return \App\GoodClassif::query()
             ->where('MARK_REQUIRED', 1)
             ->distinct()

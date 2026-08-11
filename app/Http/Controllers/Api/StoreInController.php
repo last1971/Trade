@@ -24,7 +24,8 @@ class StoreInController extends ModelController
               GROUP BY s.NP) as "store_ins"',
             []
         );
-        $request->merge(['selectAttributes' => '*']);
+        // store_ins.* вместо *: Firebird не принимает «*, (подзапрос)» при агрегатах
+        $request->merge(['selectAttributes' => 'store_ins.*']);
         return parent::index($request);
     }
 }

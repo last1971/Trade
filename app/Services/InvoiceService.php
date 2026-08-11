@@ -25,6 +25,9 @@ class InvoiceService extends ModelService
             'transferOutLinesSum' => ['transferOutLines' => function (Builder $query) {
                 $query->transferOutLinesSum();
             }],
+            'markGoodLinesCount' => ['invoiceLines' => function (Builder $query) {
+                $query->markGoodLinesCount();
+            }],
         ];
         $this->dateAttributes = ['DATA'];
         $this->aliases['buyer.SHORTNAME'] = function (Builder $query) {

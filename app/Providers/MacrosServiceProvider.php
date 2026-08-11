@@ -39,6 +39,21 @@ class MacrosServiceProvider extends ServiceProvider
             });
         });
 
+        // Строки документа с маркируемым товаром — для значка ЧЗ в списках
+        // (заказы/приходы/счета/УПД). «Подлежит» — как в GoodClassifyService:
+        // EXISTS(строка GOODS_CLASSIF с MARK_REQUIRED=1).
+        Builder::macro('markGoodLinesCount', function () {
+            if (!\App\GoodClassif::tableExists()) {
+                // магазинная база без GOODS_CLASSIF — счётчик всегда 0
+                $this->whereRaw('1=0');
+                return;
+            }
+            $this->whereIn(
+                'GOODSCODE',
+                \App\GoodClassif::query()->where('MARK_REQUIRED', 1)->select('GOODSCODE')
+            );
+        });
+
         // For CashFlow
         Builder::macro('cashFlowsSum', function () {
             $this->select(DB::raw('COALESCE(sum(MONEYSCHET), 0)'));

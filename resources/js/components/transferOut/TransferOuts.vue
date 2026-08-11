@@ -108,6 +108,7 @@
                     <span>{{ item.PRIM || 'перейти'}}</span>
                 </v-tooltip>
             </router-link>
+            <chz-mark :count="item.markGoodLinesCount"/>
         </template>
         <template v-slot:item.invoice="{ item }">
             <router-link :to="{ name: 'invoice', params: { id: item.SCODE } }" v-if="item.invoice">
@@ -137,18 +138,19 @@
     import {mapGetters} from "vuex";
     import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
     import TransferOutPdf from "./TransferOutPdf";
+    import ChzMark from "../good/ChzMark";
     import SelectHeaders from "../SelectHeaders";
 
     export default {
         name: "TransferOuts",
-        components: {TransferOutPdf, SelectHeaders},
+        components: {TransferOutPdf, SelectHeaders, ChzMark},
         mixins: [tableMixin, utilsMixin, tableOptionsRouteMixin],
         data() {
             return {
                 options: {
                     with: ['buyer', 'employee', 'firm', 'invoice'],
                     aggregateAttributes: [
-                        'transferOutLinesCount', 'transferOutLinesSum'
+                        'transferOutLinesCount', 'transferOutLinesSum', 'markGoodLinesCount'
                     ],
                     filterAttributes: [
                         'DATA',
@@ -178,6 +180,10 @@
         },
         beforeRouteEnter(to, from, next) {
             next(vm => {
+                // aggregateAttributes — часть кода, не настройка: игнорируем протухший список из URL/localStorage
+                vm.options.aggregateAttributes = [
+                    'transferOutLinesCount', 'transferOutLinesSum', 'markGoodLinesCount'
+                ];
                 vm.$store.commit('BREADCRUMBS/SET', [
                     {
                         text: 'Торговля',

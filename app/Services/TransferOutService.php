@@ -27,6 +27,9 @@ class TransferOutService extends ModelService
             'transferOutLinesCount' => ['transferOutLines' => function (Builder $query) {
                 $query->transferOutLinesCount();
             }],
+            'markGoodLinesCount' => ['transferOutLines' => function (Builder $query) {
+                $query->markGoodLinesCount();
+            }],
         ];
 
         $this->dateAttributes = ['DATA'];

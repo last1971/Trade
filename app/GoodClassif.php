@@ -26,6 +26,21 @@ class GoodClassif extends Model
         'SUPPLIER_INN', 'IS_PRIMARY', 'PRIM', 'UPDATED_AT',
     ];
 
+    /**
+     * Есть ли таблица в текущей базе: магазинная (magazin.fdb) живёт без
+     * GOODS_CLASSIF, и всё про маркировку там должно тихо выключаться.
+     * static-мемо — одна проверка на процесс fpm.
+     */
+    public static function tableExists(): bool
+    {
+        static $exists = null;
+        if ($exists === null) {
+            $exists = (bool) \DB::connection('firebird')
+                ->select("SELECT 1 FROM RDB\$RELATIONS WHERE RDB\$RELATION_NAME = 'GOODS_CLASSIF'");
+        }
+        return $exists;
+    }
+
     public function good()
     {
         return $this->belongsTo('App\Good', 'GOODSCODE', 'GOODSCODE');

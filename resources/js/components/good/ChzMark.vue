@@ -10,21 +10,29 @@ import {chzIcon} from "../../store/marking";
 export default {
     name: "ChzMark",
     props: {
+        // Режим товара: проверка GOODSCODE по списку маркируемых.
         code: {
             type: [Number, String],
-            required: true,
+            default: null,
+        },
+        // Режим документа: готовый счётчик маркируемых строк (агрегат markGoodLinesCount).
+        count: {
+            type: [Number, String],
+            default: null,
         },
     },
     created() {
         // Коды маркируемых товаров тянутся один раз за сессию (no-op после загрузки).
-        this.$store.dispatch('MARKING/FETCH_GOODS');
+        if (this.code !== null) this.$store.dispatch('MARKING/FETCH_GOODS');
     },
     computed: {
         icon() {
             return chzIcon;
         },
         show() {
-            return this.$store.getters[chzIcon.getter](this.code);
+            return this.count !== null
+                ? this.count > 0
+                : this.$store.getters[chzIcon.getter](this.code);
         },
     },
 }

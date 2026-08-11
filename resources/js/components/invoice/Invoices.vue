@@ -158,6 +158,7 @@
             <router-link :to="{ name: 'invoice', params: { id: item.SCODE } }">
                 {{ item.NS }}
             </router-link>
+            <chz-mark :count="item.markGoodLinesCount"/>
         </template>
         <template v-slot:item.DATA="{ item }">
             {{ item.DATA | formatDate }}
@@ -213,17 +214,18 @@ import InvoiceStatusSelect from "./InvoiceStatusSelect";
 import InvoiceStatusSelectInline from "./InvoiceStatusSelectInline";
 import CashFlowsModal from "../CashFlowsModal.vue";
 import SelectHeaders from "../SelectHeaders";
+import ChzMark from "../good/ChzMark";
 
 export default {
     name: "Invoices",
-    components: {CashFlowsModal, InvoiceStatusSelect, EditField, InvoicePdf, InvoiceStatusSelectInline, SelectHeaders},
+    components: {CashFlowsModal, InvoiceStatusSelect, EditField, InvoicePdf, InvoiceStatusSelectInline, SelectHeaders, ChzMark},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {
             options: {
                 with: ['buyer', 'employee', 'firm'],
                 aggregateAttributes: [
-                    'invoiceLinesCount', 'invoiceLinesSum', 'cashFlowsSum', 'transferOutLinesSum'
+                    'invoiceLinesCount', 'invoiceLinesSum', 'cashFlowsSum', 'transferOutLinesSum', 'markGoodLinesCount'
                 ],
                 filterAttributes: [
                     'DATA',
@@ -306,6 +308,10 @@ export default {
     },
     beforeRouteEnter(to, from, next) {
         next(vm => {
+            // aggregateAttributes — часть кода, не настройка: игнорируем протухший список из URL/localStorage
+            vm.options.aggregateAttributes = [
+                'invoiceLinesCount', 'invoiceLinesSum', 'cashFlowsSum', 'transferOutLinesSum', 'markGoodLinesCount'
+            ];
             vm.$store.commit('BREADCRUMBS/SET', [
                 {
                     text: 'Торговля',

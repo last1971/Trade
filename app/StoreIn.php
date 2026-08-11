@@ -24,4 +24,9 @@ class StoreIn extends Model
     {
         return $this->belongsTo(Seller::class, 'WHEREISPOSTCODE', 'WHEREISPOSTCODE');
     }
+
+    public function storeLines()
+    {
+        return $this->hasMany(StoreLine::class, 'NP', 'NP');
+    }
 }

@@ -93,6 +93,10 @@
         <template v-slot:item.actions>
 
         </template>
+        <template v-slot:item.ID="{ item }">
+            {{ item.ID }}
+            <chz-mark :count="item.markGoodLinesCount"/>
+        </template>
         <template v-slot:item.INVOICE_NUM="{ item }">
             <router-link :to="{ name: 'order', params: { id: item.ID } }">
                 <v-tooltip top>
@@ -139,17 +143,18 @@ import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
 import OrderStatusSelectInline from "./OrderStatusSelectInline";
 import DatePicker from "../DatePicker";
 import SelectHeaders from "../SelectHeaders";
+import ChzMark from "../good/ChzMark";
 
 export default {
     name: "Orders",
-    components: {DatePicker, OrderStatusSelectInline, SelectHeaders},
+    components: {DatePicker, OrderStatusSelectInline, SelectHeaders, ChzMark},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {
             options: {
                 with: ['seller', 'employee'],
                 aggregateAttributes: [
-                    'orderLinesCount', 'orderLinesSum', 'cashFlowsSum',
+                    'orderLinesCount', 'orderLinesSum', 'cashFlowsSum', 'markGoodLinesCount',
                 ],
                 filterAttributes: [
                     'INVOICE_DATA',
@@ -195,6 +200,10 @@ export default {
         },
         beforeRouteEnter(to, from, next) {
             next(vm => {
+                // aggregateAttributes — часть кода, не настройка: игнорируем протухший список из URL/localStorage
+                vm.options.aggregateAttributes = [
+                    'orderLinesCount', 'orderLinesSum', 'cashFlowsSum', 'markGoodLinesCount',
+                ];
                 vm.$store.commit('BREADCRUMBS/SET', [
                     {
                         text: 'Торговля',

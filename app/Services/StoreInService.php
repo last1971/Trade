@@ -17,6 +17,12 @@ class StoreInService extends ModelService
     {
         parent::__construct(StoreIn::class);
 
+        $this->aggregateAttributes = [
+            'markGoodLinesCount' => ['storeLines' => function (Builder $query) {
+                $query->markGoodLinesCount();
+            }],
+        ];
+
         $this->aliases['seller.NAMEPOST'] = function (Builder $query) {
             $query->join(
                 'WHEREISPOST as seller',
