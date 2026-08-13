@@ -4,6 +4,7 @@ namespace App\Services\Marking;
 
 use App\TnvedSuggestion;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Фоновая пачка авто-подбора: по товарам «не проверяли» гоняет classifyOne и
@@ -36,7 +37,13 @@ class TnvedSuggestService
 
         $count = 0;
         foreach ($this->stock->uncheckedCodes($limit, $exclude) as $code) {
-            $r = $this->auto->classifyOne($code, $threshold);
+            try {
+                $r = $this->auto->classifyOne($code, $threshold);
+            } catch (\Throwable $e) {
+                // Один кривой ответ ИИ не должен убивать всю пачку — пропускаем товар.
+                $this->log("tnved:suggest товар {$code} пропущен: " . $e->getMessage());
+                continue;
+            }
             // В ревью кладём только готовые к применению (есть код и уверенность ≥ порога);
             // остальные остаются «не проверяли» — их закрывают руками галочками.
             if ($r['status'] !== 'ok') {
@@ -62,5 +69,14 @@ class TnvedSuggestService
         Cache::put(self::CACHE_UPDATED_AT, now()->toDateTimeString());
 
         return $count;
+    }
+
+    private function log(string $message): void
+    {
+        try {
+            Log::warning($message);
+        } catch (\Throwable $e) {
+            // Логи на проде бывают недоступны (права storage/logs) — молча продолжаем.
+        }
     }
 }

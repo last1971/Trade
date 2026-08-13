@@ -68,11 +68,61 @@ final class AIResponse
         /** @var array<string, mixed>|null $decoded */
         $decoded = json_decode($text, true, 512, \JSON_INVALID_UTF8_IGNORE);
 
+        // «Болтливый» ответ: JSON + пояснения (и иногда второй JSON) —
+        // вытаскиваем первый сбалансированный объект и декодируем его.
+        if ($decoded === null && json_last_error() !== \JSON_ERROR_NONE) {
+            $first = $this->extractFirstJson($text);
+            if ($first !== null) {
+                $decoded = json_decode($first, true, 512, \JSON_INVALID_UTF8_IGNORE);
+            }
+        }
+
         if ($decoded === null && json_last_error() !== \JSON_ERROR_NONE) {
             throw new \RuntimeException('Failed to parse JSON response: ' . json_last_error_msg() . "\nResponse: " . $text);
         }
 
         return $decoded ?? [];
+    }
+
+    /**
+     * Первый сбалансированный JSON-объект из текста (учитывая строки и экранирование).
+     */
+    private function extractFirstJson(string $text): ?string
+    {
+        $start = strpos($text, '{');
+        if ($start === false) {
+            return null;
+        }
+
+        $depth = 0;
+        $inString = false;
+        $escaped = false;
+        $len = strlen($text);
+        for ($i = $start; $i < $len; $i++) {
+            $ch = $text[$i];
+            if ($inString) {
+                if ($escaped) {
+                    $escaped = false;
+                } elseif ($ch === '\\') {
+                    $escaped = true;
+                } elseif ($ch === '"') {
+                    $inString = false;
+                }
+                continue;
+            }
+            if ($ch === '"') {
+                $inString = true;
+            } elseif ($ch === '{') {
+                $depth++;
+            } elseif ($ch === '}') {
+                $depth--;
+                if ($depth === 0) {
+                    return substr($text, $start, $i - $start + 1);
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
