@@ -6,11 +6,11 @@ use App\AdvancedBuyer;
 use App\Firm;
 use App\Services\Upd\Contracts\UpdLineDto;
 use App\Services\Upd\Sources\ImportedUpdSource;
+use App\Services\Upd\UpdFileId;
 use App\Services\Upd\UpdXmlBuilder;
 use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class UpdImportService
@@ -196,9 +196,7 @@ class UpdImportService
 
         $firm = Firm::findOrFail($parsed['firm_id']);
 
-        $fileId = 'ON_NSCHFDOPPR_' . $advancedBuyer->edo_id
-            . '_' . $firm->EDOID
-            . '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
+        $fileId = UpdFileId::build($buyer, $firm);
 
         $source = new ImportedUpdSource(
             $firm,
@@ -409,9 +407,7 @@ class UpdImportService
 
         $firm = $this->resolveFirmByInn($parsed['seller_inn_kpp'] ?? null);
 
-        $fileId = 'ON_NSCHFDOPPR_' . $advancedBuyer->edo_id
-            . '_' . $firm->EDOID
-            . '_' . Carbon::now()->format('Ymd') . '-' . Str::uuid();
+        $fileId = UpdFileId::build($buyer, $firm);
 
         $source = new ImportedUpdSource(
             $firm,

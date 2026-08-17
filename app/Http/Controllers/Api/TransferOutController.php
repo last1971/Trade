@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\ModelRequest;
 use App\Http\Requests\TransferOutPDFRequest;
 use App\Http\Resources\TransferOutResource;
+use App\Services\Marking\MarkCodesReminder;
 use App\Services\TransferOutService;
 use App\TransferOutLine;
 use PDF;
@@ -76,6 +77,8 @@ class TransferOutController extends ModelController
 
     private function generatePdf($transferOut, array $params)
     {
+        app(MarkCodesReminder::class)->remindIfNeeded($transferOut);
+
         $cashFlows = $transferOut->invoice->cashFlows->filter(function ($v) {
             return !$v->SFCODE1;
         });

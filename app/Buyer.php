@@ -26,6 +26,23 @@ class Buyer extends Model
             ->withDefault();
     }
 
+    /**
+     * Идентификатор стороны в ЭДО: свой, если заведён, иначе ИНН.
+     */
+    public function edoId(): string
+    {
+        return (string)($this->advancedBuyer->edo_id ?? $this->Inn);
+    }
+
+    /**
+     * Участник оборота ЧЗ: коды маркировки передаём ему в УПД.
+     * Иначе коды в УПД не попадают — из оборота их выводят не здесь.
+     */
+    public function transfersMarkCodes(): bool
+    {
+        return (int)$this->CHZ_MEMBER === 1;
+    }
+
     public function invoices()
     {
         return $this->hasMany('App\Invoice', 'POKUPATCODE', 'POKUPATCODE');

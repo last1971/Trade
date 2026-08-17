@@ -94,15 +94,16 @@ class MpUpdPatchService
         $fileId = $fileEl->getAttribute('ИдФайл');
 
         $fileId = strtr($fileId, [
-            'ИдентификаторПолучателя' => $invoice->buyer->advancedBuyer->edo_id ?? $invoice->buyer->Inn,
+            'ИдентификаторПолучателя' => $invoice->buyer->edoId(),
             'ИдентификаторОтправителя' => $invoice->firm->EDOID,
         ]);
 
         if ($xp->query('//ТаблСчФакт/СведТов/ДопСведТов/НомСредИдентТов')->length > 0) {
-            $fileId = preg_replace('/_(\d)_\d(_\d_\d_\d_\d{2})$/u', '_$1_1$2', $fileId, 1, $count);
-            if ($count === 0) {
+            $patched = UpdFileId::withMarkFlag($fileId, true);
+            if ($patched === null) {
                 $warnings[] = 'В ИдФайл не найден хвост признаков 5.03 — признак маркировки не выставлен';
             }
+            $fileId = $patched ?? $fileId;
         }
 
         $fileEl->setAttribute('ИдФайл', $fileId);

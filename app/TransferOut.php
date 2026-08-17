@@ -46,4 +46,20 @@ class TransferOut extends Model
     {
         return $this->hasMany('App\TransferOutLine', 'SFCODE', 'SFCODE');
     }
+
+    /**
+     * Все коды маркировки документа, включая уже переданные и выведенные из оборота
+     * (в отличие от TransferOutLine::markCodes, где только непереданные).
+     */
+    public function markCodes()
+    {
+        return $this->hasManyThrough(
+            'App\MarkCode',
+            'App\TransferOutLine',
+            'SFCODE',
+            'REALPRICEFCODE',
+            'SFCODE',
+            'REALPRICEFCODE'
+        );
+    }
 }

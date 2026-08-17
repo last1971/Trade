@@ -3,26 +3,18 @@
 namespace App\Services\Upd\Sources;
 
 use App\Buyer;
-use App\Exceptions\ApiException;
 use App\Firm;
 use App\FirmHistory;
 use App\Invoice;
 use App\Services\Upd\Contracts\UpdLineDto;
-use App\Services\Upd\Contracts\UpdSourceInterface;
 use App\TransferOut;
 use App\TransferOutLine;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
-class TransferOutUpdSource implements UpdSourceInterface
+class TransferOutUpdSource extends AbstractUpdSource
 {
     private TransferOut $transferOut;
-    private ?string $basis;
-    private ?string $basisNumber;
-    private ?string $basisDate;
-    private array $advanceInvoices;
-    private ?Collection $cachedLines = null;
 
     public function __construct(
         TransferOut $transferOut,
@@ -31,11 +23,8 @@ class TransferOutUpdSource implements UpdSourceInterface
         ?string $basisDate = null,
         array $advanceInvoices = []
     ) {
+        parent::__construct($basis, $basisNumber, $basisDate, $advanceInvoices);
         $this->transferOut = $transferOut;
-        $this->basis = $basis;
-        $this->basisNumber = $basisNumber;
-        $this->basisDate = $basisDate;
-        $this->advanceInvoices = $advanceInvoices;
     }
 
     public function getFunction(): string
@@ -68,15 +57,6 @@ class TransferOutUpdSource implements UpdSourceInterface
         return Carbon::create($this->transferOut->DATA);
     }
 
-    public function getFileId(): string
-    {
-        return 'ON_NSCHFDOPPR_'
-            . ($this->transferOut->buyer->advancedBuyer->edo_id ?? $this->transferOut->buyer->Inn)
-            . '_' . $this->transferOut->firm->EDOID
-            . '_' . Carbon::now()->format('Ymd')
-            . '-' . Str::uuid();
-    }
-
     public function getFirm(): Firm
     {
         return $this->transferOut->firm;
@@ -95,37 +75,6 @@ class TransferOutUpdSource implements UpdSourceInterface
     public function getInvoice(): ?Invoice
     {
         return $this->transferOut->invoice;
-    }
-
-    public function getBasis(): ?string
-    {
-        return $this->basis;
-    }
-
-    public function getBasisNumber(): ?string
-    {
-        return $this->basisNumber;
-    }
-
-    public function getBasisDate(): ?string
-    {
-        return $this->basisDate;
-    }
-
-    public function getCashFlows(): Collection
-    {
-        $cashFlows = $this->transferOut->invoice->cashFlows->filter(fn($v) => !$v->SFCODE1);
-        foreach ($cashFlows as $cf) {
-            if (empty($cf->NPP)) {
-                throw new ApiException('ВМС не занес обязательный номер платежного поручения!', 400);
-            }
-        }
-        return $cashFlows;
-    }
-
-    public function getAdvanceInvoices(): array
-    {
-        return $this->advanceInvoices;
     }
 
     public function getLines(): Collection
@@ -150,7 +99,12 @@ class TransferOutUpdSource implements UpdSourceInterface
             countryNumCode: $line->countryNumCode,
             strana: $line->STRANA,
             gtdNumber: $line->GTD,
-            markCodes: $line->markCodes,
+            markCodes: $this->transferableMarkCodes($line->markCodes),
         ));
+    }
+
+    protected function fileIdMarkFlag(): ?bool
+    {
+        return $this->hasMarkCodes();
     }
 }

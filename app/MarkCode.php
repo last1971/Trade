@@ -9,6 +9,9 @@ class MarkCode extends Model
 {
     use InsertTrait;
 
+    /** STATUS: код выведен из оборота. */
+    public const STATUS_RETIRED = 6;
+
     public static $snakeAttributes = false;
 
     public $timestamps = false;
@@ -80,5 +83,10 @@ class MarkCode extends Model
     public function scopeAttachedToTransferOutLine($query, int $realPriceFCode)
     {
         return $query->where('REALPRICEFCODE', $realPriceFCode);
+    }
+
+    public function scopeNotRetired($query)
+    {
+        return $query->where('STATUS', '<>', self::STATUS_RETIRED);
     }
 }
