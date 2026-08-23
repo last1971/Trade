@@ -16,8 +16,12 @@ export default {
             if (options.sortBy) {
                 options.sortBy = typeof options.sortBy === 'string' ? [options.sortBy] : options.sortBy;
             }
-            if (options.sortDesc && !Array.isArray(options.sortDesc)) {
-                options.sortDesc = [options.sortDesc];
+            if (options.sortDesc) {
+                // Из URL приходят строки "true"/"false"; строка "false" истинна,
+                // и v-data-table считает колонку уже отсортированной по убыванию —
+                // цикл «вверх → вниз → снять» ломается. Приводим к boolean.
+                if (!Array.isArray(options.sortDesc)) options.sortDesc = [options.sortDesc];
+                options.sortDesc = options.sortDesc.map((desc) => desc === true || desc === "true");
             }
             if (options.multiSort) {
                 options.multiSort = options.multiSort === "true" || options.multiSort === true;

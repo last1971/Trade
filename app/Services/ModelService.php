@@ -236,7 +236,14 @@ class ModelService
             // ordering
             ->when($request->get('sortBy'), function (Builder $query, array $sortBy) use ($request) {
                 foreach ($sortBy as $index => $orderBy) {
-                    $query->orderBy($orderBy, $request->get('sortDesc')[$index] ? 'desc' : 'asc');
+                    // sortDesc приходит GET-параметром, то есть строкой "true"/"false";
+                    // строка "false" истинна, поэтому без приведения сортировка
+                    // по возрастанию всегда уезжала в desc.
+                    $desc = filter_var(
+                        $request->get('sortDesc')[$index] ?? false,
+                        FILTER_VALIDATE_BOOLEAN
+                    );
+                    $query->orderBy($orderBy, $desc ? 'desc' : 'asc');
                 }
             });
     }
