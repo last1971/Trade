@@ -23,7 +23,7 @@ export default {
                 options.multiSort = options.multiSort === "true" || options.multiSort === true;
             }
             if (options.mustSort) {
-                options.mustSort = options.mustSort === "true" || options.multiSort === true;
+                options.mustSort = options.mustSort === "true" || options.mustSort === true;
             }
             if (options.filterAttributes) {
                 options.filterAttributes = typeof options.filterAttributes === 'string' ?
