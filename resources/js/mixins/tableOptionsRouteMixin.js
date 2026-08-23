@@ -22,9 +22,10 @@ export default {
             if (options.multiSort) {
                 options.multiSort = options.multiSort === "true" || options.multiSort === true;
             }
-            if (options.mustSort) {
-                options.mustSort = options.mustSort === "true" || options.mustSort === true;
-            }
+            // mustSort — часть кода, а не настройка: таблицы его не задают (кроме
+            // Payments, где false). Выбрасываем протухшее значение из URL/localStorage,
+            // иначе залипший mustSort=true не даёт снять сортировку кликом по колонке.
+            delete options.mustSort;
             if (options.filterAttributes) {
                 options.filterAttributes = typeof options.filterAttributes === 'string' ?
                     [options.filterAttributes] : options.filterAttributes;
