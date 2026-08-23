@@ -23,7 +23,9 @@ class OrderLineService extends ModelService
 
         $this
             ->query
-            ->join('ZAKAZ_MASTER as order', 'order.ID', '=', 'ZAKAZ_DETAIL.MASTER_ID');
+            ->join('ZAKAZ_MASTER as order', 'order.ID', '=', 'ZAKAZ_DETAIL.MASTER_ID')
+            // алиасы category.CATEGORY и name.NAME джойнятся по good — как в InvoiceLineService
+            ->join('GOODS as good', 'good.GOODSCODE', '=', 'ZAKAZ_DETAIL.GOODSCODE');
 
         $this->aggregateAttributes = [
             'shopLinesQuantity' => ['shopLines' => function (Builder $query) {
