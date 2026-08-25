@@ -132,6 +132,12 @@
                 </v-btn>
             </v-col>
             <v-col cols="12" sm="auto" v-if="$vuetify.breakpoint.smAndUp">
+                <mark-transfer-buttons document="invoice"
+                                       :document-id="value.SCODE"
+                                       :buyer="value.buyer"
+                />
+            </v-col>
+            <v-col cols="12" sm="auto" v-if="$vuetify.breakpoint.smAndUp">
                 <v-speed-dial :open-on-hover="true" direction="bottom">
                     <template v-slot:activator>
                         <v-btn :loading="downloading" class="mt-2" fab icon>
@@ -147,19 +153,13 @@
                     <v-btn @click="receipt" fab v-if="!notCan">
                         <v-icon color="primary">mdi-paper-roll</v-icon>
                     </v-btn>
-                    <v-btn @click="downloadUpd2Xml" fab :loading="upd2Loading" title="Скачать УПД-2 XML">
+                    <v-btn v-if="chzBuyer" @click="downloadUpd2Xml" fab :loading="upd2Loading" title="Скачать УПД-2 XML">
                         <v-icon color="orange">mdi-xml</v-icon>
                     </v-btn>
-                    <v-btn @click="sendUpd2ToEdo" fab :loading="upd2Loading" title="Отправить УПД-2 в ЭДО">
+                    <v-btn v-if="chzBuyer" @click="sendUpd2ToEdo" fab :loading="upd2Loading" title="Отправить УПД-2 в ЭДО">
                         <v-icon color="purple">mdi-send</v-icon>
                     </v-btn>
-                    <v-btn @click="markUpd2Manual" fab :loading="upd2Loading" title="Я передал УПД-2 вручную">
-                        <v-icon color="green">mdi-check-bold</v-icon>
-                    </v-btn>
-                    <v-btn @click="unmarkUpd2" fab :loading="upd2Loading" title="Откатить передачу УПД-2">
-                        <v-icon color="red">mdi-undo</v-icon>
-                    </v-btn>
-                    <v-btn @click="$refs.mpUpdFile.click()" fab :loading="upd2Loading"
+                    <v-btn v-if="chzBuyer" @click="$refs.mpUpdFile.click()" fab :loading="upd2Loading"
                            title="УПД маркетплейса: подставить номер, подписанта и коды ЧЗ">
                         <v-icon color="teal">mdi-storefront</v-icon>
                     </v-btn>
@@ -200,11 +200,14 @@ import DatePicker from "../DatePicker";
 import EmployeeSelect from "../EmployeeSelect";
 import { mapGetters } from "vuex";
 import CashFlowsModal from "../CashFlowsModal.vue";
+import MarkTransferButtons from "../markCode/MarkTransferButtons";
+import { worksWithChz } from "../../helpers/marking";
 
 export default {
     name: "InvoiceEdit",
     components: {
         CashFlowsModal,
+        MarkTransferButtons,
         EmployeeSelect,
         DatePicker,
         FirmHistorySelect,
@@ -235,6 +238,9 @@ export default {
         ...mapGetters({ isAdmin: "AUTH/IS_ADMIN" }),
         notEditable() {
             return this.model.transferOutLinesSum > 0;
+        },
+        chzBuyer() {
+            return worksWithChz(this.value.buyer);
         },
         savePossible() {
             //const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);
@@ -409,48 +415,6 @@ export default {
                 });
             } catch (e) {
                 const msg = e.response?.data?.message || "Ошибка отправки УПД-2";
-                this.$store.commit("SNACKBAR/ERROR", msg);
-            } finally {
-                this.upd2Loading = false;
-            }
-        },
-        async markUpd2Manual() {
-            if (!confirm("Пометить коды как переданные вручную? Используй если XML отдан в ЭДО/ЛК Озон вне системы.")) return;
-            this.upd2Loading = true;
-            try {
-                const { data } = await window.axios.post(
-                    "/api/mark-codes/mark-as-transferred",
-                    { invoice_id: this.value.SCODE, transfer_type: 2, retire_reason: 1 }
-                );
-                this.$store.commit("SNACKBAR/PUSH", {
-                    text: `Помечено ${data.count} кодов как переданные`,
-                    color: "success",
-                    status: true,
-                    timeout: 10000,
-                });
-            } catch (e) {
-                const msg = e.response?.data?.message || "Ошибка ручной пометки УПД-2";
-                this.$store.commit("SNACKBAR/ERROR", msg);
-            } finally {
-                this.upd2Loading = false;
-            }
-        },
-        async unmarkUpd2() {
-            if (!confirm("Откатить передачу кодов УПД-2? Коды вернутся в оборот.")) return;
-            this.upd2Loading = true;
-            try {
-                const { data } = await window.axios.post(
-                    "/api/mark-codes/unmark-as-transferred",
-                    { invoice_id: this.value.SCODE }
-                );
-                this.$store.commit("SNACKBAR/PUSH", {
-                    text: `Откачено ${data.count} кодов`,
-                    color: "success",
-                    status: true,
-                    timeout: 10000,
-                });
-            } catch (e) {
-                const msg = e.response?.data?.message || "Ошибка отката УПД-2";
                 this.$store.commit("SNACKBAR/ERROR", msg);
             } finally {
                 this.upd2Loading = false;

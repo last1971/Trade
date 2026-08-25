@@ -62,6 +62,12 @@
                 </v-btn>
             </v-col>
             <v-col cols="12" sm="auto" v-if="$vuetify.breakpoint.smAndUp">
+                <mark-transfer-buttons document="transfer-out"
+                                       :document-id="value.SFCODE"
+                                       :buyer="value.buyer"
+                />
+            </v-col>
+            <v-col cols="12" sm="auto" v-if="$vuetify.breakpoint.smAndUp">
                 <v-speed-dial :open-on-hover="true" direction="bottom">
                     <template v-slot:activator>
                         <v-btn :loading="downloading" class="mt-2" fab icon>
@@ -92,11 +98,12 @@
     import FirmSelect from "../FirmSelect";
     import editMixin from "../../mixins/editMixin";
     import TransferOutPdfMenu from "./TransferOutPdfMenu";
+    import MarkTransferButtons from "../markCode/MarkTransferButtons";
 
     export default {
         name: "TransferOutEdit",
         mixins: [editMixin, utilsMixin],
-        components: {TransferOutPdfMenu, BuyerSelect, FirmSelect},
+        components: {TransferOutPdfMenu, BuyerSelect, FirmSelect, MarkTransferButtons},
         data() {
             return {
                 MODEL: 'TRANSFER-OUT',

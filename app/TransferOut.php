@@ -2,9 +2,10 @@
 
 namespace App;
 
+use App\Interfaces\IMarkCodeDocument;
 use Illuminate\Database\Eloquent\Model;
 
-class TransferOut extends Model
+class TransferOut extends Model implements IMarkCodeDocument
 {
     //
     public $timestamps = false;
@@ -61,5 +62,22 @@ class TransferOut extends Model
             'SFCODE',
             'REALPRICEFCODE'
         );
+    }
+
+    public function markCodeDocumentTitle(): string
+    {
+        return "УПД № {$this->NSF}";
+    }
+
+    /** С УПД коды уходят юрлицу. */
+    public function markCodeTransferType(): int
+    {
+        return 1;
+    }
+
+    /** Передача B2B: в ГИС МТ вывода нет, владение переходит по самой УПД. */
+    public function markCodeRetireReason(): int
+    {
+        return 3;
     }
 }

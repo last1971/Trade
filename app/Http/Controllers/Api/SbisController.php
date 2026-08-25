@@ -45,11 +45,7 @@ class SbisController extends Controller
             $message = $provider->sendUpd($xmlBuilder->build($source));
 
             if ($source->getInvoice() && $message->status === 'sent') {
-                app(MarkCodeTransferService::class)->markAsTransferred(
-                    $source->getInvoice(),
-                    2,
-                    3
-                );
+                app(MarkCodeTransferService::class)->markAsTransferred($source->getInvoice());
             }
 
             return ['message_id' => $message->messageId];

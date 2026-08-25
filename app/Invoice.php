@@ -2,10 +2,11 @@
 
 namespace App;
 
+use App\Interfaces\IMarkCodeDocument;
 use App\ModelTraits\InsertTrait;
 use Illuminate\Database\Eloquent\Model;
 
-class Invoice extends Model
+class Invoice extends Model implements IMarkCodeDocument
 {
     use InsertTrait;
 
@@ -92,5 +93,38 @@ class Invoice extends Model
     public function pickUps()
     {
         return $this->hasMany('App\PickUp', 'SCODE', 'SCODE');
+    }
+
+    /**
+     * Все коды маркировки счёта, включая уже переданные и выведенные из оборота
+     * (в отличие от InvoiceLine::markCodes, где только непереданные).
+     */
+    public function markCodes()
+    {
+        return $this->hasManyThrough(
+            'App\MarkCode',
+            'App\InvoiceLine',
+            'SCODE',
+            'REALPRICECODE',
+            'SCODE',
+            'REALPRICECODE'
+        );
+    }
+
+    public function markCodeDocumentTitle(): string
+    {
+        return "счёт № {$this->NS}";
+    }
+
+    /** Со счёта коды уходят маркетплейсу по УПД-2 (FBO). */
+    public function markCodeTransferType(): int
+    {
+        return 2;
+    }
+
+    /** Передача маркетплейсу: та же причина, что ставит авто-отправка УПД-2 в ЭДО. */
+    public function markCodeRetireReason(): int
+    {
+        return 3;
     }
 }

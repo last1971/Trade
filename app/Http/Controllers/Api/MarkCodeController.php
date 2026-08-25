@@ -2,14 +2,25 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Interfaces\IMarkCodeDocument;
 use App\Invoice;
 use App\Services\MarkCodeService;
 use App\Services\Marking\MarkCodeTransferService;
+use App\TransferOut;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class MarkCodeController extends ModelController
 {
+    /**
+     * Документы, по которым коды маркировки уезжают покупателю.
+     * Вид передачи и причина вывода живут в самих моделях, не здесь.
+     */
+    private const DOCUMENTS = [
+        'invoice' => Invoice::class,
+        'transfer-out' => TransferOut::class,
+    ];
+
     public function __construct()
     {
         parent::__construct(MarkCodeService::class);
@@ -17,27 +28,27 @@ class MarkCodeController extends ModelController
 
     public function markAsTransferred(Request $request, MarkCodeTransferService $service)
     {
-        $data = $request->validate([
-            'invoice_id' => 'required|integer',
-            'transfer_type' => ['required', Rule::in([1, 2, 3])],
-            'retire_reason' => ['required', Rule::in([1, 2, 3, 4, 5, 6])],
-        ]);
-
-        $invoice = Invoice::with('invoiceLines')->findOrFail($data['invoice_id']);
-        $count = $service->markAsTransferred($invoice, $data['transfer_type'], $data['retire_reason']);
+        $count = $service->markAsTransferred($this->document($request));
 
         return ['count' => $count];
     }
 
     public function unmarkAsTransferred(Request $request, MarkCodeTransferService $service)
     {
-        $data = $request->validate([
-            'invoice_id' => 'required|integer',
-        ]);
-
-        $invoice = Invoice::with('invoiceLines')->findOrFail($data['invoice_id']);
-        $count = $service->unmarkAsTransferred($invoice);
+        $count = $service->unmarkAsTransferred($this->document($request));
 
         return ['count' => $count];
+    }
+
+    private function document(Request $request): IMarkCodeDocument
+    {
+        $data = $request->validate([
+            'document' => ['required', Rule::in(array_keys(self::DOCUMENTS))],
+            'document_id' => 'required|integer',
+        ]);
+
+        $model = self::DOCUMENTS[$data['document']];
+
+        return $model::with('buyer')->findOrFail($data['document_id']);
     }
 }
