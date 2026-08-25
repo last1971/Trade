@@ -32,4 +32,11 @@ interface IMarkCodeDocument
 
     /** MARKCODES.RETIRE_REASON: 1=продажа, 3=передача B2B/FBO. */
     public function markCodeRetireReason(): int;
+
+    /**
+     * Почему по этому документу коды помечать нельзя, или null если можно.
+     * Счёт отпадает, как только по нему сделана УПД: дальше документ передачи —
+     * она, а УПД-2 со счёта остаётся только маркетплейсам.
+     */
+    public function markCodeTransferBlockReason(): ?string;
 }

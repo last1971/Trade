@@ -153,13 +153,13 @@
                     <v-btn @click="receipt" fab v-if="!notCan">
                         <v-icon color="primary">mdi-paper-roll</v-icon>
                     </v-btn>
-                    <v-btn v-if="chzBuyer" @click="downloadUpd2Xml" fab :loading="upd2Loading" title="Скачать УПД-2 XML">
+                    <v-btn v-if="upd2Available" @click="downloadUpd2Xml" fab :loading="upd2Loading" title="Скачать УПД-2 XML">
                         <v-icon color="orange">mdi-xml</v-icon>
                     </v-btn>
-                    <v-btn v-if="chzBuyer" @click="sendUpd2ToEdo" fab :loading="upd2Loading" title="Отправить УПД-2 в ЭДО">
+                    <v-btn v-if="upd2Available" @click="sendUpd2ToEdo" fab :loading="upd2Loading" title="Отправить УПД-2 в ЭДО">
                         <v-icon color="purple">mdi-send</v-icon>
                     </v-btn>
-                    <v-btn v-if="chzBuyer" @click="$refs.mpUpdFile.click()" fab :loading="upd2Loading"
+                    <v-btn v-if="upd2Available" @click="$refs.mpUpdFile.click()" fab :loading="upd2Loading"
                            title="УПД маркетплейса: подставить номер, подписанта и коды ЧЗ">
                         <v-icon color="teal">mdi-storefront</v-icon>
                     </v-btn>
@@ -201,7 +201,7 @@ import EmployeeSelect from "../EmployeeSelect";
 import { mapGetters } from "vuex";
 import CashFlowsModal from "../CashFlowsModal.vue";
 import MarkTransferButtons from "../markCode/MarkTransferButtons";
-import { worksWithChz } from "../../helpers/marking";
+import { goesByUpd2 } from "../../helpers/marking";
 
 export default {
     name: "InvoiceEdit",
@@ -239,8 +239,8 @@ export default {
         notEditable() {
             return this.model.transferOutLinesSum > 0;
         },
-        chzBuyer() {
-            return worksWithChz(this.value.buyer);
+        upd2Available() {
+            return goesByUpd2(this.value);
         },
         savePossible() {
             //const a = _.pick(_.omit(this.value, ['DATA']), this.fillable);

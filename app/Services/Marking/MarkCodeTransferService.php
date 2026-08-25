@@ -28,44 +28,17 @@ class MarkCodeTransferService
      */
     public function markAsTransferred(IMarkCodeDocument $document): int
     {
-        // Без явной DB::transaction — Firebird-драйвер проекта работает с autocommit=0
-        // и не любит вложенные транзакции. UPDATE с whereIn атомарен на уровне SQL.
         $codes = $this->codes($document);
 
-        $alreadyTransferred = $codes->where('TRANSFER_TYPE', '!=', 0);
-        if ($alreadyTransferred->isNotEmpty()) {
-            throw new MarkingException(
-                'Коды уже переданы ранее: ' . $alreadyTransferred->pluck('KI')->implode(', ')
-            );
-        }
+        $this->reject($codes->where('TRANSFER_TYPE', '!=', 0), 'Коды уже переданы ранее');
+        $this->reject($codes->where('STATUS', '!=', 5), 'Коды не в обороте (STATUS != 5)');
 
-        $wrongStatus = $codes->where('STATUS', '!=', 5);
-        if ($wrongStatus->isNotEmpty()) {
-            throw new MarkingException(
-                'Коды не в обороте (STATUS != 5): ' . $wrongStatus->pluck('KI')->implode(', ')
-            );
-        }
-
-        $transferType = $document->markCodeTransferType();
-        $retireReason = $document->markCodeRetireReason();
-
-        $count = MarkCode::whereIn('MARKCODE', $codes->pluck('MARKCODE'))
-            ->update([
-                'TRANSFER_TYPE' => $transferType,
-                'STATUS' => 6,
-                'RETIRE_REASON' => $retireReason,
-                'RETIRED_AT' => Carbon::now(),
-            ]);
-
-        Log::info('MarkCodeTransfer: marked as transferred', [
-            'document' => $document->markCodeDocumentTitle(),
-            'document_id' => $document->getKey(),
-            'transfer_type' => $transferType,
-            'retire_reason' => $retireReason,
-            'count' => $count,
+        return $this->apply($document, $codes, 'marked as transferred', [
+            'TRANSFER_TYPE' => $document->markCodeTransferType(),
+            'STATUS' => 6,
+            'RETIRE_REASON' => $document->markCodeRetireReason(),
+            'RETIRED_AT' => Carbon::now(),
         ]);
-
-        return $count;
     }
 
     /**
@@ -79,54 +52,128 @@ class MarkCodeTransferService
     {
         $codes = $this->codes($document);
 
-        $notTransferred = $codes->where('TRANSFER_TYPE', 0);
-        if ($notTransferred->isNotEmpty()) {
-            throw new MarkingException(
-                'Часть кодов не была передана: ' . $notTransferred->pluck('KI')->implode(', ')
-            );
-        }
+        $this->reject($codes->where('TRANSFER_TYPE', 0), 'Часть кодов не была передана');
 
-        $count = MarkCode::whereIn('MARKCODE', $codes->pluck('MARKCODE'))
-            ->update([
-                'TRANSFER_TYPE' => 0,
-                'STATUS' => 5,
-                'RETIRE_REASON' => null,
-                'RETIRED_AT' => null,
-            ]);
-
-        Log::info('MarkCodeTransfer: unmarked as transferred', [
-            'document' => $document->markCodeDocumentTitle(),
-            'document_id' => $document->getKey(),
-            'count' => $count,
+        return $this->apply($document, $codes, 'unmarked as transferred', [
+            'TRANSFER_TYPE' => 0,
+            'STATUS' => 5,
+            'RETIRE_REASON' => null,
+            'RETIRED_AT' => null,
         ]);
-
-        return $count;
     }
 
     /**
-     * Коды документа + общие проверки, до которых нет смысла что-то делать.
+     * Пометить после успешной отправки документа в ЭДО.
+     * Молча пропускает документы, где помечать нечего (покупатель не работает
+     * с ЧЗ, кодов нет, уже помечено) — отправка не должна падать из-за этого.
      *
-     * @throws MarkingException
+     * @return int количество помеченных кодов
      */
-    private function codes(IMarkCodeDocument $document): Collection
+    public function markAfterSend(IMarkCodeDocument $document): int
+    {
+        $state = $this->state($document);
+
+        if (!$state['available'] || $state['transferred'] > 0) {
+            return 0;
+        }
+
+        return $this->markAsTransferred($document);
+    }
+
+    /**
+     * Состояние пометки по документу — на нём же строятся кнопки в карточке:
+     * available=false → показывать нечего, transferred=0 → можно помечать,
+     * transferred=total → можно только откатывать.
+     */
+    public function state(IMarkCodeDocument $document): array
+    {
+        [$reason, $codes] = $this->resolve($document);
+
+        return [
+            'available' => $reason === null,
+            'reason' => $reason,
+            'total' => $codes->count(),
+            'transferred' => $codes->where('TRANSFER_TYPE', '!=', 0)->count(),
+        ];
+    }
+
+    /**
+     * Коды документа и причина, по которой трогать их нельзя — одна проверка
+     * на все входы: и на кнопки (state), и на сами пометку/откат (codes).
+     *
+     * @return array{0: string|null, 1: Collection}
+     */
+    private function resolve(IMarkCodeDocument $document): array
     {
         $title = $document->markCodeDocumentTitle();
+        $empty = new Collection();
 
         // Не участнику ЧЗ коды в УПД не уезжают вовсе: их выводит из оборота
         // MARKCODES_BIND_TO_SF при создании УПД, руками помечать нечего.
         if (!optional($document->buyer)->transfersMarkCodes()) {
-            throw new MarkingException(
+            return [
                 "Покупатель не работает с ЧЗ ({$title}): коды выводятся из оборота при создании УПД, "
-                . 'ручная пометка не нужна.'
-            );
+                . 'ручная пометка не нужна.',
+                $empty,
+            ];
+        }
+
+        $blocked = $document->markCodeTransferBlockReason();
+        if ($blocked !== null) {
+            return [$blocked, $empty];
         }
 
         $codes = $document->markCodes()->get();
 
-        if ($codes->isEmpty()) {
-            throw new MarkingException("Нет привязанных кодов маркировки ({$title})");
+        return $codes->isEmpty()
+            ? ["Нет привязанных кодов маркировки ({$title})", $codes]
+            : [null, $codes];
+    }
+
+    /**
+     * @throws MarkingException
+     */
+    private function codes(IMarkCodeDocument $document): Collection
+    {
+        [$reason, $codes] = $this->resolve($document);
+
+        if ($reason !== null) {
+            throw new MarkingException($reason);
         }
 
         return $codes;
+    }
+
+    /**
+     * Отказ, если выборка не пуста: во всех проверках текст одинаковый —
+     * причина плюс перечисление КИ.
+     *
+     * @throws MarkingException
+     */
+    private function reject(Collection $codes, string $reason): void
+    {
+        if ($codes->isNotEmpty()) {
+            throw new MarkingException($reason . ': ' . $codes->pluck('KI')->implode(', '));
+        }
+    }
+
+    /**
+     * Единственное место, где состояние кодов действительно меняется.
+     *
+     * Без явной DB::transaction — Firebird-драйвер проекта работает с autocommit=0
+     * и не любит вложенные транзакции. UPDATE с whereIn атомарен на уровне SQL.
+     */
+    private function apply(IMarkCodeDocument $document, Collection $codes, string $what, array $values): int
+    {
+        $count = MarkCode::whereIn('MARKCODE', $codes->pluck('MARKCODE'))->update($values);
+
+        Log::info("MarkCodeTransfer: {$what}", [
+            'document' => $document->markCodeDocumentTitle(),
+            'document_id' => $document->getKey(),
+            'values' => $values,
+            'count' => $count,
+        ]);
+
+        return $count;
     }
 }

@@ -45,7 +45,7 @@ class SbisController extends Controller
             $message = $provider->sendUpd($xmlBuilder->build($source));
 
             if ($source->getInvoice() && $message->status === 'sent') {
-                app(MarkCodeTransferService::class)->markAsTransferred($source->getInvoice());
+                app(MarkCodeTransferService::class)->markAfterSend($source->getInvoice());
             }
 
             return ['message_id' => $message->messageId];
@@ -61,7 +61,13 @@ class SbisController extends Controller
         }
         foreach ($transferOuts as $transferOut) {
             $provider = $edoFactory->forBuyer($transferOut->buyer);
-            $provider->sendUpd($transferOutService->xml(collect(compact('transferOut'))));
+            $message = $provider->sendUpd($transferOutService->xml(collect(compact('transferOut'))));
+
+            // Ушла УПД — коды у покупателя. Раньше помечалась только ветка УПД-2,
+            // и после отправки в СБИС коды юрлица оставались висеть свободными.
+            if (($message->status ?? null) === 'sent') {
+                app(MarkCodeTransferService::class)->markAfterSend($transferOut);
+            }
         }
     }
 

@@ -7,3 +7,10 @@
 //
 // Бэкенд считает то же самое в Buyer::transfersMarkCodes().
 export const worksWithChz = (buyer) => !!buyer && Number(buyer.CHZ_MEMBER) === 1;
+
+// Идёт ли счёт маркетплейсным путём (УПД-2 прямо со счёта).
+// Обычному юрлицу по счёту делают УПД — с этого момента документ передачи она,
+// и весь ЧЗ-блок со счёта уходит на карточку УПД. Тот же инвариант держит
+// бэкенд: InvoiceUpdSource и Invoice::markCodeTransferBlockReason().
+export const goesByUpd2 = (invoice) =>
+    worksWithChz(invoice && invoice.buyer) && !(invoice && invoice.transferOutLinesSum > 0);

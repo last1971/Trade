@@ -122,6 +122,17 @@ class Invoice extends Model implements IMarkCodeDocument
         return 2;
     }
 
+    /**
+     * Тот же инвариант, что и у УПД-2 XML (InvoiceUpdSource): есть УПД по счёту —
+     * значит это обычная отгрузка юрлицу, и коды помечаются на карточке УПД.
+     */
+    public function markCodeTransferBlockReason(): ?string
+    {
+        return $this->transferOuts()->exists()
+            ? "По счёту № {$this->NS} есть УПД — коды помечаются на ней, а не на счёте"
+            : null;
+    }
+
     /** Передача маркетплейсу: та же причина, что ставит авто-отправка УПД-2 в ЭДО. */
     public function markCodeRetireReason(): int
     {

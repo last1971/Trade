@@ -40,6 +40,12 @@ class MarkCodeController extends ModelController
         return ['count' => $count];
     }
 
+    /** Состояние пометки: какую кнопку показывать в карточке документа. */
+    public function transferState(Request $request, MarkCodeTransferService $service)
+    {
+        return $service->state($this->document($request));
+    }
+
     private function document(Request $request): IMarkCodeDocument
     {
         $data = $request->validate([

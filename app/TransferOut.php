@@ -80,4 +80,9 @@ class TransferOut extends Model implements IMarkCodeDocument
     {
         return 3;
     }
+
+    public function markCodeTransferBlockReason(): ?string
+    {
+        return null;
+    }
 }
