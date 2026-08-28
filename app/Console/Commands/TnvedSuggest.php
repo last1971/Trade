@@ -19,7 +19,8 @@ class TnvedSuggest extends Command
      */
     protected $signature = 'tnved:suggest
         {--limit=50 : сколько товаров «не проверяли» подобрать}
-        {--confidence=80 : порог уверенности; ниже — в ревью не попадает}';
+        {--confidence=80 : порог уверенности; ниже — в ревью не попадает}
+        {--parallel=' . TnvedSuggestService::DEFAULT_PARALLEL . ' : сколько воркеров-процессов}';
 
     /**
      * @var string
@@ -37,10 +38,11 @@ class TnvedSuggest extends Command
 
         $limit = max(1, (int) $this->option('limit'));
         $threshold = (int) $this->option('confidence');
+        $parallel = max(1, (int) $this->option('parallel'));
 
         try {
-            $this->log('info', "tnved:suggest start (limit={$limit}, confidence={$threshold})");
-            $count = $service->refresh($limit, $threshold);
+            $this->log('info', "tnved:suggest start (limit={$limit}, confidence={$threshold}, parallel={$parallel})");
+            $count = $service->refresh($limit, $threshold, $parallel);
             $this->log('info', "tnved:suggest done, предложений: {$count}");
             $this->info("Готово, предложений: {$count}");
             return 0;
