@@ -56,6 +56,14 @@ class ModelService
     protected $whereAttributes = [];
 
     /**
+     * Подмена имени колонки в обычном фильтре: 'GOODSCODE' => 'ZAKAZ_DETAIL.GOODSCODE'.
+     * Нужна там, где сервис джойнит таблицу с такой же колонкой — иначе Firebird
+     * отбивает запрос как -204 Ambiguous field name.
+     * @var array
+     */
+    protected $filterAliases = [];
+
+    /**
      * @var Model
      */
     private $modelClass;
@@ -224,7 +232,7 @@ class ModelService
                             // where
                         } else {
                             $query->where(
-                                $filterAttribute,
+                                $this->filterAliases[$filterAttribute] ?? $filterAttribute,
                                 $request->get('filterOperators')[$index],
                                 $request->get('filterValues')[$index]
                             );

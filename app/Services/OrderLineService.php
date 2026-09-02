@@ -11,6 +11,10 @@ class OrderLineService extends ModelService
 {
     // protected $addSelect = ['order.DATA_PRIH as orderComeDate'];
 
+    // GOODSCODE есть и в ZAKAZ_DETAIL, и в присоединённой GOODS — без имени таблицы
+    // Firebird отбивает фильтр как -204 Ambiguous field name
+    protected $filterAliases = ['GOODSCODE' => 'ZAKAZ_DETAIL.GOODSCODE'];
+
     protected $whereAttributes = [
         'inWay' => '(select COALESCE(sum(SKLADIN.QUAN), 0) from SKLADIN where ZAKAZ_DETAIL.ID = SKLADIN.ZAKAZ_DETAIL_ID)
                      + (select COALESCE(sum(SHOPIN.QUAN), 0) from SHOPIN where ZAKAZ_DETAIL.ID = SHOPIN.ZAKAZ_DETAIL_ID)
