@@ -29,11 +29,15 @@ class StockClassifService
     public const CACHE_RUNNING = 'stock-classif:running';
 
     /**
-     * Пересчитать снапшот стоимости остатка склада (s_s=0) в кэш.
+     * Пересчитать снапшот стоимости остатка (склад s_s=0 или магазин s_s=1 —
+     * по config marking.stock_mode) в кэш.
      * Зовётся только из artisan stock:classif — долгий (~2.5 мин).
      */
     public function refresh(): int
     {
+        // Режим инсталляции: опт считает по SKLAD, магазин — по SHOPSKLAD (та же пара GOODSCODE/QUAN).
+        $ss = config('marking.stock_mode') === 'shop' ? 1 : 0;
+
         // Остаток и стоимость по приходным ценам партий (ядро из спеки S11).
         // База в 1-м диалекте Firebird — CAST AS NUMERIC(15,2) недоступен, округляем здесь.
         $values = [];
@@ -44,7 +48,7 @@ class StockClassifService
              from pr_meta pm
              left join (select pr_meta_in_id, sum(quan) as q from fifo_t group by pr_meta_in_id) f
                     on f.pr_meta_in_id = pm.id
-             where pm.p_r = 0 and pm.s_s = 0
+             where pm.p_r = 0 and pm.s_s = ' . $ss . '
              group by pm.goodscode
              having sum(pm.quan - coalesce(f.q, 0)) > 0'
         );
@@ -52,11 +56,11 @@ class StockClassifService
             $values[intval($row->GOODSCODE)] = [floatval($row->OST), round(floatval($row->VAL), 2)];
         }
 
-        // Сверка с живым остатком SKLAD: у старых товаров расходы не покрыты FIFO_T,
+        // Сверка с живым остатком SKLAD/SHOPSKLAD: у старых товаров расходы не покрыты FIFO_T,
         // и «приход − FIFO» даёт остаток-призрак (пример: APM-4150 — 6 шт при пустом складе).
         // Живой остаток — истина; стоимость ужимаем пропорционально (цены партионные).
         $sklad = DB::connection('firebird')
-            ->select('select goodscode, quan from sklad');
+            ->select('select goodscode, quan from ' . ($ss === 1 ? 'shopsklad' : 'sklad'));
         $real = [];
         foreach ($sklad as $row) {
             $real[intval($row->GOODSCODE)] = floatval($row->QUAN);
@@ -73,7 +77,7 @@ class StockClassifService
         // Непокрытые кодами штуки — готовая процедура (только товары из GOODS_CLASSIF).
         $uncovered = [];
         $rows = DB::connection('firebird')->select(
-            'select goodscode, uncovered from MARK_UNCOVERED_STOCK(0)'
+            "select goodscode, uncovered from MARK_UNCOVERED_STOCK($ss)"
         );
         foreach ($rows as $row) {
             $uncovered[intval($row->GOODSCODE)] = intval($row->UNCOVERED);
