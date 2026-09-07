@@ -98,10 +98,26 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware('permission:good.show')->group(function () {
         Route::get('good/{id}/gtins', 'Api\GoodGtinController@forGood')
             ->name('good.gtins');
+        Route::get('good/{id}/uncovered', 'Api\GoodGtinController@uncovered')
+            ->name('good.uncovered');
+        // Выпуск КМ (chz-сервис): чтение
+        Route::get('chz/gtin/{gtin}/orders', 'Api\ChzOrderController@ordersByGtin')
+            ->name('chz.gtin.orders');
+        Route::get('chz/order/{orderId}/status', 'Api\ChzOrderController@status')
+            ->name('chz.order.status');
+        Route::get('chz/order/{orderId}/pdf', 'Api\ChzOrderController@pdfList')
+            ->name('chz.order.pdf');
+        Route::get('chz/order/{orderId}/pdf/{n}', 'Api\ChzOrderController@pdfChunk')
+            ->name('chz.order.pdf-chunk');
+        Route::get('chz/order/{orderId}/codes.csv', 'Api\ChzOrderController@codesCsv')
+            ->name('chz.order.codes-csv');
     });
     Route::middleware('permission:good.update')->group(function () {
         Route::post('good/{id}/classify', 'Api\GoodGtinController@classify')
             ->name('good.classify');
+        // Выпуск КМ: заказ в СУЗ платный, поэтому под good.update
+        Route::post('chz/gtin/{gtin}/orders', 'Api\ChzOrderController@order')
+            ->name('chz.gtin.order');
         Route::post('good/{id}/suggest', 'Api\GoodGtinController@suggest')
             ->name('good.suggest');
         Route::post('good/classify-bulk', 'Api\GoodGtinController@classifyBulk')

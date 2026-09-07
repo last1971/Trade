@@ -79,7 +79,10 @@
                         </td>
                     </template>
                     <template v-else>
-                        <td>{{ row.GTIN || '—' }}</td>
+                        <td>
+                            <a v-if="row.GTIN" href="#" @click.prevent="openOrders(row)" title="Заказы кодов маркировки по этому GTIN">{{ row.GTIN }}</a>
+                            <span v-else>—</span>
+                        </td>
                         <td>{{ row.TNVED }}</td>
                         <td>{{ row.OKPD2 }}</td>
                         <td>{{ row.SUPPLIER_INN }}</td>
@@ -136,6 +139,7 @@
                 </tbody>
             </template>
         </v-simple-table>
+        <gtin-orders v-if="ordersGtin" v-model="ordersOpen" :gtin="ordersGtin" :goodscode="value"/>
         <v-card-actions v-if="!adding && !notEditable">
             <v-btn small text color="green" @click="startAdd">
                 <v-icon small left>mdi-plus</v-icon>
@@ -148,10 +152,11 @@
 <script>
 import marking from "../../mixins/marking";
 import VerdictPicker from "./VerdictPicker";
+import GtinOrders from "./GtinOrders";
 
 export default {
     name: "GoodGtins",
-    components: {VerdictPicker},
+    components: {VerdictPicker, GtinOrders},
     mixins: [marking],
     props: {
         value: {type: [Number, String], required: true},
@@ -168,6 +173,8 @@ export default {
             verdict: {tnved: '', okpd2: ''},
             verdictPrim: '',
             form: {GTIN: '', TNVED: '', OKPD2: '', SUPPLIER_INN: '', PRIM: ''},
+            ordersOpen: false,
+            ordersGtin: null,
         }
     },
     computed: {
@@ -265,6 +272,10 @@ export default {
                 })
                 .catch((e) => this.error(e))
                 .then(() => this.classifying = false);
+        },
+        openOrders(row) {
+            this.ordersGtin = row.GTIN;
+            this.$nextTick(() => this.ordersOpen = true);
         },
         startAdd() {
             this.editId = null;

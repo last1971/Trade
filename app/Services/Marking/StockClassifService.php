@@ -36,7 +36,7 @@ class StockClassifService
     public function refresh(): int
     {
         // Режим инсталляции: опт считает по SKLAD, магазин — по SHOPSKLAD (та же пара GOODSCODE/QUAN).
-        $ss = config('marking.stock_mode') === 'shop' ? 1 : 0;
+        $ss = StockMode::ss();
 
         // Остаток и стоимость по приходным ценам партий (ядро из спеки S11).
         // База в 1-м диалекте Firebird — CAST AS NUMERIC(15,2) недоступен, округляем здесь.

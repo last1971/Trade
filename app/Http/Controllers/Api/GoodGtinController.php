@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\MarkCode;
 use App\Services\Marking\AutoClassifyService;
 use App\Services\Marking\GoodClassifyService;
+use App\Services\Marking\UncoveredParcelsService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +52,17 @@ class GoodGtinController extends Controller
             $row->mark_codes_count = $row->GTIN ? ($counts[trim($row->GTIN)] ?? 0) : 0;
             return $row;
         });
+    }
+
+    /**
+     * «Непокрыто» кодами по партиям товара (справка для выпуска КМ).
+     *
+     * @param int $goodscode
+     * @return array
+     */
+    public function uncovered($goodscode, UncoveredParcelsService $service)
+    {
+        return $service->forGood(intval($goodscode));
     }
 
     /**
