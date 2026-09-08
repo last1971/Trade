@@ -41,6 +41,17 @@ class ChzOutboxServiceTest extends TestCase
         $this->assertSame(['ki-3 = EMITTED'], ChzOutboxService::pending($kis, $cises, ChzBatch::KIND_APPLY));
     }
 
+    public function testIntroConfirmedOnlyFromIntroducedOnwards()
+    {
+        $kis = ['ki-1', 'ki-2'];
+        $done = [$this->cis('ki-1', 'INTRODUCED'), $this->cis('ki-2', 'RETIRED')];
+        $this->assertSame([], ChzOutboxService::pending($kis, $done, ChzBatch::KIND_INTRO));
+
+        // Нанесён, но в оборот не введён — документ ещё не отработал.
+        $half = [$this->cis('ki-1', 'INTRODUCED'), $this->cis('ki-2', 'APPLIED')];
+        $this->assertSame(['ki-2 = APPLIED'], ChzOutboxService::pending($kis, $half, ChzBatch::KIND_INTRO));
+    }
+
     public function testCodeMissingInAnswerStaysPending()
     {
         $pending = ChzOutboxService::pending(['ki-1'], [], ChzBatch::KIND_APPLY);

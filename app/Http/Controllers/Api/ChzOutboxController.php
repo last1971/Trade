@@ -31,6 +31,7 @@ class ChzOutboxController extends Controller
                 'scode' => $b->SCODE,
                 'parentId' => $b->PARENT_ID,
                 'reportId' => $b->REPORT_ID,
+                'docUuid' => $b->DOC_UUID,
                 'errorText' => $b->ERROR_TEXT,
                 'createdBy' => trim((string)$b->CREATED_BY),
                 'createdAt' => $b->CREATED_AT,

@@ -36,6 +36,9 @@ class ChzOutboxProblemNotification extends Notification
             if ($this->batch->REPORT_ID) {
                 $mail->line("Отчёт в СУЗ: {$this->batch->REPORT_ID}");
             }
+            if ($this->batch->DOC_UUID) {
+                $mail->line("Документ ГИС МТ: {$this->batch->DOC_UUID}");
+            }
             if ($this->batch->SCODE) {
                 $mail->line("Счёт: {$this->batch->SCODE}");
             }

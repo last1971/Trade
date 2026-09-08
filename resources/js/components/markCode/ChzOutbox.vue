@@ -29,8 +29,9 @@
             </template>
             <template v-slot:item.createdAt="{ item }">{{ item.createdAt | datetime }}</template>
             <template v-slot:item.confirmedAt="{ item }">{{ item.confirmedAt | datetime }}</template>
+            <!-- у нанесения и деления это отчёт СУЗ, у ввода в оборот — документ ГИС МТ -->
             <template v-slot:item.reportId="{ item }">
-                <span class="mono">{{ item.reportId }}</span>
+                <span class="mono">{{ item.reportId || item.docUuid }}</span>
             </template>
             <template v-slot:item.actions="{ item }">
                 <v-btn
@@ -103,7 +104,7 @@ export default {
                 {text: 'Счёт', value: 'scode'},
                 {text: 'Создана', value: 'createdAt'},
                 {text: 'Принято', value: 'confirmedAt'},
-                {text: 'Отчёт', value: 'reportId'},
+                {text: 'Отчёт / документ', value: 'reportId'},
                 {text: 'Кем', value: 'createdBy'},
                 {text: '', value: 'actions', sortable: false},
             ],

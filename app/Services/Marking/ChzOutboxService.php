@@ -31,6 +31,10 @@ class ChzOutboxService
      */
     private const AFTER_APPLY = ['APPLIED', 'INTRODUCED', 'RETIRED'];
     private const AFTER_DIVISION = ['INTRODUCED', 'RETIRED'];
+    private const AFTER_INTRO = ['INTRODUCED', 'RETIRED'];
+
+    /** Документ True API отбит: дальше ждать нечего. */
+    private const DOC_FAILED = ['REJECTED', 'CHECKED_NOT_OK', 'PROCESSING_ERROR'];
 
     /** Сколько ждём ГИС МТ, прежде чем звать человека: лаг в полтора часа — норма. */
     private const STUCK_HOURS = 6;
@@ -93,10 +97,7 @@ class ChzOutboxService
      */
     private function sendNext(): array
     {
-        $this->remindAboutIntro();
-
         $batch = ChzBatch::where('STATUS', ChzBatch::STATUS_READY)
-            ->where('KIND', '!=', ChzBatch::KIND_INTRO)
             ->orderBy('ID')
             ->first();
         if (!$batch) {
@@ -121,24 +122,34 @@ class ChzOutboxService
             return ["пачка №{$batch->ID}: отказ — " . $e->getMessage()];
         }
 
-        $reports = $answer['reports'] ?? [];
-        $batch->REPORT_ID = $reports[0]['reportId'] ?? null;
+        // Нанесение и деление возвращают отчёт СУЗ, ввод в оборот — документ True API.
+        // Это разные сущности с разными номерами, поэтому и колонки разные.
+        $intro = $this->isIntro($batch);
+        $sent = $intro ? ($answer['documents'] ?? []) : ($answer['reports'] ?? []);
+        $key = $intro ? 'docId' : 'reportId';
+        $id = $sent[0][$key] ?? null;
+        if ($intro) {
+            $batch->DOC_UUID = $id;
+        } else {
+            $batch->REPORT_ID = $id;
+        }
         $batch->STATUS = ChzBatch::STATUS_SENT;
         $batch->SENT_AT = now();
         // Пачка обязана быть одним документом. Сервис режет по 500 кодов, поэтому
-        // несколько отчётов означает, что пачку собрали слишком большой.
-        if (count($reports) > 1) {
-            $ids = implode(', ', array_column($reports, 'reportId'));
-            $batch->ERROR_TEXT = $this->cut("Пачка ушла " . count($reports) . " документами, проверяется только первый. Отчёты: {$ids}");
+        // несколько ответов означает, что пачку собрали слишком большой.
+        if (count($sent) > 1) {
+            $ids = implode(', ', array_column($sent, $key));
+            $batch->ERROR_TEXT = $this->cut('Пачка ушла ' . count($sent)
+                . ' документами, проверяется только первый: ' . $ids);
             $this->notify($batch, $batch->ERROR_TEXT);
         }
         $batch->save();
 
-        if (!$batch->REPORT_ID) {
-            $this->fail($batch, self::UNKNOWN . 'сервис не вернул номер отчёта — проверьте в Честном знаке, что там на самом деле');
-            return ["пачка №{$batch->ID}: ответ без reportId"];
+        if (!$id) {
+            $this->fail($batch, self::UNKNOWN . 'сервис не вернул номер документа — проверьте в Честном знаке, что там на самом деле');
+            return ["пачка №{$batch->ID}: ответ без номера"];
         }
-        return ["пачка №{$batch->ID} ({$batch->KIND}, кодов " . count($items) . "): отчёт {$batch->REPORT_ID}"];
+        return ["пачка №{$batch->ID} ({$batch->KIND}, кодов " . count($items) . "): документ {$id}"];
     }
 
     /** Проверяем отправленные по статусам самих кодов: статус отчёта в СУЗ навсегда SENT. */
@@ -147,7 +158,7 @@ class ChzOutboxService
         $lines = [];
         foreach (ChzBatch::where('STATUS', ChzBatch::STATUS_SENT)->orderBy('ID')->get() as $batch) {
             try {
-                $answer = $this->client->get('apply/' . $batch->REPORT_ID, ['deep' => 1]);
+                $answer = $this->client->get($this->checkPath($batch), ['deep' => 1]);
             } catch (MarkingException $e) {
                 // Сервис недоступен — пачку не трогаем, спросим на следующей минуте.
                 $lines[] = "пачка №{$batch->ID}: проверка не удалась — " . $e->getMessage();
@@ -155,7 +166,7 @@ class ChzOutboxService
             }
 
             $reason = $answer['errorReason'] ?? null;
-            if (($answer['status'] ?? null) === 'REJECTED' || $reason) {
+            if (in_array($answer['status'] ?? null, self::DOC_FAILED, true) || $reason) {
                 $this->fail($batch, 'Честный знак отбил отчёт: ' . ($reason ?: 'без причины'));
                 $lines[] = "пачка №{$batch->ID}: отказ ЧЗ";
                 continue;
@@ -188,7 +199,9 @@ class ChzOutboxService
         $kis = $batch->kis();
         $this->stamp($kis, 'REPORTED_AT');
         // Деление вводит ребёнка в оборот тем же документом — у нас это поле пустое.
-        if ($batch->KIND === ChzBatch::KIND_DIVISION) {
+        // У ввода в оборот отметку обычно уже поставила MARKCODES_INTRODUCE_BY_SCODE,
+        // но пачка могла прийти и из другого места: stamp заполняет только пустые.
+        if ($batch->KIND === ChzBatch::KIND_DIVISION || $this->isIntro($batch)) {
             $this->stamp($kis, 'ENTERED_CIRCULATION_AT');
         }
 
@@ -327,7 +340,23 @@ class ChzOutboxService
 
     private function path(ChzBatch $batch): string
     {
+        if ($this->isIntro($batch)) {
+            return 'introduce';
+        }
         return $batch->KIND === ChzBatch::KIND_DIVISION ? 'apply/division' : 'apply';
+    }
+
+    /** Проверка: у ввода в оборот документ True API, у остальных отчёт СУЗ. */
+    private function checkPath(ChzBatch $batch): string
+    {
+        return $this->isIntro($batch)
+            ? 'document/' . $batch->DOC_UUID
+            : 'apply/' . $batch->REPORT_ID;
+    }
+
+    private function isIntro(ChzBatch $batch): bool
+    {
+        return trim((string)$batch->KIND) === ChzBatch::KIND_INTRO;
     }
 
     /**
@@ -356,7 +385,13 @@ class ChzOutboxService
      */
     public static function pending(array $kis, array $cises, string $kind): array
     {
-        $accepted = $kind === ChzBatch::KIND_DIVISION ? self::AFTER_DIVISION : self::AFTER_APPLY;
+        if ($kind === ChzBatch::KIND_DIVISION) {
+            $accepted = self::AFTER_DIVISION;
+        } elseif ($kind === ChzBatch::KIND_INTRO) {
+            $accepted = self::AFTER_INTRO;
+        } else {
+            $accepted = self::AFTER_APPLY;
+        }
         $statuses = self::cisStatuses($cises);
         $pending = [];
         foreach ($kis as $ki) {
@@ -399,18 +434,6 @@ class ChzOutboxService
         $batch->ERROR_TEXT = $this->cut($reason);
         $batch->save();
         $this->notify($batch, $reason);
-    }
-
-    /** Ввод в оборот отправлять нечем, пока в сервисе нет ручки — напоминаем раз в сутки. */
-    private function remindAboutIntro(): void
-    {
-        $count = ChzBatch::where('STATUS', ChzBatch::STATUS_READY)
-            ->where('KIND', ChzBatch::KIND_INTRO)
-            ->count();
-        if ($count > 0) {
-            $this->notify(null, "Пачек ввода в оборот в очереди: {$count}. "
-                . 'Ручки ввода в оборот в chz-сервисе нет — выгрузите *_vvod.xlsx руками.', 'intro');
-        }
     }
 
     /** Не чаще раза в сутки на пачку: воркер ходит каждую минуту. */
