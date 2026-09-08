@@ -112,12 +112,24 @@ Route::middleware('auth:api')->group(function () {
         Route::get('chz/order/{orderId}/codes.csv', 'Api\ChzOrderController@codesCsv')
             ->name('chz.order.codes-csv');
     });
+    // Очередь отправки в ЧЗ: что уехало, что ждёт, что отбито. Право то же,
+    // что у списка марок — это его же хозяйство.
+    Route::middleware('permission:mark-code.index')->group(function () {
+        Route::get('chz/outbox', 'Api\ChzOutboxController@index')
+            ->name('chz.outbox');
+        Route::get('chz/outbox/{id}/codes', 'Api\ChzOutboxController@codes')
+            ->name('chz.outbox.codes');
+    });
+
     Route::middleware('permission:good.update')->group(function () {
         Route::post('good/{id}/classify', 'Api\GoodGtinController@classify')
             ->name('good.classify');
         // Выпуск КМ: заказ в СУЗ платный, поэтому под good.update
         Route::post('chz/gtin/{gtin}/orders', 'Api\ChzOrderController@order')
             ->name('chz.gtin.order');
+        // Повтор отбитой пачки: новая отправка в ЧЗ, поэтому право то же, что у заказа
+        Route::post('chz/outbox/{id}/retry', 'Api\ChzOutboxController@retry')
+            ->name('chz.outbox.retry');
         Route::post('good/{id}/suggest', 'Api\GoodGtinController@suggest')
             ->name('good.suggest');
         Route::post('good/classify-bulk', 'Api\GoodGtinController@classifyBulk')

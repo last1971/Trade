@@ -39,6 +39,9 @@ class Kernel extends ConsoleKernel
         // $schedule->job(new ProcessPositronPrice)->dailyAt('08:00');
         $schedule->command('make:searchname')->dailyAt('03:00');
         $schedule->command('stock:classif')->hourly()->withoutOverlapping()->runInBackground();
+        // Очередь отправки в Честный знак: отправить готовую пачку и проверить
+        // отправленные. Выключенная очередь выходит молча, нагрузки нет.
+        $schedule->command('chz:outbox')->everyMinute()->withoutOverlapping()->runInBackground();
     }
 
     /**
