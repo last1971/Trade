@@ -89,6 +89,17 @@ class ChzOutboxServiceTest extends TestCase
         $this->assertSame([], ChzOutboxService::blamed($kis, 'Честный знак отбил отчёт: без причины'));
     }
 
+    public function testBlamedFindsCodeWithQuoteInside()
+    {
+        // Пачка №158 от 09.09: в коде есть кавычка, а ответ ЧЗ — JSON,
+        // где она приходит экранированной. Без снятия экранирования виновник терялся.
+        $ki = '0104711287421810215;VJDtSFR"lMEpgXrdFl';
+        $error = 'Честный знак отбил отчёт: ["11: Код идентификации '
+            . '0104711287421810215;VJDtSFR\\"lMEpgXrdFl не принадлежит участнику оборота."]';
+
+        $this->assertSame([$ki], ChzOutboxService::blamed([$ki], $error));
+    }
+
     public function testSortByStatusRejectsCodesOfAnotherParticipant()
     {
         // Живой случай 09.09: коды счёта 14896 числились за ООО «БИС», и ЧЗ отбила

@@ -193,7 +193,15 @@ class ChzOutboxService
      */
     public static function blamed(array $kis, string $error): array
     {
-        return array_values(array_filter($kis, fn($ki) => $ki !== '' && mb_strpos($error, $ki) !== false));
+        // Ответ ЧЗ приходит как JSON, и кавычка внутри кода в нём экранирована:
+        // код 0104711287421810215;VJDtSFR"lMEp в тексте выглядит как ...SFR\"lMEp.
+        // Ищем и в исходном тексте, и в снятом с экранирования.
+        $plain = str_replace(['\\"', '\\\\'], ['"', '\\'], $error);
+
+        return array_values(array_filter(
+            $kis,
+            fn($ki) => $ki !== '' && (mb_strpos($error, $ki) !== false || mb_strpos($plain, $ki) !== false)
+        ));
     }
 
     /**
