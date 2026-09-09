@@ -290,17 +290,28 @@ class ChzOutboxService
         $new->STATUS = ChzBatch::STATUS_READY;
         $new->CREATED_BY = mb_substr('web:' . (optional(auth()->user())->name ?? '?'), 0, 32);
 
-        DB::connection('firebird')->transaction(function () use ($new, $kis, $batch) {
+        // Транзакция по правилам этого драйвера: DB::transaction() на Firebird
+        // падает с «There is already an active transaction» — соединение и так
+        // держит открытую транзакцию (см. GoodClassifyService).
+        $connection = DB::connection('firebird');
+        $connection->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
+        $connection->beginTransaction();
+        try {
             $new->save();
             foreach ($kis as $ki) {
                 // По строке за раз: несколько VALUES одним INSERT Firebird не умеет.
-                DB::connection('firebird')->table('CHZ_BATCH_KI')
-                    ->insert(['BATCH_ID' => $new->ID, 'KI' => $ki]);
+                $connection->table('CHZ_BATCH_KI')->insert(['BATCH_ID' => $new->ID, 'KI' => $ki]);
             }
             ChzBatch::where('PARENT_ID', $batch->ID)
                 ->whereIn('STATUS', [ChzBatch::STATUS_WAIT, ChzBatch::STATUS_ERROR])
                 ->update(['PARENT_ID' => $new->ID, 'STATUS' => ChzBatch::STATUS_WAIT, 'ERROR_TEXT' => null]);
-        });
+            $connection->commit();
+        } catch (\Exception $e) {
+            $connection->rollBack();
+            throw $e;
+        } finally {
+            $connection->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
+        }
 
         return ['id' => $new->ID, 'cnt' => $new->CNT];
     }

@@ -27,6 +27,11 @@
             <template v-slot:item.status="{ item }">
                 <v-chip x-small dark :color="statusColor(item.status)">{{ statusText(item.status) }}</v-chip>
             </template>
+            <template v-slot:item.scode="{ item }">
+                <router-link v-if="item.scode" :to="{ name: 'invoice', params: { id: item.scode } }">
+                    {{ item.invoiceNumber || item.scode }}
+                </router-link>
+            </template>
             <template v-slot:item.createdAt="{ item }">{{ item.createdAt | datetime }}</template>
             <template v-slot:item.confirmedAt="{ item }">{{ item.confirmedAt | datetime }}</template>
             <!-- у нанесения и деления это отчёт СУЗ, у ввода в оборот — документ ГИС МТ -->
@@ -101,7 +106,7 @@ export default {
                 {text: 'Вид', value: 'kind'},
                 {text: 'Статус', value: 'status'},
                 {text: 'Кодов', value: 'cnt', align: 'end'},
-                {text: 'Счёт', value: 'scode'},
+                {text: 'Счёт №', value: 'scode'},
                 {text: 'Создана', value: 'createdAt'},
                 {text: 'Принято', value: 'confirmedAt'},
                 {text: 'Отчёт / документ', value: 'reportId'},
