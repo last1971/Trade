@@ -32,6 +32,27 @@ class ChzOutboxService
     private const AFTER_APPLY = ['APPLIED', 'INTRODUCED', 'RETIRED'];
     private const AFTER_DIVISION = ['INTRODUCED', 'RETIRED'];
     private const AFTER_INTRO = ['INTRODUCED', 'RETIRED'];
+    /** Дальше RETIRED кода не двигают: для вывода это единственный успех. */
+    private const AFTER_RETIRE = ['RETIRED'];
+
+    /**
+     * Коды, ждущие вывода из оборота. Те же предикаты, что у вкладки «ЧЗ»
+     * в админке ozon (Trade2006ChzService), плюс CHZ_SKIP_AT: снятый с отправки
+     * код не собирается в пачку никогда.
+     *   вывод по продаже маркетплейса — TRANSFER_TYPE=3, документ = счёт (S);
+     *   вывод по УПД покупателю вне ЧЗ — TRANSFER_TYPE=1, документ = УПД (SF).
+     */
+    private const WAIT_RETIRE = 'm.STATUS = 6 and m.RETIRE_REASON = 1 and m.TRANSFER_TYPE = 3 '
+        . 'and m.CHZ_SENT_AT is null and m.CHZ_SKIP_AT is null';
+    private const WAIT_RETIRE_UPD = 'm.STATUS = 6 and m.RETIRE_REASON = 1 and m.TRANSFER_TYPE = 1 '
+        . 'and m.CHZ_SENT_AT is null and m.CHZ_SKIP_AT is null';
+
+    /** Код уже занят незакрытой пачкой — второй раз не собираем. */
+    private const NOT_IN_BATCH = 'not exists (select 1 from CHZ_BATCH_KI k join CHZ_BATCH b on b.ID = k.BATCH_ID '
+        . "where k.KI = m.KI and b.STATUS in ('READY', 'WAIT', 'SENT', 'ERROR'))";
+
+    /** Статусы ГИС МТ, из которых вывод возможен. Всё прочее — повод снять код с отправки. */
+    private const CAN_RETIRE = ['INTRODUCED'];
 
     /** Документ True API отбит: дальше ждать нечего. */
     private const DOC_FAILED = ['REJECTED', 'CHECKED_NOT_OK', 'PROCESSING_ERROR'];
@@ -62,7 +83,165 @@ class ChzOutboxService
     /** Один проход воркера. Возвращает строки для вывода команды. */
     public function tick(): array
     {
-        return array_merge($this->promoteWaiting(), $this->sendNext(), $this->checkSent());
+        return array_merge($this->promoteWaiting(), $this->collectRetire(), $this->sendNext(), $this->checkSent());
+    }
+
+    /**
+     * Сборка пачек вывода из оборота. Коды помечает не этот сервис (продажа
+     * маркетплейса — MARKCODE_FBS_SOLD, УПД — свой путь), здесь они только
+     * группируются: один документ = один счёт либо одна УПД.
+     *
+     * Пачка за проход и только когда очередь пуста: спешить некуда, а ровная
+     * очередь не плодит документы, если отправка встала. Так же разгребается
+     * и накопленное — отдельного разового перегона не нужно.
+     */
+    private function collectRetire(): array
+    {
+        if (!config('marking.chz.retire')) {
+            return [];
+        }
+        if (ChzBatch::whereIn('STATUS', [ChzBatch::STATUS_READY, ChzBatch::STATUS_WAIT])->exists()) {
+            return [];
+        }
+        // УПД вперёд: их единицы, а счетов маркетплейса сотни — иначе документы
+        // покупателям будут ждать разбора завала неделю.
+        return $this->collectDoc(ChzBatch::KIND_RETIRE_UPD) ?: $this->collectDoc(ChzBatch::KIND_RETIRE);
+    }
+
+    /** Одна пачка выбранного вида: самый старый документ с ждущими кодами. */
+    private function collectDoc(string $kind): array
+    {
+        $upd = $kind === ChzBatch::KIND_RETIRE_UPD;
+        $column = $upd ? 'rpf.SFCODE' : 'rp.SCODE';
+        $from = $upd
+            ? 'MARKCODES m join REALPRICEF rpf on rpf.REALPRICEFCODE = m.REALPRICEFCODE'
+            : 'MARKCODES m join REALPRICE rp on rp.REALPRICECODE = m.REALPRICECODE';
+        $where = ($upd ? self::WAIT_RETIRE_UPD : self::WAIT_RETIRE) . ' and ' . self::NOT_IN_BATCH;
+
+        $first = $this->rows(
+            "select first 1 {$column} as DOCCODE from {$from} where {$where} order by {$column}",
+            []
+        );
+        if (!$first) {
+            return [];
+        }
+        $docCode = intval($first[0]->DOCCODE);
+        $kis = array_map(
+            fn($row) => trim((string)$row->KI),
+            $this->rows(
+                "select m.KI from {$from} where {$column} = ? and {$where} order by m.MARKCODE",
+                [$docCode]
+            )
+        );
+
+        [$kis, $lines] = $this->skipUnsuitable($kis, $kind, $docCode);
+        if (!$kis) {
+            return $lines;
+        }
+
+        $batch = $this->store($kind, $kis, $upd ? null : $docCode, $upd ? $docCode : null);
+        $lines[] = "пачка №{$batch->ID} ({$kind}, документ {$docCode}): собрана, кодов " . count($kis);
+        return $lines;
+    }
+
+    /**
+     * Сверка с ГИС МТ перед отправкой: код мог быть выведен помимо нас (руками
+     * в личном кабинете) или вообще не годиться к выводу. Первых помечаем
+     * переданными, вторых снимаем с отправки — и то, и другое молча уходит
+     * из очереди, вместо того чтобы каждый раз отбиваться в ЧЗ.
+     *
+     * Возвращает пригодные КИ и строки для лога. Сервис недоступен — сверку
+     * пропускаем: пачка соберётся как есть, отказ разберём по её ошибке.
+     */
+    private function skipUnsuitable(array $kis, string $kind, int $docCode): array
+    {
+        try {
+            $answer = $this->client->post('codes/info', ['inn' => $this->inn(), 'codes' => $kis]);
+        } catch (MarkingException $e) {
+            return [$kis, ["сверка кодов документа {$docCode} не удалась — " . $e->getMessage()]];
+        }
+
+        // Ни одного статуса в ответе — сверка не состоялась. Иначе весь документ
+        // был бы молча снят с отправки из-за молчания сервиса.
+        if (!($answer['codes'] ?? [])) {
+            return [$kis, ["сверка кодов документа {$docCode}: сервис не вернул ни одного статуса"]];
+        }
+
+        [$good, $done, $bad] = self::sortByStatus($kis, $answer['codes']);
+
+        $lines = [];
+        if ($done) {
+            // Выведен не нами — считаем переданным: цикл кода закрыт, повторять нечего.
+            $this->stamp($done, 'CHZ_SENT_AT');
+            $lines[] = "документ {$docCode}: " . count($done) . ' код(ов) уже выведены в ЧЗ — отмечены переданными';
+        }
+        if ($bad) {
+            foreach ($bad as $ki => $reason) {
+                $this->skip([$ki], $reason);
+            }
+            $lines[] = "документ {$docCode}: " . count($bad) . ' код(ов) сняты с отправки — ' . reset($bad);
+            $this->notify(null, "Документ {$docCode} ({$kind}): Честный знак не даёт вывести коды — "
+                . implode('; ', array_slice(array_keys($bad), 0, 10)), 'skip-' . $docCode);
+        }
+        return [$good, $lines];
+    }
+
+    /**
+     * Раскладка кодов по ответу ГИС МТ: [пригодные, уже выведенные, негодные].
+     * У негодных — причина словами, она уйдёт в CHZ_SKIP_TEXT и в письмо.
+     * Чистая функция: тут вся суть сверки, поэтому она и вынесена отдельно.
+     */
+    public static function sortByStatus(array $kis, array $cises): array
+    {
+        $statuses = [];
+        foreach ($cises as $code) {
+            $statuses[$code['ki'] ?? ''] = $code['status'] ?? null;
+        }
+
+        $good = [];
+        $done = [];
+        $bad = [];
+        foreach ($kis as $ki) {
+            $status = $statuses[$ki] ?? null;
+            if ($status === 'RETIRED') {
+                $done[] = $ki;
+            } elseif (in_array($status, self::CAN_RETIRE, true)) {
+                $good[] = $ki;
+            } else {
+                $bad[$ki] = 'Честный знак: ' . ($status ?: 'код не найден');
+            }
+        }
+        return [$good, $done, $bad];
+    }
+
+    /** Пачка и её коды одной транзакцией: список КИ без пачки — мусор, и наоборот. */
+    private function store(string $kind, array $kis, ?int $scode, ?int $sfcode): ChzBatch
+    {
+        $batch = new ChzBatch();
+        $batch->KIND = $kind;
+        $batch->CNT = count($kis);
+        $batch->SCODE = $scode;
+        $batch->SFCODE = $sfcode;
+        $batch->STATUS = ChzBatch::STATUS_READY;
+        $batch->CREATED_BY = 'chz:outbox';
+
+        // Транзакция по правилам этого драйвера — см. комментарий в retry().
+        $connection = DB::connection('firebird');
+        $connection->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 0);
+        $connection->beginTransaction();
+        try {
+            $batch->save();
+            foreach ($kis as $ki) {
+                $connection->table('CHZ_BATCH_KI')->insert(['BATCH_ID' => $batch->ID, 'KI' => $ki]);
+            }
+            $connection->commit();
+        } catch (\Exception $e) {
+            $connection->rollBack();
+            throw $e;
+        } finally {
+            $connection->getPdo()->setAttribute(\PDO::ATTR_AUTOCOMMIT, 1);
+        }
+        return $batch;
     }
 
     /** Ввод в оборот ждёт, пока его нанесение подтвердится. */
@@ -105,15 +284,16 @@ class ChzOutboxService
         }
 
         try {
-            $items = $this->items($batch);
-            if (!$items) {
+            $body = $this->body($batch);
+            if (!$body['items']) {
                 $this->fail($batch, 'В пачке нет кодов, пригодных к отправке (нет полного КМ или родителя)');
                 return ["пачка №{$batch->ID}: отправлять нечего"];
             }
-            $answer = $this->client->post($this->path($batch), [
-                'inn' => $this->inn(),
-                'items' => $items,
-            ], ['X-Request-Id' => $this->requestId($batch)]);
+            $answer = $this->client->post(
+                $this->path($batch),
+                $body,
+                ['X-Request-Id' => $this->requestId($batch)]
+            );
         } catch (MarkingException $e) {
             // «уже отправлен, ответ не получен» — сервис сам отказывается повторять,
             // и мы тоже: что там на самом деле, знает только ЧЗ.
@@ -122,13 +302,13 @@ class ChzOutboxService
             return ["пачка №{$batch->ID}: отказ — " . $e->getMessage()];
         }
 
-        // Нанесение и деление возвращают отчёт СУЗ, ввод в оборот — документ True API.
-        // Это разные сущности с разными номерами, поэтому и колонки разные.
-        $intro = $this->isIntro($batch);
-        $sent = $intro ? ($answer['documents'] ?? []) : ($answer['reports'] ?? []);
-        $key = $intro ? 'docId' : 'reportId';
+        // Нанесение и деление возвращают отчёт СУЗ, ввод и вывод из оборота —
+        // документ True API. Это разные сущности с разными номерами, поэтому и колонки разные.
+        $isDoc = $this->isDocument($batch);
+        $sent = $isDoc ? ($answer['documents'] ?? []) : ($answer['reports'] ?? []);
+        $key = $isDoc ? 'docId' : 'reportId';
         $id = $sent[0][$key] ?? null;
-        if ($intro) {
+        if ($isDoc) {
             $batch->DOC_UUID = $id;
         } else {
             $batch->REPORT_ID = $id;
@@ -149,7 +329,7 @@ class ChzOutboxService
             $this->fail($batch, self::UNKNOWN . 'сервис не вернул номер документа — проверьте в Честном знаке, что там на самом деле');
             return ["пачка №{$batch->ID}: ответ без номера"];
         }
-        return ["пачка №{$batch->ID} ({$batch->KIND}, кодов " . count($items) . "): документ {$id}"];
+        return ["пачка №{$batch->ID} ({$batch->KIND}, кодов " . count($body['items']) . "): документ {$id}"];
     }
 
     /** Проверяем отправленные по статусам самих кодов: статус отчёта в СУЗ навсегда SENT. */
@@ -197,12 +377,18 @@ class ChzOutboxService
     private function confirm(ChzBatch $batch): ?string
     {
         $kis = $batch->kis();
-        $this->stamp($kis, 'REPORTED_AT');
-        // Деление вводит ребёнка в оборот тем же документом — у нас это поле пустое.
-        // У ввода в оборот отметку обычно уже поставила MARKCODES_INTRODUCE_BY_SCODE,
-        // но пачка могла прийти и из другого места: stamp заполняет только пустые.
-        if ($batch->KIND === ChzBatch::KIND_DIVISION || $this->isIntro($batch)) {
-            $this->stamp($kis, 'ENTERED_CIRCULATION_AT');
+        if ($this->isRetire($batch)) {
+            // Вывод замыкает цикл кода: ЧЗ подтвердила RETIRED — ставим «передан».
+            // Ту же отметку раньше ставил человек кликом «Подтвердить» на вкладке «ЧЗ».
+            $this->stamp($kis, 'CHZ_SENT_AT');
+        } else {
+            $this->stamp($kis, 'REPORTED_AT');
+            // Деление вводит ребёнка в оборот тем же документом — у нас это поле пустое.
+            // У ввода в оборот отметку обычно уже поставила MARKCODES_INTRODUCE_BY_SCODE,
+            // но пачка могла прийти и из другого места: stamp заполняет только пустые.
+            if ($batch->KIND === ChzBatch::KIND_DIVISION || trim((string)$batch->KIND) === ChzBatch::KIND_INTRO) {
+                $this->stamp($kis, 'ENTERED_CIRCULATION_AT');
+            }
         }
 
         $note = $batch->KIND === ChzBatch::KIND_DIVISION ? $this->checkQuantities($batch) : null;
@@ -287,6 +473,8 @@ class ChzOutboxService
         $new->KIND = $batch->KIND;
         $new->CNT = count($kis);
         $new->SCODE = $batch->SCODE;
+        // У вывода по УПД документ живёт в SFCODE — без него пачка потеряет своё место.
+        $new->SFCODE = $batch->SFCODE;
         $new->STATUS = ChzBatch::STATUS_READY;
         $new->CREATED_BY = mb_substr('web:' . (optional(auth()->user())->name ?? '?'), 0, 32);
 
@@ -316,7 +504,115 @@ class ChzOutboxService
         return ['id' => $new->ID, 'cnt' => $new->CNT];
     }
 
-    /** Тело запроса по виду пачки. Коды не хранятся в очереди — собираем из базы. */
+    /**
+     * Тело запроса целиком. Кроме кодов вывод из оборота требует причину, дату
+     * и реквизиты документа — их в очереди тоже нет: берём из счёта либо УПД
+     * в момент отправки, как и сами коды.
+     */
+    private function body(ChzBatch $batch): array
+    {
+        $kind = trim((string)$batch->KIND);
+        if ($kind === ChzBatch::KIND_RETIRE) {
+            return $this->retireBody($batch);
+        }
+        if ($kind === ChzBatch::KIND_RETIRE_UPD) {
+            return $this->retireUpdBody($batch);
+        }
+        return ['inn' => $this->inn(), 'items' => $this->items($batch)];
+    }
+
+    /**
+     * Вывод по продаже маркетплейса: причина DISTANCE, цена обязательна,
+     * первичный документ не нужен. Дата — дата счёта: у старых продаж RETIRED_AT
+     * это день, когда включили автоматику, а не день продажи.
+     */
+    private function retireBody(ChzBatch $batch): array
+    {
+        $rows = $this->rows(
+            'select m.KI, m.KM_FULL, rp.PRICE, s.DATA from CHZ_BATCH_KI k '
+            . 'join MARKCODES m on m.KI = k.KI '
+            . 'join REALPRICE rp on rp.REALPRICECODE = m.REALPRICECODE '
+            . 'join S s on s.SCODE = rp.SCODE '
+            . 'where k.BATCH_ID = ? order by m.MARKCODE',
+            [$batch->ID]
+        );
+        return [
+            'inn' => $this->inn(),
+            'reason' => 'DISTANCE',
+            'date' => $this->day($rows[0]->DATA ?? null),
+            'items' => array_map(fn($row) => [
+                'km' => $this->code($row),
+                'priceKop' => $this->kopecks($row->PRICE),
+            ], $rows),
+        ];
+    }
+
+    /**
+     * Вывод по УПД покупателю, не зарегистрированному в ЧЗ: причина OWN_USE
+     * с ИНН покупателя и первичным документом — так ответила поддержка ЧЗ
+     * (обращение SR8508987, см. runbook §8).
+     */
+    private function retireUpdBody(ChzBatch $batch): array
+    {
+        $rows = $this->rows(
+            'select m.KI, m.KM_FULL, rpf.PRICE, sf.NSF, sf.DATA, p.INN from CHZ_BATCH_KI k '
+            . 'join MARKCODES m on m.KI = k.KI '
+            . 'join REALPRICEF rpf on rpf.REALPRICEFCODE = m.REALPRICEFCODE '
+            . 'join SF sf on sf.SFCODE = rpf.SFCODE '
+            . 'left join POKUPAT p on p.POKUPATCODE = sf.POKUPATCODE '
+            . 'where k.BATCH_ID = ? order by m.MARKCODE',
+            [$batch->ID]
+        );
+        $head = $rows[0] ?? null;
+        $date = $this->day($head->DATA ?? null);
+        return [
+            'inn' => $this->inn(),
+            'reason' => 'OWN_USE',
+            'date' => $date,
+            'buyerInn' => $this->buyerInn($head->INN ?? null),
+            'document' => [
+                'type' => 'OTHER',
+                'name' => 'УПД',
+                'number' => trim((string)($head->NSF ?? '')),
+                'date' => $date,
+            ],
+            'items' => array_map(fn($row) => [
+                'km' => $this->code($row),
+                'priceKop' => $this->kopecks($row->PRICE),
+            ], $rows),
+        ];
+    }
+
+    /**
+     * Что шлём как код. Полного КМ у чужого кода (пришёл от поставщика по УПД)
+     * нет, а выводить его надо: в документе вывода участвует только КИ, и сервис
+     * принимает оба вида.
+     */
+    private function code(object $row): string
+    {
+        $km = trim((string)($row->KM_FULL ?? ''));
+        return $km !== '' ? $km : trim((string)$row->KI);
+    }
+
+    /** Цена строки документа в копейках: ЧЗ хочет целое (30000 = 300.00 руб). */
+    private function kopecks($price): int
+    {
+        return intval(round(floatval($price) * 100));
+    }
+
+    /** ЧЗ принимает календарную дату; время в документах вывода всё равно нулевое. */
+    private function day($value): string
+    {
+        return $value ? date('Y-m-d', strtotime((string)$value)) : date('Y-m-d');
+    }
+
+    /** В POKUPAT.INN лежит «ИНН/КПП» — сервису нужен только ИНН. */
+    private function buyerInn($value): string
+    {
+        return trim(explode('/', (string)$value)[0]);
+    }
+
+    /** Коды пачки для отчётов СУЗ. Коды не хранятся в очереди — собираем из базы. */
     private function items(ChzBatch $batch): array
     {
         if ($batch->KIND === ChzBatch::KIND_DIVISION) {
@@ -351,23 +647,38 @@ class ChzOutboxService
 
     private function path(ChzBatch $batch): string
     {
-        if ($this->isIntro($batch)) {
+        $kind = trim((string)$batch->KIND);
+        if ($kind === ChzBatch::KIND_INTRO) {
             return 'introduce';
         }
-        return $batch->KIND === ChzBatch::KIND_DIVISION ? 'apply/division' : 'apply';
+        if ($this->isRetire($batch)) {
+            return 'retire';
+        }
+        return $kind === ChzBatch::KIND_DIVISION ? 'apply/division' : 'apply';
     }
 
-    /** Проверка: у ввода в оборот документ True API, у остальных отчёт СУЗ. */
+    /** Проверка: у ввода и вывода из оборота документ True API, у остальных отчёт СУЗ. */
     private function checkPath(ChzBatch $batch): string
     {
-        return $this->isIntro($batch)
+        return $this->isDocument($batch)
             ? 'document/' . $batch->DOC_UUID
             : 'apply/' . $batch->REPORT_ID;
     }
 
-    private function isIntro(ChzBatch $batch): bool
+    /** Вид пачки создаёт документ True API (а не отчёт СУЗ). */
+    private function isDocument(ChzBatch $batch): bool
     {
-        return trim((string)$batch->KIND) === ChzBatch::KIND_INTRO;
+        return trim((string)$batch->KIND) === ChzBatch::KIND_INTRO || $this->isRetire($batch);
+    }
+
+    /** Оба вывода — по продаже маркетплейса и по УПД — отличаются только телом документа. */
+    private function isRetire(ChzBatch $batch): bool
+    {
+        return in_array(
+            trim((string)$batch->KIND),
+            [ChzBatch::KIND_RETIRE, ChzBatch::KIND_RETIRE_UPD],
+            true
+        );
     }
 
     /**
@@ -400,6 +711,8 @@ class ChzOutboxService
             $accepted = self::AFTER_DIVISION;
         } elseif ($kind === ChzBatch::KIND_INTRO) {
             $accepted = self::AFTER_INTRO;
+        } elseif (in_array($kind, [ChzBatch::KIND_RETIRE, ChzBatch::KIND_RETIRE_UPD], true)) {
+            $accepted = self::AFTER_RETIRE;
         } else {
             $accepted = self::AFTER_APPLY;
         }
@@ -425,6 +738,40 @@ class ChzOutboxService
             }
         }
         return $statuses;
+    }
+
+    /**
+     * Снять коды с отправки в ЧЗ: больше они не попадут ни в одну пачку.
+     * Ставится и человеком с экрана, и воркером по ответу ЧЗ. Отметка отдельная
+     * от CHZ_SENT_AT: «мы это не отправляем» и «мы это вывели» — разные вещи,
+     * иначе потом не разобрать, что выведено на самом деле.
+     */
+    public function skip(array $kis, string $reason): int
+    {
+        $done = 0;
+        foreach (array_chunk($kis, self::CHUNK) as $part) {
+            $in = implode(',', array_fill(0, count($part), '?'));
+            $done += DB::connection('firebird')->update(
+                "update MARKCODES set CHZ_SKIP_AT = CURRENT_TIMESTAMP, CHZ_SKIP_TEXT = ? "
+                . "where KI in ({$in}) and CHZ_SENT_AT is null",
+                array_merge([mb_substr($reason, 0, 200)], $part)
+            );
+        }
+        return $done;
+    }
+
+    /** Вернуть снятые коды в очередь: причина стирается вместе с отметкой. */
+    public function unskip(array $kis): int
+    {
+        $done = 0;
+        foreach (array_chunk($kis, self::CHUNK) as $part) {
+            $in = implode(',', array_fill(0, count($part), '?'));
+            $done += DB::connection('firebird')->update(
+                "update MARKCODES set CHZ_SKIP_AT = null, CHZ_SKIP_TEXT = null where KI in ({$in})",
+                $part
+            );
+        }
+        return $done;
     }
 
     /** Отметка ставится один раз: повторный проход ничего не перетирает. */

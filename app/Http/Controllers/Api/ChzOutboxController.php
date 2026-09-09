@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\ChzBatch;
 use App\Http\Controllers\Controller;
 use App\Invoice;
+use App\TransferOut;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\Marking\ChzOutboxService;
 
@@ -27,6 +29,9 @@ class ChzOutboxController extends Controller
         // на весь список, ссылку на страницу счёта построит фронт по SCODE.
         $numbers = Invoice::whereIn('SCODE', $batches->pluck('SCODE')->filter()->unique())
             ->pluck('NS', 'SCODE');
+        // У вывода по УПД документ — не счёт: показываем её номер, ссылки на неё нет.
+        $docNumbers = TransferOut::whereIn('SFCODE', $batches->pluck('SFCODE')->filter()->unique())
+            ->pluck('NSF', 'SFCODE');
         return [
             'enabled' => $this->service->enabled(),
             'batches' => $batches->map(fn(ChzBatch $b) => [
@@ -36,6 +41,8 @@ class ChzOutboxController extends Controller
                 'cnt' => $b->CNT,
                 'scode' => $b->SCODE,
                 'invoiceNumber' => $b->SCODE ? ($numbers[$b->SCODE] ?? null) : null,
+                'sfcode' => $b->SFCODE,
+                'docNumber' => $b->SFCODE ? ($docNumbers[$b->SFCODE] ?? null) : null,
                 'parentId' => $b->PARENT_ID,
                 'reportId' => $b->REPORT_ID,
                 'docUuid' => $b->DOC_UUID,
@@ -57,7 +64,7 @@ class ChzOutboxController extends Controller
     {
         $batch = ChzBatch::findOrFail($id);
         $rows = DB::connection('firebird')->select(
-            'select k.KI, m.GOODSCODE, nm.NAME, m.QUANTITY from CHZ_BATCH_KI k '
+            'select k.KI, m.GOODSCODE, nm.NAME, m.QUANTITY, m.CHZ_SKIP_AT, m.CHZ_SKIP_TEXT from CHZ_BATCH_KI k '
             . 'left join MARKCODES m on m.KI = k.KI '
             . 'left join GOODS g on g.GOODSCODE = m.GOODSCODE '
             . 'left join NAME nm on nm.NAMECODE = g.NAMECODE '
@@ -71,8 +78,34 @@ class ChzOutboxController extends Controller
                 'goodscode' => $row->GOODSCODE === null ? null : intval($row->GOODSCODE),
                 'name' => $row->NAME === null ? null : trim((string)$row->NAME),
                 'quantity' => $row->QUANTITY === null ? null : intval($row->QUANTITY),
+                // Снятый с отправки код остаётся в пачке: видно, почему он не уехал.
+                'skipAt' => $row->CHZ_SKIP_AT ?? null,
+                'skipText' => $row->CHZ_SKIP_TEXT === null ? null : trim((string)$row->CHZ_SKIP_TEXT),
             ], $rows),
         ];
+    }
+
+    /**
+     * Снять коды с отправки в ЧЗ: весь список пачки либо один код (параметр ki).
+     * Нужно, когда Честный знак отказывается работать с кодом — считает чужим
+     * или не видит в обороте: без пометки такой код собирался бы в пачку вечно.
+     */
+    public function skip(int $id, Request $request)
+    {
+        $batch = ChzBatch::findOrFail($id);
+        $ki = trim((string)$request->input('ki', ''));
+        $reason = trim((string)$request->input('reason', '')) ?: 'снят вручную';
+        $kis = $ki === '' ? $batch->kis() : [$ki];
+        return ['skipped' => $this->service->skip($kis, $reason)];
+    }
+
+    /** Вернуть снятые коды в очередь — та же кнопка, обратное действие. */
+    public function unskip(int $id, Request $request)
+    {
+        $batch = ChzBatch::findOrFail($id);
+        $ki = trim((string)$request->input('ki', ''));
+        $kis = $ki === '' ? $batch->kis() : [$ki];
+        return ['returned' => $this->service->unskip($kis)];
     }
 
     /**

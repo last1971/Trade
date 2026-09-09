@@ -31,6 +31,8 @@
                 <router-link v-if="item.scode" :to="{ name: 'invoice', params: { id: item.scode } }">
                     {{ item.invoiceNumber || item.scode }}
                 </router-link>
+                <!-- У вывода по УПД документ не счёт: номер показываем, ссылки на УПД нет -->
+                <span v-else-if="item.sfcode">УПД {{ item.docNumber || item.sfcode }}</span>
             </template>
             <template v-slot:item.createdAt="{ item }">{{ item.createdAt | datetime }}</template>
             <template v-slot:item.confirmedAt="{ item }">{{ item.confirmedAt | datetime }}</template>
@@ -47,6 +49,17 @@
                     @click="retry(item)"
                 >
                     Повторить
+                </v-btn>
+                <!-- Отбитую пачку целиком снимают с отправки, когда ЧЗ не даёт вывести её коды -->
+                <v-btn
+                    v-if="item.status === 'ERROR'"
+                    x-small
+                    text
+                    class="ml-1"
+                    :loading="busy === item.id"
+                    @click="askSkip(item, null)"
+                >
+                    Не выводить
                 </v-btn>
             </template>
             <template v-slot:expanded-item="{ headers: h, item }">
@@ -65,6 +78,14 @@
                                     >{{ code.name || code.goodscode }}</router-link>
                                     <span v-else class="grey--text">кода нет в базе</span>
                                 </td>
+                                <!-- Снятый код остаётся в пачке: видно, почему он не уехал, и можно вернуть -->
+                                <td class="text-right">
+                                    <template v-if="code.skipAt">
+                                        <span class="grey--text mr-2">не выводим: {{ code.skipText }}</span>
+                                        <v-btn x-small text @click="unskip(item, code)">Вернуть</v-btn>
+                                    </template>
+                                    <v-btn v-else x-small text @click="askSkip(item, code)">Не выводить</v-btn>
+                                </td>
                             </tr>
                             </tbody>
                         </template>
@@ -72,6 +93,33 @@
                 </td>
             </template>
         </v-data-table>
+        <!-- Причина обязательна: через месяц никто не вспомнит, почему код брошен -->
+        <v-dialog v-model="skipDialog" max-width="480">
+            <v-card>
+                <v-card-title class="subtitle-1">
+                    {{ skipCode ? 'Не выводить этот код' : 'Не выводить коды пачки' }}
+                </v-card-title>
+                <v-card-text>
+                    <div class="mono mb-2" v-if="skipCode">{{ skipCode.ki }}</div>
+                    <div class="grey--text mb-2" v-else>Кодов в пачке: {{ skipBatch ? skipBatch.cnt : 0 }}</div>
+                    <v-text-field
+                        v-model="skipReason"
+                        label="Почему не выводим"
+                        placeholder="Честный знак считает код чужим"
+                        autofocus
+                        dense
+                        @keyup.enter="skip"
+                    />
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer/>
+                    <v-btn text @click="skipDialog = false">Отмена</v-btn>
+                    <v-btn color="primary" :disabled="!skipReason" :loading="busy === 'skip'" @click="skip">
+                        Снять с отправки
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </v-card>
 </template>
 
@@ -116,6 +164,10 @@ export default {
             loading: false,
             busy: null,
             timer: null,
+            skipDialog: false,
+            skipBatch: null,
+            skipCode: null,
+            skipReason: '',
             headers: [
                 {text: '№', value: 'id', width: 80},
                 {text: 'Вид', value: 'kind'},
@@ -174,6 +226,42 @@ export default {
                 })
                 .catch(this.error)
                 .then(() => this.busy = null);
+        },
+        // code = null — снимаем всю пачку.
+        askSkip(item, code) {
+            this.skipBatch = item;
+            this.skipCode = code;
+            this.skipReason = code ? '' : (item.errorText || '');
+            this.skipDialog = true;
+        },
+        skip() {
+            const body = {reason: this.skipReason};
+            if (this.skipCode) body.ki = this.skipCode.ki;
+            this.busy = 'skip';
+            axios.post('/api/chz/outbox/' + this.skipBatch.id + '/skip', body)
+                .then(({data}) => {
+                    this.$store.commit('SNACKBAR/SUCCESS',
+                        `Снято с отправки кодов: ${data.skipped}`, {root: true});
+                    this.skipDialog = false;
+                    this.reloadCodes(this.skipBatch);
+                })
+                .catch(this.error)
+                .then(() => this.busy = null);
+        },
+        unskip(item, code) {
+            this.busy = 'skip';
+            axios.post('/api/chz/outbox/' + item.id + '/unskip', {ki: code.ki})
+                .then(() => {
+                    this.$store.commit('SNACKBAR/SUCCESS', 'Код вернулся в очередь', {root: true});
+                    this.reloadCodes(item);
+                })
+                .catch(this.error)
+                .then(() => this.busy = null);
+        },
+        // Пометки живут на кодах, а не на пачке: после правки список надо перечитать.
+        reloadCodes(item) {
+            this.$delete(this.codes, item.id);
+            this.loadCodes({item, value: true});
         },
         error(e) {
             const data = e.response ? e.response.data : {};

@@ -130,6 +130,12 @@ Route::middleware('auth:api')->group(function () {
         // Повтор отбитой пачки: новая отправка в ЧЗ, поэтому право то же, что у заказа
         Route::post('chz/outbox/{id}/retry', 'Api\ChzOutboxController@retry')
             ->name('chz.outbox.retry');
+        // Снять коды с отправки и вернуть обратно: решение человека, что с кодом
+        // делать в ЧЗ, — то же по весу, что и отправка.
+        Route::post('chz/outbox/{id}/skip', 'Api\ChzOutboxController@skip')
+            ->name('chz.outbox.skip');
+        Route::post('chz/outbox/{id}/unskip', 'Api\ChzOutboxController@unskip')
+            ->name('chz.outbox.unskip');
         Route::post('good/{id}/suggest', 'Api\GoodGtinController@suggest')
             ->name('good.suggest');
         Route::post('good/classify-bulk', 'Api\GoodGtinController@classifyBulk')

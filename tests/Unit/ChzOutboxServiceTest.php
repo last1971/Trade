@@ -63,4 +63,36 @@ class ChzOutboxServiceTest extends TestCase
         $cises = [['cis' => 'ki-1', 'status' => 'INTRODUCED']];
         $this->assertSame([], ChzOutboxService::pending(['ki-1'], $cises, ChzBatch::KIND_DIVISION));
     }
+
+    public function testRetireConfirmedOnlyByRetired()
+    {
+        $kis = ['ki-1', 'ki-2'];
+        $done = [$this->cis('ki-1', 'RETIRED'), $this->cis('ki-2', 'RETIRED')];
+        $this->assertSame([], ChzOutboxService::pending($kis, $done, ChzBatch::KIND_RETIRE));
+
+        // Документ вывода принят, но код всё ещё в обороте — ГИС МТ не отработала.
+        $half = [$this->cis('ki-1', 'RETIRED'), $this->cis('ki-2', 'INTRODUCED')];
+        $this->assertSame(['ki-2 = INTRODUCED'], ChzOutboxService::pending($kis, $half, ChzBatch::KIND_RETIRE));
+        $this->assertSame(['ki-2 = INTRODUCED'], ChzOutboxService::pending($kis, $half, ChzBatch::KIND_RETIRE_UPD));
+    }
+
+    public function testSortByStatusSplitsSuitableSpentAndHopeless()
+    {
+        $kis = ['ki-in', 'ki-out', 'ki-emitted', 'ki-unknown'];
+        $cises = [
+            ['ki' => 'ki-in', 'status' => 'INTRODUCED'],
+            ['ki' => 'ki-out', 'status' => 'RETIRED'],
+            ['ki' => 'ki-emitted', 'status' => 'EMITTED'],
+        ];
+        [$good, $done, $bad] = ChzOutboxService::sortByStatus($kis, $cises);
+
+        $this->assertSame(['ki-in'], $good);
+        // Выведен помимо нас — не ошибка: код просто отмечается переданным.
+        $this->assertSame(['ki-out'], $done);
+        // Не введён в оборот и вовсе неизвестный ЧЗ — снимаем с отправки с причиной.
+        $this->assertSame(
+            ['ki-emitted' => 'Честный знак: EMITTED', 'ki-unknown' => 'Честный знак: код не найден'],
+            $bad
+        );
+    }
 }
