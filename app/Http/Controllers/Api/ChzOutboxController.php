@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\ChzBatch;
 use App\Http\Controllers\Controller;
 use App\Invoice;
+use Illuminate\Support\Facades\DB;
 use App\Services\Marking\ChzOutboxService;
 
 /**
@@ -47,11 +48,31 @@ class ChzOutboxController extends Controller
         ];
     }
 
-    /** Коды пачки — по кнопке «развернуть», отдельным запросом. */
+    /**
+     * Коды пачки — по кнопке «развернуть», отдельным запросом.
+     * Кроме КИ отдаём товар: голый код человеку ничего не говорит,
+     * а по названию он проваливается в карточку.
+     */
     public function codes(int $id)
     {
         $batch = ChzBatch::findOrFail($id);
-        return ['id' => $batch->ID, 'kis' => $batch->kis()];
+        $rows = DB::connection('firebird')->select(
+            'select k.KI, m.GOODSCODE, nm.NAME, m.QUANTITY from CHZ_BATCH_KI k '
+            . 'left join MARKCODES m on m.KI = k.KI '
+            . 'left join GOODS g on g.GOODSCODE = m.GOODSCODE '
+            . 'left join NAME nm on nm.NAMECODE = g.NAMECODE '
+            . 'where k.BATCH_ID = ? order by m.MARKCODE',
+            [$batch->ID]
+        );
+        return [
+            'id' => $batch->ID,
+            'codes' => array_map(fn($row) => [
+                'ki' => trim((string)$row->KI),
+                'goodscode' => $row->GOODSCODE === null ? null : intval($row->GOODSCODE),
+                'name' => $row->NAME === null ? null : trim((string)$row->NAME),
+                'quantity' => $row->QUANTITY === null ? null : intval($row->QUANTITY),
+            ], $rows),
+        ];
     }
 
     /**

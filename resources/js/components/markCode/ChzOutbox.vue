@@ -53,7 +53,22 @@
                 <td :colspan="h.length" class="py-2">
                     <div v-if="item.errorText" class="red--text mb-2">{{ item.errorText }}</div>
                     <div v-if="!codes[item.id]" class="grey--text">Коды загружаются…</div>
-                    <div v-else class="mono codes">{{ codes[item.id].join('\n') }}</div>
+                    <v-simple-table v-else dense class="codes">
+                        <template v-slot:default>
+                            <tbody>
+                            <tr v-for="code in codes[item.id]" :key="code.ki">
+                                <td class="mono">{{ code.ki }}</td>
+                                <td class="text-right">{{ code.quantity }}</td>
+                                <td>
+                                    <router-link v-if="code.goodscode"
+                                                 :to="{ name: 'good', params: { id: code.goodscode } }"
+                                    >{{ code.name || code.goodscode }}</router-link>
+                                    <span v-else class="grey--text">кода нет в базе</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </template>
+                    </v-simple-table>
                 </td>
             </template>
         </v-data-table>
@@ -146,7 +161,7 @@ export default {
         loadCodes({item, value}) {
             if (!value || this.codes[item.id]) return;
             axios.get('/api/chz/outbox/' + item.id + '/codes')
-                .then(({data}) => this.$set(this.codes, item.id, data.kis))
+                .then(({data}) => this.$set(this.codes, item.id, data.codes))
                 .catch(this.error);
         },
         retry(item) {
@@ -175,9 +190,11 @@ export default {
 }
 
 .codes {
-    white-space: pre-wrap;
-    word-break: break-all;
     max-height: 240px;
     overflow-y: auto;
+}
+
+.codes .mono {
+    word-break: break-all;
 }
 </style>
