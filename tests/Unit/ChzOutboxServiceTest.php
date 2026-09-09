@@ -76,6 +76,19 @@ class ChzOutboxServiceTest extends TestCase
         $this->assertSame(['ki-2 = INTRODUCED'], ChzOutboxService::pending($kis, $half, ChzBatch::KIND_RETIRE_UPD));
     }
 
+    public function testBlamedFindsCodesNamedInRejection()
+    {
+        // Текст отказа ЧЗ как есть (пачка №41 от 09.09): виноватые названы поимённо.
+        $error = 'Честный знак отбил отчёт: ["11: Код идентификации 0100400001492086215yMe+ulo=Tnhs7dBY%pa '
+            . 'не принадлежит участнику оборота."]';
+        $kis = ['0100400001492086215yMe+ulo=Tnhs7dBY%pa', '0100400001492086215W3WbRHqRsvEl1WCYKUJ'];
+
+        // Назван один — второй невиновен и должен вернуться в очередь.
+        $this->assertSame([$kis[0]], ChzOutboxService::blamed($kis, $error));
+        // Ошибка без кодов (связь, подпись, общий отказ) — виноватых не назначаем.
+        $this->assertSame([], ChzOutboxService::blamed($kis, 'Честный знак отбил отчёт: без причины'));
+    }
+
     public function testSortByStatusRejectsCodesOfAnotherParticipant()
     {
         // Живой случай 09.09: коды счёта 14896 числились за ООО «БИС», и ЧЗ отбила

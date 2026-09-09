@@ -187,6 +187,16 @@ class ChzOutboxService
     }
 
     /**
+     * Коды пачки, названные в тексте отказа. Не разбираем формат сообщений ЧЗ —
+     * ищем в тексте свои же КИ: так работает с любой формулировкой.
+     * Чистая функция ради теста.
+     */
+    public static function blamed(array $kis, string $error): array
+    {
+        return array_values(array_filter($kis, fn($ki) => $ki !== '' && mb_strpos($error, $ki) !== false));
+    }
+
+    /**
      * Раскладка кодов по ответу ГИС МТ: [пригодные, уже выведенные, негодные].
      * У негодных — причина словами, она уйдёт в CHZ_SKIP_TEXT и в письмо.
      * Чистая функция: тут вся суть сверки, поэтому она и вынесена отдельно.
@@ -356,8 +366,9 @@ class ChzOutboxService
 
             $reason = $answer['errorReason'] ?? null;
             if (in_array($answer['status'] ?? null, self::DOC_FAILED, true) || $reason) {
-                $this->fail($batch, 'Честный знак отбил отчёт: ' . ($reason ?: 'без причины'));
-                $lines[] = "пачка №{$batch->ID}: отказ ЧЗ";
+                $text = 'Честный знак отбил отчёт: ' . ($reason ?: 'без причины');
+                $this->fail($batch, $text);
+                $lines[] = "пачка №{$batch->ID}: отказ ЧЗ" . $this->splitBlame($batch, $text);
                 continue;
             }
 
@@ -377,6 +388,46 @@ class ChzOutboxService
             $lines[] = "пачка №{$batch->ID}: ждём ГИС МТ, без подтверждения " . count($pending);
         }
         return $lines;
+    }
+
+    /**
+     * Разбор отказа: ЧЗ проверяет документ целиком, поэтому один негодный код
+     * не выпускает всю пачку. В тексте отказа виноватые перечислены поимённо —
+     * ищем в нём коды пачки: найденных снимаем с отправки, остальных освобождаем,
+     * и они уедут следующей пачкой. Пачка остаётся красной как след разбора.
+     *
+     * Ни одного кода в тексте нет (ошибка общая) — не трогаем ничего:
+     * пусть человек посмотрит сам.
+     *
+     * Возвращает хвост для строки лога.
+     */
+    public function splitBlame(ChzBatch $batch, string $error): string
+    {
+        $kis = $batch->kis();
+        $blamed = self::blamed($kis, $error);
+        if (!$blamed) {
+            return '';
+        }
+
+        // Причина у всех виноватых одна — та, что прислала ЧЗ; резать её по кодам
+        // не пытаемся: формат сообщений её дело, а не наше.
+        $this->skip($blamed, mb_substr($error, 0, 200));
+
+        $rest = array_values(array_diff($kis, $blamed));
+        if ($rest) {
+            // Освобождаем невиновных: пока они числятся в отбитой пачке,
+            // сборщик их не возьмёт.
+            foreach (array_chunk($rest, self::CHUNK) as $part) {
+                DB::connection('firebird')
+                    ->table('CHZ_BATCH_KI')
+                    ->where('BATCH_ID', $batch->ID)
+                    ->whereIn('KI', $part)
+                    ->delete();
+            }
+            $batch->CNT = count($blamed);
+            $batch->save();
+        }
+        return ': виноватых ' . count($blamed) . ', возвращено в очередь ' . count($rest);
     }
 
     /**
