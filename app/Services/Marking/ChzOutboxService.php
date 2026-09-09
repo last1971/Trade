@@ -167,7 +167,7 @@ class ChzOutboxService
             return [$kis, ["сверка кодов документа {$docCode}: сервис не вернул ни одного статуса"]];
         }
 
-        [$good, $done, $bad] = self::sortByStatus($kis, $answer['codes']);
+        [$good, $done, $bad] = self::sortByStatus($kis, $answer['codes'], $this->inn());
 
         $lines = [];
         if ($done) {
@@ -191,20 +191,29 @@ class ChzOutboxService
      * У негодных — причина словами, она уйдёт в CHZ_SKIP_TEXT и в письмо.
      * Чистая функция: тут вся суть сверки, поэтому она и вынесена отдельно.
      */
-    public static function sortByStatus(array $kis, array $cises): array
+    public static function sortByStatus(array $kis, array $cises, string $inn = ''): array
     {
-        $statuses = [];
+        $answer = [];
         foreach ($cises as $code) {
-            $statuses[$code['ki'] ?? ''] = $code['status'] ?? null;
+            $answer[$code['ki'] ?? ''] = $code;
         }
 
         $good = [];
         $done = [];
         $bad = [];
         foreach ($kis as $ki) {
-            $status = $statuses[$ki] ?? null;
+            $code = $answer[$ki] ?? null;
+            $status = $code['status'] ?? null;
+            // Владелец в ГИС МТ — не мы: вывести такой код нельзя, ЧЗ ответит
+            // «не принадлежит участнику оборота». Ловим до отправки документа.
+            $owner = $code['ownerInn'] ?? ($code['raw']['ownerInn'] ?? null);
+            $name = $code['raw']['ownerName'] ?? null;
+
             if ($status === 'RETIRED') {
                 $done[] = $ki;
+            } elseif ($inn !== '' && $owner && $owner !== $inn) {
+                $bad[$ki] = 'Честный знак: код принадлежит другому участнику — ' . $owner
+                    . ($name ? " ({$name})" : '');
             } elseif (in_array($status, self::CAN_RETIRE, true)) {
                 $good[] = $ki;
             } else {

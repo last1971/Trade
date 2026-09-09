@@ -76,6 +76,29 @@ class ChzOutboxServiceTest extends TestCase
         $this->assertSame(['ki-2 = INTRODUCED'], ChzOutboxService::pending($kis, $half, ChzBatch::KIND_RETIRE_UPD));
     }
 
+    public function testSortByStatusRejectsCodesOfAnotherParticipant()
+    {
+        // Живой случай 09.09: коды счёта 14896 числились за ООО «БИС», и ЧЗ отбила
+        // документ целиком с «не принадлежит участнику оборота». Ловим до отправки.
+        $cises = [
+            ['ki' => 'ki-our', 'status' => 'INTRODUCED', 'ownerInn' => '7017364619'],
+            ['ki' => 'ki-alien', 'status' => 'INTRODUCED', 'ownerInn' => '3435100567',
+                'raw' => ['ownerName' => 'ООО "БИС"']],
+        ];
+        [$good, $done, $bad] = ChzOutboxService::sortByStatus(
+            ['ki-our', 'ki-alien'],
+            $cises,
+            '7017364619'
+        );
+
+        $this->assertSame(['ki-our'], $good);
+        $this->assertSame([], $done);
+        $this->assertSame(
+            ['ki-alien' => 'Честный знак: код принадлежит другому участнику — 3435100567 (ООО "БИС")'],
+            $bad
+        );
+    }
+
     public function testSortByStatusSplitsSuitableSpentAndHopeless()
     {
         $kis = ['ki-in', 'ki-out', 'ki-emitted', 'ki-unknown'];
