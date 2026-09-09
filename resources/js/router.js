@@ -32,6 +32,7 @@ import StockClassif from "./components/stock/StockClassif";
 import TnvedReview from "./components/stock/TnvedReview";
 import MarkCodes from "./components/markCode/MarkCodes";
 import ChzOutbox from "./components/markCode/ChzOutbox";
+import MarkCode from "./components/markCode/MarkCode";
 import StoreIns from "./components/storeIn/StoreIns";
 import SpisSklads from "./components/spisSklad/SpisSklads";
 
@@ -69,10 +70,16 @@ const routes = [
         meta: {requiresAuth: true, model: 'MARK-CODE', permission: 'mark-code.index'},
     },
     {
+        name: 'mark-code',
+        path: '/mark-code/:id',
+        component: MarkCode,
+        meta: {requiresAuth: true, permission: 'mark-code.index'},
+    },
+    {
         name: 'chz-outbox',
         path: '/chz-outbox',
         component: ChzOutbox,
-        meta: {requiresAuth: true, permission: 'mark-code.index'},
+        meta: {requiresAuth: true, model: 'CHZ-BATCH', permission: 'mark-code.index'},
     },
     {
         name: 'store-ins',

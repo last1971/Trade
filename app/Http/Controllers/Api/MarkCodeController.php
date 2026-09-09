@@ -4,6 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Interfaces\IMarkCodeDocument;
 use App\Invoice;
+use App\MarkCode;
+use App\Services\Marking\ChzClient;
+use App\Services\Marking\ChzOutboxService;
+use App\Services\Marking\MarkingException;
 use App\Services\MarkCodeService;
 use App\Services\Marking\MarkCodeTransferService;
 use App\TransferOut;
@@ -44,6 +48,39 @@ class MarkCodeController extends ModelController
     public function transferState(Request $request, MarkCodeTransferService $service)
     {
         return $service->state($this->document($request));
+    }
+
+    /**
+     * Что о коде знает ГИС МТ — для карточки кода. Наши данные и данные ЧЗ
+     * расходятся штатно (у нас «выведен» значит «продан»), поэтому показываем
+     * оба источника рядом, а не пытаемся их слить.
+     */
+    public function chzInfo(int $id, ChzClient $client)
+    {
+        $code = MarkCode::findOrFail($id);
+        try {
+            $answer = $client->post('codes/info', ['codes' => [trim((string)$code->KI)]]);
+        } catch (MarkingException $e) {
+            return ['ok' => false, 'error' => $e->getMessage()];
+        }
+        $info = $answer['codes'][0] ?? null;
+        $our = trim((string)config('marking.chz.inn'));
+        $owner = $info['ownerInn'] ?? null;
+
+        // Чужой владелец — главное, что надо увидеть в карточке: такой код мы
+        // вывести не можем, ЧЗ ответит «не принадлежит участнику оборота».
+        return [
+            'ok' => true,
+            'code' => $info,
+            'alien' => (bool)($our !== '' && $owner && $owner !== $our),
+        ];
+    }
+
+    /** Вернуть снятый с отправки код в очередь — прямо из его карточки. */
+    public function unskip(int $id, ChzOutboxService $outbox)
+    {
+        $code = MarkCode::findOrFail($id);
+        return ['returned' => $outbox->unskip([trim((string)$code->KI)])];
     }
 
     private function document(Request $request): IMarkCodeDocument

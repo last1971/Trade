@@ -41,6 +41,7 @@ import firmHistory from "./firmHistory";
 import sellerPrice from "./sellerPrice";
 import storeLine from "./storeLine";
 import markCode from "./markCode";
+import chzBatch from "./chzBatch";
 import spisSklad from "./spisSklad";
 import storeIn from "./storeIn";
 import sellerOrder from "./sellerOrder";
@@ -101,6 +102,7 @@ const modules = {
         SNACKBAR: snackbar,
         MARKING: marking,
         'MARK-CODE': markCode,
+        'CHZ-BATCH': chzBatch,
         'SPIS-SKLAD': spisSklad,
         'STOCK-CLASSIF': stockClassif,
         'STORE-IN': storeIn,

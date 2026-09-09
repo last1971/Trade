@@ -58,6 +58,17 @@ class ChzBatch extends Model
         'SCODE' => 'integer',
     ];
 
+    /** Документ пачки: у вывода по продаже — счёт, у вывода по УПД — она сама. */
+    public function invoice()
+    {
+        return $this->belongsTo('App\Invoice', 'SCODE', 'SCODE');
+    }
+
+    public function transferOut()
+    {
+        return $this->belongsTo('App\TransferOut', 'SFCODE', 'SFCODE');
+    }
+
     /** КИ пачки в порядке добавления. */
     public function kis(): array
     {

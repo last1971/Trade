@@ -33,7 +33,10 @@
             {{ item.CREATED_AT | formatDate }}
         </template>
         <template v-slot:item.KI="{ item }">
-            <span class="ki-code">{{ item.KI }}</span>
+            <!-- Код ведёт в свою карточку: там наши данные и живой ответ ГИС МТ -->
+            <router-link class="ki-code" :to="{ name: 'mark-code', params: { id: item.MARKCODE } }">
+                {{ item.KI }}
+            </router-link>
             <v-icon x-small class="copy-ico ml-1" title="Скопировать код"
                     @click.stop="copy(item.KI)">mdi-content-copy</v-icon>
         </template>

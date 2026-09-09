@@ -115,10 +115,17 @@ Route::middleware('auth:api')->group(function () {
     // Очередь отправки в ЧЗ: что уехало, что ждёт, что отбито. Право то же,
     // что у списка марок — это его же хозяйство.
     Route::middleware('permission:mark-code.index')->group(function () {
-        Route::get('chz/outbox', 'Api\ChzOutboxController@index')
-            ->name('chz.outbox');
+        // Список пачек — общим механизмом таблиц (фильтры, сортировка, страницы).
+        // Имя маршрута определяет право '<имя до точки>.full' в ModelController.
+        Route::get('chz-outbox', 'Api\ChzOutboxController@index')
+            ->name('chz-outbox.index');
+        Route::get('chz/outbox/state', 'Api\ChzOutboxController@state')
+            ->name('chz.outbox.state');
         Route::get('chz/outbox/{id}/codes', 'Api\ChzOutboxController@codes')
             ->name('chz.outbox.codes');
+        // Карточка кода: что о нём думает ГИС МТ прямо сейчас
+        Route::get('mark-code/{id}/chz-info', 'Api\MarkCodeController@chzInfo')
+            ->name('mark-code.chz-info');
     });
 
     Route::middleware('permission:good.update')->group(function () {
@@ -136,6 +143,8 @@ Route::middleware('auth:api')->group(function () {
             ->name('chz.outbox.skip');
         Route::post('chz/outbox/{id}/unskip', 'Api\ChzOutboxController@unskip')
             ->name('chz.outbox.unskip');
+        Route::post('mark-code/{id}/unskip', 'Api\MarkCodeController@unskip')
+            ->name('mark-code.unskip');
         Route::post('good/{id}/suggest', 'Api\GoodGtinController@suggest')
             ->name('good.suggest');
         Route::post('good/classify-bulk', 'Api\GoodGtinController@classifyBulk')
