@@ -80,6 +80,10 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'buyer-debt.index', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'replenish.index', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'stock-classif.index', 'guard_name' => 'api']);
+        // Страница «Отправка в ЧЗ»: список пачек идёт общим механизмом таблиц,
+        // а тот спрашивает право по имени маршрута — без записи право не выдать.
+        Permission::query()->firstOrCreate(['name' => 'chz-outbox.index', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'chz-outbox.*', 'guard_name' => 'api']);
 
         Permission::query()->firstOrCreate(['name' => 'nav.*', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.replenish', 'guard_name' => 'api']);
@@ -100,6 +104,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'nav.stock-classif', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.transfer-outs', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.mark-codes', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.chz-outbox', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.store-ins', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.spis-sklads', 'guard_name' => 'api']);
 
@@ -111,6 +116,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'buyer-debt.index',
             'replenish.index',
             'stock-classif.index',
+            'chz-outbox.*',
             'advanced-buyer.*',
             'buyer.*',
             'cash-flow.*',
@@ -193,6 +199,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.invoices',
             'nav.invoice-lines',
             'nav.mark-codes',
+            'nav.chz-outbox',
             'nav.orders',
             'nav.sbis',
             'nav.store-ins',
@@ -212,6 +219,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'invoice.*',
             'invoice-line.*',
             'mark-code.index',
+            'chz-outbox.index',
             'name.*',
             'order.*',
             'order-line.*',
