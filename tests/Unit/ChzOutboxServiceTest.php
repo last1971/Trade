@@ -100,10 +100,12 @@ class ChzOutboxServiceTest extends TestCase
         $this->assertSame([$ki], ChzOutboxService::blamed([$ki], $error));
     }
 
-    public function testSortByStatusRejectsCodesOfAnotherParticipant()
+    public function testSortByStatusClosesCodesOfAnotherParticipant()
     {
         // Живой случай 09.09: коды счёта 14896 числились за ООО «БИС», и ЧЗ отбила
-        // документ целиком с «не принадлежит участнику оборота». Ловим до отправки.
+        // документ целиком с «не принадлежит участнику оборота». Ловим до отправки —
+        // и не в карантин, а закрываем: код ушёл юрлицу вместе с товаром, выводить
+        // его теперь не нам.
         $cises = [
             ['ki' => 'ki-our', 'status' => 'INTRODUCED', 'ownerInn' => '7017364619'],
             ['ki' => 'ki-alien', 'status' => 'INTRODUCED', 'ownerInn' => '3435100567',
@@ -116,11 +118,12 @@ class ChzOutboxServiceTest extends TestCase
         );
 
         $this->assertSame(['ki-our'], $good);
-        $this->assertSame([], $done);
         $this->assertSame(
-            ['ki-alien' => 'Честный знак: код принадлежит другому участнику — 3435100567 (ООО "БИС")'],
-            $bad
+            ['ki-alien' => 'Честный знак: код принадлежит другому участнику — 3435100567 (ООО "БИС")'
+                . ' — вывод не требуется'],
+            $done
         );
+        $this->assertSame([], $bad);
     }
 
     public function testSortByStatusSplitsSuitableSpentAndHopeless()
@@ -134,8 +137,9 @@ class ChzOutboxServiceTest extends TestCase
         [$good, $done, $bad] = ChzOutboxService::sortByStatus($kis, $cises);
 
         $this->assertSame(['ki-in'], $good);
-        // Выведен помимо нас — не ошибка: код просто отмечается переданным.
-        $this->assertSame(['ki-out'], $done);
+        // Выведен помимо нас — не ошибка: код просто отмечается переданным,
+        // причина ему не нужна (отсюда null).
+        $this->assertSame(['ki-out' => null], $done);
         // Не введён в оборот и вовсе неизвестный ЧЗ — снимаем с отправки с причиной.
         $this->assertSame(
             ['ki-emitted' => 'Честный знак: EMITTED', 'ki-unknown' => 'Честный знак: код не найден'],

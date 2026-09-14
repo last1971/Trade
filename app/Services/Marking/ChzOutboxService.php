@@ -114,9 +114,12 @@ class ChzOutboxService
         $upd = $kind === ChzBatch::KIND_RETIRE_UPD;
         $column = $upd ? 'rpf.SFCODE' : 'rp.SCODE';
         $from = $upd
-            ? 'MARKCODES m join REALPRICEF rpf on rpf.REALPRICEFCODE = m.REALPRICEFCODE'
-            : 'MARKCODES m join REALPRICE rp on rp.REALPRICECODE = m.REALPRICECODE';
-        $where = ($upd ? self::WAIT_RETIRE_UPD : self::WAIT_RETIRE) . ' and ' . self::NOT_IN_BATCH;
+            ? 'MARKCODES m join REALPRICEF rpf on rpf.REALPRICEFCODE = m.REALPRICEFCODE '
+                . 'join SF doc on doc.SFCODE = rpf.SFCODE'
+            : 'MARKCODES m join REALPRICE rp on rp.REALPRICECODE = m.REALPRICECODE '
+                . 'join S doc on doc.SCODE = rp.SCODE';
+        $where = ($upd ? self::WAIT_RETIRE_UPD : self::WAIT_RETIRE) . ' and ' . self::NOT_IN_BATCH
+            . $this->ripe();
 
         $first = $this->rows(
             "select first 1 {$column} as DOCCODE from {$from} where {$where} order by {$column}",
@@ -142,6 +145,22 @@ class ChzOutboxService
         $batch = $this->store($kind, $kis, $upd ? null : $docCode, $upd ? $docCode : null);
         $lines[] = "пачка №{$batch->ID} ({$kind}, документ {$docCode}): собрана, кодов " . count($kis);
         return $lines;
+    }
+
+    /**
+     * Выдержка: документ моложе положенного в пачку не берём. Проданное на
+     * маркетплейсе неделю ещё отменяют и возвращают, а вернуть выведенный код
+     * в оборот дороже, чем подождать. Срок считается от даты документа (алиас
+     * doc — счёт S либо УПД SF), она же уходит в ЧЗ как дата вывода.
+     *
+     * Диалект базы первый: типа DATE в ней нет, арифметика идёт по TIMESTAMP,
+     * поэтому не CURRENT_DATE, а CURRENT_TIMESTAMP минус число дней. Срок —
+     * целое из конфига, в SQL уходит литералом (параметры тут не нужны).
+     */
+    private function ripe(): string
+    {
+        $days = max(0, intval(config('marking.chz.retire_delay_days')));
+        return $days ? " and doc.DATA < CURRENT_TIMESTAMP - {$days}" : '';
     }
 
     /**
@@ -171,9 +190,22 @@ class ChzOutboxService
 
         $lines = [];
         if ($done) {
-            // Выведен не нами — считаем переданным: цикл кода закрыт, повторять нечего.
-            $this->stamp($done, 'CHZ_SENT_AT');
-            $lines[] = "документ {$docCode}: " . count($done) . ' код(ов) уже выведены в ЧЗ — отмечены переданными';
+            // Выведен не нами либо ушёл вместе с товаром другому участнику —
+            // в обоих случаях цикл кода закрыт, повторять нечего.
+            $this->stamp(array_keys($done), 'CHZ_SENT_AT');
+            $alien = array_filter($done);
+            foreach ($alien as $ki => $reason) {
+                // Причина у каждого своя (ИНН владельца), поэтому по коду за раз.
+                $this->note([$ki], $reason);
+            }
+            $closed = count($done) - count($alien);
+            if ($closed) {
+                $lines[] = "документ {$docCode}: {$closed} код(ов) уже выведены в ЧЗ — отмечены переданными";
+            }
+            if ($alien) {
+                $lines[] = "документ {$docCode}: " . count($alien)
+                    . ' код(ов) числятся за другим участником — закрыты без вывода';
+            }
         }
         if ($bad) {
             foreach ($bad as $ki => $reason) {
@@ -205,8 +237,10 @@ class ChzOutboxService
     }
 
     /**
-     * Раскладка кодов по ответу ГИС МТ: [пригодные, уже выведенные, негодные].
-     * У негодных — причина словами, она уйдёт в CHZ_SKIP_TEXT и в письмо.
+     * Раскладка кодов по ответу ГИС МТ: [пригодные, закрытые, негодные].
+     * Закрытые — список «КИ => причина»: выведен помимо нас (причина null)
+     * либо числится за другим участником (причина словами). Негодные — «КИ =>
+     * причина», она уйдёт в CHZ_SKIP_TEXT и в письмо.
      * Чистая функция: тут вся суть сверки, поэтому она и вынесена отдельно.
      */
     public static function sortByStatus(array $kis, array $cises, string $inn = ''): array
@@ -228,10 +262,13 @@ class ChzOutboxService
             $name = $code['raw']['ownerName'] ?? null;
 
             if ($status === 'RETIRED') {
-                $done[] = $ki;
+                $done[$ki] = null;
             } elseif ($inn !== '' && $owner && $owner !== $inn) {
-                $bad[$ki] = 'Честный знак: код принадлежит другому участнику — ' . $owner
-                    . ($name ? " ({$name})" : '');
+                // Код числится за другим участником: мы продали товар юрлицу,
+                // и вместе с ним ушёл код — выводить его теперь не наше дело
+                // и не наше право. Считаем закрытым, причину храним словами.
+                $done[$ki] = 'Честный знак: код принадлежит другому участнику — ' . $owner
+                    . ($name ? " ({$name})" : '') . ' — вывод не требуется';
             } elseif (in_array($status, self::CAN_RETIRE, true)) {
                 $good[] = $ki;
             } else {
@@ -840,6 +877,22 @@ class ChzOutboxService
             );
         }
         return $done;
+    }
+
+    /**
+     * Пометка на закрытом коде: почему вывод не потребовался. CHZ_SKIP_AT при
+     * этом не ставится — код не снят с отправки, он закрыт; иначе «не выводим»
+     * и «выводить нечего» смешались бы в одну кучу.
+     */
+    private function note(array $kis, string $reason): void
+    {
+        foreach (array_chunk($kis, self::CHUNK) as $part) {
+            $in = implode(',', array_fill(0, count($part), '?'));
+            DB::connection('firebird')->update(
+                "update MARKCODES set CHZ_SKIP_TEXT = ? where KI in ({$in}) and CHZ_SKIP_AT is null",
+                array_merge([mb_substr($reason, 0, 200)], $part)
+            );
+        }
     }
 
     /** Отметка ставится один раз: повторный проход ничего не перетирает. */

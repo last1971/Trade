@@ -64,7 +64,14 @@
                         <tr>
                             <td class="label">Передан в ЧЗ</td>
                             <td>
-                                <span v-if="code.CHZ_SENT_AT">{{ code.CHZ_SENT_AT | datetime }}</span>
+                                <template v-if="code.CHZ_SENT_AT">
+                                    {{ code.CHZ_SENT_AT | datetime }}
+                                    <!-- Код закрыт без вывода (ушёл другому участнику) —
+                                         причина лежит там же, где у снятых, но без даты снятия. -->
+                                    <span v-if="!code.CHZ_SKIP_AT && code.CHZ_SKIP_TEXT" class="grey--text">
+                                        — {{ code.CHZ_SKIP_TEXT }}
+                                    </span>
+                                </template>
                                 <span v-else class="grey--text">нет</span>
                             </td>
                         </tr>
