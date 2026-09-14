@@ -22,10 +22,12 @@
 </template>
 
 <script>
+import {extractKi} from "../../helpers/markScan";
+
 /**
  * Поиск кода маркировки по скану. Сканер отдаёт КМ целиком — с криптохвостом,
- * скобками или разделителями групп, — поэтому разбирает его сервер (KmReader),
- * а тут только поле и переход в карточку.
+ * скобками или разделителем групп, — поэтому КИ достаёт extractKi, та же
+ * читалка, что разбирает скан в фильтре списка и в подборе.
  *
  * Живёт и на списке марок, и в самой карточке: со сканером в руках коды смотрят
  * подряд, и уходить за этим на другую страницу незачем.
@@ -54,8 +56,19 @@ export default {
             if (!scan) {
                 return;
             }
+
+            let ki;
+            try {
+                ki = extractKi(scan);
+            } catch (e) {
+                // Читалка объясняет отказ словами («некорректная длина», «нет AI 01») —
+                // своего текста не выдумываем.
+                this.error = e.message;
+                return;
+            }
+
             this.busy = true;
-            axios.get('/api/mark-code-find', {params: {scan}})
+            axios.get('/api/mark-code-find', {params: {ki}})
                 .then(({data}) => {
                     if (!data.found) {
                         this.error = data.message;

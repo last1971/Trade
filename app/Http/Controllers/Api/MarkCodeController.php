@@ -7,7 +7,6 @@ use App\Invoice;
 use App\MarkCode;
 use App\Services\Marking\ChzClient;
 use App\Services\Marking\ChzOutboxService;
-use App\Services\Marking\KmReader;
 use App\Services\Marking\MarkingException;
 use App\Services\MarkCodeService;
 use App\Services\Marking\MarkCodeTransferService;
@@ -52,32 +51,23 @@ class MarkCodeController extends ModelController
     }
 
     /**
-     * Найти код по скану или вставленному КМ. Сканер отдаёт код целиком,
-     * с криптохвостом и разделителями, а карточка живёт по MARKCODE — здесь
-     * одно превращается в другое.
+     * Найти код по КИ — чтобы со сканера попадать сразу в карточку.
+     * Скан разбирает фронт (helpers/markScan.js, единственная читалка КМ
+     * в этом приложении), сюда приходит уже чистый КИ.
      *
-     * Не нашли — это нормальный ответ, а не ошибка: кода может не быть в нашей
+     * Не нашли — нормальный ответ, а не ошибка: кода может не быть в нашей
      * базе (чужой, ещё не принят приходом), и человеку надо сказать именно это.
      */
     public function find(Request $request)
     {
-        $scan = (string)$request->input('scan', '');
-        $ki = KmReader::ki($scan);
+        $ki = trim((string)$request->input('ki', ''));
         if ($ki === '') {
-            return [
-                'found' => false,
-                'message' => 'Не похоже на код маркировки. Отсканируйте код целиком '
-                    . 'или вставьте его из буфера обмена.',
-            ];
+            return ['found' => false, 'message' => 'Код не указан'];
         }
 
         $code = MarkCode::where('KI', $ki)->first();
         if (!$code) {
-            return [
-                'found' => false,
-                'ki' => $ki,
-                'message' => 'Такого кода нет в базе: ' . $ki,
-            ];
+            return ['found' => false, 'ki' => $ki, 'message' => 'Такого кода нет в базе: ' . $ki];
         }
         return ['found' => true, 'ki' => $ki, 'id' => intval($code->MARKCODE)];
     }

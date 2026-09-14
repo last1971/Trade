@@ -10,43 +10,45 @@ const SORT_MAP = {
     'storeLine.orderLine.MASTER_ID': 'orderLine.MASTER_ID',
 };
 
+// Статус кода и вид передачи — по одному словарю на каждый: в ячейке таблицы
+// нужно короткое слово, в фильтре — с пояснением. Держать два независимых
+// списка нельзя: разъедутся молча.
+const STATUS = {
+    3: {text: 'Наклеен', hint: 'Наклеен (не введён в оборот)'},
+    5: {text: 'В обороте'},
+    6: {text: 'Выведен из оборота'},
+    7: {text: 'Принят с приходом'},
+};
+const TRANSFER = {
+    0: {text: '—', hint: 'Не передан'},
+    1: {text: 'УПД', hint: 'УПД юрлицу'},
+    2: {text: 'УПД-2', hint: 'УПД-2 (FBO)'},
+    3: {text: 'API', hint: 'API маркета (FBS)'},
+    4: {text: 'Собств. маркировка', hint: 'Собств. маркировка (S6)'},
+};
+
+// Пункты фильтра: значение списком, потому что фильтр уходит оператором IN.
+const filterItems = (dict) => [
+    ...Object.entries(dict).map(([value, item]) => ({
+        text: item.hint || item.text,
+        value: [Number(value)],
+    })),
+    {text: 'Все', value: []},
+];
+
 export default {
     data() {
         return {
-            statuses: [
-                {text: 'Наклеен (не введён в оборот)', value: [3]},
-                {text: 'В обороте', value: [5]},
-                {text: 'Выведен из оборота', value: [6]},
-                {text: 'Принят с приходом', value: [7]},
-                {text: 'Все', value: []},
-            ],
-            transferTypes: [
-                {text: 'Не передан', value: [0]},
-                {text: 'УПД юрлицу', value: [1]},
-                {text: 'УПД-2 (FBO)', value: [2]},
-                {text: 'API маркета (FBS)', value: [3]},
-                {text: 'Собств. маркировка (S6)', value: [4]},
-                {text: 'Все', value: []},
-            ],
+            statuses: filterItems(STATUS),
+            transferTypes: filterItems(TRANSFER),
         }
     },
     methods: {
         statusText(status) {
-            return {
-                3: 'Наклеен',
-                5: 'В обороте',
-                6: 'Выведен из оборота',
-                7: 'Принят с приходом',
-            }[status] || status;
+            return (STATUS[status] || {}).text || status;
         },
         transferText(type) {
-            return {
-                0: '—',
-                1: 'УПД',
-                2: 'УПД-2',
-                3: 'API',
-                4: 'Собств. маркировка',
-            }[type] || type;
+            return (TRANSFER[type] || {}).text || type;
         },
         // Переход на страницу приходов с фильтром по номеру прихода
         storeInLink(np) {
