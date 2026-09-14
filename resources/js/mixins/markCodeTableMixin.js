@@ -27,6 +27,11 @@ const TRANSFER = {
     4: {text: 'Собств. маркировка', hint: 'Собств. маркировка (S6)'},
 };
 
+// Коды, которые вообще бывают: всё прочее в фильтре — мусор из URL или
+// localStorage (например ноль от прежнего разбора списков).
+export const STATUS_CODES = Object.keys(STATUS).map(Number);
+export const TRANSFER_CODES = Object.keys(TRANSFER).map(Number);
+
 // Пункты фильтра: значение списком, потому что фильтр уходит оператором IN.
 const filterItems = (dict) => [
     ...Object.entries(dict).map(([value, item]) => ({

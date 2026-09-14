@@ -106,7 +106,7 @@
 import tableMixin from "../../mixins/tableMixin";
 import utilsMixin from "../../mixins/utilsMixin";
 import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
-import markCodeTableMixin from "../../mixins/markCodeTableMixin";
+import markCodeTableMixin, {STATUS_CODES, TRANSFER_CODES} from "../../mixins/markCodeTableMixin";
 import GoodName from "../good/GoodName";
 import MarkCodeFilterRow from "./MarkCodeFilterRow";
 import MarkCodeScan from "./MarkCodeScan";
@@ -183,6 +183,15 @@ export default {
                 'storeLine.entry.seller',
                 'spisSklad.reason',
             ];
+            // Статус и вид передачи приходят из URL или localStorage: незнакомое
+            // значение (в том числе осевший там ноль) молча прячет все марки.
+            [['STATUS', STATUS_CODES], ['TRANSFER_TYPE', TRANSFER_CODES]].forEach(([attr, codes]) => {
+                const index = vm.options.filterAttributes.indexOf(attr);
+                if (index < 0) return;
+                const value = vm.options.filterValues[index];
+                vm.$set(vm.options.filterValues, index,
+                    (Array.isArray(value) ? value : []).filter((code) => codes.includes(code)));
+            });
             vm.$store.commit('BREADCRUMBS/SET', [
                 {
                     text: 'Торговля',
