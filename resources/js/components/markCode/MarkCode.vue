@@ -199,6 +199,7 @@ export default {
         },
     },
     created() {
+        this.crumb();
         this.load();
     },
     watch: {
@@ -211,10 +212,28 @@ export default {
             this.chzRaw = {};
             this.chzError = '';
             this.alien = false;
+            this.crumb();
             this.load();
         },
     },
     methods: {
+        /**
+         * Своя крошка в цепочке. Ставится сразу, до ответа сервера: иначе на
+         * карточке висит цепочка предыдущей страницы (пришёл из «Отправки в ЧЗ» —
+         * видишь «Отправка в ЧЗ»), а при переходе карточка→карточка не менялась бы
+         * вовсе. PUT заменяет крошку этого же маршрута, поэтому откуда пришли —
+         * сохраняется, а КИ подставляется, когда данные приедут.
+         */
+        crumb(text) {
+            if (!this.$store.getters['BREADCRUMBS/ALL'].length && this.$route.meta.breadcrumbs) {
+                this.$store.commit('BREADCRUMBS/SET', [...this.$route.meta.breadcrumbs]);
+            }
+            this.$store.commit('BREADCRUMBS/PUT', {
+                text: text || 'Код маркировки',
+                to: {name: 'mark-code', params: {id: this.$route.params.id}},
+                exact: true,
+            });
+        },
         retireText(reason) {
             return {
                 1: 'продажа', 2: 'списание', 3: 'передача (B2B/FBO)',
@@ -229,11 +248,7 @@ export default {
             axios.get('/api/mark-code/' + this.$route.params.id, {params})
                 .then(({data}) => {
                     this.code = data;
-                    this.$store.commit('BREADCRUMBS/SET', [
-                        {text: 'Торговля', to: {name: 'home'}, exact: true, disabled: false},
-                        {text: 'Марки ЧЗ', to: {name: 'mark-codes'}, exact: true, disabled: false},
-                        {text: String(data.KI), to: {}, exact: true, disabled: true},
-                    ]);
+                    this.crumb(String(data.KI));
                     this.askChz();
                 })
                 .catch(this.error)

@@ -73,7 +73,15 @@ const routes = [
         name: 'mark-code',
         path: '/mark-code/:id',
         component: MarkCode,
-        meta: {requiresAuth: true, permission: 'mark-code.index'},
+        meta: {
+            requiresAuth: true,
+            permission: 'mark-code.index',
+            // родители крошек при прямом заходе на карточку (цепочка пуста)
+            breadcrumbs: [
+                {text: 'Торговля', to: {name: 'home'}, exact: true},
+                {text: 'Марки ЧЗ', to: {name: 'mark-codes'}, exact: true},
+            ],
+        },
     },
     {
         name: 'chz-outbox',
