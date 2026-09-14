@@ -332,6 +332,13 @@ export default {
             // with — часть кода, а не настройка: протухший список из URL не должен
             // отключить подгрузку номеров счёта и УПД
             vm.options.with = ['invoice', 'transferOut'];
+            // Вид и статус приходят из URL или localStorage и могут быть протухшими —
+            // в том числе нулями от прежнего разбора списков, который слова превращал
+            // в 0. Незнакомое значение молча прячет все пачки, поэтому выбрасываем.
+            const known = (items, values) => (Array.isArray(values) ? values : [])
+                .filter((value) => items.some((item) => item.value === value));
+            vm.$set(vm.options.filterValues, 0, known(vm.kindItems, vm.options.filterValues[0]));
+            vm.$set(vm.options.filterValues, 1, known(vm.statusItems, vm.options.filterValues[1]));
             vm.$store.commit('BREADCRUMBS/SET', [
                 {text: 'Торговля', to: {name: 'home'}, exact: true, disabled: false},
                 {text: 'Отправка в ЧЗ', to: {name: 'chz-outbox'}, exact: true, disabled: true},

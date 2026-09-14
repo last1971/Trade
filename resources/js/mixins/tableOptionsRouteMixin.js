@@ -1,3 +1,33 @@
+/**
+ * Значения фильтра IN, вернувшиеся из URL или localStorage, — снова списком.
+ *
+ * Список из нескольких значений уезжает в адрес строкой JSON (["retire"],
+ * [3,5]), из localStorage приходит как есть. Числа из строки надо вернуть
+ * числами, а слова оставить словами: бывший здесь безусловный toInteger
+ * превращал «retire» в 0, и после возврата на страницу браузерным «назад»
+ * список молча оказывался пустым — фильтр уходил на сервер как KIND IN (0).
+ */
+function parseInValues(raw) {
+    const text = String(raw).trim();
+    if (_.isEmpty(text)) {
+        return [];
+    }
+    if (_.startsWith(text, '[')) {
+        try {
+            const parsed = JSON.parse(text);
+            if (Array.isArray(parsed)) {
+                return parsed;
+            }
+        } catch (e) {
+            // не JSON — разбираем как перечисление через запятую
+        }
+    }
+    return _.split(text, ',').map((value) => {
+        const item = _.trim(value);
+        return /^-?\d+$/.test(item) ? _.toInteger(item) : item;
+    });
+}
+
 export default {
     beforeRouteEnter(to, from, next) {
         next(vm => {
@@ -39,12 +69,7 @@ export default {
                     [options.filterValues] : options.filterValues;
                 options.filterOperators.forEach((operator, index) => {
                     if (operator === 'IN' && typeof options.filterValues[index] === 'string') {
-                        if (_.isEmpty(options.filterValues[index])) {
-                            options.filterValues[index] = [];
-                        } else {
-                            options.filterValues[index] = _.split(options.filterValues[index], ',');
-                            options.filterValues[index] = options.filterValues[index].map((v) => _.toInteger(v));
-                        }
+                        options.filterValues[index] = parseInValues(options.filterValues[index]);
                     }
                 })
             }
