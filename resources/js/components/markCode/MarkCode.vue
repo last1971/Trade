@@ -3,6 +3,9 @@
         <v-card-title class="subtitle-1 py-2">
             Код маркировки
             <v-spacer/>
+            <!-- Со сканером в руках коды смотрят подряд: поле здесь же,
+                 чтобы за следующим не возвращаться в список. -->
+            <mark-code-scan class="scan-field mr-2"/>
             <v-btn small icon :loading="loading" title="Обновить" @click="load">
                 <v-icon>mdi-refresh</v-icon>
             </v-btn>
@@ -147,6 +150,7 @@
 <script>
 import moment from "moment";
 import markCodeTableMixin from "../../mixins/markCodeTableMixin";
+import MarkCodeScan from "./MarkCodeScan";
 
 /**
  * Карточка одного кода маркировки: наши данные и живой ответ ГИС МТ рядом.
@@ -155,6 +159,7 @@ import markCodeTableMixin from "../../mixins/markCodeTableMixin";
  */
 export default {
     name: "MarkCode",
+    components: {MarkCodeScan},
     mixins: [markCodeTableMixin],
     filters: {
         datetime: (v) => v ? moment(v).format('DD.MM.YYYY HH:mm') : '',
@@ -195,6 +200,19 @@ export default {
     },
     created() {
         this.load();
+    },
+    watch: {
+        // Переход с карточки на карточку (из поля скана, из пачки, кнопкой
+        // «назад») меняет только параметр маршрута — created второй раз не
+        // случится, и без этого на экране остаётся предыдущий код.
+        '$route.params.id'() {
+            this.code = null;
+            this.chz = null;
+            this.chzRaw = {};
+            this.chzError = '';
+            this.alien = false;
+            this.load();
+        },
     },
     methods: {
         retireText(reason) {
@@ -267,5 +285,11 @@ export default {
 .label {
     width: 200px;
     color: rgba(0, 0, 0, 0.6);
+}
+
+/* Поле скана в заголовке карточки: сам код длинный, но растягивать поле
+   на всю ширину незачем — его только заполняют сканером. */
+.scan-field {
+    max-width: 520px;
 }
 </style>
