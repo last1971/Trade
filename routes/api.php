@@ -126,6 +126,10 @@ Route::middleware('auth:api')->group(function () {
         // Карточка кода: что о нём думает ГИС МТ прямо сейчас
         Route::get('mark-code/{id}/chz-info', 'Api\MarkCodeController@chzInfo')
             ->name('mark-code.chz-info');
+        // Поиск кода по скану: сканер и буфер обмена отдают КМ целиком,
+        // а карточка живёт по MARKCODE — этот маршрут их и связывает.
+        Route::get('mark-code-find', 'Api\MarkCodeController@find')
+            ->name('mark-code.find');
     });
 
     Route::middleware('permission:good.update')->group(function () {

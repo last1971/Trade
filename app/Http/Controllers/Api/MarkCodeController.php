@@ -7,6 +7,7 @@ use App\Invoice;
 use App\MarkCode;
 use App\Services\Marking\ChzClient;
 use App\Services\Marking\ChzOutboxService;
+use App\Services\Marking\KmReader;
 use App\Services\Marking\MarkingException;
 use App\Services\MarkCodeService;
 use App\Services\Marking\MarkCodeTransferService;
@@ -48,6 +49,37 @@ class MarkCodeController extends ModelController
     public function transferState(Request $request, MarkCodeTransferService $service)
     {
         return $service->state($this->document($request));
+    }
+
+    /**
+     * Найти код по скану или вставленному КМ. Сканер отдаёт код целиком,
+     * с криптохвостом и разделителями, а карточка живёт по MARKCODE — здесь
+     * одно превращается в другое.
+     *
+     * Не нашли — это нормальный ответ, а не ошибка: кода может не быть в нашей
+     * базе (чужой, ещё не принят приходом), и человеку надо сказать именно это.
+     */
+    public function find(Request $request)
+    {
+        $scan = (string)$request->input('scan', '');
+        $ki = KmReader::ki($scan);
+        if ($ki === '') {
+            return [
+                'found' => false,
+                'message' => 'Не похоже на код маркировки. Отсканируйте код целиком '
+                    . 'или вставьте его из буфера обмена.',
+            ];
+        }
+
+        $code = MarkCode::where('KI', $ki)->first();
+        if (!$code) {
+            return [
+                'found' => false,
+                'ki' => $ki,
+                'message' => 'Такого кода нет в базе: ' . $ki,
+            ];
+        }
+        return ['found' => true, 'ki' => $ki, 'id' => intval($code->MARKCODE)];
     }
 
     /**
