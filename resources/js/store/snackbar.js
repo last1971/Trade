@@ -32,6 +32,10 @@ const mutations = {
         const payload = {text, color: 'error', status: true, timeout: state.timeout};
         this.commit('SNACKBAR/PUSH', payload);
     },
+    SUCCESS(state, text) {
+        const payload = {text, color: 'success', status: true, timeout: state.timeout};
+        this.commit('SNACKBAR/PUSH', payload);
+    },
     SHIFT(state) {
         state.queue.shift();
         if (state.queue.length > 1) Object.assign(state.snackbar, state.queue[0]);

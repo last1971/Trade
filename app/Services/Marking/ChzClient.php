@@ -38,6 +38,21 @@ class ChzClient
         return $this->json($this->send('POST', $path, ['json' => $body, 'headers' => $headers]));
     }
 
+    /**
+     * То же, но ok:false — не ошибка, а состояние: «запрос ещё в полёте» (inProgress),
+     * «пачка ещё разбирается» (feedId без gtin). Зовущий разбирает ответ сам; HTTP-ошибки
+     * по-прежнему исключение.
+     */
+    public function getLoose(string $path, array $query = []): array
+    {
+        return $this->json($this->send('GET', $path, ['query' => $query]), false);
+    }
+
+    public function postLoose(string $path, array $body, array $headers = []): array
+    {
+        return $this->json($this->send('POST', $path, ['json' => $body, 'headers' => $headers]), false);
+    }
+
     /** Сырой ответ (PDF): тело и content-type, JSON-ошибка сервиса разворачивается в исключение. */
     public function raw(string $path, array $query = []): ResponseInterface
     {
@@ -56,19 +71,23 @@ class ChzClient
         } catch (BadResponseException $e) {
             $body = json_decode((string)$e->getResponse()->getBody(), true) ?: [];
             $message = $body['message'] ?? $body['failed'][0]['reason'] ?? $e->getMessage();
-            throw new MarkingException('chz-сервис: ' . (is_array($message) ? implode('; ', $message) : $message));
+            $text = 'chz-сервис: ' . (is_array($message) ? implode('; ', $message) : $message);
+            if ($e->getResponse()->getStatusCode() === 404) {
+                throw new ChzNotFoundException($text);
+            }
+            throw new MarkingException($text);
         } catch (GuzzleException $e) {
             throw new MarkingException('chz-сервис недоступен: ' . $e->getMessage());
         }
     }
 
-    private function json(ResponseInterface $response): array
+    private function json(ResponseInterface $response, bool $checkOk = true): array
     {
         $data = json_decode((string)$response->getBody(), true);
         if (!is_array($data)) {
             throw new MarkingException('chz-сервис: неразборчивый ответ');
         }
-        if (array_key_exists('ok', $data) && !$data['ok']) {
+        if ($checkOk && array_key_exists('ok', $data) && !$data['ok']) {
             throw new MarkingException('chz-сервис: ' . ($data['failed'][0]['reason'] ?? 'ошибка'));
         }
         return $data;

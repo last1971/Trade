@@ -24,6 +24,8 @@ class GoodClassif extends Model
     protected $fillable = [
         'GOODSCODE', 'GTIN', 'TNVED', 'OKPD2', 'MARK_REQUIRED',
         'SUPPLIER_INN', 'IS_PRIMARY', 'PRIM', 'UPDATED_AT',
+        // Снимок карточки Нацкаталога (патч 53) — пишет только NkCardService
+        'NK_GOOD_ID', 'NK_STATE', 'NK_STATE_TEXT', 'NK_ATTEMPT', 'NK_FEED_ID', 'NK_SYNC_AT',
     ];
 
     /**

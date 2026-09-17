@@ -111,6 +111,17 @@ Route::middleware('auth:api')->group(function () {
             ->name('chz.order.pdf-chunk');
         Route::get('chz/order/{orderId}/codes.csv', 'Api\ChzOrderController@codesCsv')
             ->name('chz.order.codes-csv');
+        // Карточка Нацкаталога (chz-сервис): чтение и справочники для формы
+        Route::get('nk/classif/{id}/card', 'Api\NkCardController@card')
+            ->name('nk.classif.card');
+        Route::get('nk/classif/{id}/state', 'Api\NkCardController@state')
+            ->name('nk.classif.state');
+        Route::get('nk/categories', 'Api\NkCardController@categories')
+            ->name('nk.categories');
+        Route::get('nk/attributes', 'Api\NkCardController@attributes')
+            ->name('nk.attributes');
+        Route::get('nk/brands', 'Api\NkCardController@brands')
+            ->name('nk.brands');
     });
     // Очередь отправки в ЧЗ: что уехало, что ждёт, что отбито. Право то же,
     // что у списка марок — это его же хозяйство.
@@ -138,6 +149,11 @@ Route::middleware('auth:api')->group(function () {
         // Выпуск КМ: заказ в СУЗ платный, поэтому под good.update
         Route::post('chz/gtin/{gtin}/orders', 'Api\ChzOrderController@order')
             ->name('chz.gtin.order');
+        // Карточка Нацкаталога: создание и публикация (подпись УКЭП) — как правка GTIN
+        Route::post('nk/classif/{id}/card', 'Api\NkCardController@create')
+            ->name('nk.classif.create');
+        Route::post('nk/classif/{id}/sign', 'Api\NkCardController@sign')
+            ->name('nk.classif.sign');
         // Повтор отбитой пачки: новая отправка в ЧЗ, поэтому право то же, что у заказа
         Route::post('chz/outbox/{id}/retry', 'Api\ChzOutboxController@retry')
             ->name('chz.outbox.retry');

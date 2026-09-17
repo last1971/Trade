@@ -1,6 +1,18 @@
 // Единый дом UI-логики ТНВЭД/ОКПД2 для всех экранов классификации
 // (карточка, массовый разбор, страница-ревью). Данные — из стора MARKING.
 // Компоненты подключают миксин и не держат своих копий этих computed/методов.
+// creating/rejected — наш процесс создания, остальное — статусы каталога как есть.
+const NK_STATES = {
+    creating: ['создаётся…', 'orange'],
+    rejected: ['отклонена каталогом', 'red'],
+    draft: ['черновик', 'grey'],
+    moderation: ['на модерации', 'orange'],
+    errors: ['претензии модерации', 'red'],
+    notsigned: ['ждёт публикации', 'blue'],
+    published: ['опубликована', 'green'],
+    archived: ['в архиве', 'grey'],
+};
+
 export default {
     computed: {
         // Список кодов ТНВЭД для combobox (маркируемые из справочника).
@@ -26,6 +38,13 @@ export default {
         defaultOkpd2(code) {
             const opts = this.okpd2Items(code);
             return opts.length === 1 ? opts[0].value : '';
+        },
+        // Состояние карточки Нацкаталога (GOODS_CLASSIF.NK_STATE) — подпись и цвет, одни на список и диалог.
+        nkStateText(state) {
+            return (NK_STATES[state] || [state || '', 'grey'])[0];
+        },
+        nkStateColor(state) {
+            return (NK_STATES[state] || ['', 'grey'])[1];
         },
         // Служебный глиф-стрелка из справочника (🠺) → читаемый разделитель.
         cleanGlyph(s) {

@@ -80,7 +80,20 @@
                     </template>
                     <template v-else>
                         <td>
-                            <a v-if="row.GTIN" href="#" @click.prevent="openOrders(row)" title="Заказы кодов маркировки по этому GTIN">{{ row.GTIN }}</a>
+                            <template v-if="row.GTIN">
+                                <a href="#" @click.prevent="openCard(row)" title="Карточка Нацкаталога и заказы КМ по этому GTIN">{{ row.GTIN }}</a>
+                                <v-chip v-if="row.NK_STATE" x-small outlined :color="nkStateColor(row.NK_STATE)" class="ml-1"
+                                        :title="row.NK_STATE_TEXT || ''">{{ nkStateText(row.NK_STATE) }}</v-chip>
+                            </template>
+                            <template v-else-if="isOwn(row) && !notEditable">
+                                <v-chip v-if="row.NK_STATE === 'creating'" x-small outlined color="orange">создаётся…</v-chip>
+                                <template v-else>
+                                    <v-btn x-small outlined color="green" @click="openCreate(row)" title="Завести карточку ИМ в Нацкаталоге: GTIN присвоит каталог">
+                                        <v-icon x-small left>mdi-plus</v-icon>Создать карточку
+                                    </v-btn>
+                                    <div v-if="row.NK_STATE === 'rejected'" class="red--text caption">{{ row.NK_STATE_TEXT }}</div>
+                                </template>
+                            </template>
                             <span v-else>—</span>
                         </td>
                         <td>{{ row.TNVED }}</td>
@@ -139,7 +152,8 @@
                 </tbody>
             </template>
         </v-simple-table>
-        <gtin-orders v-if="ordersGtin" v-model="ordersOpen" :gtin="ordersGtin" :goodscode="value"/>
+        <nk-card-dialog v-if="cardRow" v-model="cardOpen" :row="cardRow" :goodscode="value" @updated="replaceRow"/>
+        <nk-card-create v-if="createRow" v-model="createOpen" :row="createRow" :good="good" @created="onCreated"/>
         <v-card-actions v-if="!adding && !notEditable">
             <v-btn small text color="green" @click="startAdd">
                 <v-icon small left>mdi-plus</v-icon>
@@ -152,11 +166,12 @@
 <script>
 import marking from "../../mixins/marking";
 import VerdictPicker from "./VerdictPicker";
-import GtinOrders from "./GtinOrders";
+import NkCardDialog from "./NkCardDialog";
+import NkCardCreate from "./NkCardCreate";
 
 export default {
     name: "GoodGtins",
-    components: {VerdictPicker, GtinOrders},
+    components: {VerdictPicker, NkCardDialog, NkCardCreate},
     mixins: [marking],
     props: {
         value: {type: [Number, String], required: true},
@@ -173,8 +188,11 @@ export default {
             verdict: {tnved: '', okpd2: ''},
             verdictPrim: '',
             form: {GTIN: '', TNVED: '', OKPD2: '', SUPPLIER_INN: '', PRIM: ''},
-            ordersOpen: false,
-            ordersGtin: null,
+            cardOpen: false,
+            cardRow: null,
+            createOpen: false,
+            createRow: null,
+            stateTimer: null,
         }
     },
     computed: {
@@ -211,6 +229,9 @@ export default {
         // Справочник маркировки — общий стор, тянется один раз за сессию.
         this.$store.dispatch('MARKING/FETCH');
     },
+    beforeDestroy() {
+        clearInterval(this.stateTimer);
+    },
     methods: {
         load() {
             // Инстанс модалки переиспользуется — гасим подбор от прошлой карточки.
@@ -223,6 +244,7 @@ export default {
                 .then((response) => {
                     this.rows = response.data;
                     this.fillVerdictTnved();
+                    this.schedulePoll();
                 })
                 .catch(() => {
                     this.rows = [];
@@ -273,9 +295,40 @@ export default {
                 .catch((e) => this.error(e))
                 .then(() => this.classifying = false);
         },
-        openOrders(row) {
-            this.ordersGtin = row.GTIN;
-            this.$nextTick(() => this.ordersOpen = true);
+        // Своя строка — без ИНН поставщика; чужой GTIN в каталоге не ищем и карточку по нему не заводим.
+        isOwn(row) {
+            return !(row.SUPPLIER_INN && String(row.SUPPLIER_INN).trim());
+        },
+        openCard(row) {
+            this.cardRow = row;
+            this.$nextTick(() => this.cardOpen = true);
+        },
+        openCreate(row) {
+            this.createRow = row;
+            this.$nextTick(() => this.createOpen = true);
+        },
+        // Бэк вернул строку с обновлённым снимком NK_* — подменяем на месте, без перечитывания списка.
+        replaceRow(fresh) {
+            const i = this.rows.findIndex((r) => r.ID === fresh.ID);
+            if (i >= 0) this.$set(this.rows, i, Object.assign({}, this.rows[i], fresh));
+            this.schedulePoll();
+        },
+        onCreated(fresh) {
+            this.replaceRow(fresh);
+            this.$emit('classified');
+        },
+        // Пока есть строка «создаётся…» — раз в 30 с дочитываем результат.
+        schedulePoll() {
+            clearInterval(this.stateTimer);
+            this.stateTimer = null;
+            if (!this.rows.some((r) => r.NK_STATE === 'creating')) return;
+            this.stateTimer = setInterval(() => {
+                this.rows.filter((r) => r.NK_STATE === 'creating').forEach((r) => {
+                    axios.get('/api/nk/classif/' + r.ID + '/state')
+                        .then(({data}) => { if (data.NK_STATE !== 'creating') this.replaceRow(data); })
+                        .catch(() => {});
+                });
+            }, 30000);
         },
         startAdd() {
             this.editId = null;
