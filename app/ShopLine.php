@@ -30,6 +30,11 @@ class ShopLine extends Model
         return $this->hasOne('App\Entry', 'SHOPINCODE', 'SHOPINCODE');
     }
 
+    public function prihod()
+    {
+        return $this->belongsTo(ShopPrihod::class, 'SHOPINPRCODE', 'SHOPINPRCODE');
+    }
+
     public function fifos()
     {
         return $this->hasManyThrough(

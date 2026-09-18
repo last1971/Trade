@@ -49,6 +49,9 @@
                 <template v-slot:item.DATA_DOC="{ item }">
                     {{ item.DATA_DOC | formatDate }}
                 </template>
+                <template v-slot:item.prihod.DATA_DOC="{ item }">
+                    {{ item.prihod ? $options.filters.formatDate(item.prihod.DATA_DOC) : '' }}
+                </template>
                 <template v-slot:item.QUAN="{ item }">
                     <span v-if="options.leftovers">
                         {{ item.QUAN - item.fifos_sum_q_u_a_n }}
@@ -118,7 +121,9 @@ export default {
             dependent: true,
             isActiveProxy: this.isActive,
             options: {
-                with: ['entry.seller'],
+                with: process.env.MIX_IS_ELECTRONICA === 'true'
+                    ? ['entry.seller', 'prihod']
+                    : ['entry.seller'],
                 filterAttributes: [
                     'GOODSCODE',
                 ],

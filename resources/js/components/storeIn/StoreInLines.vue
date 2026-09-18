@@ -45,7 +45,9 @@ export default {
     data() {
         return {
             options: {
-                with: ['good.name', 'entry', 'orderLine.order'],
+                with: process.env.MIX_IS_ELECTRONICA === 'true'
+                    ? ['good.name', 'entry', 'orderLine.order', 'prihod']
+                    : ['good.name', 'entry', 'orderLine.order'],
                 filterAttributes: ['NP'],
                 filterOperators: ['='],
                 filterValues: [this.value.NP],
@@ -61,8 +63,8 @@ export default {
         itemKey() {
             return this.$store.getters['STORE-LINE/KEY'];
         },
-        // ГТД и страна есть только в складском приходе (SKLADIN); в магазинном
-        // SHOPIN таких колонок нет, поэтому в рознице их не показываем.
+        // В складском приходе ГТД и страна лежат в самой строке (SKLADIN),
+        // в магазинном — в приходном документе SHOPINPR.
         headers() {
             const isShop = process.env.MIX_IS_ELECTRONICA === 'true';
             return [
@@ -70,10 +72,8 @@ export default {
                 {text: 'Кол.', value: 'QUAN', align: 'right', sortable: false},
                 {text: 'Цена', value: 'entry.PRICE', align: 'right', sortable: false},
                 {text: 'Сумма', value: 'summap', align: 'right', sortable: false},
-                ...(isShop ? [] : [
-                    {text: 'ГТД', value: 'GTD', sortable: false},
-                    {text: 'Страна', value: 'STRANA', sortable: false},
-                ]),
+                {text: 'ГТД', value: isShop ? 'prihod.GTD' : 'GTD', sortable: false},
+                {text: 'Страна', value: isShop ? 'prihod.STRANA' : 'STRANA', sortable: false},
                 {text: 'Заказ', value: 'orderLine.MASTER_ID', sortable: false},
             ];
         },

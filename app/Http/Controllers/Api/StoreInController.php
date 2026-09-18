@@ -16,15 +16,15 @@ class StoreInController extends ModelController
 
     public function index(IndexRequest $request)
     {
-        // В магазине приходы лежат в SHOPIN, и документа поставки там нет вовсе:
-        // ни NDOC, ни DATA_DOC такой колонки в таблице, поэтому запрос короче,
-        // а фронт в этом режиме соответствующие колонки не рисует.
+        // В магазине строки прихода лежат в SHOPIN, а номер и дата накладной — в
+        // приходном документе SHOPINPR (на складе оба набора в одной SKLADIN).
         $this->service->setRawFrom(
             config('app.is_shop')
-                ? '(SELECT s.NP, MIN(s.DATA) AS DATA,
+                ? '(SELECT s.NP, MIN(s.DATA) AS DATA, MIN(r.NDOC) AS NDOC, MIN(r.DATA_DOC) AS DATA_DOC,
                 COUNT(*) AS LINES_COUNT, SUM(s.QUAN) AS QUAN, SUM(p.PRICE * p.QUAN) AS SUMMAP,
                 MIN(p.WHEREISPOSTCODE) AS WHEREISPOSTCODE
               FROM SHOPIN s LEFT JOIN PR_META p ON p.SHOPINCODE = s.SHOPINCODE
+                            LEFT JOIN SHOPINPR r ON r.SHOPINPRCODE = s.SHOPINPRCODE
               GROUP BY s.NP) as "store_ins"'
                 : '(SELECT s.NP, MIN(s.DATA) AS DATA, MIN(s.NDOC) AS NDOC, MIN(s.DATA_DOC) AS DATA_DOC,
                 COUNT(*) AS LINES_COUNT, SUM(s.QUAN) AS QUAN, SUM(p.PRICE * p.QUAN) AS SUMMAP,
