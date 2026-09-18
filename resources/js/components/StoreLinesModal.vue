@@ -39,7 +39,7 @@
                 :loading="loading"
                 :options.sync="options"
                 :server-items-length="total"
-                item-key="SKLADINCODE"
+                :item-key="itemKey"
                 :loading-text="loadingText"
                 class="mx-2"
             >
@@ -138,6 +138,9 @@ export default {
         },
         model() {
             return 'STORE-LINE';
+        },
+        itemKey() {
+            return this.$store.getters['STORE-LINE/KEY'];
         },
         name() {
             return this.good.name.NAME;

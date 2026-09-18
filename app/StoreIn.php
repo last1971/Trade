@@ -5,9 +5,9 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Документ прихода на склад: группа строк SKLADIN с одним номером NP.
- * Таблицы-шапки в Firebird нет — модель читается из derived-запроса
- * (StoreInController задаёт setRawFrom с группировкой по NP).
+ * Документ прихода: группа строк с одним номером NP. На опте это строки SKLADIN,
+ * в магазине — SHOPIN (там же и ведутся приходы розницы). Таблицы-шапки в Firebird
+ * нет — модель читается из derived-запроса (StoreInController задаёт setRawFrom).
  */
 class StoreIn extends Model
 {
@@ -27,6 +27,10 @@ class StoreIn extends Model
 
     public function storeLines()
     {
-        return $this->hasMany(StoreLine::class, 'NP', 'NP');
+        return $this->hasMany(
+            config('app.is_shop') ? ShopLine::class : StoreLine::class,
+            'NP',
+            'NP'
+        );
     }
 }

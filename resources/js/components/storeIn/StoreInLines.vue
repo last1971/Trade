@@ -6,7 +6,7 @@
         :loading="loading"
         :options.sync="options"
         :server-items-length="total"
-        item-key="SKLADINCODE"
+        :item-key="itemKey"
         :loading-text="loadingText"
     >
         <template v-slot:item.good.name.NAME="{ item }">
@@ -49,7 +49,7 @@ export default {
                 filterAttributes: ['NP'],
                 filterOperators: ['='],
                 filterValues: [this.value.NP],
-                sortBy: ['SKLADINCODE'],
+                sortBy: [process.env.MIX_IS_ELECTRONICA === 'true' ? 'SHOPINCODE' : 'SKLADINCODE'],
                 sortDesc: [false],
                 itemsPerPage: -1,
             },
@@ -58,14 +58,22 @@ export default {
         }
     },
     computed: {
+        itemKey() {
+            return this.$store.getters['STORE-LINE/KEY'];
+        },
+        // ГТД и страна есть только в складском приходе (SKLADIN); в магазинном
+        // SHOPIN таких колонок нет, поэтому в рознице их не показываем.
         headers() {
+            const isShop = process.env.MIX_IS_ELECTRONICA === 'true';
             return [
                 {text: 'Товар', value: 'good.name.NAME', sortable: false},
                 {text: 'Кол.', value: 'QUAN', align: 'right', sortable: false},
                 {text: 'Цена', value: 'entry.PRICE', align: 'right', sortable: false},
                 {text: 'Сумма', value: 'summap', align: 'right', sortable: false},
-                {text: 'ГТД', value: 'GTD', sortable: false},
-                {text: 'Страна', value: 'STRANA', sortable: false},
+                ...(isShop ? [] : [
+                    {text: 'ГТД', value: 'GTD', sortable: false},
+                    {text: 'Страна', value: 'STRANA', sortable: false},
+                ]),
                 {text: 'Заказ', value: 'orderLine.MASTER_ID', sortable: false},
             ];
         },

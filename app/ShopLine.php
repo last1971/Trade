@@ -29,4 +29,16 @@ class ShopLine extends Model
     {
         return $this->hasOne('App\Entry', 'SHOPINCODE', 'SHOPINCODE');
     }
+
+    public function fifos()
+    {
+        return $this->hasManyThrough(
+            Fifo::class,
+            Entry::class,
+            'SHOPINCODE',
+            'PR_META_IN_ID',
+            'SHOPINCODE',
+            'ID'
+        );
+    }
 }

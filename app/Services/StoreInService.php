@@ -17,6 +17,12 @@ class StoreInService extends ModelService
     {
         parent::__construct(StoreIn::class);
 
+        // В магазинной базе приходы читаются из SHOPIN, где даты документа нет:
+        // фильтр по ней прилететь не должен, но и молча ронять запрос незачем.
+        if (config('app.is_shop')) {
+            $this->dateAttributes = ['DATA'];
+        }
+
         $this->aggregateAttributes = [
             'markGoodLinesCount' => ['storeLines' => function (Builder $query) {
                 $query->markGoodLinesCount();
