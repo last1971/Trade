@@ -2,11 +2,12 @@
     <div>
         <div class="d-flex align-center">
             <span v-if="notAuth">{{ value.name.NAME }}</span>
-            <router-link :to="{ name: 'good', params: { id: value.GOODSCODE }}" v-else>
+            <!-- .stop: ссылка и лупа — самостоятельные действия, клик не должен доходить до @click:row таблицы -->
+            <router-link :to="{ name: 'good', params: { id: value.GOODSCODE }}" @click.native.stop v-else>
                 {{ value.name.NAME }}
             </router-link>
             <chz-mark :code="value.GOODSCODE"/>
-            <v-icon small class="ml-1" title="Найти на главной" @click="searchAtHome">mdi-magnify</v-icon>
+            <v-icon small class="ml-1" title="Найти на главной" @click.stop="searchAtHome">mdi-magnify</v-icon>
         </div>
         <div class="font-italic" style="font-size: 10px" v-if="remark">{{ remark }}</div>
     </div>
