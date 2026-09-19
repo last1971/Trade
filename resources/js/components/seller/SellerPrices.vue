@@ -109,7 +109,6 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import SellerApiFileSelect from "./SellerApiFileSelect.vue";
 import GoodInString from "../good/GoodInString";
 import GoodSelect from "../good/GoodSelect";
 import SellerPriceName from "./SellerPriceName";
@@ -136,7 +135,7 @@ export default {
         SellerApiFileSelectNew,
         InvoiceCard,
         SellerPriceDeliveryTime,
-        SellerPricePrices, SellerPriceQuantity, SellerPriceName, GoodSelect, GoodInString, SellerApiFileSelect},
+        SellerPricePrices, SellerPriceQuantity, SellerPriceName, GoodSelect, GoodInString},
     data() {
         return {
             loading: false,
@@ -203,7 +202,6 @@ export default {
             if (!search || search.trim().length  < MIN_SEARCH) return;
             try {
                 this.$store.commit('SELLER-PRICE/CLEAR_DATA');
-                this.$store.commit('SELLER-PRICE/CLEAR_ALL_API_ERRORS');
                 const selectedSellerId = this.$store.getters['SELLER-PRICE/SELECTED_SELLER_ID'];
                 this.$store.commit('SELLER-PRICE/SELLER_SELECT', selectedSellerId);
                 await Promise.all(this.handlers);
@@ -300,7 +298,6 @@ export default {
             const { search } = this;
             if (!seller.isApi || !search || search.trim().length  < MIN_SEARCH) return;
             this.$store.commit('SELLER-PRICE/CLEAR_SELLER_DATA', sellerId);
-            this.$store.commit('SELLER-PRICE/CLEAR_SELLER_API_ERROR', sellerId);
             this.loading = true;
             try {
                 seller.loading = true;

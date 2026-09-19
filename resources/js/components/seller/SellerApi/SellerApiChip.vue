@@ -35,21 +35,17 @@ export default {
             required: true,
         }
     },
-    data() {
-        return {
-            test: false,
-        }
-    },
     computed: {
         quantity() {
             return this.$store.getters['SELLER-PRICE/SELLER_LINES_QUANTITY'](this.seller.sellerId);
         },
+        // Истина — стор: GET_BLOCKED держит blockedUntil только у действующих блокировок.
+        // Сравнивать с new Date() здесь нельзя — computed не пересчитается по времени.
         isBlocked() {
-            return this.seller.blockedUntil && new Date(this.seller.blockedUntil) > new Date();
+            return !!this.seller.blockedUntil;
         },
         color() {
-            if (this.isBlocked) return 'warning';
-            return this.seller.isApiError ? 'error' : undefined;
+            return this.isBlocked ? 'warning' : undefined;
         },
         blockedUntilFormatted() {
             if (!this.seller.blockedUntil) return '';

@@ -108,44 +108,22 @@ const mutations = {
         state.sellers = sellers;
     },
     SAVE_SELLERS(state) {
-        localStorage.setItem('isApiSeller', JSON.stringify(state.sellers));
-    },
-    SET_SELLER_API_ERROR(state, sellerId) {
-        const index = _.findIndex(state.sellers, { sellerId });
-        const seller = state.sellers[index];
-        seller.isApiError = true;
-        state.sellers.splice(index, 1, seller)
+        // В localStorage — только выбор пользователя; статус блокировки/загрузки живёт в сессии.
+        const sellers = state.sellers.map((seller) => _.omit(seller, ['blockedUntil', 'lastError', 'loading']));
+        localStorage.setItem('isApiSeller', JSON.stringify(sellers));
     },
     SELLER_SELECT(state, sellerId) {
         state.selectedSellerId = state.selectedSellerId === sellerId ? null : sellerId;
     },
-    CLEAR_SELLER_API_ERROR(state, sellerId) {
-        const index = _.findIndex(state.sellers, { sellerId });
-        const seller = state.sellers[index];
-        seller.isApiError = false;
-        state.sellers.splice(index, 1, seller)
-    },
-    CLEAR_ALL_API_ERRORS(state) {
-        state.sellers = state.sellers.map((seller) => {
-            seller.isApiError = false;
-            return seller;
+    // Ответ /blocked — полный список текущих блокировок: кого в нём нет, тот разблокирован.
+    SET_BLOCKED(state, blockedById) {
+        state.sellers.forEach((seller) => {
+            const blocked = blockedById[seller.sellerId] || null;
+            // Vue.set — поля могли отсутствовать при создании объекта (API/localStorage),
+            // прямое присваивание было бы нереактивным (Vue 2 reactivity caveat).
+            Vue.set(seller, 'blockedUntil', blocked ? blocked.blockedUntil : null);
+            Vue.set(seller, 'lastError', blocked ? blocked.lastError : null);
         });
-    },
-    SET_SELLER_BLOCKED(state, { sellerId, blockedUntil, lastError }) {
-        const index = _.findIndex(state.sellers, { sellerId });
-        if (index === -1) return;
-        const seller = state.sellers[index];
-        // Vue.set — поля могли отсутствовать при создании объекта (API/localStorage),
-        // прямое присваивание было бы нереактивным (Vue 2 reactivity caveat).
-        Vue.set(seller, 'blockedUntil', blockedUntil);
-        Vue.set(seller, 'lastError', lastError);
-    },
-    CLEAR_SELLER_BLOCKED(state, sellerId) {
-        const index = _.findIndex(state.sellers, { sellerId });
-        if (index === -1) return;
-        const seller = state.sellers[index];
-        Vue.set(seller, 'blockedUntil', null);
-        Vue.set(seller, 'lastError', null);
     },
     PUSH_SOURCE(state, payload) {
         state.sources.set(payload.id, payload.source);
@@ -187,7 +165,6 @@ const actions = {
                 commit('SET_SELLERS', response.data.map((v) => {
                     //v.selected = { isApi: true, isFile: true }
                     v.loading = false
-                    v.isApiError = false;
                     return v;
                 }));
             }
@@ -198,19 +175,17 @@ const actions = {
     async GET_BLOCKED({commit, getters}) {
         try {
             const response = await axios.get(getters.URL + '/blocked');
-            const blocked = response.data;
-            blocked.forEach(item => {
-                const sellerId = parseInt(item.id);
+            const blockedById = {};
+            response.data.forEach((item) => {
+                // blockedUntil может быть 'unknown' (старый формат кэша) или уже в прошлом
                 if (item.blockedUntil && new Date(item.blockedUntil) > new Date()) {
-                    commit('SET_SELLER_BLOCKED', {
-                        sellerId,
+                    blockedById[parseInt(item.id)] = {
                         blockedUntil: item.blockedUntil,
                         lastError: item.lastError || null,
-                    });
-                } else {
-                    commit('CLEAR_SELLER_BLOCKED', sellerId);
+                    };
                 }
             });
+            commit('SET_BLOCKED', blockedById);
         } catch (e) {
             // не критично, просто не покажем статус блокировки
         }
