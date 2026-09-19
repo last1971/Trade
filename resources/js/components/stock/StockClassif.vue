@@ -71,12 +71,14 @@
                 <template v-slot:header.data-table-select>
                     <span class="text--secondary caption">разбор</span>
                 </template>
-                <template v-slot:item.data-table-select="{ item, isSelected, select }">
+                <!-- Галочка правит checked сама, минуя select() Vuetify: там залипший
+                     Shift + устаревший lastEntry снимают выделение сразу после клика. -->
+                <template v-slot:item.data-table-select="{ item }">
                     <v-simple-checkbox
                         v-if="!item.classifs.length"
-                        :value="isSelected"
+                        :value="isChecked(item)"
                         :ripple="false"
-                        @input="select($event)"
+                        @input="toggleChecked(item, $event)"
                         @click.stop
                     />
                 </template>
@@ -406,6 +408,14 @@ export default {
         // Выбрать все неразобранные строки текущей страницы.
         selectAllUnclassified() {
             this.checked = [...this.unclassifiedItems];
+        },
+        // Выбор по коду товара: объекты строк после перечитывания списка новые.
+        isChecked(item) {
+            return this.checked.some(row => row.GOODSCODE === item.GOODSCODE);
+        },
+        toggleChecked(item, value) {
+            const rest = this.checked.filter(row => row.GOODSCODE !== item.GOODSCODE);
+            this.checked = value ? [...rest, item] : rest;
         },
         // Массовый вердикт: одинаковые значения на выбранные товары (classify-bulk).
         classifySelected() {
