@@ -122,7 +122,7 @@
             app
             color="primary"
         >
-            <span class="white--text">ООО "ЭлкоПро" &copy; 2020-2022</span>
+            <span class="white--text">{{ copyright }}</span>
         </v-footer>
         <v-snackbar
             :color="snackbar.color"
@@ -240,6 +240,11 @@
                 exchangeDate: 'EXCHANGE-RATE/DATE',
                 exchangeRate: 'EXCHANGE-RATE/GET',
             }),
+            // Подвал: юрлицо инсталляции, год всегда текущий.
+            copyright() {
+                const firm = IS_SHOP ? 'ООО "Электроника"' : 'ООО "ЭлкоПро"';
+                return `${firm} © 2020-${new Date().getFullYear()}`;
+            },
             rootItems() {
                 return ROOT_ITEMS.filter((item) => forInstall(item) && this.hasPermission('nav.' + item.to.name));
             },
