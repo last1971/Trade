@@ -68,7 +68,7 @@ export default {
             mobileFiltersVisible: false,
             dependent: true,
             options: {
-                with: process.env.MIX_IS_ELECTRONICA === 'true'
+                with: process.env.MIX_IS_SHOP === 'true'
                     ? ['entry.seller', 'prihod']
                     : ['entry.seller'],
                 filterAttributes: [

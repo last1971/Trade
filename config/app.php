@@ -246,7 +246,7 @@ return [
      * конфиге env() возвращает null, и розница молча определилась бы как опт.
      */
 
-    'is_shop' => env('MIX_IS_ELECTRONICA', false),
+    'is_shop' => env('MIX_IS_SHOP', false),
 
     /* Search replace */
 

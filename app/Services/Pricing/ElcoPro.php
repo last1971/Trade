@@ -64,7 +64,7 @@ class ElcoPro
             ->whereHas('goodNames', function (Builder $query) use ($search) {
                 return $query->where('NAME', 'CONTAINING', $search);
             })
-            ->when(!env('MIX_IS_ELECTRONICA', false), function (Builder $q) {
+            ->when(!env('MIX_IS_SHOP', false), function (Builder $q) {
                 return $q
                     ->whereHas('warehouse', function (Builder $query) {
                         return $query->where('QUAN', '>', 0);
@@ -81,7 +81,7 @@ class ElcoPro
                             ->take(1)
                     ]);
             })
-            ->when(env('MIX_IS_ELECTRONICA', false), function (Builder $q) {
+            ->when(env('MIX_IS_SHOP', false), function (Builder $q) {
                 return $q
                     ->whereHas('retailStore', function (Builder $query) {
                         return $query->where('QUAN', '>', 0);

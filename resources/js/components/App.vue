@@ -150,7 +150,7 @@
     // Магазинная инсталляция отличается только набором пунктов, поэтому список один,
     // а разница помечена полем where: 'both' | 'opt' | 'shop'. Двух списков быть не должно —
     // они разъезжаются молча, и пункт, добавленный в один, годами отсутствует в другом.
-    const IS_SHOP = process.env.MIX_IS_ELECTRONICA === 'true';
+    const IS_SHOP = process.env.MIX_IS_SHOP === 'true';
 
     // Пункт вне групп: одиночный, прятать его за раскрытие незачем.
     const ROOT_ITEMS = [
@@ -240,10 +240,10 @@
                 exchangeDate: 'EXCHANGE-RATE/DATE',
                 exchangeRate: 'EXCHANGE-RATE/GET',
             }),
-            // Подвал: юрлицо инсталляции, год всегда текущий.
+            // Подвал: юрлицо берём из настроек инсталляции, а не из режима шоп/опт —
+            // фирма и режим независимы, шопом может быть любая из них. Год всегда текущий.
             copyright() {
-                const firm = IS_SHOP ? 'ООО "Электроника"' : 'ООО "ЭлкоПро"';
-                return `${firm} © 2020-${new Date().getFullYear()}`;
+                return `${process.env.MIX_FIRM_NAME} © 2020-${new Date().getFullYear()}`;
             },
             rootItems() {
                 return ROOT_ITEMS.filter((item) => forInstall(item) && this.hasPermission('nav.' + item.to.name));

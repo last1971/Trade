@@ -6,7 +6,7 @@ let state = _.cloneDeep(model.state);
 // Магазинная инсталляция читает приходы из SHOPIN, где другой ключ строки, а номер
 // накладной, дата документа, ГТД и страна лежат в приходном документе SHOPINPR
 // (связь SHOPINPRCODE) — оттуда же их берёт и Delphi.
-const IS_SHOP = process.env.MIX_IS_ELECTRONICA === 'true';
+const IS_SHOP = process.env.MIX_IS_SHOP === 'true';
 
 state.name = 'store-line';
 

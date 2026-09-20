@@ -45,13 +45,13 @@ export default {
     data() {
         return {
             options: {
-                with: process.env.MIX_IS_ELECTRONICA === 'true'
+                with: process.env.MIX_IS_SHOP === 'true'
                     ? ['good.name', 'entry', 'orderLine.order', 'prihod']
                     : ['good.name', 'entry', 'orderLine.order'],
                 filterAttributes: ['NP'],
                 filterOperators: ['='],
                 filterValues: [this.value.NP],
-                sortBy: [process.env.MIX_IS_ELECTRONICA === 'true' ? 'SHOPINCODE' : 'SKLADINCODE'],
+                sortBy: [process.env.MIX_IS_SHOP === 'true' ? 'SHOPINCODE' : 'SKLADINCODE'],
                 sortDesc: [false],
                 itemsPerPage: -1,
             },
@@ -66,7 +66,7 @@ export default {
         // В складском приходе ГТД и страна лежат в самой строке (SKLADIN),
         // в магазинном — в приходном документе SHOPINPR.
         headers() {
-            const isShop = process.env.MIX_IS_ELECTRONICA === 'true';
+            const isShop = process.env.MIX_IS_SHOP === 'true';
             return [
                 {text: 'Товар', value: 'good.name.NAME', sortable: false},
                 {text: 'Кол.', value: 'QUAN', align: 'right', sortable: false},
