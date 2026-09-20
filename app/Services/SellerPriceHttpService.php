@@ -114,8 +114,9 @@ class SellerPriceHttpService implements ISellerPriceable
                 'status' => $response->getStatusCode(),
                 'body' => json_decode($response->getBody()->getContents(), true) ?? [],
             ];
-        } catch (GuzzleException $e) {
-            // Сервис цен не отвечает вовсе — для диалога это то же самое, что его 502.
+        } catch (GuzzleException | \InvalidArgumentException $e) {
+            // Сервис цен не отвечает или PRICING_URI на узле не задан (магазин) —
+            // для диалога это одно и то же: справочник недоступен, но не 500.
             return [
                 'status' => 502,
                 'body' => ['error' => 'mpn_upstream', 'message' => $e->getMessage()],
