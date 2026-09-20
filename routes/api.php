@@ -62,6 +62,8 @@ Route::middleware('auth:api')->group(function () {
         ->name('seller-price.blocked');
     Route::get('seller-price/sellers', 'Api\SellerPriceController@sellers')
         ->name('seller-price.sellers');
+    Route::get('seller-price/mpn', 'Api\SellerPriceController@mpn')
+        ->name('seller-price.mpn');
 
     Route::middleware('permission:certificate.index')->group(function () {
         Route::get('certificate/{id}/download', 'Api\CertificateController@download')

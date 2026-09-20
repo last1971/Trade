@@ -6,6 +6,7 @@ use App\Http\Requests\SellerPriceRequest;
 use App\Interfaces\ISellerPriceable;
 use App\Seller;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 class SellerPriceHttpService implements ISellerPriceable
 {
@@ -86,6 +87,40 @@ class SellerPriceHttpService implements ISellerPriceable
     {
         $response = $this->client->get('supplier/blocked/elcopro');
         return json_decode($response->getBody()->getContents(), true);
+    }
+
+    /**
+     * Справочная карточка детали с mpn.cc (модуль mpn в pricing-nest).
+     * Ошибки сервиса не гасим и не переводим: отдаём тело и код как есть —
+     * 400 валидации, 502 недоступности, 503 с blockedUntil разбирает UI.
+     *
+     * @return array{status: int, body: array}
+     */
+    public function getMpnPart(string $q, ?string $manufacturer = null, bool $refresh = false): array
+    {
+        try {
+            $response = $this->client->get(
+                'mpn/part',
+                [
+                    'query' => array_filter([
+                        'q' => $q,
+                        'manufacturer' => $manufacturer,
+                        'refresh' => $refresh ? '1' : null,
+                    ]),
+                    'http_errors' => false,
+                ]
+            );
+            return [
+                'status' => $response->getStatusCode(),
+                'body' => json_decode($response->getBody()->getContents(), true) ?? [],
+            ];
+        } catch (GuzzleException $e) {
+            // Сервис цен не отвечает вовсе — для диалога это то же самое, что его 502.
+            return [
+                'status' => 502,
+                'body' => ['error' => 'mpn_upstream', 'message' => $e->getMessage()],
+            ];
+        }
     }
 
     public function getRawResponse(array $ids): array

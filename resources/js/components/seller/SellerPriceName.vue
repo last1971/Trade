@@ -1,8 +1,11 @@
 <template>
     <v-container>
-        <v-row dense>
+        <v-row dense align="center">
             <v-col>
                 <b>{{ showName(item) }}</b>
+            </v-col>
+            <v-col cols="auto">
+                <mpn-card-button :item="item"/>
             </v-col>
         </v-row>
         <v-row dense>
@@ -28,9 +31,10 @@ import GoodInString from "../good/GoodInString";
 import sellerPriceMixin from "../../mixins/sellerPriceMixin";
 import GoodSelect from "../good/GoodSelect";
 import GoodInStringSelect from "../good/GoodInStringSelect";
+import MpnCardButton from "../mpn/MpnCardButton";
 export default {
     name: "SellerPriceName",
-    components: {GoodInStringSelect, GoodSelect, GoodInString},
+    components: {MpnCardButton, GoodInStringSelect, GoodSelect, GoodInString},
     mixins: [sellerPriceMixin],
     computed: {
         disabled() {

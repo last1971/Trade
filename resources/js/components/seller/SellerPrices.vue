@@ -1,4 +1,5 @@
 <template>
+  <div>
     <v-data-table
         :footer-props="{
             showFirstLastPage: true,
@@ -105,6 +106,9 @@
             <seller-price-delivery-time :item="item" :markup="markup" @update="update(item)" />
         </template>
     </v-data-table>
+    <!-- Диалог справочника один на страницу: строк в таблице сотни, по экземпляру на строку держать нельзя. -->
+    <mpn-card-dialog/>
+  </div>
 </template>
 
 <script>
@@ -119,6 +123,7 @@ import moment from "moment";
 import InvoiceCard from "../invoice/InvoiceCard";
 import SellerApiFileSelectNew from "./SellerApi/SellerApiFileSelectNew";
 import SearchTextField from "../common/SearchTextField";
+import MpnCardDialog from "../mpn/MpnCardDialog";
 
 // Минимальная длина строки поиска (должна совпадать с SellerPriceRequest::MIN_SEARCH на бэке).
 const MIN_SEARCH = 4;
@@ -131,6 +136,7 @@ export default {
     },
     name: "SellerPrices",
     components: {
+        MpnCardDialog,
         SearchTextField,
         SellerApiFileSelectNew,
         InvoiceCard,
