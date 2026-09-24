@@ -21,6 +21,12 @@ class ChzBatch extends Model
     public const KIND_RETIRE = 'retire';
     public const KIND_RETURN = 'return';
     public const KIND_RETIRE_UPD = 'retire_upd';
+    /**
+     * Вывод по акту списания (утрата): код пометил Trade2006 при списании товара.
+     * Документа в SCODE/SFCODE нет — акт берётся с самих кодов (MARKCODES.SPISSKLADCODE
+     * либо SPISSHOPCODE) в момент отправки. KIND в базе — 10 символов, отсюда имя.
+     */
+    public const KIND_RETIRE_ACT = 'retire_act';
     /** Автоматическая отправка: деление (оно же нанесение), нанесение, ввод в оборот. */
     public const KIND_DIVISION = 'division';
     public const KIND_APPLY = 'apply';

@@ -59,6 +59,8 @@ class ChzOutboxProblemNotification extends Notification
                 return 'вывод из оборота';
             case ChzBatch::KIND_RETIRE_UPD:
                 return 'вывод по УПД';
+            case ChzBatch::KIND_RETIRE_ACT:
+                return 'вывод по акту списания';
             default:
                 return (string)$this->batch->KIND;
         }

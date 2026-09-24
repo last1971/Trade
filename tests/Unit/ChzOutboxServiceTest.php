@@ -74,6 +74,8 @@ class ChzOutboxServiceTest extends TestCase
         $half = [$this->cis('ki-1', 'RETIRED'), $this->cis('ki-2', 'INTRODUCED')];
         $this->assertSame(['ki-2 = INTRODUCED'], ChzOutboxService::pending($kis, $half, ChzBatch::KIND_RETIRE));
         $this->assertSame(['ki-2 = INTRODUCED'], ChzOutboxService::pending($kis, $half, ChzBatch::KIND_RETIRE_UPD));
+        // Вывод по акту списания — тот же документ вывода: успех только RETIRED.
+        $this->assertSame(['ki-2 = INTRODUCED'], ChzOutboxService::pending($kis, $half, ChzBatch::KIND_RETIRE_ACT));
     }
 
     public function testBlamedFindsCodesNamedInRejection()

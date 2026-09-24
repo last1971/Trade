@@ -35,6 +35,9 @@ class ChzOutboxService
     /** Дальше RETIRED кода не двигают: для вывода это единственный успех. */
     private const AFTER_RETIRE = ['RETIRED'];
 
+    /** Все виды вывода из оборота: документ True API, путь retire, успех — RETIRED. */
+    private const RETIRE_KINDS = [ChzBatch::KIND_RETIRE, ChzBatch::KIND_RETIRE_UPD, ChzBatch::KIND_RETIRE_ACT];
+
     /**
      * Коды, ждущие вывода из оборота. Те же предикаты, что у вкладки «ЧЗ»
      * в админке ozon (Trade2006ChzService), плюс CHZ_SKIP_AT: снятый с отправки
@@ -46,6 +49,36 @@ class ChzOutboxService
         . 'and m.CHZ_SENT_AT is null and m.CHZ_SKIP_AT is null';
     private const WAIT_RETIRE_UPD = 'm.STATUS = 6 and m.RETIRE_REASON = 1 and m.TRANSFER_TYPE = 1 '
         . 'and m.CHZ_SENT_AT is null and m.CHZ_SKIP_AT is null';
+    /**
+     * Вывод по акту списания — RETIRE_REASON=2, ставит Trade2006 при списании товара.
+     * Документ = акт: со склада SPISSKLAD, из магазина SPISSHOP. Причина в ЧЗ — утрата.
+     */
+    private const WAIT_RETIRE_ACT = 'm.STATUS = 6 and m.RETIRE_REASON = 2 '
+        . 'and m.CHZ_SENT_AT is null and m.CHZ_SKIP_AT is null';
+
+    /**
+     * Откуда у ждущих вывода кодов документ, в порядке сборки: УПД и акты списания
+     * вперёд — их единицы, а счетов маркетплейса сотни, иначе документы покупателям
+     * ждали бы разбора завала неделю. Алиас документа всюду doc: по его DATA
+     * считается выдержка. У акта выдержки нет — списание не отменяют.
+     *   [вид пачки, колонка документа, from с join'ами, условие ожидания, выдержка]
+     */
+    private const SOURCES = [
+        [ChzBatch::KIND_RETIRE_UPD, 'rpf.SFCODE',
+            'MARKCODES m join REALPRICEF rpf on rpf.REALPRICEFCODE = m.REALPRICEFCODE '
+            . 'join SF doc on doc.SFCODE = rpf.SFCODE',
+            self::WAIT_RETIRE_UPD, true],
+        [ChzBatch::KIND_RETIRE_ACT, 'm.SPISSKLADCODE',
+            'MARKCODES m join SPISSKLAD doc on doc.SPISSKLADCODE = m.SPISSKLADCODE',
+            self::WAIT_RETIRE_ACT, false],
+        [ChzBatch::KIND_RETIRE_ACT, 'm.SPISSHOPCODE',
+            'MARKCODES m join SPISSHOP doc on doc.SPISSHOPCODE = m.SPISSHOPCODE',
+            self::WAIT_RETIRE_ACT, false],
+        [ChzBatch::KIND_RETIRE, 'rp.SCODE',
+            'MARKCODES m join REALPRICE rp on rp.REALPRICECODE = m.REALPRICECODE '
+            . 'join S doc on doc.SCODE = rp.SCODE',
+            self::WAIT_RETIRE, true],
+    ];
 
     /** Код уже занят незакрытой пачкой — второй раз не собираем. */
     private const NOT_IN_BATCH = 'not exists (select 1 from CHZ_BATCH_KI k join CHZ_BATCH b on b.ID = k.BATCH_ID '
@@ -103,24 +136,43 @@ class ChzOutboxService
         if (ChzBatch::whereIn('STATUS', [ChzBatch::STATUS_READY, ChzBatch::STATUS_WAIT])->exists()) {
             return [];
         }
-        // УПД вперёд: их единицы, а счетов маркетплейса сотни — иначе документы
-        // покупателям будут ждать разбора завала неделю.
-        return $this->collectDoc(ChzBatch::KIND_RETIRE_UPD) ?: $this->collectDoc(ChzBatch::KIND_RETIRE);
+        foreach (self::SOURCES as [$kind, $column, $from, $wait, $ripe]) {
+            $where = $wait . ' and ' . self::NOT_IN_BATCH . ($ripe ? $this->ripe() : '');
+            $lines = $this->collectDoc($kind, $column, $from, $where);
+            if ($lines) {
+                return $lines;
+            }
+        }
+        $this->noticeOrphans();
+        return [];
     }
 
-    /** Одна пачка выбранного вида: самый старый документ с ждущими кодами. */
-    private function collectDoc(string $kind): array
+    /**
+     * Списанный код, у которого акт не нашёлся (списание сорвалось на полпути,
+     * ссылка осталась на несуществующий акт), в пачку не попадёт никогда —
+     * о таких зовём человека, раз в сутки.
+     */
+    private function noticeOrphans(): void
     {
-        $upd = $kind === ChzBatch::KIND_RETIRE_UPD;
-        $column = $upd ? 'rpf.SFCODE' : 'rp.SCODE';
-        $from = $upd
-            ? 'MARKCODES m join REALPRICEF rpf on rpf.REALPRICEFCODE = m.REALPRICEFCODE '
-                . 'join SF doc on doc.SFCODE = rpf.SFCODE'
-            : 'MARKCODES m join REALPRICE rp on rp.REALPRICECODE = m.REALPRICECODE '
-                . 'join S doc on doc.SCODE = rp.SCODE';
-        $where = ($upd ? self::WAIT_RETIRE_UPD : self::WAIT_RETIRE) . ' and ' . self::NOT_IN_BATCH
-            . $this->ripe();
+        $orphans = $this->rows(
+            'select m.KI from MARKCODES m where ' . self::WAIT_RETIRE_ACT . ' and ' . self::NOT_IN_BATCH
+            . ' and not exists (select 1 from SPISSKLAD sk where sk.SPISSKLADCODE = m.SPISSKLADCODE)'
+            . ' and not exists (select 1 from SPISSHOP sh where sh.SPISSHOPCODE = m.SPISSHOPCODE)',
+            []
+        );
+        if ($orphans) {
+            $kis = array_map(fn($row) => trim((string)$row->KI), $orphans);
+            $this->notify(null, 'Коды списаны, но акт списания не найден — вывести в ЧЗ нечем: '
+                . implode('; ', array_slice($kis, 0, 10)), 'orphan-act');
+        }
+    }
 
+    /**
+     * Одна пачка из источника (см. SOURCES): самый старый документ с ждущими кодами.
+     * Сборка у всех видов одна, различаются только колонка документа, join и условие.
+     */
+    private function collectDoc(string $kind, string $column, string $from, string $where): array
+    {
         $first = $this->rows(
             "select first 1 {$column} as DOCCODE from {$from} where {$where} order by {$column}",
             []
@@ -142,7 +194,13 @@ class ChzOutboxService
             return $lines;
         }
 
-        $batch = $this->store($kind, $kis, $upd ? null : $docCode, $upd ? $docCode : null);
+        // Счёт живёт в SCODE, УПД — в SFCODE; у акта своей колонки нет, он на самих кодах.
+        $batch = $this->store(
+            $kind,
+            $kis,
+            $kind === ChzBatch::KIND_RETIRE ? $docCode : null,
+            $kind === ChzBatch::KIND_RETIRE_UPD ? $docCode : null
+        );
         $lines[] = "пачка №{$batch->ID} ({$kind}, документ {$docCode}): собрана, кодов " . count($kis);
         return $lines;
     }
@@ -623,7 +681,42 @@ class ChzOutboxService
         if ($kind === ChzBatch::KIND_RETIRE_UPD) {
             return $this->retireUpdBody($batch);
         }
+        if ($kind === ChzBatch::KIND_RETIRE_ACT) {
+            return $this->retireActBody($batch);
+        }
         return ['inn' => $this->inn(), 'items' => $this->items($batch)];
+    }
+
+    /**
+     * Вывод по акту списания: причина LOSS (утрата), цена не нужна, первичный
+     * документ — сам акт с его номером и датой. Акт у кода один: со склада
+     * (SPISSKLAD) либо из магазина (SPISSHOP), пачка собрана по одному из них.
+     */
+    private function retireActBody(ChzBatch $batch): array
+    {
+        $rows = $this->rows(
+            'select m.KI, m.KM_FULL, COALESCE(sk.SPISSKLADCODE, sh.SPISSHOPCODE) as NUM, '
+            . 'COALESCE(sk.DATA, sh.DATA) as DATA from CHZ_BATCH_KI k '
+            . 'join MARKCODES m on m.KI = k.KI '
+            . 'left join SPISSKLAD sk on sk.SPISSKLADCODE = m.SPISSKLADCODE '
+            . 'left join SPISSHOP sh on sh.SPISSHOPCODE = m.SPISSHOPCODE '
+            . 'where k.BATCH_ID = ? order by m.MARKCODE',
+            [$batch->ID]
+        );
+        $head = $rows[0] ?? null;
+        $date = $this->day($head->DATA ?? null);
+        return [
+            'inn' => $this->inn(),
+            'reason' => 'LOSS',
+            'date' => $date,
+            'document' => [
+                'type' => 'OTHER',
+                'name' => 'Акт списания',
+                'number' => (string)intval($head->NUM ?? 0),
+                'date' => $date,
+            ],
+            'items' => array_map(fn($row) => ['km' => $this->code($row)], $rows),
+        ];
     }
 
     /**
@@ -776,14 +869,10 @@ class ChzOutboxService
         return trim((string)$batch->KIND) === ChzBatch::KIND_INTRO || $this->isRetire($batch);
     }
 
-    /** Оба вывода — по продаже маркетплейса и по УПД — отличаются только телом документа. */
+    /** Виды вывода — по продаже маркетплейса, по УПД, по акту — отличаются только телом документа. */
     private function isRetire(ChzBatch $batch): bool
     {
-        return in_array(
-            trim((string)$batch->KIND),
-            [ChzBatch::KIND_RETIRE, ChzBatch::KIND_RETIRE_UPD],
-            true
-        );
+        return in_array(trim((string)$batch->KIND), self::RETIRE_KINDS, true);
     }
 
     /**
@@ -816,7 +905,7 @@ class ChzOutboxService
             $accepted = self::AFTER_DIVISION;
         } elseif ($kind === ChzBatch::KIND_INTRO) {
             $accepted = self::AFTER_INTRO;
-        } elseif (in_array($kind, [ChzBatch::KIND_RETIRE, ChzBatch::KIND_RETIRE_UPD], true)) {
+        } elseif (in_array($kind, self::RETIRE_KINDS, true)) {
             $accepted = self::AFTER_RETIRE;
         } else {
             $accepted = self::AFTER_APPLY;
