@@ -87,8 +87,12 @@ class ChzOutboxService
     /** Статусы ГИС МТ, из которых вывод возможен. Всё прочее — повод снять код с отправки. */
     private const CAN_RETIRE = ['INTRODUCED'];
 
-    /** Документ True API отбит: дальше ждать нечего. */
-    private const DOC_FAILED = ['REJECTED', 'CHECKED_NOT_OK', 'PROCESSING_ERROR'];
+    /**
+     * Документ True API или отчёт СУЗ отбит: дальше ждать нечего. FAILED — статус отчёта СУЗ
+     * (пачка 1105, 27.09.2026: нанесение упало на неодобренном GTIN без errorReason и висело
+     * в SENT с письмами каждые 6 часов, а «Повторить» для SENT недоступно).
+     */
+    private const DOC_FAILED = ['REJECTED', 'CHECKED_NOT_OK', 'PROCESSING_ERROR', 'FAILED'];
 
     /** Сколько ждём ГИС МТ, прежде чем звать человека: лаг в полтора часа — норма. */
     private const STUCK_HOURS = 6;
