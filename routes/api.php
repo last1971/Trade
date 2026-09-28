@@ -219,7 +219,15 @@ Route::middleware('auth:api')->group(function () {
         'user-option' => 'Api\UserOptionController',
         'unit-code' => 'Api\UnitCodeController',
         'unit-code-alias' => 'Api\UnitCodeAliasController',
+        'notify-route' => 'Api\NotifyRouteController',
     ]);
+
+    // Маршруты уведомлений: «тест» шлёт живое сообщение адресату — отдельное право,
+    // чтобы читать список мог один круг людей, а дёргать бота — другой.
+    Route::middleware('permission:notify-route.test')->group(function () {
+        Route::post('notify-route/{id}/test', 'Api\NotifyRouteController@test')
+            ->name('notify-route.test');
+    });
 
     // Марки ЧЗ, приходы и списания — только просмотр
     Route::apiResource('mark-code', 'Api\MarkCodeController')->only(['index', 'show']);

@@ -215,6 +215,7 @@
             icon: 'mdi-cog',
             items: [
                 {id: 10, text: 'Пользователи', to: {name: 'users'}, icon: 'mdi-account-multiple', where: 'both'},
+                {id: 24, text: 'Уведомления', to: {name: 'notify-route'}, icon: 'mdi-bell-ring', where: 'both'},
                 {id: 14, text: 'Test', to: {name: 'test'}, icon: 'mdi-test-tube', where: 'both'},
             ],
         },

@@ -43,7 +43,8 @@ class RolesAndPermissionsSeeder extends Seeder
         'transfer-out-line',
         'unit-code',
         'unit-code-alias',
-        'user'
+        'user',
+        'notify-route',
     ];
 
     /**
@@ -107,6 +108,8 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'nav.chz-outbox', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.store-ins', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.spis-sklads', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.notify-route', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'notify-route.test', 'guard_name' => 'api']);
 
         Role::query()->firstOrCreate(['name' => 'guest', 'guard_name' => 'api']);
 
@@ -157,7 +160,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'transfer-out-line.*',
             'unit-code.*',
             'unit-code-alias.*',
-            'user.*'
+            'user.*',
+            'notify-route.*',
+            'notify-route.test',
         ]);
 
         $retailer = Role::query()->firstOrCreate(['name' => 'retailer', 'guard_name' => 'api']);

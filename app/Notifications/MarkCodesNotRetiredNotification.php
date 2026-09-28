@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\TransferOut;
 use Carbon\Carbon;
+use App\Notifications\Concerns\RoutedChannels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -14,15 +15,10 @@ use Illuminate\Notifications\Notification;
  */
 class MarkCodesNotRetiredNotification extends Notification
 {
-    use Queueable;
+    use Queueable, RoutedChannels;
 
     public function __construct(private TransferOut $transferOut, private int $codesCount)
     {
-    }
-
-    public function via($notifiable)
-    {
-        return ['mail'];
     }
 
     public function toMail($notifiable)

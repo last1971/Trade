@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\NotifyRoute;
 use App\Name;
 use Error;
 use Illuminate\Foundation\Http\FormRequest;
@@ -86,6 +87,7 @@ class ModelRequest extends FormRequest
             case 'order-line.destroy':
             case 'invoice-line.destroy':
             case 'unit-code-alias.destroy':
+            case 'notify-route.destroy':
                 $rules = [];
                 break;
             case 'advanced-buyer.store':
@@ -331,6 +333,23 @@ class ModelRequest extends FormRequest
             case 'unit-code-alias.update':
                 $rules += [
                     'item.name' => 'string|min:1',
+                ];
+                break;
+            case 'notify-route.store':
+            case 'notify-route.update':
+                // Адресат проверяется по каналу: почта — адрес, Matrix — только id комнаты
+                // «!xxx:server». Алиас «#name:server» не принимаем, его надо резолвить.
+                $channel = $this->input('item.CHANNEL');
+                $rules += [
+                    'item.TOPIC' => ['required', 'string', 'max:32', 'regex:/^[A-Za-z_]+$/'],
+                    'item.CHANNEL' => ['required', Rule::in(NotifyRoute::CHANNELS)],
+                    'item.TARGET' => array_merge(
+                        ['required', 'string', 'max:255'],
+                        $channel === NotifyRoute::CHANNEL_MATRIX
+                            ? ['regex:' . NotifyRoute::MATRIX_ROOM_RE]
+                            : ['email']
+                    ),
+                    'item.ENABLED' => ['nullable', 'integer', Rule::in([0, 1])],
                 ];
                 break;
             default:

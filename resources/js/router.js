@@ -35,6 +35,7 @@ import ChzOutbox from "./components/markCode/ChzOutbox";
 import MarkCode from "./components/markCode/MarkCode";
 import StoreIns from "./components/storeIn/StoreIns";
 import SpisSklads from "./components/spisSklad/SpisSklads";
+import NotifyRoutes from "./components/notify/NotifyRoutes.vue";
 
 Vue.use(VueRouter);
 
@@ -248,6 +249,12 @@ const routes = [
         path: '/certificate',
         component: Certificates,
         meta: {requiresAuth: true, model: 'CERTIFICATE', permission: 'certificate.index'},
+    },
+    {
+        name: 'notify-route',
+        path: '/notify-route',
+        component: NotifyRoutes,
+        meta: {requiresAuth: true, model: 'NOTIFY-ROUTE', permission: 'notify-route.index'},
     },
     {
         name: 'test',

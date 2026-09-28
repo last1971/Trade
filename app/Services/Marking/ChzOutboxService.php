@@ -4,10 +4,10 @@ namespace App\Services\Marking;
 
 use App\ChzBatch;
 use App\Notifications\ChzOutboxProblemNotification;
+use App\Services\Notify\NotifyRouter;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
 use Throwable;
 
 /**
@@ -107,7 +107,7 @@ class ChzOutboxService
      */
     private const UNKNOWN = 'НЕИЗВЕСТНО: ';
 
-    public function __construct(private ChzClient $client)
+    public function __construct(private ChzClient $client, private NotifyRouter $router)
     {
     }
 
@@ -1011,8 +1011,8 @@ class ChzOutboxService
     /** Не чаще раза в сутки на пачку: воркер ходит каждую минуту. */
     private function notify(?ChzBatch $batch, string $reason, string $key = null): void
     {
-        $address = config('mail.chz_notify');
-        if (!$address) {
+        $notifiable = $this->router->notifiable(NotifyRouter::TOPIC_MARKING);
+        if (!$notifiable) {
             return;
         }
         $key = 'chz-outbox-' . ($key ?? ('batch-' . $batch->ID));
@@ -1020,9 +1020,9 @@ class ChzOutboxService
             return;
         }
         try {
-            Notification::route('mail', $address)->notify(new ChzOutboxProblemNotification($batch, $reason));
+            $notifiable->notify(new ChzOutboxProblemNotification($batch, $reason));
         } catch (Throwable $e) {
-            $this->log('error', 'chz:outbox письмо не отправлено: ' . $e->getMessage());
+            $this->log('error', 'chz:outbox уведомление не отправлено: ' . $e->getMessage());
         }
     }
 

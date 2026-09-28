@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\ChzBatch;
+use App\Notifications\Concerns\RoutedChannels;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -13,15 +14,10 @@ use Illuminate\Notifications\Notification;
  */
 class ChzOutboxProblemNotification extends Notification
 {
-    use Queueable;
+    use Queueable, RoutedChannels;
 
     public function __construct(private ?ChzBatch $batch, private string $reason)
     {
-    }
-
-    public function via($notifiable)
-    {
-        return ['mail'];
     }
 
     public function toMail($notifiable)

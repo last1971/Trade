@@ -3,10 +3,10 @@
 namespace App\Services\Marking;
 
 use App\Notifications\MarkCodesNotRetiredNotification;
+use App\Services\Notify\NotifyRouter;
 use App\TransferOut;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
 use Throwable;
 
 /**
@@ -18,10 +18,13 @@ class MarkCodesReminder
 {
     private const THROTTLE_KEY = 'chz-remind-';
 
+    public function __construct(private NotifyRouter $router)
+    {
+    }
+
     public function remindIfNeeded(TransferOut $transferOut): void
     {
-        $address = config('mail.chz_notify');
-        if (!$address || $transferOut->buyer->transfersMarkCodes()) {
+        if ($transferOut->buyer->transfersMarkCodes()) {
             return;
         }
 
@@ -30,16 +33,20 @@ class MarkCodesReminder
             return;
         }
 
+        $notifiable = $this->router->notifiable(NotifyRouter::TOPIC_MARKING);
+        if (!$notifiable) {
+            return;
+        }
+
         if (!Cache::add(self::THROTTLE_KEY . $transferOut->SFCODE, true, now()->addDay())) {
             return;
         }
 
         try {
-            Notification::route('mail', $address)
-                ->notify(new MarkCodesNotRetiredNotification($transferOut, $count));
+            $notifiable->notify(new MarkCodesNotRetiredNotification($transferOut, $count));
         } catch (Throwable $e) {
             // печать УПД важнее письма — не роняем её
-            Log::error('MarkCodesReminder: письмо не отправлено', [
+            Log::error('MarkCodesReminder: уведомление не отправлено', [
                 'SFCODE' => $transferOut->SFCODE,
                 'error' => $e->getMessage(),
             ]);

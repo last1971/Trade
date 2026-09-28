@@ -42,6 +42,8 @@ class Kernel extends ConsoleKernel
         // Очередь отправки в Честный знак: отправить готовую пачку и проверить
         // отправленные. Выключенная очередь выходит молча, нагрузки нет.
         $schedule->command('chz:outbox')->everyMinute()->withoutOverlapping()->runInBackground();
+        // Неотправленное в Matrix: пустая очередь выходит мгновенно.
+        $schedule->command('notify:retry')->everyMinute()->withoutOverlapping()->runInBackground();
     }
 
     /**

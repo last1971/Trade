@@ -48,6 +48,7 @@ import storeIn from "./storeIn";
 import sellerOrder from "./sellerOrder";
 import unitCode from "./unitCode";
 import unitCodeAlias from "./unitCodeAlias";
+import notifyRoute from "./notifyRoute";
 import cashFlow from "./cashFlow";
 import certificate from "./certificate";
 import compel from "./compel";
@@ -114,6 +115,7 @@ const modules = {
         USER: user,
         'UNIT-CODE': unitCode,
         'UNIT-CODE-ALIAS': unitCodeAlias,
+        'NOTIFY-ROUTE': notifyRoute,
 };
 
 // Восстановление скрытых пользователем колонок (SelectHeaders → TOGGLE-HEADER → localStorage).
