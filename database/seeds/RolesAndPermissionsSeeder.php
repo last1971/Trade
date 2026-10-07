@@ -81,6 +81,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'buyer-debt.index', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'replenish.index', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'stock-classif.index', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'donor-stock.index', 'guard_name' => 'api']);
         // Страница «Отправка в ЧЗ»: список пачек идёт общим механизмом таблиц,
         // а тот спрашивает право по имени маршрута — без записи право не выдать.
         Permission::query()->firstOrCreate(['name' => 'chz-outbox.index', 'guard_name' => 'api']);
@@ -103,6 +104,7 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::query()->firstOrCreate(['name' => 'nav.retail-sale-line', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.sbis', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.stock-classif', 'guard_name' => 'api']);
+        Permission::query()->firstOrCreate(['name' => 'nav.donor-stock', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.transfer-outs', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.mark-codes', 'guard_name' => 'api']);
         Permission::query()->firstOrCreate(['name' => 'nav.chz-outbox', 'guard_name' => 'api']);
@@ -119,6 +121,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'buyer-debt.index',
             'replenish.index',
             'stock-classif.index',
+            'donor-stock.index',
             'chz-outbox.*',
             'advanced-buyer.*',
             'buyer.*',
@@ -279,6 +282,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'nav.payments',
             'nav.buyer-debt',
             'buyer-debt.index',
+            'nav.donor-stock',
+            'donor-stock.index',
             'nav.invoices',
             'nav.invoice-lines',
             'nav.transfer-outs',

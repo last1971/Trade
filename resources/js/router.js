@@ -30,6 +30,7 @@ import BuyerDebtPage from "./components/BuyerDebtPage";
 import Replenish from "./components/Replenish";
 import StockClassif from "./components/stock/StockClassif";
 import TnvedReview from "./components/stock/TnvedReview";
+import DonorStock from "./components/stock/DonorStock";
 import MarkCodes from "./components/markCode/MarkCodes";
 import ChzOutbox from "./components/markCode/ChzOutbox";
 import MarkCode from "./components/markCode/MarkCode";
@@ -107,6 +108,12 @@ const routes = [
         path: '/tnved-review',
         component: TnvedReview,
         meta: {requiresAuth: true, permission: 'stock-classif.index'},
+    },
+    {
+        name: 'donor-stock',
+        path: '/donor-stock',
+        component: DonorStock,
+        meta: {requiresAuth: true, permission: 'donor-stock.index'},
     },
     {
         name: 'help',

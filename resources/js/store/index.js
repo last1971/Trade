@@ -55,6 +55,7 @@ import compel from "./compel";
 import config from "./config";
 import buyerDebt from "./buyerDebt";
 import replenish from "./replenish";
+import donorStock from "./donorStock";
 import stockClassif from "./stockClassif";
 
 Vue.use(Vuex);
@@ -66,6 +67,7 @@ const modules = {
         BUYER: buyer,
         'BUYER-DEBT': buyerDebt,
         REPLENISH: replenish,
+        'DONOR-STOCK': donorStock,
         'CASH-FLOW': cashFlow,
         CATEGORY: category,
         CERTIFICATE: certificate,

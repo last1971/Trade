@@ -248,6 +248,16 @@ return [
 
     'is_shop' => env('MIX_IS_SHOP', false),
 
+    /*
+     * Покупатели-маркетплейсы (POKUPATCODE): на опте и рознице коды разные,
+     * поэтому берутся из .env узла. Ключ — то, что выбирают на странице «Доноры».
+     */
+
+    'marketplace_buyers' => [
+        'ozon' => env('OZON_BUYER_ID'),
+        'wb' => env('WB_BUYER_ID'),
+    ],
+
     /* Search replace */
 
     'search_replace' => '[^а-яёА-ЯЁa-zA-Z0-9]'

@@ -46,6 +46,11 @@ Route::middleware('auth:api')->group(function () {
         Route::get('replenish/list-export', 'Api\ReplenishController@listExport')->name('replenish.list-xlsx');
         Route::get('replenish/report-export', 'Api\ReplenishController@reportExport')->name('replenish.report-xlsx');
     });
+
+    Route::middleware('permission:donor-stock.index')->group(function () {
+        Route::get('donor-stock/list', 'Api\DonorStockController@list')->name('donor-stock.list');
+        Route::get('donor-stock/export', 'Api\DonorStockController@export')->name('donor-stock.xlsx');
+    });
     Route::get('transfer-out-line/export/', 'Api\TransferOutLineController@export')
         ->name('transfer-out-line.xlsx');
     Route::get('transfer-out/pdf-token/{id}', 'Api\TransferOutController@pdfToken')

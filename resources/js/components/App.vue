@@ -190,6 +190,7 @@
                 {id: 17, text: 'Закупка', to: {name: 'replenish'}, icon: 'mdi-cart-arrow-down', where: 'both'},
                 {id: 22, text: 'Списания', to: {name: 'spis-sklads'}, icon: 'mdi-delete-sweep', where: 'both'},
                 {id: 19, text: 'Разгребание склада', to: {name: 'stock-classif'}, icon: 'mdi-warehouse', where: 'both'},
+                {id: 25, text: 'Доноры', to: {name: 'donor-stock'}, icon: 'mdi-truck-fast', where: 'both'},
             ],
         },
         {
