@@ -18,6 +18,59 @@
                 </v-card-actions>
             </v-card>
         </template>
+        <template v-slot:body.prepend="{ isMobile }">
+            <tr :class="{ 'v-data-table__mobile-table-row' : isMobile }">
+                <td v-if="!isMobile"></td>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field :label="isMobile ? 'Номер' : 'Содержит'"
+                                  v-model="options.filterValues[0]"
+                                  :filled="!!options.filterValues[0]"
+                    />
+                </td>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-select :items="types"
+                              :label="isMobile ? 'Тип' : 'Равен'"
+                              v-model="options.filterValues[1]"
+                              clearable
+                    />
+                </td>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field :label="isMobile ? 'Название' : 'Содержит'"
+                                  v-model="options.filterValues[2]"
+                                  :filled="!!options.filterValues[2]"
+                    />
+                </td>
+                <td v-for="index in [3, 4]" :key="index" :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-menu :close-on-content-click="false"
+                            min-width="290px"
+                            offset-y
+                            transition="scale-transition"
+                    >
+                        <template v-slot:activator="{ on }">
+                            <v-text-field :value="options.filterValues[index] ? $options.filters.formatDate(options.filterValues[index]) : ''"
+                                          :label="index === 3 ? 'Позже' : 'Раньше'"
+                                          prepend-icon="mdi-calendar-edit"
+                                          readonly
+                                          clearable
+                                          @click:clear="$set(options.filterValues, index, '')"
+                                          v-on="on"
+                            />
+                        </template>
+                        <v-date-picker first-day-of-week="1"
+                                       v-model="options.filterValues[index]"
+                        />
+                    </v-menu>
+                </td>
+                <td v-if="!isMobile"></td>
+                <td :class="{ 'v-data-table__mobile-row' : isMobile }">
+                    <v-text-field :label="isMobile ? 'Примечание' : 'Содержит'"
+                                  v-model="options.filterValues[5]"
+                                  :filled="!!options.filterValues[5]"
+                    />
+                </td>
+                <td v-if="!isMobile"></td>
+            </tr>
+        </template>
         <template v-slot:item.number="{ item }">
             <edit-field @save="save" attribute="number" v-model="item"/>
         </template>
@@ -100,6 +153,7 @@
 <script>
 import tableMixin from "../../mixins/tableMixin";
 import utilsMixin from "../../mixins/utilsMixin";
+import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
 import EditField from "../EditField.vue";
 import CertificateAdd from "./CertificateAdd.vue";
 import CertificateGoods from "./CertificateGoods.vue";
@@ -107,12 +161,20 @@ import CertificateGoods from "./CertificateGoods.vue";
 export default {
     name: "Certificates",
     components: {CertificateGoods, CertificateAdd, EditField},
-    mixins: [tableMixin, utilsMixin],
+    mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {
-            options: {},
+            options: {
+                filterAttributes: ['number', 'type', 'name', 'date_from', 'date_to', 'remark'],
+                filterOperators: ['CONTAIN', '=', 'CONTAIN', '>=', '<=', 'CONTAIN'],
+                filterValues: ['', '', '', '', '', ''],
+            },
             model: 'CERTIFICATE',
+            types: [],
         }
+    },
+    created() {
+        this.$store.dispatch(this.model + '/TYPES').then((types) => this.types = types);
     },
     methods: {
         requestParams() {

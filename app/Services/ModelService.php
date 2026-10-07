@@ -221,11 +221,18 @@ class ModelService
                             $query->whereIn($filterAttribute, $request->get('filterValues')[$index]);
                             // containing where
                         } else if ($request->get('filterOperators')[$index] === 'CONTAIN') {
-                            $query->where(
-                                $filterAttribute,
-                                'CONTAINING',
-                                $request->get('filterValues')[$index]
-                            );
+                            // CONTAINING есть только у Firebird; у MySQL-моделей то же «содержит» — LIKE по подстроке
+                            $query->getConnection()->getDriverName() === 'firebird'
+                                ? $query->where(
+                                    $filterAttribute,
+                                    'CONTAINING',
+                                    $request->get('filterValues')[$index]
+                                )
+                                : $query->where(
+                                    $filterAttribute,
+                                    'LIKE',
+                                    '%' . $request->get('filterValues')[$index] . '%'
+                                );
                             // whereRaw
                         } else if (array_key_exists($filterAttribute, $this->whereAttributes)) {
                             $query->whereRaw($this->whereAttributes[$filterAttribute]);
