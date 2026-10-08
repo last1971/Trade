@@ -54,6 +54,35 @@
                     <v-icon left>mdi-microsoft-excel</v-icon>
                     Excel
                 </v-btn>
+                <v-btn color="success" outlined :loading="importing" @click="$refs.importFile.click()"
+                       title="Заполненный файл «Разгребание склада»: ТНВЭД, ОКПД2, «Подлежит ЧЗ» да/нет">
+                    <v-icon left>mdi-upload</v-icon>
+                    Загрузить разметку
+                </v-btn>
+                <input ref="importFile" type="file" accept=".xlsx" hidden @change="importXlsx">
+                <v-dialog v-model="importDialog" max-width="700">
+                    <v-card v-if="importResult">
+                        <v-card-title>Разметка из файла: {{ importResult.rows }} строк</v-card-title>
+                        <v-card-text>
+                            <div>применено: <b>{{ importResult.applied }}</b></div>
+                            <div>без изменений: {{ importResult.unchanged }}</div>
+                            <div>пропущено (пустой «Подлежит ЧЗ»): {{ importResult.skipped }}</div>
+                            <div :class="{'red--text': importResult.errors.length}">ошибки: {{ importResult.errors.length }}</div>
+                            <v-simple-table v-if="importResult.errors.length" dense class="mt-2">
+                                <tbody>
+                                <tr v-for="error in importResult.errors" :key="error.GOODSCODE">
+                                    <td>{{ error.GOODSCODE }}</td>
+                                    <td>{{ error.message }}</td>
+                                </tr>
+                                </tbody>
+                            </v-simple-table>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer/>
+                            <v-btn text @click="importDialog = false">Закрыть</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
             </v-card-text>
             <v-alert v-if="!updatedAt && !running" type="info" text class="mx-4">
                 Данные ещё не считались — нажмите «Обновить данные» (расчёт ~3 минуты).
@@ -203,6 +232,9 @@ export default {
         bulkVerdict: {tnved: '', okpd2: ''},
         bulkSaving: false,
         exporting: false,
+        importing: false,
+        importDialog: false,
+        importResult: null,
         headers: [
             {text: 'Код', value: 'GOODSCODE', sortable: false},
             {text: 'Наименование', value: 'NAME', sortable: false},
@@ -325,6 +357,20 @@ export default {
             this.$store.dispatch('STOCK-CLASSIF/SAVE_LIST', {...this.params(), filename: 'Разгребание склада.xlsx'})
                 .catch(() => {})
                 .then(() => this.exporting = false);
+        },
+        importXlsx(event) {
+            const file = event.target.files[0];
+            event.target.value = ''; // тот же файл можно выбрать повторно
+            if (!file) return;
+            this.importing = true;
+            this.$store.dispatch('STOCK-CLASSIF/IMPORT', file)
+                .then((result) => {
+                    this.importResult = result;
+                    this.importDialog = true;
+                    if (result.applied) this.load(); // вердикты поменялись — перечитать таблицу
+                })
+                .catch(() => {})
+                .then(() => this.importing = false);
         },
         load() {
             this.loading = true;

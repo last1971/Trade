@@ -34,6 +34,9 @@ class GoodClassifyService
                 ->where('GOODSCODE', $goodscode)
                 ->where('IS_PRIMARY', 1)
                 ->first();
+            $tnved = $tnved !== null ? trim($tnved) : null;
+            $okpd2 = $okpd2 !== null ? trim($okpd2) : null;
+            self::assertVerdict($markRequired, $tnved, $okpd2 ?: ($primary->OKPD2 ?? null));
             if ($primary) {
                 $primary->update([
                     'MARK_REQUIRED' => $markRequired,
@@ -73,5 +76,21 @@ class GoodClassifyService
         }
 
         return $primary;
+    }
+
+    /**
+     * Правила вердикта — общие для всех точек входа (карточка, пачка, ИИ, команда, файл).
+     *
+     * @param string|null $okpd2 ОКПД2, который окажется на строке (новый или уже записанный)
+     * @throws \InvalidArgumentException
+     */
+    private static function assertVerdict(int $markRequired, ?string $tnved, ?string $okpd2): void
+    {
+        if ($tnved && !preg_match('/^\d{10}$/', $tnved)) {
+            throw new \InvalidArgumentException("ТН ВЭД должен быть из 10 цифр: «{$tnved}»");
+        }
+        if ($markRequired === 1 && !$okpd2) {
+            throw new \InvalidArgumentException('Подлежит маркировке — нужен ОКПД2');
+        }
     }
 }

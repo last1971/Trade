@@ -31,6 +31,8 @@ class StockClassifExport implements FromArray, WithHeadings, WithTitle, ShouldAu
         return [
             'Код', 'Наименование', 'Категория', 'Подкатегория', 'Остаток', 'Стоимость', 'Непокрыто',
             'Маркировка', 'ТНВЭД', 'ОКПД2', 'Сертификат', 'МП', 'Коды ЧЗ',
+            // Колонка для разметки: заполненный файл загружается обратно (StockClassifImport)
+            'Подлежит ЧЗ',
         ];
     }
 
@@ -67,6 +69,7 @@ class StockClassifExport implements FromArray, WithHeadings, WithTitle, ShouldAu
                 $row['problem_no_cert'] ? 'нет' : 'есть',
                 implode(', ', array_map(fn($m) => ['ozon' => 'Озон', 'wb' => 'ВБ'][$m] ?? $m, $row['mp'])),
                 $row['CODES'],
+                $classifs->isEmpty() ? '' : ($marking === 'подлежит' ? 'да' : 'нет'),
             ];
         }, $this->rows);
     }

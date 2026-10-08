@@ -178,6 +178,9 @@ Route::middleware('auth:api')->group(function () {
             ->name('mark-code.unskip');
         Route::post('good/{id}/suggest', 'Api\GoodGtinController@suggest')
             ->name('good.suggest');
+        // Разметка из файла — то же право, что ручная разметка из карточки
+        Route::post('stock-classif/import', 'Api\StockClassifController@import')
+            ->name('stock-classif.import');
         Route::post('good/classify-bulk', 'Api\GoodGtinController@classifyBulk')
             ->name('good.classify-bulk');
         Route::get('tnved-suggestions', 'Api\TnvedSuggestController@index')

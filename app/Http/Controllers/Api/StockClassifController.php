@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exports\StockClassifExport;
+use App\Imports\StockClassifImport;
 use App\Http\Controllers\Controller;
 use App\Services\Marking\StockClassifService;
 use Illuminate\Http\Request;
@@ -30,6 +31,20 @@ class StockClassifController extends Controller
         $rows = $service->list($request, true)['data'];
 
         return $excel->download(new StockClassifExport($rows, $service->categories()), 'Разгребание склада.xlsx');
+    }
+
+    /**
+     * Загрузка разметки из заполненного Excel (тот же формат, что выгрузка).
+     */
+    public function import(Request $request, StockClassifImport $import): array
+    {
+        $request->validate(['file' => 'required|file|mimes:xlsx']);
+        set_time_limit(120);
+        try {
+            return $import->apply($request->file('file'));
+        } catch (\InvalidArgumentException $e) {
+            abort(422, $e->getMessage());
+        }
     }
 
     /**

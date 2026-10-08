@@ -26,6 +26,17 @@ export default {
         SAVE_LIST({getters, commit}, payload) {
             return exportXlsx(getters.URL + '/export', payload, commit);
         },
+        // Загрузка разметки из заполненного Excel: итог {rows, applied, unchanged, skipped, errors}.
+        IMPORT({getters, commit}, file) {
+            const data = new FormData();
+            data.append('file', file);
+            return axios.post(getters.URL + '/import', data, {headers: {'Content-Type': 'multipart/form-data'}})
+                .then(response => response.data)
+                .catch(error => {
+                    commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
+                    throw error;
+                });
+        },
         // Статус фонового пересчёта (running + время данных).
         STATUS({getters}) {
             return axios.get(getters.URL + '/status')
