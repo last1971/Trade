@@ -14,8 +14,9 @@ final class ClaudeProvider implements AIProviderInterface
     private const API_URL = 'https://api.anthropic.com/v1/messages';
     private const API_VERSION = '2023-06-01';
 
-    // Цены — USD за 1M токенов (справочник claude-api, актуально на 2026-07).
+    // Цены — USD за 1M токенов (справочник claude-api, актуально на 2026-10).
     // ID — алиасы (без датовых суффиксов), валидны для /v1/messages.
+    // thinking_off — чем выключать мышление ('disabled' дают 400 на Sonnet 5.5 / Opus 5.5 / Fable).
     private const MODELS = [
         'claude-haiku-4-5' => [
             'name' => 'Claude Haiku 4.5',
@@ -28,30 +29,31 @@ final class ClaudeProvider implements AIProviderInterface
             'supports_sampling' => true,      // temperature ещё принимается
             'thinking_configurable' => true,  // мышление по умолчанию выключено
         ],
-        'claude-sonnet-5' => [
-            'name' => 'Claude Sonnet 5',
-            'input_cost' => 3.00,   // вводная цена $2 действует до 2026-08-31
-            'output_cost' => 15.00, // вводная цена $10 действует до 2026-08-31
+        'claude-sonnet-5-5' => [
+            'name' => 'Claude Sonnet 5.5',
+            'input_cost' => 2.00,
+            'output_cost' => 10.00,
             'max_tokens' => 128000,
             'tier' => 'medium',
             'supports_cache' => true,
             'supports_web_search' => true,
             'supports_sampling' => false,     // temperature удалён — 400
             'thinking_configurable' => true,  // adaptive по умолчанию ВКЛ — выключать явно
+            'thinking_off' => 'between_tools',
         ],
-        'claude-opus-4-8' => [
-            'name' => 'Claude Opus 4.8',
-            'input_cost' => 5.00,
-            'output_cost' => 25.00,
+        'claude-opus-5-5' => [
+            'name' => 'Claude Opus 5.5',
+            'input_cost' => 4.00,
+            'output_cost' => 20.00,
             'max_tokens' => 128000,
             'tier' => 'expensive',
             'supports_cache' => true,
             'supports_web_search' => true,
             'supports_sampling' => false,
-            'thinking_configurable' => true,  // по умолчанию мышление выключено
+            'thinking_configurable' => false, // мышление всегда ВКЛ (adaptive), disabled = 400
         ],
-        'claude-fable-5' => [
-            'name' => 'Claude Fable 5',
+        'claude-fable-5-1' => [
+            'name' => 'Claude Fable 5.1',
             'input_cost' => 10.00,
             'output_cost' => 50.00,
             'max_tokens' => 128000,
@@ -108,15 +110,17 @@ final class ClaudeProvider implements AIProviderInterface
             ],
         ];
 
-        // temperature удалён на Sonnet 5 / Opus 4.8 / Fable 5 (400) — шлём только там, где принимается
+        // temperature удалён на Sonnet 5.5 / Opus 5.5 / Fable (400) — шлём только там, где принимается
         if ($request->temperature > 0 && ($modelConfig['supports_sampling'] ?? false)) {
             $jsonBody['temperature'] = $request->temperature;
         }
 
-        // thinking: 'disabled' экономит токены на справочных задачах (у Sonnet 5 adaptive ВКЛ по
-        // умолчанию). У Fable 5 мышление всегда включено — disabled даст 400, поэтому не трогаем.
+        // thinking: 'disabled' экономит токены на справочных задачах (у Sonnet 5.5 adaptive ВКЛ по
+        // умолчанию, выключается через between_tools). У Opus 5.5 / Fable мышление всегда включено —
+        // любое явное выключение даст 400, поэтому не трогаем.
         if ($request->thinking !== null && ($modelConfig['thinking_configurable'] ?? true)) {
-            $jsonBody['thinking'] = ['type' => $request->thinking];
+            $type = $request->thinking === 'disabled' ? ($modelConfig['thinking_off'] ?? 'disabled') : $request->thinking;
+            $jsonBody['thinking'] = ['type' => $type];
         }
 
         $response = Http::withHeaders($headers)

@@ -21,10 +21,10 @@ use App\Tnved;
 final class TnvedMatchService
 {
     /** Модель для шага 1 (определение позиции) и основного выбора. */
-    private const MODEL_MAIN = 'claude-sonnet-5';
+    private const MODEL_MAIN = 'claude-sonnet-5-5';
 
     /** Модель эскалации при низкой уверенности. */
-    private const MODEL_ESCALATE = 'claude-opus-4-8';
+    private const MODEL_ESCALATE = 'claude-opus-5-5';
 
     /** Порог уверенности: ниже — эскалация; >= — apply=true. */
     private const CONFIDENCE_THRESHOLD = 80;

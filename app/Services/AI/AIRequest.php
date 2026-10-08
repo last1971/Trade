@@ -10,7 +10,7 @@ final class AIRequest
      * @param string $staticPrompt Статичная часть промпта (инструкции, кэшируется у Claude)
      * @param string $dynamicPrompt Динамическая часть (данные)
      * @param float $temperature Температура генерации (0.0 - 1.0). Игнорируется на моделях,
-     *                           где параметр удалён (Sonnet 5 / Opus 4.8 / Fable 5)
+     *                           где параметр удалён (Sonnet 5.5 / Opus 5.5 / Fable)
      * @param int $maxTokens Максимум токенов в ответе
      * @param string|null $thinking Управление «мышлением» Claude: 'disabled' (экономия токенов
      *                              на справочных задачах), 'adaptive' или null (дефолт модели).
