@@ -50,6 +50,10 @@
                     <v-icon left>mdi-refresh</v-icon>
                     Обновить данные
                 </v-btn>
+                <v-btn color="success" outlined :loading="exporting" :disabled="!updatedAt" @click="exportXlsx">
+                    <v-icon left>mdi-microsoft-excel</v-icon>
+                    Excel
+                </v-btn>
             </v-card-text>
             <v-alert v-if="!updatedAt && !running" type="info" text class="mx-4">
                 Данные ещё не считались — нажмите «Обновить данные» (расчёт ~3 минуты).
@@ -198,6 +202,7 @@ export default {
         checked: [],
         bulkVerdict: {tnved: '', okpd2: ''},
         bulkSaving: false,
+        exporting: false,
         headers: [
             {text: 'Код', value: 'GOODSCODE', sortable: false},
             {text: 'Наименование', value: 'NAME', sortable: false},
@@ -314,6 +319,12 @@ export default {
             } else {
                 this.load();
             }
+        },
+        exportXlsx() {
+            this.exporting = true;
+            this.$store.dispatch('STOCK-CLASSIF/SAVE_LIST', {...this.params(), filename: 'Разгребание склада.xlsx'})
+                .catch(() => {})
+                .then(() => this.exporting = false);
         },
         load() {
             this.loading = true;

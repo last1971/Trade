@@ -1,5 +1,6 @@
 import model from './model'
 import _ from 'lodash'
+import {exportXlsx} from '../helpers/reportApi'
 
 let state = _.cloneDeep(model.state);
 
@@ -20,6 +21,10 @@ export default {
                     commit('SNACKBAR/ERROR', error.response.data.message, {root: true});
                     throw error;
                 });
+        },
+        // Excel того же списка по тем же фильтрам (весь, без страниц).
+        SAVE_LIST({getters, commit}, payload) {
+            return exportXlsx(getters.URL + '/export', payload, commit);
         },
         // Статус фонового пересчёта (running + время данных).
         STATUS({getters}) {

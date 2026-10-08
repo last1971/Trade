@@ -271,7 +271,10 @@ class StockClassifService
             ->all();
     }
 
-    public function list(Request $request): array
+    /**
+     * @param bool $all весь список без нарезки на страницы (выгрузка в Excel)
+     */
+    public function list(Request $request, bool $all = false): array
     {
         $snap = Cache::get(self::CACHE_SNAP);
         if (!$snap) {
@@ -368,12 +371,14 @@ class StockClassifService
         }
 
         $total = count($list);
-        $perPage = max(1, intval($request->input('itemsPerPage', 25)));
-        $page = max(1, intval($request->input('page', 1)));
-        $list = array_slice($list, ($page - 1) * $perPage, $perPage, true);
+        if (!$all) {
+            $perPage = max(1, intval($request->input('itemsPerPage', 25)));
+            $page = max(1, intval($request->input('page', 1)));
+            $list = array_slice($list, ($page - 1) * $perPage, $perPage, true);
+        }
 
         return [
-            'data' => $this->hydrate($list, $values, $uncovered, $codes, $mp),
+            'data' => $this->hydrate($list, $values, $uncovered, $codes, $mp, $cats),
             'total' => $total,
             'updated_at' => Cache::get(self::CACHE_UPDATED_AT),
         ];
@@ -384,22 +389,29 @@ class StockClassifService
      *
      * @param array $list [goodscode => список проблем товара]
      */
-    private function hydrate(array $list, array $values, array $uncovered, array $codes, array $mp): array
+    private function hydrate(array $list, array $values, array $uncovered, array $codes, array $mp, array $cats): array
     {
         if (!$list) {
             return [];
         }
-        $goods = Good::query()
-            ->with('name')
-            ->whereIn('GOODSCODE', array_keys($list))
-            ->get()
-            ->keyBy('GOODSCODE');
-        $classifs = GoodClassif::query()
-            ->whereIn('GOODSCODE', array_keys($list))
-            ->orderByDesc('IS_PRIMARY')
-            ->orderBy('GTIN')
-            ->get()
-            ->groupBy('GOODSCODE');
+        // Порциями: у Firebird в IN не больше 1500 значений, а выгрузка берёт весь список.
+        $goods = collect();
+        $classifs = collect();
+        foreach (array_chunk(array_keys($list), 1000) as $chunk) {
+            // Только код и имя: BLOB-поля карточки Firebird отдаёт построчно — на всём списке это минуты
+            $goods = $goods->union(Good::query()
+                ->select(['GOODSCODE', 'NAMECODE'])
+                ->with('name:NAMECODE,NAME')
+                ->whereIn('GOODSCODE', $chunk)
+                ->get()
+                ->keyBy('GOODSCODE'));
+            $classifs = $classifs->union(GoodClassif::query()
+                ->whereIn('GOODSCODE', $chunk)
+                ->orderByDesc('IS_PRIMARY')
+                ->orderBy('GTIN')
+                ->get()
+                ->groupBy('GOODSCODE'));
+        }
 
         $rows = [];
         foreach ($list as $code => $sick) {
@@ -412,6 +424,8 @@ class StockClassifService
                 'UNCOVERED' => $uncovered[$code] ?? 0,
                 'CODES' => $codes[$code] ?? 0,
                 'mp' => $mp[$code] ?? [],
+                'category' => $cats[$code][0] ?? 0,
+                'subcategory' => $cats[$code][1] ?? null,
                 'problem_marking' => in_array('marking', $sick),
                 'problem_no_cert' => in_array('noCert', $sick),
                 'classifs' => $classifs->get($code, collect())->values(),

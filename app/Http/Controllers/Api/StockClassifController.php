@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\StockClassifExport;
 use App\Http\Controllers\Controller;
 use App\Services\Marking\StockClassifService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Maatwebsite\Excel\Excel;
 
 class StockClassifController extends Controller
 {
@@ -16,6 +18,18 @@ class StockClassifController extends Controller
     public function index(Request $request, StockClassifService $service): array
     {
         return $service->list($request);
+    }
+
+    /**
+     * Excel того же списка по тем же фильтрам — целиком, без нарезки на страницы.
+     */
+    public function export(Request $request, Excel $excel, StockClassifService $service)
+    {
+        // Весь склад (~5 тыс. строк) собирается ~15 с — запас против 30 с max_execution_time
+        set_time_limit(120);
+        $rows = $service->list($request, true)['data'];
+
+        return $excel->download(new StockClassifExport($rows, $service->categories()), 'Разгребание склада.xlsx');
     }
 
     /**
