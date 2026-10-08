@@ -48,6 +48,11 @@ export default {
             state.markGoods = new Set(codes.map(Number));
             state.markGoodsLoaded = true;
         },
+        // Сброс кэша значков: после записи вердикта список маркируемых перечитывается заново.
+        RESET_MARK_GOODS(state) {
+            state.markGoodsLoaded = false;
+            markGoodsPromise = null;
+        },
     },
     actions: {
         // Загрузить справочник один раз; повторные вызовы — no-op.
@@ -76,6 +81,12 @@ export default {
                     });
             }
             return markGoodsPromise;
+        },
+        // Перечитать коды маркируемых после применённого вердикта (файл, пачка, карточка, ревью):
+        // иначе значок ЧЗ у свежеразмеченного товара появится только после F5.
+        REFRESH_GOODS({commit, dispatch}) {
+            commit('RESET_MARK_GOODS');
+            return dispatch('FETCH_GOODS');
         },
         // GTIN товара из GOODS_CLASSIF (со статусом карточки НК и числом кодов) — вкладка «Нац.каталог» и значок ЧЗ.
         GOOD_GTINS(context, goodscode) {

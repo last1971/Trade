@@ -187,6 +187,7 @@ export default {
                         {root: true});
                     this.selected = [];
                     this.load();
+                    this.$store.dispatch('MARKING/REFRESH_GOODS');
                 })
                 .catch((e) => {
                     this.$store.commit('SNACKBAR/ERROR',

@@ -291,6 +291,7 @@ export default {
                     this.rows = response.data;
                     this.fillVerdictTnved();
                     this.$emit('classified');
+                    this.$store.dispatch('MARKING/REFRESH_GOODS');
                 })
                 .catch((e) => this.error(e))
                 .then(() => this.classifying = false);

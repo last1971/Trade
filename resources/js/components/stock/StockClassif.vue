@@ -367,7 +367,10 @@ export default {
                 .then((result) => {
                     this.importResult = result;
                     this.importDialog = true;
-                    if (result.applied) this.load(); // вердикты поменялись — перечитать таблицу
+                    if (result.applied) {
+                        this.load(); // вердикты поменялись — перечитать таблицу
+                        this.$store.dispatch('MARKING/REFRESH_GOODS');
+                    }
                 })
                 .catch(() => {})
                 .then(() => this.importing = false);
@@ -493,6 +496,7 @@ export default {
                     this.checked = [];
                     this.bulkVerdict = {tnved: '', okpd2: ''};
                     this.load();
+                    this.$store.dispatch('MARKING/REFRESH_GOODS');
                 })
                 .catch((error) => {
                     this.$store.commit('SNACKBAR/ERROR',
