@@ -16,7 +16,7 @@
                 <v-card-actions>
                     <certificate-add @reload="updateItems" />
                 </v-card-actions>
-                <good-select v-model="options.filterValues[6]" can-empty class="mx-4" style="max-width: 600px"/>
+                <good-select v-model="goodFilter" can-empty class="mx-4" style="max-width: 600px"/>
             </v-card>
         </template>
         <template v-slot:body.prepend="{ isMobile }">
@@ -177,6 +177,26 @@ export default {
     },
     created() {
         this.$store.dispatch(this.model + '/TYPES').then((types) => this.types = types);
+    },
+    computed: {
+        // Фильтр по товару ищем по имени, а не по позиции: опции из URL/localStorage
+        // могут быть сохранены до появления фильтра — тогда дописываем его в конец.
+        goodFilter: {
+            get() {
+                const index = (this.options.filterAttributes || []).indexOf('certificateGoods.good_id');
+                return index < 0 ? null : (this.options.filterValues[index] || null);
+            },
+            set(val) {
+                const index = (this.options.filterAttributes || []).indexOf('certificateGoods.good_id');
+                if (index < 0) {
+                    this.$set(this.options, 'filterAttributes', _.concat(this.options.filterAttributes || [], 'certificateGoods.good_id'));
+                    this.$set(this.options, 'filterOperators', _.concat(this.options.filterOperators || [], '='));
+                    this.$set(this.options, 'filterValues', _.concat(this.options.filterValues || [], val || ''));
+                } else {
+                    this.$set(this.options.filterValues, index, val || '');
+                }
+            },
+        },
     },
     methods: {
         requestParams() {
