@@ -6,6 +6,7 @@
         :filter-values="filterValues"
         :dense="dense"
         :disabled="disabled"
+        :can-empty="canEmpty"
         :get-value="getValue"
         :key="reload"
         :with="with_"
@@ -62,6 +63,7 @@
             value: {type: [Array, Number, String]},
             disabled: {type: Boolean, default: false},
             dense: {type: Boolean, default: false},
+            canEmpty: {type: Boolean, default: false},
             newSearch: {type: String, default: ''},
             goodPrototype: {type: Object, default: () => {}}
         },

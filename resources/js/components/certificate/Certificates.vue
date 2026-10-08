@@ -12,10 +12,11 @@
                   show-expand
     >
         <template v-slot:top>
-            <v-card class="d-flex flex-row ma-2">
+            <v-card class="d-flex flex-row align-center ma-2">
                 <v-card-actions>
                     <certificate-add @reload="updateItems" />
                 </v-card-actions>
+                <good-select v-model="options.filterValues[6]" can-empty class="mx-4" style="max-width: 600px"/>
             </v-card>
         </template>
         <template v-slot:body.prepend="{ isMobile }">
@@ -157,17 +158,18 @@ import tableOptionsRouteMixin from "../../mixins/tableOptionsRouteMixin";
 import EditField from "../EditField.vue";
 import CertificateAdd from "./CertificateAdd.vue";
 import CertificateGoods from "./CertificateGoods.vue";
+import GoodSelect from "../good/GoodSelect.vue";
 
 export default {
     name: "Certificates",
-    components: {CertificateGoods, CertificateAdd, EditField},
+    components: {GoodSelect, CertificateGoods, CertificateAdd, EditField},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin],
     data() {
         return {
             options: {
-                filterAttributes: ['number', 'type', 'name', 'date_from', 'date_to', 'remark'],
-                filterOperators: ['CONTAIN', '=', 'CONTAIN', '>=', '<=', 'CONTAIN'],
-                filterValues: ['', '', '', '', '', ''],
+                filterAttributes: ['number', 'type', 'name', 'date_from', 'date_to', 'remark', 'certificateGoods.good_id'],
+                filterOperators: ['CONTAIN', '=', 'CONTAIN', '>=', '<=', 'CONTAIN', '='],
+                filterValues: ['', '', '', '', '', '', ''],
             },
             model: 'CERTIFICATE',
             types: [],
