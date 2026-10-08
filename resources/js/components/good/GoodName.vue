@@ -7,6 +7,7 @@
                 {{ value.name.NAME }}
             </router-link>
             <chz-mark :code="value.GOODSCODE"/>
+            <certificate-mark :code="value.GOODSCODE"/>
             <v-icon small class="ml-1" title="Найти на главной" @click.stop="searchAtHome">mdi-magnify</v-icon>
         </div>
         <div class="font-italic" style="font-size: 10px" v-if="remark">{{ remark }}</div>
@@ -15,10 +16,11 @@
 
 <script>
     import ChzMark from "./ChzMark";
+    import CertificateMark from "./CertificateMark";
 
     export default {
         name: "GoodName",
-        components: {ChzMark},
+        components: {ChzMark, CertificateMark},
         props: {
             value: {
                 type: Object,

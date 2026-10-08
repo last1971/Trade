@@ -10,6 +10,14 @@ state.key = 'id';
 
 state.fillable = ['number', 'type', 'name', 'date_from', 'date_to', 'remark'];
 
+// Товары с сертификатами (/api/certificate-goods) — для значка у названия товара:
+// GOODSCODE → true (есть действующий) / false (только просроченные).
+state.goods = {};
+state.goodsLoaded = false;
+
+// Промис загрузки товаров с сертификатами, пока она в полёте (см. FETCH_GOODS).
+let goodsPromise = null;
+
 state.headers = [
     {
         text: 'Номер',
@@ -137,6 +145,31 @@ let actions = _.assign({}, model.actions, {
         });
     },
 
+    // Загрузить товары с сертификатами один раз; повторные вызовы — no-op.
+    // Промис в полёте общий — как MARKING/FETCH_GOODS: GoodName рендерится сотнями за кадр.
+    // Нет права certificate.index — значка просто нет, без снекбара.
+    FETCH_GOODS({state, commit}) {
+        if (state.goodsLoaded) {
+            return Promise.resolve(state.goods);
+        }
+        if (!goodsPromise) {
+            goodsPromise = axios.get('/api/certificate-goods')
+                .then(response => response.data)
+                .catch(() => ({}))
+                .then(goods => {
+                    commit('SET_GOODS', goods);
+                    return state.goods;
+                });
+        }
+        return goodsPromise;
+    },
+
+    // Сертификаты одного товара (с площадками) — карточка товара и значок у названия.
+    GOOD_CERTIFICATES(context, goodscode) {
+        return axios.get('/api/good/' + goodscode + '/certificates')
+            .then(response => response.data);
+    },
+
     TYPES({commit}) {
         return new Promise((resolve, reject) => {
             axios.get('/api/certificate-types')
@@ -185,7 +218,16 @@ let actions = _.assign({}, model.actions, {
 export default {
     namespaced: true,
     state,
-    getters: model.getters,
-    mutations: model.mutations,
+    getters: _.assign({}, model.getters, {
+        // Сертификат товара: true — действующий, false — только просроченные, undefined — нет.
+        // goodsLoaded в замыкании — чтобы Vue пересчитал после загрузки.
+        GOOD_CERTIFIED: state => code => state.goodsLoaded ? state.goods[code] : undefined,
+    }),
+    mutations: _.assign({}, model.mutations, {
+        SET_GOODS(state, goods) {
+            state.goods = goods;
+            state.goodsLoaded = true;
+        },
+    }),
     actions,
 }

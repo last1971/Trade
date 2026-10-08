@@ -135,6 +135,21 @@ class CertificateController extends ModelController
     }
 
     /**
+     * Товары с сертификатами — для значка у названия товара: GOODSCODE → есть ли
+     * действующий (true) или только просроченные (false). Фронт грузит раз за сессию.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function goods()
+    {
+        return CertificateGood::query()
+            ->with('certificate')
+            ->get()
+            ->groupBy('good_id')
+            ->map(fn($links) => $links->contains(fn(CertificateGood $link) => !$link->certificate->is_expired));
+    }
+
+    /**
      * Distinct certificate types already used in the registry.
      *
      * @return \Illuminate\Support\Collection

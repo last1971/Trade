@@ -86,9 +86,9 @@ export default {
                 this.certificates = [];
                 return;
             }
-            axios.get('/api/good/' + this.value + '/certificates')
-                .then((response) => {
-                    this.certificates = response.data;
+            this.$store.dispatch('CERTIFICATE/GOOD_CERTIFICATES', this.value)
+                .then((certificates) => {
+                    this.certificates = certificates;
                 })
                 .catch(() => {
                     this.certificates = [];

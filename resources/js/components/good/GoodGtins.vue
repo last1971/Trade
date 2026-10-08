@@ -240,9 +240,9 @@ export default {
                 this.rows = [];
                 return;
             }
-            axios.get('/api/good/' + this.value + '/gtins')
-                .then((response) => {
-                    this.rows = response.data;
+            this.$store.dispatch('MARKING/GOOD_GTINS', this.value)
+                .then((rows) => {
+                    this.rows = rows;
                     this.fillVerdictTnved();
                     this.schedulePoll();
                 })

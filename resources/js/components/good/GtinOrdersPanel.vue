@@ -178,8 +178,8 @@ export default {
                 : Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
         },
         loadUncovered() {
-            axios.get('/api/good/' + this.goodscode + '/uncovered')
-                .then(({data}) => {
+            this.$store.dispatch('MARKING/GOOD_UNCOVERED', this.goodscode)
+                .then((data) => {
                     this.uncovered = data;
                     // Дефолт = число партий: один код на партию. 0 партий — поле пустое.
                     if (this.quantity === null && data.parcels.length) this.quantity = data.parcels.length;

@@ -77,6 +77,16 @@ export default {
             }
             return markGoodsPromise;
         },
+        // GTIN товара из GOODS_CLASSIF (со статусом карточки НК и числом кодов) — вкладка «Нац.каталог» и значок ЧЗ.
+        GOOD_GTINS(context, goodscode) {
+            return axios.get('/api/good/' + goodscode + '/gtins')
+                .then(response => response.data);
+        },
+        // Остаток товара, не покрытый кодами, по партиям ({mode, total, parcels}) — та же пара потребителей.
+        GOOD_UNCOVERED(context, goodscode) {
+            return axios.get('/api/good/' + goodscode + '/uncovered')
+                .then(response => response.data);
+        },
         // Расшифровка кода «что это»: из кэша или разово с бэка (/api/tnved/{code}).
         RESOLVE({state, commit}, code) {
             if (state.resolved[code]) {

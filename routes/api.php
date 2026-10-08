@@ -77,6 +77,8 @@ Route::middleware('auth:api')->group(function () {
             ->name('certificate.marketplaces');
         Route::get('certificate-types', 'Api\CertificateController@types')
             ->name('certificate.types');
+        Route::get('certificate-goods', 'Api\CertificateController@goods')
+            ->name('certificate.goods');
         Route::get('good/{id}/certificates', 'Api\CertificateController@forGood')
             ->name('good.certificates');
     });
