@@ -2,20 +2,7 @@
     <div>
         <v-card-text>
             <div class="d-flex flex-wrap align-center" style="gap: 16px">
-                <good-select v-model="good" style="flex: 1 1 480px; min-width: 360px"/>
-                <v-text-field
-                    v-model.number="codeInput"
-                    type="number"
-                    label="или код товара"
-                    style="max-width: 160px"
-                    @keyup.enter="applyCode"
-                >
-                    <template v-slot:append-outer>
-                        <v-btn icon small :disabled="!codeInput" title="Применить код" @click="applyCode">
-                            <v-icon>mdi-arrow-right-circle</v-icon>
-                        </v-btn>
-                    </template>
-                </v-text-field>
+                <good-select v-model="good" style="flex: 1 1 640px; min-width: 360px"/>
                 <v-text-field
                     v-model.number="lead"
                     type="number"
@@ -79,7 +66,6 @@
         },
         data: () => ({
             good: null,
-            codeInput: null,
             lead: null,
             period: 180,
             loading: false,
@@ -131,11 +117,6 @@
             },
         },
         methods: {
-            applyCode() {
-                if (!this.codeInput) return;
-                this.good = this.codeInput;
-                this.load();
-            },
             params() {
                 return {good: this.good, lead: this.lead, period: this.period};
             },
