@@ -73,26 +73,48 @@ class GoodService extends ModelService
         $this->aliases['markCodes.KI'] = function (Builder $query) {
             $query->join('MARKCODES as markCodes', 'markCodes.GOODSCODE', '=', 'GOODS.GOODSCODE');
         };
-
-        $this->aliases['goodNames.NAME'] = function (Builder $query) {
-            $query
-                ->join(
-                    'GOOD_NAMES as goodNames', 'goodNames.GOODSCODE', '=', 'GOODS.GOODSCODE'
-                );
-        };
     }
 
     public function index($request)
     {
-        $index = $request->get('filterAttributes')
-            ? array_search('goodNames.NAME', $request->get('filterAttributes'))
-            : false;
-        if ($index !== false && is_string($request->get('filterValues')[$index])) {
-            $values = $request->get('filterValues');
-            $values[$index] = GoodName::normalize($values[$index]);
-            $request instanceof Collection
-                ? $request->put('filterValues', $values)
-                : $request->merge(['filterValues' => $values]);
+        $attributes = $request->get('filterAttributes') ?? [];
+        $index = array_search('goodNames.NAME', $attributes);
+        if ($index === false) {
+            return parent::index($request);
+        }
+
+        $operators = $request->get('filterOperators');
+        $values = $request->get('filterValues');
+        $operator = $operators[$index];
+        $value = is_string($values[$index]) ? GoodName::normalize($values[$index]) : $values[$index];
+
+        // Имя ищем через EXISTS, а не JOIN: у товара в GOOD_NAMES бывает несколько имён,
+        // JOIN размножал строки — дубли в выдаче и завышенный счётчик страниц.
+        $this->query->whereExists(function ($query) use ($operator, $value) {
+            $query->selectRaw('1')
+                ->from('GOOD_NAMES as goodNames')
+                ->whereColumn('goodNames.GOODSCODE', 'GOODS.GOODSCODE');
+            if ($operator === 'IN') {
+                $query->whereIn('goodNames.NAME', $value);
+            } elseif ($operator === 'CONTAIN') {
+                $query->where('goodNames.NAME', 'CONTAINING', $value);
+            } else {
+                $query->where('goodNames.NAME', $operator, $value);
+            }
+        });
+
+        unset($attributes[$index], $operators[$index], $values[$index]);
+        $filters = [
+            'filterAttributes' => array_values($attributes),
+            'filterOperators' => array_values($operators),
+            'filterValues' => array_values($values),
+        ];
+        if ($request instanceof Collection) {
+            foreach ($filters as $key => $filter) {
+                $request->put($key, $filter);
+            }
+        } else {
+            $request->merge($filters);
         }
         return parent::index($request);
     }
