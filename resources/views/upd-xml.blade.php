@@ -179,15 +179,15 @@
                         <БезАкциз>без акциза</БезАкциз>
                     </Акциз>
                     <СумНал>
-                        <СумНал>{{ str_replace(',', '.', $line->amount - $line->amountWithoutVat) }}</СумНал>
+                        <СумНал>{{ number_format($line->amount - $line->amountWithoutVat, 2, '.', '') }}</СумНал>
                     </СумНал>
                 </СведТов>
             @endforeach
-            <ВсегоОпл СтТовБезНДСВсего="{{ str_replace(',', '.', $lines->sum('amountWithoutVat')) }}"
-                      СтТовУчНалВсего="{{ str_replace(',', '.', $lines->sum('amount')) }}"
+            <ВсегоОпл СтТовБезНДСВсего="{{ number_format($lines->sum('amountWithoutVat'), 2, '.', '') }}"
+                      СтТовУчНалВсего="{{ number_format($lines->sum('amount'), 2, '.', '') }}"
             >
                 <СумНалВсего>
-                    <СумНал>{{ str_replace(',', '.', $lines->sum('amount') - $lines->sum('amountWithoutVat')) }}</СумНал>
+                    <СумНал>{{ number_format($lines->sum('amount') - $lines->sum('amountWithoutVat'), 2, '.', '') }}</СумНал>
                 </СумНалВсего>
             </ВсегоОпл>
         </ТаблСчФакт>
