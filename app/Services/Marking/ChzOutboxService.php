@@ -604,7 +604,7 @@ class ChzOutboxService
             $this->fail($batch, self::UNKNOWN . 'сервис не вернул номер документа — проверьте в Честном знаке, что там на самом деле');
             return ["пачка №{$batch->ID}: ответ без номера"];
         }
-        return ["пачка №{$batch->ID} ({$batch->KIND}, кодов " . count($body['items']) . "): документ {$id}"];
+        return ["пачка №{$batch->ID} ({$batch->KIND}, кодов " . count($body['items'] ?? $batch->kis()) . "): документ {$id}"];
     }
 
     /** Проверяем отправленные по статусам самих кодов: статус отчёта в СУЗ навсегда SENT. */
