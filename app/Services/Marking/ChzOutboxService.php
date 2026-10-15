@@ -155,7 +155,7 @@ class ChzOutboxService
         if (!config('marking.chz.retire')) {
             return [];
         }
-        if (ChzBatch::whereIn('STATUS', [ChzBatch::STATUS_READY, ChzBatch::STATUS_WAIT])->exists()) {
+        if ($this->queueBusy()) {
             return [];
         }
         foreach (self::SOURCES as [$kind, $column, $from, $wait, $ripe]) {
@@ -190,6 +190,17 @@ class ChzOutboxService
     }
 
     /**
+     * Очередь занята, пока есть пачка, готовая к отправке. Пачки «жду» (ввод в оборот
+     * за своим нанесением) не считаются: нанесение без ответа ЧЗ висит неделями
+     * (пачки 1621, 1709, 1721 с 08.10.2026) и останавливало весь вывод из оборота.
+     * Ввод в оборот это не трогает — его отпускает promoteWaiting только после DONE родителя.
+     */
+    private function queueBusy(): bool
+    {
+        return ChzBatch::where('STATUS', ChzBatch::STATUS_READY)->exists();
+    }
+
+    /**
      * Сборка пачек возврата в оборот. ЧЗ отменяет документ вывода только целиком,
      * поэтому пачка собирается, когда вернулись ВСЕ коды документа: один документ
      * вывода — одна пачка возврата, PARENT_ID указывает на пачку вывода.
@@ -203,7 +214,7 @@ class ChzOutboxService
         if (!config('marking.chz.retire_cancel')) {
             return [];
         }
-        if (ChzBatch::whereIn('STATUS', [ChzBatch::STATUS_READY, ChzBatch::STATUS_WAIT])->exists()) {
+        if ($this->queueBusy()) {
             return [];
         }
 
