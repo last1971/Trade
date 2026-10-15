@@ -11,6 +11,7 @@ use Illuminate\Notifications\Notification;
 /**
  * Очередь отправки в Честный знак требует человека: отказ ЧЗ, зависшая пачка,
  * расхождение количества. Успех не пишем — письма должны означать работу.
+ * Исключение — возврат в оборот: какие товары и коды вернулись, владелец хочет видеть.
  */
 class ChzOutboxProblemNotification extends Notification
 {
@@ -39,7 +40,12 @@ class ChzOutboxProblemNotification extends Notification
                 $mail->line("Счёт: {$this->batch->SCODE}");
             }
         }
-        return $mail->line($this->reason)->line('Страница «Отправка в ЧЗ» — там же кнопка «Повторить».');
+        $mail->line($this->reason);
+        // У подтверждённой пачки повторять нечего — письмо только сообщает итог.
+        if (!$this->batch || $this->batch->STATUS !== ChzBatch::STATUS_DONE) {
+            $mail->line('Страница «Отправка в ЧЗ» — там же кнопка «Повторить».');
+        }
+        return $mail;
     }
 
     private function kind(): string
@@ -57,6 +63,8 @@ class ChzOutboxProblemNotification extends Notification
                 return 'вывод по УПД';
             case ChzBatch::KIND_RETIRE_ACT:
                 return 'вывод по акту списания';
+            case ChzBatch::KIND_RETURN:
+                return 'возврат в оборот';
             default:
                 return (string)$this->batch->KIND;
         }

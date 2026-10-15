@@ -19,6 +19,11 @@ class ChzBatch extends Model
 
     /** Ручная выгрузка файлом: вывод из оборота, возврат, вывод по УПД. */
     public const KIND_RETIRE = 'retire';
+    /**
+     * Возврат в оборот. Ручная пачка (STATUS = NULL) — выгрузка файлом из ozon;
+     * пачка воркера — отмена документа вывода целиком: PARENT_ID — пачка вывода,
+     * DOC_UUID — номер документа отмены.
+     */
     public const KIND_RETURN = 'return';
     public const KIND_RETIRE_UPD = 'retire_upd';
     /**

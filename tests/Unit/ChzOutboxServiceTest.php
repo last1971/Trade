@@ -78,6 +78,31 @@ class ChzOutboxServiceTest extends TestCase
         $this->assertSame(['ki-2 = INTRODUCED'], ChzOutboxService::pending($kis, $half, ChzBatch::KIND_RETIRE_ACT));
     }
 
+    public function testReturnConfirmedOnlyByIntroduced()
+    {
+        $kis = ['ki-1', 'ki-2'];
+        $done = [$this->cis('ki-1', 'INTRODUCED'), $this->cis('ki-2', 'INTRODUCED')];
+        $this->assertSame([], ChzOutboxService::pending($kis, $done, ChzBatch::KIND_RETURN));
+
+        // Отмена принята, но код ещё выведен — ГИС МТ не отработала.
+        $half = [$this->cis('ki-1', 'INTRODUCED'), $this->cis('ki-2', 'RETIRED')];
+        $this->assertSame(['ki-2 = RETIRED'], ChzOutboxService::pending($kis, $half, ChzBatch::KIND_RETURN));
+    }
+
+    public function testGroupByReceiptSplitsCodesByRetireBatch()
+    {
+        $rows = [
+            (object)['KI' => 'ki-1 ', 'RECEIPT_ID' => 1417],
+            (object)['KI' => 'ki-2', 'RECEIPT_ID' => null],
+            (object)['KI' => 'ki-3', 'RECEIPT_ID' => 1371],
+            (object)['KI' => 'ki-4', 'RECEIPT_ID' => '1417'],
+        ];
+        $this->assertSame(
+            [0 => ['ki-2'], 1371 => ['ki-3'], 1417 => ['ki-1', 'ki-4']],
+            ChzOutboxService::groupByReceipt($rows)
+        );
+    }
+
     public function testBlamedFindsCodesNamedInRejection()
     {
         // Текст отказа ЧЗ как есть (пачка №41 от 09.09): виноватые названы поимённо.
