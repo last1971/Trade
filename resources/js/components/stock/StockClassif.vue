@@ -54,6 +54,27 @@
                     <v-icon left>mdi-microsoft-excel</v-icon>
                     Excel
                 </v-btn>
+                <v-dialog v-model="priceDialog" max-width="360">
+                    <template v-slot:activator="{ on }">
+                        <v-btn color="success" outlined :loading="pricing" :disabled="!updatedAt" v-on="on"
+                               title="Прайс по фильтрам: в наличии = остаток − резерв, цена = приходная × коэффициент">
+                            <v-icon left>mdi-file-table-outline</v-icon>
+                            Прайс
+                        </v-btn>
+                    </template>
+                    <v-card>
+                        <v-card-title>Прайс склада</v-card-title>
+                        <v-card-text>
+                            <v-text-field v-model="priceCoef" label="Коэффициент к приходной цене" type="number"
+                                          step="0.01" min="0" autofocus @keyup.enter="exportPrice"/>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-spacer/>
+                            <v-btn text @click="priceDialog = false">Отмена</v-btn>
+                            <v-btn color="success" :disabled="!(priceCoef > 0)" @click="exportPrice">Выгрузить</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
                 <v-btn color="success" outlined :loading="importing" @click="$refs.importFile.click()"
                        title="Заполненный файл «Разгребание склада»: ТНВЭД, ОКПД2, «Подлежит ЧЗ» да/нет">
                     <v-icon left>mdi-upload</v-icon>
@@ -232,6 +253,9 @@ export default {
         bulkVerdict: {tnved: '', okpd2: ''},
         bulkSaving: false,
         exporting: false,
+        pricing: false,
+        priceDialog: false,
+        priceCoef: '',
         importing: false,
         importDialog: false,
         importResult: null,
@@ -357,6 +381,14 @@ export default {
             this.$store.dispatch('STOCK-CLASSIF/SAVE_LIST', {...this.params(), filename: 'Разгребание склада.xlsx'})
                 .catch(() => {})
                 .then(() => this.exporting = false);
+        },
+        exportPrice() {
+            if (!(this.priceCoef > 0)) return;
+            this.priceDialog = false;
+            this.pricing = true;
+            this.$store.dispatch('STOCK-CLASSIF/SAVE_PRICE', {...this.params(), coef: this.priceCoef, filename: 'Прайс склада.xlsx'})
+                .catch(() => {})
+                .then(() => this.pricing = false);
         },
         importXlsx(event) {
             const file = event.target.files[0];

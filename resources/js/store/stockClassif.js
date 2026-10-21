@@ -26,6 +26,10 @@ export default {
         SAVE_LIST({getters, commit}, payload) {
             return exportXlsx(getters.URL + '/export', payload, commit);
         },
+        // Прайс свободного остатка (остаток − резерв) по тем же фильтрам, цена × coef.
+        SAVE_PRICE({getters, commit}, payload) {
+            return exportXlsx(getters.URL + '/price-export', payload, commit);
+        },
         // Загрузка разметки из заполненного Excel: итог {rows, applied, unchanged, skipped, errors}.
         IMPORT({getters, commit}, file) {
             const data = new FormData();

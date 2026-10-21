@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exports\StockClassifExport;
+use App\Exports\StockPriceListExport;
 use App\Imports\StockClassifImport;
 use App\Http\Controllers\Controller;
 use App\Services\Marking\StockClassifService;
@@ -31,6 +32,18 @@ class StockClassifController extends Controller
         $rows = $service->list($request, true)['data'];
 
         return $excel->download(new StockClassifExport($rows, $service->categories()), 'Разгребание склада.xlsx');
+    }
+
+    /**
+     * Прайс свободного остатка по тем же фильтрам в формате шаблона покупателя; цена × coef.
+     */
+    public function priceExport(Request $request, Excel $excel, StockClassifService $service)
+    {
+        $request->validate(['coef' => 'required|numeric|gt:0']);
+        set_time_limit(120);
+        $rows = $service->priceList($request, floatval($request->input('coef')));
+
+        return $excel->download(new StockPriceListExport($rows), 'Прайс склада.xlsx');
     }
 
     /**

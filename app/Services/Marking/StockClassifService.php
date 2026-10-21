@@ -8,6 +8,7 @@ use App\GoodClassif;
 use App\GoodName;
 use App\MarkCode;
 use App\Services\MarketplaceService;
+use App\Services\Replenish\ReplenishRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -28,6 +29,10 @@ class StockClassifService
     public const CACHE_UPDATED_AT = 'stock-classif:updated_at';
     public const CACHE_RUNNING = 'stock-classif:running';
 
+    public function __construct(private ReplenishRepository $stock)
+    {
+    }
+
     /**
      * Пересчитать снапшот стоимости остатка (склад s_s=0 или магазин s_s=1 —
      * по config marking.stock_mode) в кэш.
@@ -38,13 +43,15 @@ class StockClassifService
         // Режим инсталляции: опт считает по SKLAD, магазин — по SHOPSKLAD (та же пара GOODSCODE/QUAN).
         $ss = StockMode::ss();
 
-        // Остаток и стоимость по приходным ценам партий (ядро из спеки S11).
+        // Остаток и стоимость по приходным ценам партий (ядро из спеки S11), дата последнего прихода.
         // База в 1-м диалекте Firebird — CAST AS NUMERIC(15,2) недоступен, округляем здесь.
         $values = [];
+        $lastIn = [];
         $rows = DB::connection('firebird')->select(
             'select pm.goodscode,
                     sum(pm.quan - coalesce(f.q, 0)) as ost,
-                    sum((pm.quan - coalesce(f.q, 0)) * pm.price) as val
+                    sum((pm.quan - coalesce(f.q, 0)) * pm.price) as val,
+                    max(pm.data) as last_in
              from pr_meta pm
              left join (select pr_meta_in_id, sum(quan) as q from fifo_t group by pr_meta_in_id) f
                     on f.pr_meta_in_id = pm.id
@@ -54,6 +61,7 @@ class StockClassifService
         );
         foreach ($rows as $row) {
             $values[intval($row->GOODSCODE)] = [floatval($row->OST), round(floatval($row->VAL), 2)];
+            $lastIn[intval($row->GOODSCODE)] = $row->LAST_IN ? substr($row->LAST_IN, 0, 10) : null;
         }
 
         // Сверка с живым остатком SKLAD/SHOPSKLAD: у старых товаров расходы не покрыты FIFO_T,
@@ -95,6 +103,7 @@ class StockClassifService
 
         Cache::put(self::CACHE_SNAP, [
             'values' => $values,
+            'lastIn' => $lastIn,
             'uncovered' => $uncovered,
             'codes' => $codes,
             'mp' => $this->marketplaceMap(),
@@ -378,10 +387,43 @@ class StockClassifService
         }
 
         return [
-            'data' => $this->hydrate($list, $values, $uncovered, $codes, $mp, $cats),
+            'data' => $this->hydrate($list, $values, $uncovered, $codes, $mp, $cats, $snap['lastIn'] ?? []),
             'total' => $total,
             'updated_at' => Cache::get(self::CACHE_UPDATED_AT),
         ];
+    }
+
+    /**
+     * Прайс остатков по тем же фильтрам, что список. Свободно = остаток режима базы минус резерв
+     * (ReplenishRepository::stock — та же формула, что в расчёте закупки; подобранное уже снято
+     * с остатка); цена = средняя приходная цена остатка × коэффициент; год производства = год
+     * последнего прихода минус 1 (решения владельца 21.10.2026). Без свободного остатка — не в прайс.
+     *
+     * @return array [{code, title, dc, brand, available, price}]
+     */
+    public function priceList(Request $request, float $coef): array
+    {
+        $rows = $this->list($request, true)['data'];
+        $stock = $this->stock->stock(array_column($rows, 'GOODSCODE'));
+        $own = StockMode::ss() === StockMode::SHOP ? 'retail' : 'warehouse';
+
+        $result = [];
+        foreach ($rows as $row) {
+            $s = $stock[$row['GOODSCODE']] ?? null;
+            $available = $s ? $s[$own] - $s['reserved'] : 0;
+            if ($available <= 0 || $row['OST'] <= 0) {
+                continue;
+            }
+            $result[] = [
+                'code' => $row['GOODSCODE'],
+                'title' => $row['NAME'],
+                'dc' => $row['LAST_IN'] ? intval(substr($row['LAST_IN'], 0, 4)) - 1 : null,
+                'brand' => $row['PRODUCER'],
+                'available' => $available,
+                'price' => round($row['VAL'] / $row['OST'] * $coef, 2),
+            ];
+        }
+        return $result;
     }
 
     /**
@@ -389,7 +431,15 @@ class StockClassifService
      *
      * @param array $list [goodscode => список проблем товара]
      */
-    private function hydrate(array $list, array $values, array $uncovered, array $codes, array $mp, array $cats): array
+    private function hydrate(
+        array $list,
+        array $values,
+        array $uncovered,
+        array $codes,
+        array $mp,
+        array $cats,
+        array $lastIn
+    ): array
     {
         if (!$list) {
             return [];
@@ -400,7 +450,7 @@ class StockClassifService
         foreach (array_chunk(array_keys($list), 1000) as $chunk) {
             // Только код и имя: BLOB-поля карточки Firebird отдаёт построчно — на всём списке это минуты
             $goods = $goods->union(Good::query()
-                ->select(['GOODSCODE', 'NAMECODE'])
+                ->select(['GOODSCODE', 'NAMECODE', 'PRODUCER'])
                 ->with('name:NAMECODE,NAME')
                 ->whereIn('GOODSCODE', $chunk)
                 ->get()
@@ -421,6 +471,8 @@ class StockClassifService
                 'NAME' => $good && $good->name ? $good->name->NAME : '',
                 'OST' => $values[$code][0],
                 'VAL' => $values[$code][1],
+                'LAST_IN' => $lastIn[$code] ?? null,
+                'PRODUCER' => $good ? trim((string)$good->PRODUCER) : '',
                 'UNCOVERED' => $uncovered[$code] ?? 0,
                 'CODES' => $codes[$code] ?? 0,
                 'mp' => $mp[$code] ?? [],

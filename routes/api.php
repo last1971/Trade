@@ -100,6 +100,8 @@ Route::middleware('auth:api')->group(function () {
             ->name('stock-classif.status');
         Route::get('stock-classif/export', 'Api\StockClassifController@export')
             ->name('stock-classif.export');
+        Route::get('stock-classif/price-export', 'Api\StockClassifController@priceExport')
+            ->name('stock-classif.price-export');
         Route::get('stock-classif/categories', 'Api\StockClassifController@categories')
             ->name('stock-classif.categories');
         Route::post('stock-classif/refresh', 'Api\StockClassifController@refresh')
