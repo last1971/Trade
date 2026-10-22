@@ -18,9 +18,11 @@ class StoreInController extends ModelController
     {
         // В магазине строки прихода лежат в SHOPIN, а номер и дата накладной — в
         // приходном документе SHOPINPR (на складе оба набора в одной SKLADIN).
+        // SHOPIN.NP — VARCHAR, без CAST сортировка строковая и свежие приходы уезжают
+        // под «999»; номера всегда числовые (Delphi сам берёт max(cast(shopin.np as integer))).
         $this->service->setRawFrom(
             config('app.is_shop')
-                ? '(SELECT s.NP, MIN(s.DATA) AS DATA, MIN(r.NDOC) AS NDOC, MIN(r.DATA_DOC) AS DATA_DOC,
+                ? '(SELECT CAST(s.NP AS INTEGER) AS NP, MIN(s.DATA) AS DATA, MIN(r.NDOC) AS NDOC, MIN(r.DATA_DOC) AS DATA_DOC,
                 COUNT(*) AS LINES_COUNT, SUM(s.QUAN) AS QUAN, SUM(p.PRICE * p.QUAN) AS SUMMAP,
                 MIN(p.WHEREISPOSTCODE) AS WHEREISPOSTCODE
               FROM SHOPIN s LEFT JOIN PR_META p ON p.SHOPINCODE = s.SHOPINCODE
