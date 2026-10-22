@@ -31,6 +31,9 @@ class OrderService extends ModelService
 
         $this->dateAttributes = ['DATA_ZAK', 'DATA_PRIH', 'INVOICE_DATA'];
 
+        // Дату счёта поставщика заполняют не везде (на Элтоме пусто с 2022) — тогда фильтруем по дате заказа
+        $this->filterAliases['INVOICE_DATA'] = 'COALESCE(ZAKAZ_MASTER.INVOICE_DATA, ZAKAZ_MASTER.DATA_ZAK)';
+
         $this->aliases['seller.NAMEPOST'] = function (Builder $query) {
             $query->join(
                 'WHEREISPOST as seller',

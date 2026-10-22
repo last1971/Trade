@@ -59,6 +59,7 @@ class ModelService
      * Подмена имени колонки в обычном фильтре: 'GOODSCODE' => 'ZAKAZ_DETAIL.GOODSCODE'.
      * Нужна там, где сервис джойнит таблицу с такой же колонкой — иначе Firebird
      * отбивает запрос как -204 Ambiguous field name.
+     * Для дат подставляется как есть, поэтому можно задать выражение (COALESCE(...)).
      * @var array
      */
     protected $filterAliases = [];
@@ -205,14 +206,14 @@ class ModelService
                                 $between = json_decode($between);
                             }
                             $query->whereRaw(
-                                $this->rawAttribute($filterAttribute) . ' BETWEEN '
+                                ($this->filterAliases[$filterAttribute] ?? $this->rawAttribute($filterAttribute)) . ' BETWEEN '
                                 . '\'' . Carbon::parse($between[0]) . '\' AND '
                                 . '\'' . Carbon::parse($between[1]) . '\''
                             );
                             // date where
                         } else if (array_search($filterAttribute, $this->dateAttributes) !== false) {
                             $query->whereRaw(
-                                $this->rawAttribute($filterAttribute) . ' '
+                                ($this->filterAliases[$filterAttribute] ?? $this->rawAttribute($filterAttribute)) . ' '
                                 . $request->get('filterOperators')[$index]
                                 . '\'' . Carbon::parse($request->get('filterValues')[$index]) . '\''
                             );

@@ -108,7 +108,7 @@
             </router-link>
         </template>
         <template v-slot:item.INVOICE_DATA="{ item }">
-            {{ item.INVOICE_DATA | formatDate }}
+            {{ (item.INVOICE_DATA || item.DATA_ZAK) | formatDate }}
         </template>
         <template v-slot:item.DATA_PRIH="{ item }">
             {{ item.DATA_PRIH | formatDate }}
