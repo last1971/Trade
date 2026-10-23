@@ -2,6 +2,10 @@
     <div>
         <!-- Поле скана над таблицей: код в руках чаще, чем фильтр в голове. -->
         <mark-code-scan class="mb-3"/>
+        <!-- Выбор копится и при листании страниц: этикетки печатают пачкой. -->
+        <div v-if="selectedIds.length" class="mb-2">
+            <mark-labels-button :ids="selectedIds">Печать этикеток ({{ selectedIds.length }})</mark-labels-button>
+        </div>
         <v-data-table
             :headers="headers"
             :items="items"
@@ -14,9 +18,14 @@
                 showFirstLastPage: true,
             }"
             item-key="MARKCODE"
+            show-select
+            @item-selected="selectItem"
+            @toggle-select-all="selectItems"
         >
-            <template v-slot:body.prepend="{ isMobile }">
-                <mark-code-filter-row :headers="headers"
+            <!-- Заголовки берём у таблицы, а не свои: в них есть колонка галочек,
+                 иначе фильтры съезжают на одну колонку. -->
+            <template v-slot:body.prepend="{ isMobile, headers: shownHeaders }">
+                <mark-code-filter-row :headers="shownHeaders"
                                       :options="options"
                                       :model="model"
                                       :is-mobile="isMobile"
@@ -110,10 +119,11 @@ import markCodeTableMixin, {STATUS_CODES, TRANSFER_CODES} from "../../mixins/mar
 import GoodName from "../good/GoodName";
 import MarkCodeFilterRow from "./MarkCodeFilterRow";
 import MarkCodeScan from "./MarkCodeScan";
+import MarkLabelsButton from "./MarkLabelsButton";
 
 export default {
     name: "MarkCodes",
-    components: {GoodName, MarkCodeFilterRow, MarkCodeScan},
+    components: {GoodName, MarkCodeFilterRow, MarkCodeScan, MarkLabelsButton},
     mixins: [tableMixin, tableOptionsRouteMixin, utilsMixin, markCodeTableMixin],
     data() {
         return {

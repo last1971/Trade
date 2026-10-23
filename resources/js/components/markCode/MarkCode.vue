@@ -6,6 +6,7 @@
             <!-- Со сканером в руках коды смотрят подряд: поле здесь же,
                  чтобы за следующим не возвращаться в список. -->
             <mark-code-scan class="scan-field mr-2"/>
+            <mark-labels-button v-if="code" class="mr-2" :ids="[code.MARKCODE]"/>
             <v-btn small icon :loading="loading" title="Обновить" @click="load">
                 <v-icon>mdi-refresh</v-icon>
             </v-btn>
@@ -151,6 +152,7 @@
 import moment from "moment";
 import markCodeTableMixin from "../../mixins/markCodeTableMixin";
 import MarkCodeScan from "./MarkCodeScan";
+import MarkLabelsButton from "./MarkLabelsButton";
 
 /**
  * Карточка одного кода маркировки: наши данные и живой ответ ГИС МТ рядом.
@@ -159,7 +161,7 @@ import MarkCodeScan from "./MarkCodeScan";
  */
 export default {
     name: "MarkCode",
-    components: {MarkCodeScan},
+    components: {MarkCodeScan, MarkLabelsButton},
     mixins: [markCodeTableMixin],
     filters: {
         datetime: (v) => v ? moment(v).format('DD.MM.YYYY HH:mm') : '',

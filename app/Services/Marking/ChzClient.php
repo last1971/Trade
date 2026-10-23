@@ -26,6 +26,16 @@ class ChzClient
         ]);
     }
 
+    /** От чьего имени ходим в ЧЗ: ИНН этой инсталляции (опт и магазин — разные организации). */
+    public function inn(): string
+    {
+        $inn = trim((string)config('marking.chz.inn'));
+        if ($inn === '') {
+            throw new MarkingException('Не задан ИНН организации (MARKING_CHZ_INN)');
+        }
+        return $inn;
+    }
+
     /** GET → декодированный JSON (ok проверяется). */
     public function get(string $path, array $query = []): array
     {

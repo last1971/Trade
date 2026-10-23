@@ -154,6 +154,12 @@ Route::middleware('auth:api')->group(function () {
         // этот маршрут их и связывает.
         Route::get('mark-code-find', 'Api\MarkCodeController@find')
             ->name('mark-code.find');
+        // Код не из нашей базы (отсканировали) — что о нём думает ГИС МТ
+        Route::get('mark-code-chz-info', 'Api\MarkCodeController@chzInfoByCode')
+            ->name('mark-code.chz-info-by-code');
+        // Этикетки: в ЧЗ ничего не уходит, только справка о владельце — право то же, что у списка
+        Route::post('mark-code-labels', 'Api\MarkCodeController@labels')
+            ->name('mark-code.labels');
     });
 
     Route::middleware('permission:good.update')->group(function () {

@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Interfaces\IMarkCodeDocument;
 use App\Invoice;
 use App\MarkCode;
-use App\Services\Marking\ChzClient;
 use App\Services\Marking\ChzOutboxService;
-use App\Services\Marking\MarkingException;
+use App\Services\Marking\MarkCodeChzService;
 use App\Services\MarkCodeService;
 use App\Services\Marking\MarkCodeTransferService;
 use App\TransferOut;
@@ -77,25 +76,27 @@ class MarkCodeController extends ModelController
      * расходятся штатно (у нас «выведен» значит «продан»), поэтому показываем
      * оба источника рядом, а не пытаемся их слить.
      */
-    public function chzInfo(int $id, ChzClient $client)
+    public function chzInfo(int $id, MarkCodeChzService $service)
     {
-        $code = MarkCode::findOrFail($id);
-        try {
-            $answer = $client->post('codes/info', ['codes' => [trim((string)$code->KI)]]);
-        } catch (MarkingException $e) {
-            return ['ok' => false, 'error' => $e->getMessage()];
-        }
-        $info = $answer['codes'][0] ?? null;
-        $our = trim((string)config('marking.chz.inn'));
-        $owner = $info['ownerInn'] ?? null;
+        return $service->info(trim((string)MarkCode::findOrFail($id)->KI));
+    }
 
-        // Чужой владелец — главное, что надо увидеть в карточке: такой код мы
-        // вывести не можем, ЧЗ ответит «не принадлежит участнику оборота».
-        return [
-            'ok' => true,
-            'code' => $info,
-            'alien' => (bool)($our !== '' && $owner && $owner !== $our),
-        ];
+    /** То же для кода, которого в нашей базе нет: отсканировали — спрашиваем ЧЗ напрямую. */
+    public function chzInfoByCode(Request $request, MarkCodeChzService $service)
+    {
+        return $service->info($request->validate(['code' => 'required|string|max:255'])['code']);
+    }
+
+    /** Этикетки PDF: выбранные наши коды и/или отсканированные. Печатается то, что ЧЗ числит за нами. */
+    public function labels(Request $request, MarkCodeChzService $service)
+    {
+        $data = $request->validate([
+            'ids' => 'array',
+            'ids.*' => 'integer',
+            'codes' => 'array',
+            'codes.*' => 'string|max:255',
+        ]);
+        return $service->labels($data['ids'] ?? [], $data['codes'] ?? []);
     }
 
     /** Вернуть снятый с отправки код в очередь — прямо из его карточки. */

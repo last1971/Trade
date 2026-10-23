@@ -17,15 +17,41 @@ const ALT_GS = '\u0093';
  * Бросает Error с человекочитаемым сообщением при невалидном коде.
  */
 export function extractKi(rawScan) {
+    return splitScan(rawScan).ki;
+}
+
+/**
+ * Полный КМ для этикетки: КИ и криптохвост, группы через GS — так его хранит база
+ * (KM_FULL) и ждёт DataMatrix. Сканер в браузере разделитель часто теряет, поэтому
+ * собираем заново из хвоста:
+ *   91(ключ4)92(крипта) → КИ GS 91ключ GS 92крипта
+ *   93(ключ4)           → КИ GS 93ключ
+ * null — хвоста в скане нет (ввели руками один КИ), напечатать такой код нельзя.
+ */
+export function extractKm(rawScan) {
+    const {ki, tail} = splitScan(rawScan);
+    if (tail.startsWith('91') && tail.substring(6, 8) === '92') {
+        return ki + GS + tail.substring(0, 6) + GS + tail.substring(6);
+    }
+    if (tail.startsWith('93')) {
+        return ki + GS + tail;
+    }
+    return null;
+}
+
+// Скан → КИ и хвост после него (без разделителей). Одна разборка на extractKi и extractKm.
+function splitScan(rawScan) {
     if (!rawScan) throw new Error('Пустой код маркировки');
 
     // (1) скобочный формат сканера: (01)..(21)..(91).. -> плоский вид.
     // Убираем только маркеры AI вида "(NN)", данные не трогаем.
     let s = rawScan.trim().replace(/\((\d{2})\)/g, '$1');
+    let tail = '';
 
     // (2) разделитель GS / ALT_GS
     const sepIdx = [s.indexOf(GS), s.indexOf(ALT_GS)].filter((i) => i > 0).sort((a, b) => a - b)[0];
     if (sepIdx !== undefined) {
+        tail = s.substring(sepIdx);
         s = s.substring(0, sepIdx);
     } else {
         // (3) плоский без разделителей. Crypto-хвост ЧЗ бывает двух форм:
@@ -35,11 +61,13 @@ export function extractKi(rawScan) {
         for (let i = 19; i <= 38 && i + 2 <= s.length; i++) {
             // (а) пара 91(ключ)92
             if (s[i] === '9' && s[i + 1] === '1' && s[i + 6] === '9' && s[i + 7] === '2') {
+                tail = s.substring(i);
                 s = s.substring(0, i);
                 break;
             }
             // (б) 93(ключ4) в конце строки: якорим по концу, чтобы не поймать "93" в серийнике
             if (s[i] === '9' && s[i + 1] === '3' && i + 6 === s.length) {
+                tail = s.substring(i);
                 s = s.substring(0, i);
                 break;
             }
@@ -53,7 +81,7 @@ export function extractKi(rawScan) {
     if (!s.startsWith('01')) {
         throw new Error('КМ должен начинаться с AI 01 (GTIN)');
     }
-    return s;
+    return {ki: s, tail: tail.split(GS).join('').split(ALT_GS).join('').trim()};
 }
 
 /**
