@@ -82,9 +82,16 @@ class ChzOutboxService
             self::WAIT_RETIRE, true],
     ];
 
-    /** Код уже занят незакрытой пачкой — второй раз не собираем. */
+    /**
+     * Код уже занят незакрытой пачкой — второй раз не собираем. Пачка с ошибкой
+     * держит код, пока её не разобрали руками, — но не когда тот же шаг потом
+     * прошёл другой пачкой: отбитое нанесение №5 (11.09.2026, магазин) повторили
+     * пачкой №361, а пачка-дубль полтора месяца не пускала 97 проданных кодов в вывод.
+     */
     private const NOT_IN_BATCH = 'not exists (select 1 from CHZ_BATCH_KI k join CHZ_BATCH b on b.ID = k.BATCH_ID '
-        . "where k.KI = m.KI and b.STATUS in ('READY', 'WAIT', 'SENT', 'ERROR'))";
+        . "where k.KI = m.KI and (b.STATUS in ('READY', 'WAIT', 'SENT') or (b.STATUS = 'ERROR' "
+        . 'and not exists (select 1 from CHZ_BATCH_KI k2 join CHZ_BATCH b2 on b2.ID = k2.BATCH_ID '
+        . "where k2.KI = m.KI and b2.KIND = b.KIND and b2.STATUS = 'DONE' and b2.ID > b.ID))))";
 
     /**
      * Коды, ждущие возврата в оборот: товар вернулся (код у нас снова в обороте),
