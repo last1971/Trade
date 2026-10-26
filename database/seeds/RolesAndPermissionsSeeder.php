@@ -227,6 +227,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'invoice.*',
             'invoice-line.*',
             'mark-code.index',
+            'mark-code.show',
             'chz-outbox.index',
             'name.*',
             'order.*',
