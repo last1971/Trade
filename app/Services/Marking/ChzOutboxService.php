@@ -126,6 +126,9 @@ class ChzOutboxService
      */
     private const UNKNOWN = 'НЕИЗВЕСТНО: ';
 
+    /** Метка повторённой пачки: второй раз её не повторяет ни кнопка, ни автоповтор. */
+    private const RETRIED = 'Повторена пачкой №';
+
     public function __construct(private ChzClient $client, private NotifyRouter $router)
     {
     }
@@ -140,6 +143,7 @@ class ChzOutboxService
     public function tick(): array
     {
         return array_merge(
+            $this->retryOutages(),
             $this->promoteWaiting(),
             $this->collectRetire(),
             $this->collectReturn(),
@@ -508,6 +512,34 @@ class ChzOutboxService
         return $batch;
     }
 
+    /**
+     * Пачки, отбитые сбоем Честного знака, повторяем сами — тем же retry(), что и кнопка.
+     * Когда и сколько раз — решает ChzOutage. Только отказы последних суток: старые — история,
+     * их разбирают руками (иначе после выката поднялись бы отказы сентября).
+     */
+    private function retryOutages(): array
+    {
+        $lines = [];
+        $rows = $this->rows(
+            'select ID, ERROR_TEXT, CREATED_BY, DATEDIFF(MINUTE, CREATED_AT, CURRENT_TIMESTAMP) as AGE from CHZ_BATCH '
+            . 'where STATUS = ? and CREATED_AT > CURRENT_TIMESTAMP - 1 order by ID',
+            [ChzBatch::STATUS_ERROR]
+        );
+        foreach ($rows as $row) {
+            if (!ChzOutage::due($row->ERROR_TEXT, $row->CREATED_BY, (int)$row->AGE)) {
+                continue;
+            }
+            $attempt = ChzOutage::attempt($row->CREATED_BY) + 1;
+            try {
+                $new = $this->retry(ChzBatch::findOrFail($row->ID), ChzOutage::by($attempt));
+                $lines[] = "пачка №{$row->ID}: сбой Честного знака — повтор №{$attempt} пачкой №{$new['id']}";
+            } catch (MarkingException $e) {
+                $lines[] = "пачка №{$row->ID}: повтор не удался — " . $e->getMessage();
+            }
+        }
+        return $lines;
+    }
+
     /** Ввод в оборот ждёт, пока его нанесение подтвердится. */
     private function promoteWaiting(): array
     {
@@ -521,6 +553,10 @@ class ChzOutboxService
                 continue;
             }
             if ($parent->STATUS === ChzBatch::STATUS_ERROR) {
+                // Нанесение отбито сбоем и будет повторено: ждём, повтор перецепит нас на себя.
+                if (ChzOutage::willRetry($parent->ERROR_TEXT, $parent->CREATED_BY)) {
+                    continue;
+                }
                 $this->fail($batch, "Предшественник №{$parent->ID} отбит: " . $parent->ERROR_TEXT);
                 $lines[] = "пачка №{$batch->ID}: предшественник отбит";
                 continue;
@@ -786,10 +822,13 @@ class ChzOutboxService
      * поэтому переиспользовать его нельзя: делаем новую пачку с тем же списком КИ.
      * Ждущий ввод в оборот перецепляем на неё, иначе он останется сиротой.
      */
-    public function retry(ChzBatch $batch): array
+    public function retry(ChzBatch $batch, ?string $by = null): array
     {
         if ($batch->STATUS !== ChzBatch::STATUS_ERROR) {
             throw new MarkingException('Повторить можно только отбитую пачку');
+        }
+        if (mb_strpos((string)$batch->ERROR_TEXT, self::RETRIED) === 0) {
+            throw new MarkingException('Пачка уже повторена: ' . $batch->ERROR_TEXT);
         }
         if (mb_strpos((string)$batch->ERROR_TEXT, self::UNKNOWN) === 0) {
             throw new MarkingException(
@@ -813,7 +852,7 @@ class ChzOutboxService
             $new->PARENT_ID = $batch->PARENT_ID;
         }
         $new->STATUS = ChzBatch::STATUS_READY;
-        $new->CREATED_BY = mb_substr('web:' . (optional(auth()->user())->name ?? '?'), 0, 32);
+        $new->CREATED_BY = mb_substr($by ?? ('web:' . (optional(auth()->user())->name ?? '?')), 0, 32);
 
         // Транзакция по правилам этого драйвера: DB::transaction() на Firebird
         // падает с «There is already an active transaction» — соединение и так
@@ -830,6 +869,8 @@ class ChzOutboxService
             ChzBatch::where('PARENT_ID', $batch->ID)
                 ->whereIn('STATUS', [ChzBatch::STATUS_WAIT, ChzBatch::STATUS_ERROR])
                 ->update(['PARENT_ID' => $new->ID, 'STATUS' => ChzBatch::STATUS_WAIT, 'ERROR_TEXT' => null]);
+            $batch->ERROR_TEXT = $this->cut(self::RETRIED . $new->ID . '. ' . $batch->ERROR_TEXT);
+            $batch->save();
             $connection->commit();
         } catch (\Exception $e) {
             $connection->rollBack();
@@ -1215,7 +1256,10 @@ class ChzOutboxService
         $batch->STATUS = ChzBatch::STATUS_ERROR;
         $batch->ERROR_TEXT = $this->cut($reason);
         $batch->save();
-        $this->notify($batch, $reason);
+        // Сбой ЧЗ, который очередь повторит сама, — не повод звать человека.
+        if (!ChzOutage::willRetry($reason, $batch->CREATED_BY)) {
+            $this->notify($batch, $reason);
+        }
     }
 
     /** Не чаще раза в сутки на пачку (или раз в $days дней): воркер ходит каждую минуту. */
