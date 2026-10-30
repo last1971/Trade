@@ -15,7 +15,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 class StockPriceListExport implements FromArray, WithHeadings, WithTitle, ShouldAutoSize
 {
     /**
-     * @param array $rows priceList(): [{code, title, dc, brand, available, price}]
+     * @param array $rows priceList(): [{code, title, description, dc, brand, available, price}]
      */
     public function __construct(private array $rows)
     {
@@ -30,17 +30,17 @@ class StockPriceListExport implements FromArray, WithHeadings, WithTitle, Should
     {
         return [
             ['code', 'ID', 'title', 'description', 'dc', 'brand', 'кратность', 'min', 'available',
-                'price RUB (USD) с ндс', 'delivery'],
+                'price RUB с ндс', 'delivery'],
             ['Название компании#СКЛАД КЛИЕНТА#порядковый номер компонента ', null, 'партномер ', 'описание',
                 'год производства компонента (обязательно заполнить)', 'производитель', 'кратность заказа',
-                'Минимум к заказу', "Кол-во в наличии\u{00A0}", 'цена с ндс (указать валюту)', 'срок поставки '],
+                'Минимум к заказу', "Кол-во в наличии\u{00A0}", 'цена с ндс, руб.', 'срок поставки '],
         ];
     }
 
     public function array(): array
     {
         return array_map(fn($row) => [
-            $row['code'], null, $row['title'], null, $row['dc'], $row['brand'], 1, 1,
+            $row['code'], null, $row['title'], $row['description'], $row['dc'], $row['brand'], 1, 1,
             $row['available'], $row['price'], 'склад',
         ], $this->rows);
     }

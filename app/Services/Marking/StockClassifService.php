@@ -396,10 +396,12 @@ class StockClassifService
     /**
      * Прайс остатков по тем же фильтрам, что список. Свободно = остаток режима базы минус резерв
      * (ReplenishRepository::stock — та же формула, что в расчёте закупки; подобранное уже снято
-     * с остатка); цена = средняя приходная цена остатка × коэффициент; год производства = год
-     * последнего прихода минус 1 (решения владельца 21.10.2026). Без свободного остатка — не в прайс.
+     * с остатка); цена = средняя приходная цена остатка × коэффициент, руб. с НДС; датакод = «ГГ+»
+     * по году последнего прихода, без прихода «18+»; title = партномер из наименования, полное
+     * наименование — в description (решения владельца 21.10 и 30.10.2026).
+     * Без свободного остатка или с нулевой ценой — не в прайс.
      *
-     * @return array [{code, title, dc, brand, available, price}]
+     * @return array [{code, title, description, dc, brand, available, price}]
      */
     public function priceList(Request $request, float $coef): array
     {
@@ -414,16 +416,47 @@ class StockClassifService
             if ($available <= 0 || $row['OST'] <= 0) {
                 continue;
             }
+            $price = round($row['VAL'] / $row['OST'] * $coef, 2);
+            if ($price <= 0) {
+                continue;
+            }
             $result[] = [
                 'code' => $row['GOODSCODE'],
-                'title' => $row['NAME'],
-                'dc' => $row['LAST_IN'] ? intval(substr($row['LAST_IN'], 0, 4)) - 1 : null,
+                'title' => $this->partNumber($row['NAME']),
+                'description' => $row['NAME'],
+                'dc' => ($row['LAST_IN'] ? substr($row['LAST_IN'], 2, 2) : '18') . '+',
                 'brand' => $row['PRODUCER'],
                 'available' => $available,
-                'price' => round($row['VAL'] / $row['OST'] * $coef, 2),
+                'price' => $price,
             ];
         }
         return $result;
+    }
+
+    /**
+     * Партномер из наименования: самое длинное слово с латиницей и цифрой без кириллицы
+     * («Микросхема INA215AIDCKR» → INA215AIDCKR). Не нашлось — наименование целиком.
+     */
+    private function partNumber(string $name): string
+    {
+        $best = '';
+        foreach (preg_split('/[\s,;]+/u', $name) as $word) {
+            $word = trim($word, '"\'.:');
+            // Скобки по краям — только обрамляющие или непарные: «(L-KLS8…)» → L-KLS8…, «…00A(H)» цел
+            if (preg_match('/^\((.*)\)$/u', $word, $m)) {
+                $word = $m[1];
+            }
+            if (substr_count($word, '(') > substr_count($word, ')')) {
+                $word = ltrim($word, '(');
+            } elseif (substr_count($word, ')') > substr_count($word, '(')) {
+                $word = rtrim($word, ')');
+            }
+            if (preg_match('/[A-Za-z]/', $word) && preg_match('/\d/', $word)
+                && !preg_match('/\p{Cyrillic}/u', $word) && mb_strlen($word) > mb_strlen($best)) {
+                $best = $word;
+            }
+        }
+        return $best !== '' ? $best : trim($name);
     }
 
     /**
