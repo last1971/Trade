@@ -399,13 +399,20 @@ class StockClassifService
      * с остатка); цена = средняя приходная цена остатка × коэффициент, руб. с НДС; датакод = «ГГ+»
      * по году последнего прихода, без прихода «18+»; title = партномер из наименования, полное
      * наименование — в description (решения владельца 21.10 и 30.10.2026).
-     * Без свободного остатка или с нулевой ценой — не в прайс.
+     * Без свободного остатка, с нулевой ценой или из PRICE_EXPORT_EXCLUDED — не в прайс.
      *
      * @return array [{code, title, description, dc, brand, available, price}]
      */
     public function priceList(Request $request, float $coef): array
     {
         $rows = $this->list($request, true)['data'];
+        $excluded = array_fill_keys(array_map(
+            fn($row) => intval($row->GOODSCODE),
+            DB::connection('firebird')->select('select goodscode from PRICE_EXPORT_EXCLUDED')
+        ), true);
+        $rows = array_values(array_filter($rows,
+            fn($row) => !isset($excluded[intval($row['GOODSCODE'])])
+        ));
         $stock = $this->stock->stock(array_column($rows, 'GOODSCODE'));
         $own = StockMode::ss() === StockMode::SHOP ? 'retail' : 'warehouse';
 
