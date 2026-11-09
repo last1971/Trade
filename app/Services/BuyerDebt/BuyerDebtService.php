@@ -4,6 +4,7 @@ namespace App\Services\BuyerDebt;
 
 use App\Buyer;
 use App\Invoice;
+use App\Services\Replenish\ReplenishRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -28,6 +29,12 @@ class BuyerDebtService
         5 => 'Закрыт',
         6 => 'Корзина',
     ];
+
+    public function __construct(
+        private ReplenishRepository $stock,
+        private TransitAllocator $transitAllocator
+    ) {
+    }
 
     /**
      * Полный отчёт по покупателю.
@@ -139,14 +146,13 @@ class BuyerDebtService
      */
     private function loadInvoices(?string $pokupatcode, ?string $from, ?string $to = null): Collection
     {
-        return Invoice::query()
+        $invoices = Invoice::query()
             ->when($pokupatcode, fn($query) => $query->where('POKUPATCODE', $pokupatcode))
             ->whereIn('STATUS', self::STATUSES)
             ->when($from, fn($query) => $query->where('DATA', '>=', $from))
             ->when($to, fn($query) => $query->where('DATA', '<=', $to))
             ->with([
                 'invoiceLines.transferOutLines',
-                'invoiceLines.orderLinesTransit',
                 'invoiceLines.pickUps',
                 'invoiceLines.reserves',
                 'invoiceLines.name',
@@ -156,8 +162,54 @@ class BuyerDebtService
                 'deposits',
             ])
             ->orderBy('DATA')
-            ->get()
-            ->map(fn(Invoice $invoice) => $this->buildInvoice($invoice));
+            ->orderBy('SCODE')
+            ->get();
+
+        $transit = $this->allocateTransit($invoices);
+
+        return $invoices->map(fn(Invoice $invoice) => $this->buildInvoice($invoice, $transit));
+    }
+
+    /**
+     * Один общий объём неполученных поставок на товар. Сначала распределяем
+     * между ВСЕМИ открытыми счетами, включая других покупателей и старые даты.
+     * Фильтры страницы определяют только показ, а не доступность поставки.
+     *
+     * @return array<int, float> REALPRICECODE => количество в пути для строки
+     */
+    private function allocateTransit(Collection $invoices): array
+    {
+        $codes = $invoices->flatMap(fn(Invoice $invoice) => $invoice->invoiceLines)
+            ->pluck('GOODSCODE')->map(fn($code) => (int)$code)->unique()->values()->all();
+        if (!$codes) {
+            return [];
+        }
+
+        // Уже вычитает частичные поступления SKLADIN/SHOPIN по строке заказа.
+        $supply = $this->stock->inTransit($codes);
+        $codes = array_keys(array_filter($supply, fn($qty) => $qty > 0));
+        $demand = [];
+        foreach (array_chunk($codes, 1000) as $chunk) {
+            $rows = DB::connection('firebird')->table('REALPRICE as R')
+                ->join('S as INV', 'INV.SCODE', '=', 'R.SCODE')
+                ->whereIn('INV.STATUS', self::STATUSES)
+                ->whereIn('R.GOODSCODE', $chunk)
+                ->get([
+                    'R.REALPRICECODE as line', 'R.SCODE as invoice',
+                    'R.GOODSCODE as good', 'INV.DATA as date', 'R.QUAN as qty',
+                    DB::raw('(SELECT COALESCE(SUM(f.QUAN), 0) FROM REALPRICEF f
+                        WHERE f.REALPRICECODE = R.REALPRICECODE) as "shipped"'),
+                    DB::raw('(SELECT COALESCE(SUM(p.QUANSKLAD), 0) + COALESCE(SUM(p.QUANSHOP), 0)
+                        FROM PODBPOS p WHERE p.REALPRICECODE = R.REALPRICECODE) as "picked"'),
+                    DB::raw('(SELECT COALESCE(SUM(v.QUANSKLAD), 0) + COALESCE(SUM(v.QUANSHOP), 0)
+                        FROM RESERVEDPOS v WHERE v.REALPRICECODE = R.REALPRICECODE) as "reserved"'),
+                ]);
+            foreach ($rows as $row) {
+                $demand[] = (array)$row;
+            }
+        }
+
+        return $this->transitAllocator->allocate($demand, $supply);
     }
 
     /**
@@ -220,7 +272,7 @@ class BuyerDebtService
     }
 
     /** Разбор одного счёта. */
-    private function buildInvoice(Invoice $invoice): array
+    private function buildInvoice(Invoice $invoice, array $transit): array
     {
         $sum = round($invoice->invoiceLines->sum('SUMMAP'), 2);
         $paidBank = round($invoice->cashFlows->sum('MONEYSCHET'), 2);
@@ -232,7 +284,7 @@ class BuyerDebtService
         );
 
         $payments = $this->allocatePayments($invoice);
-        $goods = $this->splitGoods($invoice);
+        $goods = $this->splitGoods($invoice, $transit);
 
         return [
             'SCODE' => $invoice->SCODE,
@@ -326,7 +378,7 @@ class BuyerDebtService
      *
      * @return array{onHand: float, coming: float, notComing: float, holes: array}
      */
-    private function splitGoods(Invoice $invoice): array
+    private function splitGoods(Invoice $invoice, array $transit): array
     {
         $onHand = 0.0;
         $coming = 0.0;
@@ -344,9 +396,9 @@ class BuyerDebtService
             // 1) Подобрано/зарезервировано на складе и ещё не отгружено.
             $stockAvail = max(0, $this->stockQty($line->pickUps) + $this->stockQty($line->reserves) - $shippedQty);
             $stockQty = min($remainingQty, $stockAvail);
-            // 2) Из непокрытого складом — что едет от поставщика (заказы статус 2,3).
+            // 2) Только доля поставки, выделенная этой строке среди всех счетов.
             $stillNeed = $remainingQty - $stockQty;
-            $transitQty = $line->orderLinesTransit->sum('QUAN');
+            $transitQty = $transit[(int)$line->REALPRICECODE] ?? 0.0;
             $comingQty = min($stillNeed, $transitQty);
             // 3) Остаток — реальная дыра.
             $holeQty = max(0, $stillNeed - $transitQty);
